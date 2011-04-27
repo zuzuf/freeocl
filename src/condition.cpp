@@ -5,14 +5,12 @@ namespace FreeOCL
 	condition::condition() : i(0)
 	{
 		pthread_cond_init(&pc, NULL);
-		pthread_mutex_init(&pm, NULL);
 	}
 
 	condition::~condition()
 	{
 		wakeup();
 		pthread_cond_destroy(&pc);
-		pthread_mutex_destroy(&pm);
 	}
 
 	void condition::wait()

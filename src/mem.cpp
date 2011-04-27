@@ -38,12 +38,14 @@ extern "C"
 			return 0;
 		}
 
+		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(context))
 		{
 			if (errcode_ret)
 				*errcode_ret = CL_INVALID_CONTEXT;
 			return 0;
 		}
+		unlock.handle(context);
 
 		cl_mem mem = new _cl_mem;
 		mem->context = context;
@@ -64,8 +66,6 @@ extern "C"
 
 		if (flags & CL_MEM_COPY_HOST_PTR)
 			memcpy(mem->ptr, host_ptr, size);
-
-		context->unlock();
 
 		return mem;
 	}
@@ -113,12 +113,13 @@ extern "C"
 		if (pfn_notify)
 			return CL_INVALID_VALUE;
 
+		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(memobj);
 
 		FreeOCL::mem_call_back call_back = { pfn_notify, user_data };
 		memobj->call_backs.push_back(call_back);
-		memobj->unlock();
 		return CL_SUCCESS;
 	}
 
@@ -128,8 +129,10 @@ extern "C"
 							   void *param_value,
 							   size_t *param_value_size_ret)
 	{
+		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(memobj);
 
 		bool bTooSmall = false;
 		switch(param_name)
@@ -144,11 +147,9 @@ extern "C"
 		case CL_MEM_ASSOCIATED_MEMOBJECT:	bTooSmall = SET_VAR(memobj->parent);	break;
 		case CL_MEM_OFFSET:
 		default:
-			memobj->unlock();
 			return CL_INVALID_VALUE;
 		}
 
-		memobj->unlock();
 		if (bTooSmall && param_value != NULL)
 			return CL_INVALID_VALUE;
 
@@ -165,39 +166,30 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
 
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
 
 		if (!FreeOCL::isValid(command_queue->context))
 			return CL_INVALID_CONTEXT;
-
 		command_queue->context->unlock();
 
 		if (!FreeOCL::isValid(buffer))
-		{
-			command_queue->unlock();
 			return CL_INVALID_MEM_OBJECT;
-		}
+		unlock.handle(buffer);
 
 		if (buffer->size < offset + cb)
-		{
-			buffer->unlock();
-			command_queue->unlock();
 			return CL_INVALID_VALUE;
-		}
 
 		if (blocking_read == CL_TRUE)
 		{
 			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
 				if (event_wait_list[i]->status < 0)
-				{
-					buffer->unlock();
-					command_queue->unlock();
 					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
-				}
 		}
 
 		FreeOCL::command cmd;
@@ -223,8 +215,7 @@ extern "C"
 
 		command_queue->enqueue(cmd);
 
-		buffer->unlock();
-		command_queue->unlock();
+		unlock.unlockall();
 
 		if (blocking_read == CL_TRUE)
 		{
@@ -246,39 +237,30 @@ extern "C"
 								 const cl_event *event_wait_list,
 								 cl_event *event)
 	{
+		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
 
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
 
 		if (!FreeOCL::isValid(command_queue->context))
 			return CL_INVALID_CONTEXT;
-
 		command_queue->context->unlock();
 
 		if (!FreeOCL::isValid(buffer))
-		{
-			command_queue->unlock();
 			return CL_INVALID_MEM_OBJECT;
-		}
+		unlock.handle(buffer);
 
 		if (buffer->size < offset + cb)
-		{
-			buffer->unlock();
-			command_queue->unlock();
 			return CL_INVALID_VALUE;
-		}
 
 		if (blocking_write == CL_TRUE)
 		{
 			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
 				if (event_wait_list[i]->status < 0)
-				{
-					buffer->unlock();
-					command_queue->unlock();
 					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
-				}
 		}
 
 		FreeOCL::command cmd;
@@ -304,8 +286,7 @@ extern "C"
 
 		command_queue->enqueue(cmd);
 
-		buffer->unlock();
-		command_queue->unlock();
+		unlock.unlockall();
 
 		if (blocking_write == CL_TRUE)
 		{
@@ -327,50 +308,33 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
 
 		if (!FreeOCL::isValid(command_queue->context))
 			return CL_INVALID_CONTEXT;
-
 		command_queue->context->unlock();
 
 		if (!FreeOCL::isValid(src_buffer))
-		{
-			command_queue->unlock();
 			return CL_INVALID_MEM_OBJECT;
-		}
+		unlock.handle(src_buffer);
 		if (src_buffer->size < src_offset + cb)
-		{
-			src_buffer->unlock();
-			command_queue->unlock();
 			return CL_INVALID_VALUE;
-		}
 
 		if (dst_buffer != src_buffer)		// Don't lock it twice if it's the same buffer
 		{
 			if (!FreeOCL::isValid(dst_buffer))
-			{
-				src_buffer->unlock();
-				command_queue->unlock();
 				return CL_INVALID_MEM_OBJECT;
-			}
+			unlock.handle(dst_buffer);
 			if (dst_buffer->size < dst_offset + cb)
-			{
-				dst_buffer->unlock();
-				src_buffer->unlock();
-				command_queue->unlock();
 				return CL_INVALID_VALUE;
-			}
 		}
 
 		if (src_buffer == dst_buffer
 			&& std::max(src_offset, dst_offset) - std::min(src_offset, dst_offset) < cb)
-		{
-			src_buffer->unlock();
-			command_queue->unlock();
 			return CL_MEM_COPY_OVERLAP;
-		}
 
 		FreeOCL::command cmd;
 		cmd.type = CL_COMMAND_COPY_BUFFER;
@@ -396,12 +360,46 @@ extern "C"
 
 		command_queue->enqueue(cmd);
 
-		if (src_buffer != dst_buffer)
-			dst_buffer->unlock();
-		src_buffer->unlock();
-		command_queue->unlock();
-
 		return CL_SUCCESS;
+	}
+
+	void * clEnqueueMapBuffer (cl_command_queue command_queue,
+							   cl_mem buffer,
+							   cl_bool blocking_map,
+							   cl_map_flags map_flags,
+							   size_t offset,
+							   size_t cb,
+							   cl_uint num_events_in_wait_list,
+							   const cl_event *event_wait_list,
+							   cl_event *event,
+							   cl_int *errcode_ret)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(command_queue))
+		{
+			if (errcode_ret)	*errcode_ret = CL_INVALID_COMMAND_QUEUE;
+			return NULL;
+		}
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::isValid(command_queue->context))
+		{
+			command_queue->unlock();
+			if (errcode_ret)	*errcode_ret = CL_INVALID_CONTEXT;
+			return NULL;
+		}
+		command_queue->context->unlock();
+
+		if (!FreeOCL::isValid(buffer))
+		{
+			if (errcode_ret)	*errcode_ret = CL_INVALID_MEM_OBJECT;
+			return NULL;
+		}
+		unlock.handle(buffer);
+
+		if (buffer->size < offset + cb)
+			return NULL;
+
 	}
 }
 

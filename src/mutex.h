@@ -3,6 +3,7 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include <set>
 
 namespace FreeOCL
 {
@@ -27,8 +28,25 @@ namespace FreeOCL
 			pthread_mutex_unlock(&pm);
 		}
 
-	private:
+	protected:
 		pthread_mutex_t pm;
+	};
+
+	class unlocker
+	{
+	public:
+		~unlocker();
+
+		void handle(mutex *m);
+		inline void handle(mutex &m)	{	handle(&m);	}
+
+		void forget(mutex *m);
+		inline void forget(mutex &m)	{	forget(&m);	}
+
+		void unlockall();
+
+	private:
+		std::set<mutex*> objects;
 	};
 }
 

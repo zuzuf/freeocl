@@ -144,8 +144,10 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;
+		unlock.handle(context);
 
 		bool bTooSmall = false;
 		switch(param_name)
@@ -174,11 +176,8 @@ extern "C"
 			}
 			break;
 		default:
-			context->unlock();
 			return CL_INVALID_VALUE;
 		}
-
-		context->unlock();
 
 		if (bTooSmall && param_value != NULL)
 			return CL_INVALID_VALUE;

@@ -3,10 +3,11 @@
 
 #include <pthread.h>
 #include <errno.h>
+#include "mutex.h"
 
 namespace FreeOCL
 {
-	class condition
+	class condition : public mutex
 	{
 	public:
 		condition();
@@ -14,16 +15,6 @@ namespace FreeOCL
 
 		void wait();
 		void wait_locked();
-
-		inline void lock()
-		{
-			pthread_mutex_lock(&pm);
-		}
-
-		inline void unlock()
-		{
-			pthread_mutex_unlock(&pm);
-		}
 
 		inline void wakeup()
 		{
@@ -35,7 +26,6 @@ namespace FreeOCL
 
 	private:
 		pthread_cond_t pc;
-		pthread_mutex_t pm;
 		volatile size_t i;
 	};
 }
