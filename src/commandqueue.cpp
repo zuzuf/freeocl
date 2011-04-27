@@ -315,6 +315,10 @@ int _cl_command_queue::proc()
 			cmd.unmap_buffer.buffer->mapped.erase(cmd.unmap_buffer.ptr);
 			cmd.unmap_buffer.buffer->unlock();
 			break;
+		case CL_COMMAND_NATIVE_KERNEL:
+			cmd.native_kernel.user_func(cmd.native_kernel.args);
+			free(cmd.native_kernel.args);
+			break;
 		}
 
 		if (cmd.common.event)

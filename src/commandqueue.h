@@ -73,6 +73,12 @@ namespace FreeOCL
 	{
 	};
 
+	struct command_native_kernel : public command_common
+	{
+		void (*user_func)(void *);
+		void *args;
+	};
+
 	union command
 	{
 		cl_command_type			type;
@@ -83,6 +89,7 @@ namespace FreeOCL
 		command_map_buffer		map_buffer;
 		command_unmap_buffer	unmap_buffer;
 		command_marker			marker;
+		command_native_kernel	native_kernel;
 	};
 }
 
