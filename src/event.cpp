@@ -167,6 +167,75 @@ extern "C"
 			event->unlock();
 		return CL_SUCCESS;
 	}
+
+	cl_int clEnqueueMarker (cl_command_queue command_queue,
+							cl_event *event)
+	{
+		if (event)
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_MARKER;
+		cmd.common.num_events_in_wait_list = 0;
+		cmd.common.event_wait_list = NULL;
+		cmd.common.event = *event = new _cl_event;
+		cmd.common.event->command_queue = command_queue;
+		cmd.common.event->context = command_queue->context;
+		cmd.common.event->command_type = CL_COMMAND_MARKER;
+		cmd.common.event->status = CL_SUBMITTED;
+
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clEnqueueBarrier (cl_command_queue command_queue)
+	{
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_MARKER;
+		cmd.common.num_events_in_wait_list = 0;
+		cmd.common.event_wait_list = NULL;
+		cmd.common.event = NULL;
+		cmd.common.event->command_queue = command_queue;
+		cmd.common.event->context = command_queue->context;
+		cmd.common.event->command_type = CL_COMMAND_MARKER;
+		cmd.common.event->status = CL_SUBMITTED;
+
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clEnqueueWaitForEvents (cl_command_queue command_queue,
+								   cl_uint num_events,
+								   const cl_event *event_list)
+	{
+		if (num_events == 0 || event_list == NULL)
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_MARKER;
+		cmd.common.num_events_in_wait_list = num_events;
+		cmd.common.event_wait_list = event_list;
+		cmd.common.event = NULL;
+		cmd.common.event->command_queue = command_queue;
+		cmd.common.event->context = command_queue->context;
+		cmd.common.event->command_type = CL_COMMAND_MARKER;
+		cmd.common.event->status = CL_SUBMITTED;
+
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
+	}
 }
 
 void _cl_event::change_status(cl_int new_status)

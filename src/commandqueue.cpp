@@ -130,11 +130,21 @@ extern "C"
 	{
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
-
-		while(!command_queue->empty())
-			command_queue->wait_locked();
+		if (command_queue->empty())
+		{
+			command_queue->unlock();
+			return CL_SUCCESS;
+		}
 		command_queue->unlock();
-		return CL_SUCCESS;
+
+		cl_event event;
+		cl_int err = clEnqueueMarker(command_queue, &event);
+		if (err != CL_SUCCESS)
+			return err;
+
+		err = clWaitForEvents(1, &event);
+		clReleaseEvent(event);
+		return err;
 	}
 }
 
@@ -160,6 +170,7 @@ void _cl_command_queue::enqueue(const FreeOCL::command &cmd)
 	queue.push_back(cmd);
 	q_mutex.unlock();
 
+	unlock();
 	q_thread.start();		// Make sure the scheduler is running
 	wakeup();
 }

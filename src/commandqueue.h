@@ -69,6 +69,10 @@ namespace FreeOCL
 	{
 	};
 
+	struct command_marker : public command_common
+	{
+	};
+
 	union command
 	{
 		cl_command_type			type;
@@ -78,6 +82,7 @@ namespace FreeOCL
 		command_copy_buffer		copy_buffer;
 		command_map_buffer		map_buffer;
 		command_unmap_buffer	unmap_buffer;
+		command_marker			marker;
 	};
 }
 

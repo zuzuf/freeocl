@@ -238,7 +238,6 @@ extern "C"
 			*event = cmd.common.event;
 
 		unlock.forget(command_queue);
-		command_queue->unlock();
 		command_queue->enqueue(cmd);
 
 		unlock.unlockall();
@@ -311,7 +310,6 @@ extern "C"
 			*event = cmd.common.event;
 
 		unlock.forget(command_queue);
-		command_queue->unlock();
 		command_queue->enqueue(cmd);
 
 		unlock.unlockall();
@@ -387,7 +385,6 @@ extern "C"
 			*event = cmd.common.event;
 
 		unlock.forget(command_queue);
-		command_queue->unlock();
 		command_queue->enqueue(cmd);
 
 		return CL_SUCCESS;
@@ -465,8 +462,9 @@ extern "C"
 			cmd.map_buffer.buffer = buffer;
 			cmd.map_buffer.ptr = p;
 
-			unlock.unlockall();
+			unlock.forget(command_queue);
 			command_queue->enqueue(cmd);
+			unlock.unlockall();
 
 			if (blocking_map == CL_TRUE)
 			{
