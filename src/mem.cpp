@@ -1,5 +1,6 @@
 #include "mem.h"
 #include "context.h"
+#include "commandqueue.h"
 #include <cstring>
 #include <iostream>
 
@@ -35,15 +36,12 @@ extern "C"
 			return 0;
 		}
 
-		if (!FreeOCL::isValidContext(context))
+		if (!FreeOCL::isValid(context))
 		{
 			if (errcode_ret)
 				*errcode_ret = CL_INVALID_CONTEXT;
 			return 0;
 		}
-
-		context->lock();
-		FreeOCL::global_mutex.unlock();
 
 		cl_mem mem = new _cl_mem;
 		mem->context = context;
@@ -157,7 +155,8 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
-
+		command_queue->lock();
+		command_queue->unlock();
 	}
 
 	cl_int clEnqueueWriteBuffer (cl_command_queue command_queue,
@@ -174,6 +173,13 @@ extern "C"
 	}
 }
 
+_cl_mem::_cl_mem()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_mem.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
 _cl_mem::~_cl_mem()
 {
 	std::deque<FreeOCL::mem_call_back> call_backs;
@@ -182,4 +188,8 @@ _cl_mem::~_cl_mem()
 
 	for(std::deque<FreeOCL::mem_call_back>::const_iterator i = call_backs.begin() ; i != call_backs.end() ; ++i)
 		i->pfn_notify(this, i->user_data);
+
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_mem.erase(this);
+	FreeOCL::global_mutex.unlock();
 }

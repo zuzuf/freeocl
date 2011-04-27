@@ -25,6 +25,7 @@ struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public 
 	cl_mem parent;
 	void *host_ptr;
 
+	_cl_mem();
 	~_cl_mem();
 	std::deque<FreeOCL::mem_call_back> call_backs;
 };

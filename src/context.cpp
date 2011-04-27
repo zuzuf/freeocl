@@ -80,10 +80,6 @@ extern "C"
 		c->pfn_notify = pfn_notify;
 		c->user_data = user_data;
 
-		FreeOCL::global_mutex.lock();
-		FreeOCL::live_contexts.insert(c);
-		FreeOCL::global_mutex.unlock();
-
 		if (errcode_ret)
 			*errcode_ret = CL_SUCCESS;
 
@@ -120,7 +116,7 @@ extern "C"
 
 	cl_int clRetainContext (cl_context context)
 	{
-		if (!FreeOCL::isValidContext(context))
+		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;
 
 		context->retain();
@@ -130,17 +126,12 @@ extern "C"
 
 	cl_int clReleaseContext (cl_context context)
 	{
-		if (!FreeOCL::isValidContext(context))
+		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;
 
 		context->release();
 		if (context->get_ref_count() == 0)
-		{
-			FreeOCL::global_mutex.lock();
-			FreeOCL::live_contexts.erase(context);
-			FreeOCL::global_mutex.unlock();
 			delete context;
-		}
 		else
 			context->unlock();
 		return CL_SUCCESS;
@@ -152,7 +143,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
-		if (!FreeOCL::isValidContext(context))
+		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;
 
 		bool bTooSmall = false;
@@ -193,4 +184,18 @@ extern "C"
 
 		return CL_SUCCESS;
 	}
+}
+
+_cl_context::_cl_context()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_contexts.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
+_cl_context::~_cl_context()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_contexts.erase(this);
+	FreeOCL::global_mutex.unlock();
 }

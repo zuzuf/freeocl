@@ -11,10 +11,16 @@ namespace FreeOCL
 {
 	extern cl_platform_id platform;
 	extern cl_device_id device;
-	extern std::set<cl_context> live_contexts;
+	extern std::set<cl_context> valid_contexts;
+	extern std::set<cl_command_queue> valid_command_queues;
+	extern std::set<cl_mem> valid_mem;
+	extern std::set<cl_event> valid_event;
 	extern mutex global_mutex;
 
-	bool isValidContext(cl_context);
+	bool isValid(cl_context);
+	bool isValid(cl_command_queue);
+	bool isValid(cl_mem);
+	bool isValid(cl_event);
 
 	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
 

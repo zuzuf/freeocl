@@ -14,7 +14,9 @@ extern "C"
 
 	cl_int clRetainCommandQueue (cl_command_queue command_queue)
 	{
-		command_queue->lock();
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
 		command_queue->retain();
 		command_queue->unlock();
 		return CL_SUCCESS;
@@ -22,7 +24,9 @@ extern "C"
 
 	cl_int clReleaseCommandQueue (cl_command_queue command_queue)
 	{
-		command_queue->lock();
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
 		command_queue->release();
 		if (command_queue->get_ref_count() == 0)
 			delete command_queue;
@@ -37,7 +41,8 @@ extern "C"
 								  void *param_value,
 								  size_t *param_value_size_ret)
 	{
-		command_queue->lock();
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
 
 		bool bTooSmall = false;
 		switch(param_name)
@@ -59,15 +64,35 @@ extern "C"
 
 	cl_int clFlush (cl_command_queue command_queue)
 	{
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		command_queue->unlock();
+
 		return CL_SUCCESS;
 	}
 
 	cl_int clFinish (cl_command_queue command_queue)
 	{
-		command_queue->lock();
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
 		while(!command_queue->queue.empty())
 			command_queue->wait_locked();
 		command_queue->unlock();
 		return CL_SUCCESS;
 	}
+}
+
+_cl_command_queue::_cl_command_queue()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_command_queues.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
+_cl_command_queue::~_cl_command_queue()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_command_queues.erase(this);
+	FreeOCL::global_mutex.unlock();
 }

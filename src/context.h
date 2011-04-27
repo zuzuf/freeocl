@@ -6,6 +6,9 @@
 
 struct _cl_context : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex
 {
+	_cl_context();
+	~_cl_context();
+
 	std::vector<cl_device_id>	devices;
 	std::vector<cl_context_properties>	properties;
 	void (CL_CALLBACK *pfn_notify)(const char *errinfo,

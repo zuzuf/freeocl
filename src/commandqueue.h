@@ -18,14 +18,23 @@ namespace FreeOCL
 
 	struct command_read_buffer : public command_common
 	{
+		cl_mem buffer;
+		size_t offset;
+		size_t cb;
+		void *ptr;
 	};
 
-	struct command_write_buffer : public command_common
+	struct command_write_buffer : public command_read_buffer
 	{
 	};
 
 	struct command_copy_buffer : public command_common
 	{
+		cl_mem src_buffer;
+		cl_mem dst_buffer;
+		size_t src_offset;
+		size_t dst_offset;
+		size_t cb;
 	};
 
 	struct command_map_buffer : public command_common
@@ -47,6 +56,9 @@ namespace FreeOCL
 
 struct _cl_command_queue : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition
 {
+	_cl_command_queue();
+	~_cl_command_queue();
+
 	cl_context context;
 	cl_device_id device;
 	cl_command_queue_properties properties;

@@ -1,4 +1,5 @@
 #include "event.h"
+#include "context.h"
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 
@@ -6,7 +7,7 @@ extern "C"
 {
 	cl_event clCreateUserEvent (cl_context context, cl_int *errcode_ret)
 	{
-		if (!FreeOCL::isValidContext(context))
+		if (!FreeOCL::isValid(context))
 		{
 			if (errcode_ret)
 				*errcode_ret = CL_INVALID_CONTEXT;
@@ -21,6 +22,8 @@ extern "C"
 		e->command_queue = 0;
 		e->command_type = CL_COMMAND_USER;
 		e->status = CL_SUBMITTED;
+
+		context->unlock();
 		return e;
 	}
 
@@ -28,7 +31,8 @@ extern "C"
 	{
 		if (execution_status != CL_COMPLETE && execution_status >= 0)
 			return CL_INVALID_VALUE;
-		event->lock();
+		if (!FreeOCL::isValid(event))
+			return CL_INVALID_EVENT;
 		if (event->status == CL_COMPLETE || event->status < 0)
 		{
 			event->unlock();
@@ -46,7 +50,8 @@ extern "C"
 
 		for(size_t i = 0 ; i < num_events ; )
 		{
-			event_list[i]->lock();
+			if (!FreeOCL::isValid(event_list[i]))
+				return CL_INVALID_EVENT;
 			if (event_list[i]->status < 0)
 			{
 				event_list[i]->unlock();
@@ -72,7 +77,8 @@ extern "C"
 						   size_t *param_value_size_ret)
 	{
 		bool bTooSmall = false;
-		event->lock();
+		if (!FreeOCL::isValid(event))
+			return CL_INVALID_EVENT;
 		switch(param_name)
 		{
 		case CL_EVENT_COMMAND_QUEUE:				bTooSmall = SET_VAR(event->command_queue);	break;
@@ -108,7 +114,9 @@ extern "C"
 			|| pfn_event_notify == NULL)
 			return CL_INVALID_VALUE;
 
-		event->lock();
+		if (!FreeOCL::isValid(event))
+			return CL_INVALID_EVENT;
+
 		FreeOCL::event_call_back call_back = { pfn_event_notify, user_data };
 		event->call_backs[command_exec_callback_type].push_back(call_back);
 		event->unlock();
@@ -118,7 +126,9 @@ extern "C"
 
 	cl_int clRetainEvent (cl_event event)
 	{
-		event->lock();
+		if (!FreeOCL::isValid(event))
+			return CL_INVALID_EVENT;
+
 		event->retain();
 		event->unlock();
 		return CL_SUCCESS;
@@ -126,7 +136,9 @@ extern "C"
 
 	cl_int clReleaseEvent (cl_event event)
 	{
-		event->lock();
+		if (!FreeOCL::isValid(event))
+			return CL_INVALID_EVENT;
+
 		event->release();
 		if (event->get_ref_count() == 0)
 			delete event;
@@ -152,4 +164,18 @@ void _cl_event::change_status(cl_int new_status)
 	wakeup();
 
 	lock();
+}
+
+_cl_event::_cl_event()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_event.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
+_cl_event::~_cl_event()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_event.erase(this);
+	FreeOCL::global_mutex.unlock();
 }

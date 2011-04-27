@@ -4,18 +4,54 @@
 #include <cstdio>
 #include <iostream>
 #include "context.h"
+#include "commandqueue.h"
+#include "mem.h"
+#include "event.h"
 
 namespace FreeOCL
 {
-	std::set<cl_context> live_contexts;
+	std::set<cl_context> valid_contexts;
+	std::set<cl_command_queue> valid_command_queues;
+	std::set<cl_mem> valid_mem;
+	std::set<cl_event> valid_event;
 	mutex global_mutex;
 
-	bool isValidContext(cl_context c)
+	bool isValid(cl_context c)
 	{
 		global_mutex.lock();
-		const bool r = live_contexts.count(c) != 0;
+		const bool r = valid_contexts.count(c) != 0;
 		if (r)
 			c->lock();
+		global_mutex.unlock();
+		return r;
+	}
+
+	bool isValid(cl_command_queue q)
+	{
+		global_mutex.lock();
+		const bool r = valid_command_queues.count(q) != 0;
+		if (r)
+			q->lock();
+		global_mutex.unlock();
+		return r;
+	}
+
+	bool isValid(cl_mem m)
+	{
+		global_mutex.lock();
+		const bool r = valid_mem.count(m) != 0;
+		if (r)
+			m->lock();
+		global_mutex.unlock();
+		return r;
+	}
+
+	bool isValid(cl_event e)
+	{
+		global_mutex.lock();
+		const bool r = valid_event.count(e) != 0;
+		if (r)
+			e->lock();
 		global_mutex.unlock();
 		return r;
 	}
