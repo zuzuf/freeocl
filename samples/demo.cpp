@@ -27,6 +27,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include "errors.h"
+
 inline std::string memSuffix(const size_t s)
 {
 	std::stringstream buf;
@@ -80,10 +82,30 @@ int main(void)
 						<< "\t\t\t\textensions: " << dev.getInfo<CL_DEVICE_EXTENSIONS>() << std::endl;
 			}
 		}
+
+		if (platforms.empty())
+			return 0;
+
+		// Create a context
+		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+		cl::Context context(CL_DEVICE_TYPE_CPU, properties);
+
+		cl_int err;
+		std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+
+		// Create a command queue
+		cl::CommandQueue queue(context, devices[0], 0, &err);
+
+		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 0x1000000);
+		const char *msg = "Hello World!";
+		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
+		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
+		std::cout << (char*)p << std::endl;
+		queue.enqueueUnmapMemObject(buffer, p);
 	}
 	catch(cl::Error err)
 	{
-		std::cerr << err.what() << std::endl;
+		std::cerr << "error: " << err.what() << '(' << getErrorAsString(err.err()) << ')' << std::endl;
 		return -1;
 	}
 

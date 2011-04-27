@@ -40,7 +40,7 @@ namespace FreeOCL
 	bool isValid(cl_context c)
 	{
 		global_mutex.lock();
-		const bool r = valid_contexts.count(c) != 0;
+		const bool r = valid_contexts.count(c) != 0 && c->valid();
 		if (r)
 			c->lock();
 		global_mutex.unlock();
@@ -50,7 +50,7 @@ namespace FreeOCL
 	bool isValid(cl_command_queue q)
 	{
 		global_mutex.lock();
-		const bool r = valid_command_queues.count(q) != 0;
+		const bool r = valid_command_queues.count(q) != 0 && q->valid();
 		if (r)
 			q->lock();
 		global_mutex.unlock();
@@ -60,7 +60,7 @@ namespace FreeOCL
 	bool isValid(cl_mem m)
 	{
 		global_mutex.lock();
-		const bool r = valid_mems.count(m) != 0;
+		const bool r = valid_mems.count(m) != 0 && m->valid();
 		if (r)
 			m->lock();
 		global_mutex.unlock();
@@ -70,7 +70,7 @@ namespace FreeOCL
 	bool isValid(cl_event e)
 	{
 		global_mutex.lock();
-		const bool r = valid_events.count(e) != 0;
+		const bool r = valid_events.count(e) != 0 && e->valid();
 		if (r)
 			e->lock();
 		global_mutex.unlock();
@@ -80,7 +80,7 @@ namespace FreeOCL
 	bool isValid(cl_kernel k)
 	{
 		global_mutex.lock();
-		const bool r = valid_kernels.count(k) != 0;
+		const bool r = valid_kernels.count(k) != 0 && k->valid();
 		if (r)
 			k->lock();
 		global_mutex.unlock();
@@ -90,11 +90,21 @@ namespace FreeOCL
 	bool isValid(cl_program p)
 	{
 		global_mutex.lock();
-		const bool r = valid_programs.count(p) != 0;
+		const bool r = valid_programs.count(p) != 0 && p->valid();
 		if (r)
 			p->lock();
 		global_mutex.unlock();
 		return r;
+	}
+
+	bool isValid(cl_device_id d)
+	{
+		return d == FreeOCL::device;
+	}
+
+	bool isValid(cl_platform_id p)
+	{
+		return p == FreeOCL::platform;
 	}
 
 	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s)

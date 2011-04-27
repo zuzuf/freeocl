@@ -81,7 +81,7 @@ namespace FreeOCL
 	};
 }
 
-struct _cl_command_queue : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition
+struct _cl_command_queue : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag
 {
 	_cl_command_queue();
 	~_cl_command_queue();

@@ -18,6 +18,7 @@
 #include "commandqueue.h"
 #include "event.h"
 #include "mem.h"
+#include "context.h"
 #include <cstring>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
@@ -30,7 +31,34 @@ extern "C"
 										   cl_command_queue_properties properties,
 										   cl_int *errcode_ret)
 	{
+		if (properties & ~(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
 
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return 0;
+		}
+		unlock.handle(context);
+
+		if (!FreeOCL::isValid(device))
+		{
+			SET_RET(CL_INVALID_DEVICE);
+			return 0;
+		}
+
+		cl_command_queue q = new _cl_command_queue;
+		q->context = context;
+		q->device = device;
+		q->properties = properties;
+
+		SET_RET(CL_SUCCESS);
+
+		return q;
 	}
 
 	cl_int clRetainCommandQueue (cl_command_queue command_queue)
@@ -50,7 +78,11 @@ extern "C"
 
 		command_queue->release();
 		if (command_queue->get_ref_count() == 0)
+		{
+			command_queue->invalidate();
+			command_queue->unlock();
 			delete command_queue;
+		}
 		else
 			command_queue->unlock();
 		return CL_SUCCESS;

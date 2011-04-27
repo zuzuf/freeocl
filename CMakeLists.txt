@@ -43,7 +43,8 @@ SET(SOURCES
 	)
 
 SET(DEMO_SOURCES
-	samples/demo.cpp)
+	samples/demo.cpp
+	samples/errors.cpp samples/errors.h)
 
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
 

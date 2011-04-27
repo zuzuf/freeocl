@@ -42,6 +42,8 @@ namespace FreeOCL
 	bool isValid(cl_event);
 	bool isValid(cl_program);
 	bool isValid(cl_kernel);
+	bool isValid(cl_device_id);
+	bool isValid(cl_platform_id);
 
 	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
 
@@ -64,6 +66,15 @@ namespace FreeOCL
 
 	private:
 		cl_uint ref_count;
+	};
+
+	struct valid_flag
+	{
+		inline valid_flag() : bValid(true)	{}
+		inline bool valid() const	{	return bValid;	}
+		inline void invalidate()	{	bValid = false;	}
+	private:
+		volatile bool bValid;
 	};
 }
 

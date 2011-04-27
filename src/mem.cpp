@@ -114,7 +114,11 @@ extern "C"
 
 		memobj->release();
 		if (memobj->get_ref_count() == 0)
+		{
+			memobj->invalidate();
+			memobj->unlock();
 			delete memobj;
+		}
 		else
 			memobj->unlock();
 		return CL_SUCCESS;

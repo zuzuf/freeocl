@@ -158,7 +158,11 @@ extern "C"
 
 		event->release();
 		if (event->get_ref_count() == 0)
+		{
+			event->invalidate();
+			event->unlock();
 			delete event;
+		}
 		else
 			event->unlock();
 		return CL_SUCCESS;

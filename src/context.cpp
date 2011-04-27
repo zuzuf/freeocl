@@ -142,7 +142,11 @@ extern "C"
 
 		context->release();
 		if (context->get_ref_count() == 0)
+		{
+			context->invalidate();
+			context->unlock();
 			delete context;
+		}
 		else
 			context->unlock();
 		return CL_SUCCESS;

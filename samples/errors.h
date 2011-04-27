@@ -15,13 +15,9 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PROGRAM_H__
-#define __FREEOCL_PROGRAM_H__
+#ifndef __ERRORS_H__
+#define __ERRORS_H__
 
-#include "freeocl.h"
-
-struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
-{
-};
+const char *getErrorAsString(cl_int err);
 
 #endif

@@ -32,7 +32,7 @@ namespace FreeOCL
 	};
 }
 
-struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex
+struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
 {
 	_cl_mem();
 	~_cl_mem();
