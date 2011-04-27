@@ -408,7 +408,7 @@ extern "C"
 _cl_mem::_cl_mem()
 {
 	FreeOCL::global_mutex.lock();
-	FreeOCL::valid_mem.insert(this);
+	FreeOCL::valid_mems.insert(this);
 	FreeOCL::global_mutex.unlock();
 }
 
@@ -422,6 +422,6 @@ _cl_mem::~_cl_mem()
 		i->pfn_notify(this, i->user_data);
 
 	FreeOCL::global_mutex.lock();
-	FreeOCL::valid_mem.erase(this);
+	FreeOCL::valid_mems.erase(this);
 	FreeOCL::global_mutex.unlock();
 }

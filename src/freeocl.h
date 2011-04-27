@@ -13,14 +13,18 @@ namespace FreeOCL
 	extern cl_device_id device;
 	extern std::set<cl_context> valid_contexts;
 	extern std::set<cl_command_queue> valid_command_queues;
-	extern std::set<cl_mem> valid_mem;
-	extern std::set<cl_event> valid_event;
+	extern std::set<cl_mem> valid_mems;
+	extern std::set<cl_event> valid_events;
+	extern std::set<cl_kernel> valid_kernels;
+	extern std::set<cl_program> valid_programs;
 	extern mutex global_mutex;
 
 	bool isValid(cl_context);
 	bool isValid(cl_command_queue);
 	bool isValid(cl_mem);
 	bool isValid(cl_event);
+	bool isValid(cl_program);
+	bool isValid(cl_kernel);
 
 	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
 

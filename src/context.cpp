@@ -34,6 +34,7 @@ extern "C"
 			return 0;
 		}
 
+		c->devices.reserve(num_devices);
 		for(size_t i = 0 ; i < num_devices ; ++i)
 		{
 			if (devices[i] != FreeOCL::device)

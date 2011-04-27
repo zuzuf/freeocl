@@ -171,13 +171,13 @@ void _cl_event::change_status(cl_int new_status)
 _cl_event::_cl_event()
 {
 	FreeOCL::global_mutex.lock();
-	FreeOCL::valid_event.insert(this);
+	FreeOCL::valid_events.insert(this);
 	FreeOCL::global_mutex.unlock();
 }
 
 _cl_event::~_cl_event()
 {
 	FreeOCL::global_mutex.lock();
-	FreeOCL::valid_event.erase(this);
+	FreeOCL::valid_events.erase(this);
 	FreeOCL::global_mutex.unlock();
 }

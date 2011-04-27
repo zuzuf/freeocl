@@ -3,7 +3,6 @@
 
 #include "freeocl.h"
 #include "condition.h"
-#include <vector>
 #include <deque>
 #include <map>
 

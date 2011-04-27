@@ -2,7 +2,6 @@
 #define __FREEOCL_MEM_H__
 
 #include "freeocl.h"
-#include <vector>
 #include <deque>
 
 namespace FreeOCL

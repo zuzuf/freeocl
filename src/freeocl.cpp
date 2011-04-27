@@ -7,13 +7,17 @@
 #include "commandqueue.h"
 #include "mem.h"
 #include "event.h"
+#include "kernel.h"
+#include "program.h"
 
 namespace FreeOCL
 {
 	std::set<cl_context> valid_contexts;
 	std::set<cl_command_queue> valid_command_queues;
-	std::set<cl_mem> valid_mem;
-	std::set<cl_event> valid_event;
+	std::set<cl_mem> valid_mems;
+	std::set<cl_event> valid_events;
+	std::set<cl_kernel> valid_kernels;
+	std::set<cl_program> valid_programs;
 	mutex global_mutex;
 
 	bool isValid(cl_context c)
@@ -39,7 +43,7 @@ namespace FreeOCL
 	bool isValid(cl_mem m)
 	{
 		global_mutex.lock();
-		const bool r = valid_mem.count(m) != 0;
+		const bool r = valid_mems.count(m) != 0;
 		if (r)
 			m->lock();
 		global_mutex.unlock();
@@ -49,9 +53,29 @@ namespace FreeOCL
 	bool isValid(cl_event e)
 	{
 		global_mutex.lock();
-		const bool r = valid_event.count(e) != 0;
+		const bool r = valid_events.count(e) != 0;
 		if (r)
 			e->lock();
+		global_mutex.unlock();
+		return r;
+	}
+
+	bool isValid(cl_kernel k)
+	{
+		global_mutex.lock();
+		const bool r = valid_kernels.count(k) != 0;
+		if (r)
+			k->lock();
+		global_mutex.unlock();
+		return r;
+	}
+
+	bool isValid(cl_program p)
+	{
+		global_mutex.lock();
+		const bool r = valid_programs.count(p) != 0;
+		if (r)
+			p->lock();
 		global_mutex.unlock();
 		return r;
 	}
