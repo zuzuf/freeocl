@@ -197,7 +197,6 @@ bool isCommandReadyToProcess(const FreeOCL::command &cmd)
 			cmd.common.event->lock();
 			cmd.common.event->change_status(CL_INVALID_EVENT_WAIT_LIST);
 			cmd.common.event->unlock();
-			clReleaseEvent(cmd.common.event);
 		}
 		throw 0;
 	}
@@ -312,7 +311,6 @@ int _cl_command_queue::proc()
 			cmd.common.event->lock();
 			cmd.common.event->change_status(CL_COMPLETE);
 			cmd.common.event->unlock();
-			clReleaseEvent(cmd.common.event);
 		}
 	}
 	return 0;
