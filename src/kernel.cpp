@@ -41,6 +41,29 @@ extern "C"
 								  const cl_event *event_wait_list,
 								  cl_event *event)
 	{
+		return command_queue->dispatch->clEnqueueNativeKernel(command_queue,
+															  user_func,
+															  args,
+															  cb_args,
+															  num_mem_objects,
+															  mem_list,
+															  args_mem_loc,
+															  num_events_in_wait_list,
+															  event_wait_list,
+															  event);
+	}
+
+	cl_int clEnqueueNativeKernelFCL (cl_command_queue command_queue,
+								  void (*user_func)(void *),
+								  void *args,
+								  size_t cb_args,
+								  cl_uint num_mem_objects,
+								  const cl_mem *mem_list,
+								  const void **args_mem_loc,
+								  cl_uint num_events_in_wait_list,
+								  const cl_event *event_wait_list,
+								  cl_event *event)
+	{
 		if (user_func == NULL
 			|| (args == NULL && cb_args + num_mem_objects > 0)
 			|| (cb_args == 0 && args != NULL)
@@ -101,6 +124,15 @@ extern "C"
 							  const char *kernel_name,
 							  cl_int *errcode_ret)
 	{
+		return program->dispatch->clCreateKernel(program,
+												 kernel_name,
+												 errcode_ret);
+	}
+
+	cl_kernel clCreateKernelFCL (cl_program program,
+							  const char *kernel_name,
+							  cl_int *errcode_ret)
+	{
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 		{
@@ -122,10 +154,26 @@ extern "C"
 									 cl_kernel *kernels,
 									 cl_uint *num_kernels_ret)
 	{
+		return program->dispatch->clCreateKernelsInProgram(program,
+														   num_kernels,
+														   kernels,
+														   num_kernels_ret);
+	}
+
+	cl_int clCreateKernelsInProgramFCL (cl_program program,
+									 cl_uint num_kernels,
+									 cl_kernel *kernels,
+									 cl_uint *num_kernels_ret)
+	{
 		return CL_INVALID_OPERATION;
 	}
 
 	cl_int clRetainKernel (cl_kernel kernel)
+	{
+		return kernel->dispatch->clRetainKernel(kernel);
+	}
+
+	cl_int clRetainKernelFCL (cl_kernel kernel)
 	{
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
@@ -136,6 +184,11 @@ extern "C"
 	}
 
 	cl_int clReleaseKernel (cl_kernel kernel)
+	{
+		return kernel->dispatch->clReleaseKernel(kernel);
+	}
+
+	cl_int clReleaseKernelFCL (cl_kernel kernel)
 	{
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
@@ -156,6 +209,17 @@ extern "C"
 						   size_t arg_size,
 						   const void *arg_value)
 	{
+		return kernel->dispatch->clSetKernelArg(kernel,
+												arg_index,
+												arg_size,
+												arg_value);
+	}
+
+	cl_int clSetKernelArgFCL (cl_kernel kernel,
+						   cl_uint arg_index,
+						   size_t arg_size,
+						   const void *arg_value)
+	{
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
@@ -165,6 +229,19 @@ extern "C"
 	}
 
 	cl_int clGetKernelInfo (cl_kernel kernel,
+							cl_kernel_info param_name,
+							size_t param_value_size,
+							void *param_value,
+							size_t *param_value_size_ret)
+	{
+		return kernel->dispatch->clGetKernelInfo(kernel,
+												 param_name,
+												 param_value_size,
+												 param_value,
+												 param_value_size_ret);
+	}
+
+	cl_int clGetKernelInfoFCL (cl_kernel kernel,
 							cl_kernel_info param_name,
 							size_t param_value_size,
 							void *param_value,
@@ -195,6 +272,21 @@ extern "C"
 	}
 
 	cl_int clGetKernelWorkGroupInfo (cl_kernel kernel,
+									 cl_device_id device,
+									 cl_kernel_work_group_info param_name,
+									 size_t param_value_size,
+									 void *param_value,
+									 size_t *param_value_size_ret)
+	{
+		return kernel->dispatch->clGetKernelWorkGroupInfo(kernel,
+														  device,
+														  param_name,
+														  param_value_size,
+														  param_value,
+														  param_value_size_ret);
+	}
+
+	cl_int clGetKernelWorkGroupInfoFCL (cl_kernel kernel,
 									 cl_device_id device,
 									 cl_kernel_work_group_info param_name,
 									 size_t param_value_size,
@@ -237,10 +329,44 @@ extern "C"
 								   const cl_event *event_wait_list,
 								   cl_event *event)
 	{
+		return command_queue->dispatch->clEnqueueNDRangeKernel(command_queue,
+															   kernel,
+															   work_dim,
+															   global_work_offset,
+															   global_work_size,
+															   local_work_size,
+															   num_events_in_wait_list,
+															   event_wait_list,
+															   event);
+	}
+
+	cl_int clEnqueueNDRangeKernelFCL (cl_command_queue command_queue,
+								   cl_kernel kernel,
+								   cl_uint work_dim,
+								   const size_t *global_work_offset,
+								   const size_t *global_work_size,
+								   const size_t *local_work_size,
+								   cl_uint num_events_in_wait_list,
+								   const cl_event *event_wait_list,
+								   cl_event *event)
+	{
 		return CL_INVALID_VALUE;
 	}
 
 	cl_int clEnqueueTask (cl_command_queue command_queue,
+						  cl_kernel kernel,
+						  cl_uint num_events_in_wait_list,
+						  const cl_event *event_wait_list,
+						  cl_event *event)
+	{
+		return command_queue->dispatch->clEnqueueTask(command_queue,
+													  kernel,
+													  num_events_in_wait_list,
+													  event_wait_list,
+													  event);
+	}
+
+	cl_int clEnqueueTaskFCL (cl_command_queue command_queue,
 						  cl_kernel kernel,
 						  cl_uint num_events_in_wait_list,
 						  const cl_event *event_wait_list,

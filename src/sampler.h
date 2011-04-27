@@ -20,4 +20,8 @@
 
 #include "freeocl.h"
 
+struct _cl_sampler : public FreeOCL::icd_table
+{
+};
+
 #endif

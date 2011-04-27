@@ -38,7 +38,8 @@ namespace
 	const char *driver_version = FREEOCL_VERSION_STRING;
 	const char *device_profile = "FULL_PROFILE";
 	const char *opencl_c_version = "OpenCL C 1.1 FreeOCL-" FREEOCL_VERSION_STRING;
-	const char *extensions = "cl_khr_global_int32_base_atomics" SEP
+	const char *extensions = "cl_khr_icd" SEP
+							 "cl_khr_global_int32_base_atomics" SEP
 							 "cl_khr_global_int32_extended_atomics" SEP
 							 "cl_khr_local_int32_base_atomics" SEP
 							 "cl_khr_local_int32_extended_atomics" SEP
@@ -65,7 +66,7 @@ namespace
 	const cl_uint native_vector_width_float = 1;
 	const cl_uint native_vector_width_double = 1;
 	const cl_uint native_vector_width_half = 1;
-	const size_t max_work_item_sizes[] = {	1024, 1024, 64	};
+	const size_t max_work_item_sizes[] = {	1024, 1024, 1024	};
 	const cl_uint max_work_item_dimensions = sizeof(max_work_item_sizes) / sizeof(size_t);
 	const size_t max_work_group_size = 1024;
 	const cl_uint max_clock_frequency = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
@@ -89,6 +90,21 @@ namespace
 extern "C"
 {
 	cl_int clGetDeviceInfo (cl_device_id device,
+							cl_device_info param_name,
+							size_t param_value_size,
+							void *param_value,
+							size_t *param_value_size_ret)
+	{
+		if (!FreeOCL::isValid(device))
+			return CL_INVALID_DEVICE;
+		return device->dispatch->clGetDeviceInfo(device,
+												 param_name,
+												 param_value_size,
+												 param_value,
+												 param_value_size_ret);
+	}
+
+	cl_int clGetDeviceInfoFCL (cl_device_id device,
 							cl_device_info param_name,
 							size_t param_value_size,
 							void *param_value,
@@ -189,6 +205,21 @@ extern "C"
 						   cl_uint num_entries,
 						   cl_device_id *devices,
 						   cl_uint *num_devices)
+	{
+		if (!FreeOCL::isValid(platform))
+			return CL_INVALID_PLATFORM;
+		return platform->dispatch->clGetDeviceIDs(platform,
+												  device_type,
+												  num_entries,
+												  devices,
+												  num_devices);
+	}
+
+	cl_int clGetDeviceIDsFCL (cl_platform_id platform,
+							  cl_device_type device_type,
+							  cl_uint num_entries,
+							  cl_device_id *devices,
+							  cl_uint *num_devices)
 	{
 		if (platform != FreeOCL::platform)
 			return CL_INVALID_PLATFORM;

@@ -19,10 +19,15 @@
 #define __FREEOCL_FREEOCL_H__
 
 #include "../config.h"
-#include <CL/cl.h>
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenCL/cl.hpp>
+#else
+#include <CL/cl.hpp>
+#endif
 #include <string>
 #include <set>
 #include "mutex.h"
+#include "dispatch.h"
 
 namespace FreeOCL
 {
@@ -35,6 +40,7 @@ namespace FreeOCL
 	extern std::set<cl_kernel> valid_kernels;
 	extern std::set<cl_program> valid_programs;
 	extern mutex global_mutex;
+	extern _cl_icd_dispatch dispatch;
 
 	bool isValid(cl_context);
 	bool isValid(cl_command_queue);
@@ -54,6 +60,8 @@ namespace FreeOCL
 	struct icd_table
 	{
 		struct _cl_icd_dispatch *dispatch;
+
+		inline icd_table() : dispatch(&FreeOCL::dispatch)	{}
 	};
 
 	struct ref_counter

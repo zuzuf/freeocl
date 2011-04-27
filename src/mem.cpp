@@ -34,6 +34,19 @@ extern "C"
 						   void *host_ptr,
 						   cl_int *errcode_ret)
 	{
+		return context->dispatch->clCreateBuffer(context,
+												 flags,
+												 size,
+												 host_ptr,
+												 errcode_ret);
+	}
+
+	cl_mem clCreateBufferFCL (cl_context context,
+						   cl_mem_flags flags,
+						   size_t size,
+						   void *host_ptr,
+						   cl_int *errcode_ret)
+	{
 		if (size == 0)
 		{
 			SET_RET(CL_INVALID_BUFFER_SIZE);
@@ -91,6 +104,19 @@ extern "C"
 							  const void *buffer_create_info,
 							  cl_int *errcode_ret)
 	{
+		return buffer->dispatch->clCreateSubBuffer(buffer,
+												   flags,
+												   buffer_create_type,
+												   buffer_create_info,
+												   errcode_ret);
+	}
+
+	cl_mem clCreateSubBufferFCL (cl_mem buffer,
+							  cl_mem_flags flags,
+							  cl_buffer_create_type buffer_create_type,
+							  const void *buffer_create_info,
+							  cl_int *errcode_ret)
+	{
 		std::cerr << "Stub : clCreateSubBuffer" << std::endl;
 		if (errcode_ret)
 			*errcode_ret = CL_INVALID_VALUE;
@@ -98,6 +124,11 @@ extern "C"
 	}
 
 	cl_int clRetainMemObject (cl_mem memobj)
+	{
+		return memobj->dispatch->clRetainMemObject(memobj);
+	}
+
+	cl_int clRetainMemObjectFCL (cl_mem memobj)
 	{
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
@@ -108,6 +139,11 @@ extern "C"
 	}
 
 	cl_int clReleaseMemObject (cl_mem memobj)
+	{
+		return memobj->dispatch->clReleaseMemObject(memobj);
+	}
+
+	cl_int clReleaseMemObjectFCL (cl_mem memobj)
 	{
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
@@ -129,6 +165,16 @@ extern "C"
 																			void *user_data),
 											 void *user_data)
 	{
+		return memobj->dispatch->clSetMemObjectDestructorCallback(memobj,
+																  pfn_notify,
+																  user_data);
+	}
+
+	cl_int clSetMemObjectDestructorCallbackFCL (cl_mem memobj,
+											 void (CL_CALLBACK *pfn_notify)(cl_mem memobj,
+																			void *user_data),
+											 void *user_data)
+	{
 		if (pfn_notify)
 			return CL_INVALID_VALUE;
 
@@ -143,6 +189,19 @@ extern "C"
 	}
 
 	cl_int clGetMemObjectInfo (cl_mem memobj,
+							   cl_mem_info param_name,
+							   size_t param_value_size,
+							   void *param_value,
+							   size_t *param_value_size_ret)
+	{
+		return memobj->dispatch->clGetMemObjectInfo(memobj,
+													param_name,
+													param_value_size,
+													param_value,
+													param_value_size_ret);
+	}
+
+	cl_int clGetMemObjectInfoFCL (cl_mem memobj,
 							   cl_mem_info param_name,
 							   size_t param_value_size,
 							   void *param_value,
@@ -181,6 +240,27 @@ extern "C"
 	}
 
 	cl_int clEnqueueReadBuffer (cl_command_queue command_queue,
+								cl_mem buffer,
+								cl_bool blocking_read,
+								size_t offset,
+								size_t cb,
+								void *ptr,
+								cl_uint num_events_in_wait_list,
+								const cl_event *event_wait_list,
+								cl_event *event)
+	{
+		return command_queue->dispatch->clEnqueueReadBuffer(command_queue,
+															buffer,
+															blocking_read,
+															offset,
+															cb,
+															ptr,
+															num_events_in_wait_list,
+															event_wait_list,
+															event);
+	}
+
+	cl_int clEnqueueReadBufferFCL (cl_command_queue command_queue,
 								cl_mem buffer,
 								cl_bool blocking_read,
 								size_t offset,
@@ -262,6 +342,27 @@ extern "C"
 								 const cl_event *event_wait_list,
 								 cl_event *event)
 	{
+		return command_queue->dispatch->clEnqueueWriteBuffer(command_queue,
+															 buffer,
+															 blocking_write,
+															 offset,
+															 cb,
+															 ptr,
+															 num_events_in_wait_list,
+															 event_wait_list,
+															 event);
+	}
+
+	cl_int clEnqueueWriteBufferFCL (cl_command_queue command_queue,
+								 cl_mem buffer,
+								 cl_bool blocking_write,
+								 size_t offset,
+								 size_t cb,
+								 const void *ptr,
+								 cl_uint num_events_in_wait_list,
+								 const cl_event *event_wait_list,
+								 cl_event *event)
+	{
 		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
@@ -334,6 +435,27 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		return command_queue->dispatch->clEnqueueCopyBuffer(command_queue,
+															src_buffer,
+															dst_buffer,
+															src_offset,
+															dst_offset,
+															cb,
+															num_events_in_wait_list,
+															event_wait_list,
+															event);
+	}
+
+	cl_int clEnqueueCopyBufferFCL (cl_command_queue command_queue,
+								cl_mem src_buffer,
+								cl_mem dst_buffer,
+								size_t src_offset,
+								size_t dst_offset,
+								size_t cb,
+								cl_uint num_events_in_wait_list,
+								const cl_event *event_wait_list,
+								cl_event *event)
+	{
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
@@ -391,6 +513,29 @@ extern "C"
 	}
 
 	void * clEnqueueMapBuffer (cl_command_queue command_queue,
+							   cl_mem buffer,
+							   cl_bool blocking_map,
+							   cl_map_flags map_flags,
+							   size_t offset,
+							   size_t cb,
+							   cl_uint num_events_in_wait_list,
+							   const cl_event *event_wait_list,
+							   cl_event *event,
+							   cl_int *errcode_ret)
+	{
+		return command_queue->dispatch->clEnqueueMapBuffer(command_queue,
+														   buffer,
+														   blocking_map,
+														   map_flags,
+														   offset,
+														   cb,
+														   num_events_in_wait_list,
+														   event_wait_list,
+														   event,
+														   errcode_ret);
+	}
+
+	void * clEnqueueMapBufferFCL (cl_command_queue command_queue,
 							   cl_mem buffer,
 							   cl_bool blocking_map,
 							   cl_map_flags map_flags,
@@ -484,6 +629,21 @@ extern "C"
 									const cl_event *event_wait_list,
 									cl_event *event)
 	{
+		return command_queue->dispatch->clEnqueueUnmapMemObject(command_queue,
+																memobj,
+																mapped_ptr,
+																num_events_in_wait_list,
+																event_wait_list,
+																event);
+	}
+
+	cl_int clEnqueueUnmapMemObjectFCL (cl_command_queue command_queue,
+									cl_mem memobj,
+									void *mapped_ptr,
+									cl_uint num_events_in_wait_list,
+									const cl_event *event_wait_list,
+									cl_event *event)
+	{
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
@@ -515,6 +675,156 @@ extern "C"
 		}
 
 		return CL_SUCCESS;
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL
+	clEnqueueCopyBufferRect(cl_command_queue     command_queue,
+							cl_mem               src_buffer,
+							cl_mem               dst_buffer,
+							const size_t *       src_origin,
+							const size_t *       dst_origin,
+							const size_t *       region,
+							size_t               src_row_pitch,
+							size_t               src_slice_pitch,
+							size_t               dst_row_pitch,
+							size_t               dst_slice_pitch,
+							cl_uint              num_events_in_wait_list,
+							const cl_event *     event_wait_list,
+							cl_event *           event ) CL_API_SUFFIX__VERSION_1_1
+	{
+		return command_queue->dispatch->clEnqueueCopyBufferRect(command_queue,
+																src_buffer,
+																dst_buffer,
+																src_origin,
+																dst_origin,
+																region,
+																src_row_pitch,
+																src_slice_pitch,
+																dst_row_pitch,
+																dst_slice_pitch,
+																num_events_in_wait_list,
+																event_wait_list,
+																event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL
+	clEnqueueCopyBufferRectFCL(cl_command_queue    /* command_queue */,
+							cl_mem              /* src_buffer */,
+							cl_mem              /* dst_buffer */,
+							const size_t *      /* src_origin */,
+							const size_t *      /* dst_origin */,
+							const size_t *      /* region */,
+							size_t              /* src_row_pitch */,
+							size_t              /* src_slice_pitch */,
+							size_t              /* dst_row_pitch */,
+							size_t              /* dst_slice_pitch */,
+							cl_uint             /* num_events_in_wait_list */,
+							const cl_event *    /* event_wait_list */,
+							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
+	{
+		return CL_INVALID_VALUE;
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL
+	clEnqueueWriteBufferRect(cl_command_queue     command_queue,
+							 cl_mem               buffer,
+							 cl_bool              blocking_write,
+							 const size_t *       buffer_origin,
+							 const size_t *       host_origin,
+							 const size_t *       region,
+							 size_t               buffer_row_pitch,
+							 size_t               buffer_slice_pitch,
+							 size_t               host_row_pitch,
+							 size_t               host_slice_pitch,
+							 const void *         ptr,
+							 cl_uint              num_events_in_wait_list,
+							 const cl_event *     event_wait_list,
+							 cl_event *           event) CL_API_SUFFIX__VERSION_1_1
+	{
+		return command_queue->dispatch->clEnqueueWriteBufferRect(command_queue,
+																 buffer,
+																 blocking_write,
+																 buffer_origin,
+																 host_origin,
+																 region,
+																 buffer_row_pitch,
+																 buffer_slice_pitch,
+																 host_row_pitch,
+																 host_slice_pitch,
+																 ptr,
+																 num_events_in_wait_list,
+																 event_wait_list,
+																 event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL
+	clEnqueueWriteBufferRectFCL(cl_command_queue    /* command_queue */,
+							 cl_mem              /* buffer */,
+							 cl_bool             /* blocking_write */,
+							 const size_t *      /* buffer_origin */,
+							 const size_t *      /* host_origin */,
+							 const size_t *      /* region */,
+							 size_t              /* buffer_row_pitch */,
+							 size_t              /* buffer_slice_pitch */,
+							 size_t              /* host_row_pitch */,
+							 size_t              /* host_slice_pitch */,
+							 const void *        /* ptr */,
+							 cl_uint             /* num_events_in_wait_list */,
+							 const cl_event *    /* event_wait_list */,
+							 cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
+	{
+		return CL_INVALID_VALUE;
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL
+	clEnqueueReadBufferRect(cl_command_queue     command_queue,
+							cl_mem               buffer,
+							cl_bool              blocking_read,
+							const size_t *       buffer_origin,
+							const size_t *       host_origin,
+							const size_t *       region,
+							size_t               buffer_row_pitch,
+							size_t               buffer_slice_pitch,
+							size_t               host_row_pitch,
+							size_t               host_slice_pitch,
+							void *               ptr,
+							cl_uint              num_events_in_wait_list,
+							const cl_event *     event_wait_list,
+							cl_event *           event) CL_API_SUFFIX__VERSION_1_1
+	{
+		return command_queue->dispatch->clEnqueueReadBufferRect(command_queue,
+																buffer,
+																blocking_read,
+																buffer_origin,
+																host_origin,
+																region,
+																buffer_row_pitch,
+																buffer_slice_pitch,
+																host_row_pitch,
+																host_slice_pitch,
+																ptr,
+																num_events_in_wait_list,
+																event_wait_list,
+																event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL
+	clEnqueueReadBufferRectFCL(cl_command_queue    /* command_queue */,
+							cl_mem              /* buffer */,
+							cl_bool             /* blocking_read */,
+							const size_t *      /* buffer_origin */,
+							const size_t *      /* host_origin */,
+							const size_t *      /* region */,
+							size_t              /* buffer_row_pitch */,
+							size_t              /* buffer_slice_pitch */,
+							size_t              /* host_row_pitch */,
+							size_t              /* host_slice_pitch */,
+							void *              /* ptr */,
+							cl_uint             /* num_events_in_wait_list */,
+							const cl_event *    /* event_wait_list */,
+							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
+	{
+		return CL_INVALID_VALUE;
 	}
 }
 

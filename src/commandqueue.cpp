@@ -33,6 +33,17 @@ extern "C"
 										   cl_command_queue_properties properties,
 										   cl_int *errcode_ret)
 	{
+		return context->dispatch->clCreateCommandQueue(context,
+													   device,
+													   properties,
+													   errcode_ret);
+	}
+
+	cl_command_queue clCreateCommandQueueFCL (cl_context context,
+										   cl_device_id device,
+										   cl_command_queue_properties properties,
+										   cl_int *errcode_ret)
+	{
 		if (properties & ~(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE))
 		{
 			SET_RET(CL_INVALID_VALUE);
@@ -65,6 +76,11 @@ extern "C"
 
 	cl_int clRetainCommandQueue (cl_command_queue command_queue)
 	{
+		return command_queue->dispatch->clRetainCommandQueue(command_queue);
+	}
+
+	cl_int clRetainCommandQueueFCL (cl_command_queue command_queue)
+	{
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -74,6 +90,11 @@ extern "C"
 	}
 
 	cl_int clReleaseCommandQueue (cl_command_queue command_queue)
+	{
+		return command_queue->dispatch->clReleaseCommandQueue(command_queue);
+	}
+
+	cl_int clReleaseCommandQueueFCL (cl_command_queue command_queue)
 	{
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
@@ -91,6 +112,19 @@ extern "C"
 	}
 
 	cl_int clGetCommandQueueInfo (cl_command_queue command_queue,
+								  cl_command_queue_info param_name,
+								  size_t param_value_size,
+								  void *param_value,
+								  size_t *param_value_size_ret)
+	{
+		return command_queue->dispatch->clGetCommandQueueInfo(command_queue,
+															  param_name,
+															  param_value_size,
+															  param_value,
+															  param_value_size_ret);
+	}
+
+	cl_int clGetCommandQueueInfoFCL (cl_command_queue command_queue,
 								  cl_command_queue_info param_name,
 								  size_t param_value_size,
 								  void *param_value,
@@ -119,6 +153,11 @@ extern "C"
 
 	cl_int clFlush (cl_command_queue command_queue)
 	{
+		return command_queue->dispatch->clFlush(command_queue);
+	}
+
+	cl_int clFlushFCL (cl_command_queue command_queue)
+	{
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		command_queue->unlock();
@@ -127,6 +166,11 @@ extern "C"
 	}
 
 	cl_int clFinish (cl_command_queue command_queue)
+	{
+		return command_queue->dispatch->clFinish(command_queue);
+	}
+
+	cl_int clFinishFCL (cl_command_queue command_queue)
 	{
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;

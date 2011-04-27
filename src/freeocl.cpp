@@ -26,9 +26,12 @@
 #include "event.h"
 #include "kernel.h"
 #include "program.h"
+#include "prototypes.h"
 
 namespace FreeOCL
 {
+	_cl_icd_dispatch init_dispatch();
+
 	std::set<cl_context> valid_contexts;
 	std::set<cl_command_queue> valid_command_queues;
 	std::set<cl_mem> valid_mems;
@@ -36,6 +39,7 @@ namespace FreeOCL
 	std::set<cl_kernel> valid_kernels;
 	std::set<cl_program> valid_programs;
 	mutex global_mutex;
+	_cl_icd_dispatch dispatch = init_dispatch();
 
 	bool isValid(cl_context c)
 	{
@@ -145,5 +149,103 @@ namespace FreeOCL
 		if (start == end)
 			return std::string();
 		return s.substr(start, end - start + 1);
+	}
+
+	_cl_icd_dispatch init_dispatch()
+	{
+		_cl_icd_dispatch table;
+		table.clGetPlatformIDs = clIcdGetPlatformIDsKHR;
+		table.clGetPlatformInfo = clGetPlatformInfoFCL;
+		table.clGetDeviceIDs = clGetDeviceIDsFCL;
+		table.clGetDeviceInfo = clGetDeviceInfoFCL;
+		table.clCreateContext = clCreateContextFCL;
+		table.clRetainContext = clRetainContextFCL;
+		table.clReleaseContext = clReleaseContextFCL;
+		table.clGetContextInfo = clGetContextInfoFCL;
+
+		table.clCreateCommandQueue = clCreateCommandQueueFCL;
+		table.clRetainCommandQueue = clRetainCommandQueueFCL;
+		table.clReleaseCommandQueue = clReleaseCommandQueueFCL;
+		table.clGetCommandQueueInfo = clGetCommandQueueInfoFCL;
+		table.clCreateBuffer = clCreateBufferFCL;
+		table.clCreateSubBuffer = clCreateSubBufferFCL;
+		table.clCreateImage2D = clCreateImage2DFCL;
+		table.clCreateImage3D = clCreateImage3DFCL;
+		table.clRetainMemObject = clRetainMemObjectFCL;
+		table.clReleaseMemObject = clReleaseMemObjectFCL;
+		table.clGetSupportedImageFormats = clGetSupportedImageFormatsFCL;
+		table.clGetMemObjectInfo = clGetMemObjectInfoFCL;
+		table.clGetImageInfo = clGetImageInfoFCL;
+		table.clSetMemObjectDestructorCallback = clSetMemObjectDestructorCallbackFCL;
+
+		table.clCreateSampler = clCreateSamplerFCL;
+		table.clRetainSampler = clRetainSamplerFCL;
+		table.clReleaseSampler = clReleaseSamplerFCL;
+		table.clGetSamplerInfo = clGetSamplerInfoFCL;
+
+		table.clCreateProgramWithSource = clCreateProgramWithSourceFCL;
+		table.clCreateProgramWithBinary = clCreateProgramWithBinaryFCL;
+		table.clRetainProgram = clRetainProgramFCL;
+		table.clReleaseProgram = clReleaseProgramFCL;
+		table.clBuildProgram = clBuildProgramFCL;
+		table.clGetProgramInfo = clGetProgramInfoFCL;
+		table.clGetProgramBuildInfo = clGetProgramBuildInfoFCL;
+
+		table.clCreateKernel = clCreateKernelFCL;
+		table.clCreateKernelsInProgram = clCreateKernelsInProgramFCL;
+		table.clRetainKernel = clRetainKernelFCL;
+		table.clReleaseKernel = clReleaseKernelFCL;
+		table.clSetKernelArg = clSetKernelArgFCL;
+		table.clGetKernelInfo = clGetKernelInfoFCL;
+		table.clGetKernelWorkGroupInfo = clGetKernelWorkGroupInfoFCL;
+		table.clWaitForEvents = clWaitForEventsFCL;
+		table.clGetEventInfo = clGetEventInfoFCL;
+		table.clCreateUserEvent = clCreateUserEventFCL;
+		table.clRetainEvent = clRetainEventFCL;
+		table.clReleaseEvent = clReleaseEventFCL;
+		table.clSetUserEventStatus = clSetUserEventStatusFCL;
+		table.clSetEventCallback = clSetEventCallbackFCL;
+
+		table.clGetEventProfilingInfo = clGetEventProfilingInfoFCL;
+
+		table.clFlush = clFlushFCL;
+		table.clFinish = clFinishFCL;
+
+		table.clEnqueueReadBuffer = clEnqueueReadBufferFCL;
+		table.clEnqueueReadBufferRect = clEnqueueReadBufferRectFCL;
+		table.clEnqueueWriteBuffer = clEnqueueWriteBufferFCL;
+		table.clEnqueueWriteBufferRect = clEnqueueWriteBufferRectFCL;
+		table.clEnqueueCopyBuffer = clEnqueueCopyBufferFCL;
+		table.clEnqueueCopyBufferRect = clEnqueueCopyBufferRectFCL;
+		table.clEnqueueReadImage = clEnqueueReadImageFCL;
+		table.clEnqueueWriteImage = clEnqueueWriteImageFCL;
+		table.clEnqueueCopyImage = clEnqueueCopyImageFCL;
+		table.clEnqueueCopyImageToBuffer = clEnqueueCopyImageToBufferFCL;
+		table.clEnqueueCopyBufferToImage = clEnqueueCopyBufferToImageFCL;
+		table.clEnqueueMapBuffer = clEnqueueMapBufferFCL;
+		table.clEnqueueMapImage = clEnqueueMapImageFCL;
+		table.clEnqueueUnmapMemObject = clEnqueueUnmapMemObjectFCL;
+
+		table.clEnqueueNDRangeKernel = clEnqueueNDRangeKernelFCL;
+		table.clEnqueueTask = clEnqueueTaskFCL;
+		table.clEnqueueNativeKernel = clEnqueueNativeKernelFCL;
+		table.clEnqueueMarker = clEnqueueMarkerFCL;
+		table.clEnqueueWaitForEvents = clEnqueueWaitForEventsFCL;
+		table.clEnqueueBarrier = clEnqueueBarrierFCL;
+
+		table.clGetExtensionFunctionAddress = clGetExtensionFunctionAddress;
+		return table;
+	}
+}
+
+extern "C"
+{
+	void* clGetExtensionFunctionAddress (const char *funcname)
+	{
+	#define ADD(name)	if (strcmp(funcname, #name) == 0)	return (void*)name
+
+		ADD(clIcdGetPlatformIDsKHR);
+
+		return NULL;
 	}
 }

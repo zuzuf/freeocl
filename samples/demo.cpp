@@ -86,22 +86,35 @@ int main(void)
 		if (platforms.empty())
 			return 0;
 
+		std::cout << "A" << std::endl;
+
+		std::vector<cl::Device> devices;
+		platforms.front().getDevices(CL_DEVICE_TYPE_ALL, &devices);
+		std::cout << "B" << std::endl;
+
 		// Create a context
 		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
-		cl::Context context(CL_DEVICE_TYPE_CPU, properties);
+		cl::Context context(devices, properties);
+		std::cout << "C" << std::endl;
 
 		cl_int err;
-		std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
+//		std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
 
 		// Create a command queue
 		cl::CommandQueue queue(context, devices[0], 0, &err);
+		std::cout << "D" << std::endl;
 
 		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 0x1000000);
+		std::cout << "E" << std::endl;
 		const char *msg = "Hello World!";
 		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
+		std::cout << "F" << std::endl;
+
 		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
+		std::cout << "G" << std::endl;
 		std::cout << (char*)p << std::endl;
 		queue.enqueueUnmapMemObject(buffer, p);
+		std::cout << "H" << std::endl;
 	}
 	catch(cl::Error err)
 	{
