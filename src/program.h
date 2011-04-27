@@ -22,6 +22,10 @@
 
 struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
 {
+	_cl_program();
+	~_cl_program();
+
+	cl_context context;
 };
 
 #endif

@@ -16,3 +16,181 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "program.h"
+#include "context.h"
+
+#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
+
+extern "C"
+{
+	cl_program clCreateProgramWithSource (cl_context context,
+										  cl_uint count,
+										  const char **strings,
+										  const size_t *lengths,
+										  cl_int *errcode_ret)
+	{
+		if (count == 0 || strings == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		for(size_t i = 0 ; i < count ; ++i)
+			if (strings[i] = NULL)
+			{
+				SET_RET(CL_INVALID_VALUE);
+				return 0;
+			}
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return 0;
+		}
+		unlock.handle(context);
+
+		cl_program program = new _cl_program;
+		program->context = context;
+		SET_RET(CL_SUCCESS);
+
+		return program;
+	}
+
+	cl_program clCreateProgramWithBinary (cl_context context,
+										  cl_uint num_devices,
+										  const cl_device_id *device_list,
+										  const size_t *lengths,
+										  const unsigned char **binaries,
+										  cl_int *binary_status,
+										  cl_int *errcode_ret)
+	{
+
+	}
+
+	cl_int clRetainProgram (cl_program program)
+	{
+		if (!FreeOCL::isValid(program))
+			return CL_INVALID_PROGRAM;
+		program->retain();
+		program->unlock();
+		return CL_SUCCESS;
+	}
+
+	cl_int clReleaseProgram (cl_program program)
+	{
+		if (!FreeOCL::isValid(program))
+			return CL_INVALID_PROGRAM;
+		program->release();
+		if (program->get_ref_count() == 0)
+		{
+			program->invalidate();
+			program->unlock();
+			delete program;
+		}
+		else
+			program->unlock();
+		return CL_SUCCESS;
+	}
+
+	cl_int clBuildProgram (cl_program program,
+						   cl_uint num_devices,
+						   const cl_device_id *device_list,
+						   const char *options,
+						   void (CL_CALLBACK *pfn_notify)(cl_program program,
+														  void *user_data),
+						   void *user_data)
+	{
+		if (device_list == NULL && num_devices > 0)
+			return CL_INVALID_VALUE;
+		if (pfn_notify == NULL && user_data != NULL)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(program))
+			return CL_INVALID_PROGRAM;
+		unlock.handle(program);
+
+		return CL_COMPILER_NOT_AVAILABLE;
+	}
+
+	cl_int clUnloadCompiler (void)
+	{
+		// Guess what ? We never load the compiler as it is an external program!
+		return CL_SUCCESS;
+	}
+
+	cl_int clGetProgramInfo (cl_program program,
+							 cl_program_info param_name,
+							 size_t param_value_size,
+							 void *param_value,
+							 size_t *param_value_size_ret)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(program))
+			return CL_INVALID_PROGRAM;
+		unlock.handle(program);
+
+		bool bTooSmall = false;
+		switch(param_name)
+		{
+		case CL_PROGRAM_REFERENCE_COUNT:	bTooSmall = SET_VAR(program->get_ref_count());	break;
+		case CL_PROGRAM_CONTEXT:			bTooSmall = SET_VAR(program->context);	break;
+		case CL_PROGRAM_NUM_DEVICES:
+		case CL_PROGRAM_DEVICES:
+		case CL_PROGRAM_SOURCE:
+		case CL_PROGRAM_BINARY_SIZES:
+		case CL_PROGRAM_BINARIES:
+		default:
+			return CL_INVALID_VALUE;
+		}
+
+		if (bTooSmall && param_value != NULL)
+			return CL_INVALID_VALUE;
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clGetProgramBuildInfo (cl_program program,
+								  cl_device_id device,
+								  cl_program_build_info param_name,
+								  size_t param_value_size,
+								  void *param_value,
+								  size_t *param_value_size_ret)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(program))
+			return CL_INVALID_PROGRAM;
+		unlock.handle(program);
+
+		if (!FreeOCL::isValid(device))
+			return CL_INVALID_DEVICE;
+
+		bool bTooSmall = false;
+		switch(param_name)
+		{
+		case CL_PROGRAM_BUILD_STATUS:
+		case CL_PROGRAM_BUILD_OPTIONS:
+		case CL_PROGRAM_BUILD_LOG:
+		default:
+			return CL_INVALID_VALUE;
+		}
+		if (bTooSmall && param_value != NULL)
+			return CL_INVALID_VALUE;
+
+		return CL_SUCCESS;
+	}
+}
+
+_cl_program::_cl_program()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_programs.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
+_cl_program::~_cl_program()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_programs.erase(this);
+	FreeOCL::global_mutex.unlock();
+}
