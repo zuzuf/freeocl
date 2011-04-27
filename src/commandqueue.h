@@ -61,9 +61,11 @@ namespace FreeOCL
 
 	struct command_map_buffer : public command_common
 	{
+		cl_mem buffer;
+		void *ptr;
 	};
 
-	struct command_unmap_buffer : public command_common
+	struct command_unmap_buffer : public command_map_buffer
 	{
 	};
 
@@ -74,6 +76,8 @@ namespace FreeOCL
 		command_read_buffer		read_buffer;
 		command_write_buffer	write_buffer;
 		command_copy_buffer		copy_buffer;
+		command_map_buffer		map_buffer;
+		command_unmap_buffer	unmap_buffer;
 	};
 }
 

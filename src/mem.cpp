@@ -157,6 +157,11 @@ extern "C"
 		case CL_MEM_SIZE:					bTooSmall = SET_VAR(memobj->size);	break;
 		case CL_MEM_HOST_PTR:				bTooSmall = SET_VAR(memobj->host_ptr);	break;
 		case CL_MEM_MAP_COUNT:
+			{
+				cl_uint n = memobj->mapped.size();
+				bTooSmall = SET_VAR(n);
+			}
+			break;
 		case CL_MEM_REFERENCE_COUNT:		bTooSmall = SET_VAR(memobj->get_ref_count());	break;
 		case CL_MEM_CONTEXT:				bTooSmall = SET_VAR(memobj->context);	break;
 		case CL_MEM_ASSOCIATED_MEMOBJECT:	bTooSmall = SET_VAR(memobj->parent);	break;
@@ -228,6 +233,8 @@ extern "C"
 		if (event)
 			*event = cmd.common.event;
 
+		unlock.forget(command_queue);
+		command_queue->unlock();
 		command_queue->enqueue(cmd);
 
 		unlock.unlockall();
@@ -299,6 +306,8 @@ extern "C"
 		if (event)
 			*event = cmd.common.event;
 
+		unlock.forget(command_queue);
+		command_queue->unlock();
 		command_queue->enqueue(cmd);
 
 		unlock.unlockall();
@@ -373,6 +382,8 @@ extern "C"
 		if (event)
 			*event = cmd.common.event;
 
+		unlock.forget(command_queue);
+		command_queue->unlock();
 		command_queue->enqueue(cmd);
 
 		return CL_SUCCESS;
@@ -417,8 +428,91 @@ extern "C"
 			return NULL;
 		}
 
+		void *p = (char*)buffer->ptr + offset;
+		if (num_events_in_wait_list == 0 || event_wait_list == NULL)
+		{
+			buffer->mapped.insert(p);
+			if (event)
+			{
+				cl_event e = new _cl_event;
+				*event = e;
+				e->command_queue = command_queue;
+				e->context = command_queue->context;
+				e->command_type = CL_COMMAND_MAP_BUFFER;
+				e->status = CL_COMPLETE;
+			}
+		}
+		else
+		{
+			FreeOCL::command cmd;
+			cmd.type = CL_COMMAND_MAP_BUFFER;
+			cmd.common.num_events_in_wait_list = num_events_in_wait_list;
+			cmd.common.event_wait_list = event_wait_list;
+			cmd.common.event = (blocking_map == CL_TRUE || event) ? new _cl_event : NULL;
+			if (cmd.common.event)
+			{
+				cmd.common.event->command_queue = command_queue;
+				cmd.common.event->context = command_queue->context;
+				cmd.common.event->command_type = CL_COMMAND_MAP_BUFFER;
+				cmd.common.event->status = CL_SUBMITTED;
+				if (event)
+					*event = cmd.common.event;
+			}
+			cmd.map_buffer.buffer = buffer;
+			cmd.map_buffer.ptr = p;
+
+			unlock.unlockall();
+			command_queue->enqueue(cmd);
+
+			if (blocking_map == CL_TRUE)
+			{
+				clWaitForEvents(1, &cmd.common.event);
+				if (event == NULL)
+					clReleaseEvent(cmd.common.event);
+			}
+		}
 		SET_RET(CL_SUCCESS);
-		return (char*)buffer->ptr + offset;
+		return p;
+	}
+
+	cl_int clEnqueueUnmapMemObject (cl_command_queue command_queue,
+									cl_mem memobj,
+									void *mapped_ptr,
+									cl_uint num_events_in_wait_list,
+									const cl_event *event_wait_list,
+									cl_event *event)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::isValid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::isValid(memobj))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(memobj);
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_UNMAP_MEM_OBJECT;
+		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
+		cmd.common.event_wait_list = event_wait_list;
+		cmd.common.event = event ? new _cl_event : NULL;
+		cmd.unmap_buffer.buffer = memobj;
+		cmd.unmap_buffer.ptr = mapped_ptr;
+
+		if (cmd.common.event)
+		{
+			*event = cmd.common.event;
+			cmd.common.event->command_queue = command_queue;
+			cmd.common.event->context = command_queue->context;
+			cmd.common.event->command_type = CL_COMMAND_UNMAP_MEM_OBJECT;
+			cmd.common.event->status = CL_SUBMITTED;
+		}
+
+		return CL_SUCCESS;
 	}
 }
 

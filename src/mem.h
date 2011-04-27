@@ -20,6 +20,7 @@
 
 #include "freeocl.h"
 #include <deque>
+#include <set>
 
 namespace FreeOCL
 {
@@ -33,6 +34,9 @@ namespace FreeOCL
 
 struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex
 {
+	_cl_mem();
+	~_cl_mem();
+
 	void *ptr;
 	size_t size;
 	cl_mem_flags flags;
@@ -40,10 +44,8 @@ struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public 
 	cl_mem_object_type mem_type;
 	cl_mem parent;
 	void *host_ptr;
-
-	_cl_mem();
-	~_cl_mem();
 	std::deque<FreeOCL::mem_call_back> call_backs;
+	std::multiset<void*> mapped;
 };
 
 #endif

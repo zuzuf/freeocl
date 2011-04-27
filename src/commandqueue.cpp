@@ -21,6 +21,7 @@
 #include <cstring>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
 {
@@ -173,6 +174,16 @@ int _cl_command_queue::proc()
 			break;
 		case CL_COMMAND_COPY_BUFFER:
 			memcpy((char*)cmd.copy_buffer.dst_buffer->ptr + cmd.copy_buffer.dst_offset, (char*)cmd.copy_buffer.src_buffer + cmd.copy_buffer.src_offset, cmd.copy_buffer.cb);
+			break;
+		case CL_COMMAND_MAP_BUFFER:
+			cmd.map_buffer.buffer->lock();
+			cmd.map_buffer.buffer->mapped.insert(cmd.map_buffer.ptr);
+			cmd.map_buffer.buffer->unlock();
+			break;
+		case CL_COMMAND_UNMAP_MEM_OBJECT:
+			cmd.unmap_buffer.buffer->lock();
+			cmd.unmap_buffer.buffer->mapped.erase(cmd.unmap_buffer.ptr);
+			cmd.unmap_buffer.buffer->unlock();
 			break;
 		}
 

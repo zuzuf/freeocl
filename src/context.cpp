@@ -18,6 +18,7 @@
 #include "context.h"
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
 {
@@ -35,8 +36,7 @@ extern "C"
 			|| num_devices == 0
 			|| (pfn_notify == NULL && user_data != NULL))
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_VALUE;
+			SET_RET(CL_INVALID_VALUE);
 			return 0;
 		}
 		cl_context c = NULL;
@@ -46,8 +46,7 @@ extern "C"
 		}
 		catch(const std::bad_alloc &e)
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_OUT_OF_HOST_MEMORY;
+			SET_RET(CL_OUT_OF_HOST_MEMORY);
 			return 0;
 		}
 
@@ -56,8 +55,7 @@ extern "C"
 		{
 			if (devices[i] != FreeOCL::device)
 			{
-				if (errcode_ret)
-					*errcode_ret = CL_INVALID_DEVICE;
+				SET_RET(CL_INVALID_DEVICE);
 				delete c;
 				return 0;
 			}
@@ -73,8 +71,7 @@ extern "C"
 				{
 					if (((cl_platform_id*)properties)[1] != FreeOCL::platform)
 					{
-						if (errcode_ret)
-							*errcode_ret = CL_INVALID_PLATFORM;
+						SET_RET(CL_INVALID_PLATFORM);
 						delete c;
 						return 0;
 					}
@@ -82,8 +79,7 @@ extern "C"
 				}
 				if (properties[0] != CL_CONTEXT_PLATFORM || k > 1)
 				{
-					if (errcode_ret)
-						*errcode_ret = CL_INVALID_PROPERTY;
+					SET_RET(CL_INVALID_PROPERTY);
 					delete c;
 					return 0;
 				}
@@ -98,8 +94,7 @@ extern "C"
 		c->pfn_notify = pfn_notify;
 		c->user_data = user_data;
 
-		if (errcode_ret)
-			*errcode_ret = CL_SUCCESS;
+		SET_RET(CL_SUCCESS);
 
 		return c;
 	}
@@ -121,12 +116,10 @@ extern "C"
 			break;
 		case CL_DEVICE_TYPE_GPU:
 		case CL_DEVICE_TYPE_ACCELERATOR:
-			if (errcode_ret)
-				*errcode_ret = CL_DEVICE_NOT_FOUND;
+			SET_RET(CL_DEVICE_NOT_FOUND);
 			return 0;
 		default:
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_DEVICE_TYPE;
+			SET_RET(CL_INVALID_DEVICE_TYPE);
 			return 0;
 		}
 		return clCreateContext(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);

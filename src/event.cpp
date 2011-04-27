@@ -20,6 +20,7 @@
 #include "commandqueue.h"
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
 {
@@ -27,13 +28,11 @@ extern "C"
 	{
 		if (!FreeOCL::isValid(context))
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_CONTEXT;
+			SET_RET(CL_INVALID_CONTEXT);
 			return 0;
 		}
 
-		if (errcode_ret)
-			*errcode_ret = CL_SUCCESS;
+		SET_RET(CL_SUCCESS);
 
 		cl_event e = new _cl_event;
 		e->context = context;
