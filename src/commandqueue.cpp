@@ -15,6 +15,8 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
+#define __CL_ENABLE_EXCEPTIONS
+
 #include "commandqueue.h"
 #include "event.h"
 #include "mem.h"
@@ -170,6 +172,38 @@ bool _cl_command_queue::empty()
 	return b;
 }
 
+bool isCommandReadyToProcess(const FreeOCL::command &cmd)
+{
+	if (cmd.common.event_wait_list == NULL)
+		return true;
+
+	const cl_event *events = cmd.common.event_wait_list;
+	bool bError = false;
+	bool bReady = true;
+	for(size_t i = 0 ; i < cmd.common.num_events_in_wait_list && !bError && bReady ; ++i)
+	{
+		if (!FreeOCL::isValid(events[i]))
+		{
+			bError = true;
+			break;
+		}
+		bReady = (events[i]->status == CL_COMPLETE);
+		events[i]->unlock();
+	}
+	if (bError)
+	{
+		if (cmd.common.event)
+		{
+			cmd.common.event->lock();
+			cmd.common.event->change_status(CL_INVALID_EVENT_WAIT_LIST);
+			cmd.common.event->unlock();
+			clReleaseEvent(cmd.common.event);
+		}
+		throw 0;
+	}
+	return bReady;
+}
+
 int _cl_command_queue::proc()
 {
 	while(!b_stop)
@@ -188,6 +222,60 @@ int _cl_command_queue::proc()
 
 		if (b_stop)
 			break;
+
+		if (!isCommandReadyToProcess(cmd))
+		{
+			if (properties & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
+			{
+				// Find something else to process
+				std::deque<FreeOCL::command> waiting_queue;
+				waiting_queue.push_front(cmd);
+
+				bool bFound = false;
+
+				q_mutex.lock();
+				while(!queue.empty() && !bFound)
+				{
+					cmd = queue.front();
+					queue.pop_front();
+					q_mutex.unlock();
+
+					if (cmd.type == CL_COMMAND_MARKER)
+					{
+						q_mutex.lock();
+						queue.push_front(cmd);
+						break;
+					}
+
+					bFound = isCommandReadyToProcess(cmd);
+					if (!bFound)
+						waiting_queue.push_front(cmd);
+
+					q_mutex.lock();
+				}
+				q_mutex.unlock();
+
+				q_mutex.lock();
+				for(std::deque<FreeOCL::command>::const_iterator i = waiting_queue.begin() ; i != waiting_queue.end() ; ++i)
+					queue.push_front(*i);
+				q_mutex.unlock();
+
+				if (!bFound)		// No choice, we must try later
+				{
+					wait();
+					continue;
+				}
+			}
+			else
+			{
+				// Retry later
+				q_mutex.lock();
+				queue.push_front(cmd);
+				q_mutex.unlock();
+				wait();
+				continue;
+			}
+		}
 
 		if (cmd.common.event)
 		{

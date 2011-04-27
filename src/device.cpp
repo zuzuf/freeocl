@@ -80,7 +80,7 @@ namespace
 	const cl_ulong max_constant_buffer_size = 0x1000000;
 	const cl_uint max_constant_args = 1024;
 	const size_t timer_resolution = std::max<size_t>(1LU, 1000000000LU / CLOCKS_PER_SEC);
-	const cl_command_queue_properties command_queue_properties = CL_QUEUE_PROFILING_ENABLE;
+	const cl_command_queue_properties command_queue_properties = CL_QUEUE_PROFILING_ENABLE | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
 }
 
 #define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits((X), strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
