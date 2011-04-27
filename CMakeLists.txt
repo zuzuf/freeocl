@@ -40,6 +40,7 @@ SET(SOURCES
 	src/mutex.cpp		src/mutex.h
 	src/condition.cpp	src/condition.h
 	src/thread.cpp		src/thread.h
+	src/sampler.cpp		src/sampler.h
 	)
 
 SET(DEMO_SOURCES
