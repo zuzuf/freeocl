@@ -19,6 +19,7 @@
 #define __FREEOCL_PROGRAM_H__
 
 #include "freeocl.h"
+#include <string>
 
 struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
 {
@@ -26,6 +27,7 @@ struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, pub
 	~_cl_program();
 
 	cl_context context;
+	std::string source_code;
 };
 
 #endif

@@ -17,6 +17,7 @@
 */
 #include "program.h"
 #include "context.h"
+#include <cstring>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -34,12 +35,17 @@ extern "C"
 			SET_RET(CL_INVALID_VALUE);
 			return 0;
 		}
+		std::string source_code;
 		for(size_t i = 0 ; i < count ; ++i)
-			if (strings[i] = NULL)
+		{
+			if (strings[i] == NULL)
 			{
 				SET_RET(CL_INVALID_VALUE);
 				return 0;
 			}
+			const size_t len = (lengths[i] == 0) ? strlen(strings[i]) : lengths[i];
+			source_code.append(strings[i], len);
+		}
 
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(context))
@@ -51,6 +57,7 @@ extern "C"
 
 		cl_program program = new _cl_program;
 		program->context = context;
+		program->source_code.swap(source_code);
 		SET_RET(CL_SUCCESS);
 
 		return program;
@@ -137,7 +144,10 @@ extern "C"
 		case CL_PROGRAM_CONTEXT:			bTooSmall = SET_VAR(program->context);	break;
 		case CL_PROGRAM_NUM_DEVICES:
 		case CL_PROGRAM_DEVICES:
+			return CL_INVALID_VALUE;
 		case CL_PROGRAM_SOURCE:
+			bTooSmall = FreeOCL::copyMemoryWithinLimits(program->source_code.c_str(), program->source_code.size() + 1, param_value_size, param_value, param_value_size_ret);
+			break;
 		case CL_PROGRAM_BINARY_SIZES:
 		case CL_PROGRAM_BINARIES:
 		default:

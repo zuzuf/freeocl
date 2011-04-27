@@ -41,6 +41,7 @@ SET(SOURCES
 	src/condition.cpp	src/condition.h
 	src/thread.cpp		src/thread.h
 	src/sampler.cpp		src/sampler.h
+	src/image.cpp
 	)
 
 SET(DEMO_SOURCES

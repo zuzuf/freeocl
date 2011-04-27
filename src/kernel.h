@@ -19,9 +19,12 @@
 #define __FREEOCL_KERNEL_H__
 
 #include "freeocl.h"
+#include <string>
 
 struct _cl_kernel : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
 {
+	cl_program program;
+	std::string function_name;
 };
 
 #endif

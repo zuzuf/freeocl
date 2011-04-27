@@ -20,8 +20,13 @@
 #include "context.h"
 #include "event.h"
 #include "mem.h"
+#include "program.h"
 #include <cstdlib>
 #include <cstring>
+
+#define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
 {
@@ -90,5 +95,167 @@ extern "C"
 		command_queue->enqueue(cmd);
 
 		return CL_SUCCESS;
+	}
+
+	cl_kernel clCreateKernel (cl_program program,
+							  const char *kernel_name,
+							  cl_int *errcode_ret)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(program))
+		{
+			SET_RET(CL_INVALID_PROGRAM);
+			return 0;
+		}
+		unlock.handle(program);
+
+		cl_kernel kernel = new _cl_kernel;
+		kernel->program = program;
+
+		SET_RET(CL_SUCCESS);
+
+		return kernel;
+	}
+
+	cl_int clCreateKernelsInProgram (cl_program program,
+									 cl_uint num_kernels,
+									 cl_kernel *kernels,
+									 cl_uint *num_kernels_ret)
+	{
+		return CL_INVALID_OPERATION;
+	}
+
+	cl_int clRetainKernel (cl_kernel kernel)
+	{
+		if (!FreeOCL::isValid(kernel))
+			return CL_INVALID_KERNEL;
+
+		kernel->retain();
+		kernel->unlock();
+		return CL_SUCCESS;
+	}
+
+	cl_int clReleaseKernel (cl_kernel kernel)
+	{
+		if (!FreeOCL::isValid(kernel))
+			return CL_INVALID_KERNEL;
+		kernel->release();
+		if (kernel->get_ref_count() == 0)
+		{
+			kernel->invalidate();
+			kernel->unlock();
+			delete kernel;
+		}
+		else
+			kernel->unlock();
+		return CL_SUCCESS;
+	}
+
+	cl_int clSetKernelArg (cl_kernel kernel,
+						   cl_uint arg_index,
+						   size_t arg_size,
+						   const void *arg_value)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(kernel))
+			return CL_INVALID_KERNEL;
+		unlock.handle(kernel);
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clGetKernelInfo (cl_kernel kernel,
+							cl_kernel_info param_name,
+							size_t param_value_size,
+							void *param_value,
+							size_t *param_value_size_ret)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(kernel))
+			return CL_INVALID_KERNEL;
+		unlock.handle(kernel);
+
+		bool bTooSmall = false;
+
+		switch(param_name)
+		{
+		case CL_KERNEL_FUNCTION_NAME:	bTooSmall = SET_STRING(kernel->function_name.c_str());	break;
+		case CL_KERNEL_NUM_ARGS:
+			return CL_INVALID_VALUE;
+		case CL_KERNEL_REFERENCE_COUNT:	bTooSmall = SET_VAR(kernel->get_ref_count());	break;
+		case CL_KERNEL_CONTEXT:			bTooSmall = SET_VAR(kernel->program->context);	break;
+		case CL_KERNEL_PROGRAM:			bTooSmall = SET_VAR(kernel->program);	break;
+		default:
+			return CL_INVALID_VALUE;
+		}
+		if (bTooSmall && param_value != NULL)
+			return CL_INVALID_VALUE;
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clGetKernelWorkGroupInfo (cl_kernel kernel,
+									 cl_device_id device,
+									 cl_kernel_work_group_info param_name,
+									 size_t param_value_size,
+									 void *param_value,
+									 size_t *param_value_size_ret)
+	{
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(kernel))
+			return CL_INVALID_KERNEL;
+		unlock.handle(kernel);
+
+		if (!FreeOCL::isValid(device))
+			return CL_INVALID_DEVICE;
+
+		bool bTooSmall = false;
+
+		switch(param_name)
+		{
+		case CL_KERNEL_WORK_GROUP_SIZE:
+		case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
+		case CL_KERNEL_LOCAL_MEM_SIZE:
+		case CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE:
+		case CL_KERNEL_PRIVATE_MEM_SIZE:
+		default:
+			return CL_INVALID_VALUE;
+		}
+		if (bTooSmall && param_value != NULL)
+			return CL_INVALID_VALUE;
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clEnqueueNDRangeKernel (cl_command_queue command_queue,
+								   cl_kernel kernel,
+								   cl_uint work_dim,
+								   const size_t *global_work_offset,
+								   const size_t *global_work_size,
+								   const size_t *local_work_size,
+								   cl_uint num_events_in_wait_list,
+								   const cl_event *event_wait_list,
+								   cl_event *event)
+	{
+		return CL_INVALID_VALUE;
+	}
+
+	cl_int clEnqueueTask (cl_command_queue command_queue,
+						  cl_kernel kernel,
+						  cl_uint num_events_in_wait_list,
+						  const cl_event *event_wait_list,
+						  cl_event *event)
+	{
+		const size_t global_work_size = 1;
+		const size_t local_work_size = 1;
+		return clEnqueueNDRangeKernel(command_queue,
+									  kernel,
+									  1,
+									  NULL,
+									  &global_work_size,
+									  &local_work_size,
+									  num_events_in_wait_list,
+									  event_wait_list,
+									  event);
 	}
 }
