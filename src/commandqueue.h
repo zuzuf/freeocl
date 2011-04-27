@@ -3,6 +3,7 @@
 
 #include "freeocl.h"
 #include "condition.h"
+#include "thread.h"
 #include <vector>
 #include <deque>
 
@@ -24,8 +25,12 @@ namespace FreeOCL
 		void *ptr;
 	};
 
-	struct command_write_buffer : public command_read_buffer
+	struct command_write_buffer : public command_common
 	{
+		cl_mem buffer;
+		size_t offset;
+		size_t cb;
+		const void *ptr;
 	};
 
 	struct command_copy_buffer : public command_common
@@ -51,6 +56,7 @@ namespace FreeOCL
 		command_common			common;
 		command_read_buffer		read_buffer;
 		command_write_buffer	write_buffer;
+		command_copy_buffer		copy_buffer;
 	};
 }
 
@@ -63,9 +69,29 @@ struct _cl_command_queue : public FreeOCL::icd_table, public FreeOCL::ref_counte
 	cl_device_id device;
 	cl_command_queue_properties properties;
 
-	std::deque<FreeOCL::command>	queue;
+private:
+	class thread : public FreeOCL::thread
+	{
+	public:
+		thread(cl_command_queue command_queue) : command_queue(command_queue)	{}
+		virtual int proc();
 
-	bool empty() const;
+	private:
+		cl_command_queue command_queue;
+	};
+
+private:
+	std::deque<FreeOCL::command>	queue;
+	FreeOCL::mutex	q_mutex;
+	thread q_thread;
+	volatile bool b_stop;
+
+public:
+	bool empty();
+	void enqueue(const FreeOCL::command &cmd);
+
+private:
+	int proc();
 };
 
 #endif

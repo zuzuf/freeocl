@@ -7,6 +7,12 @@ SET(FREEOCL_VERSION_PATCH	0)
 SET(FREEOCL_VERSION_STRING	"${FREEOCL_VERSION_HI}.${FREEOCL_VERSION_LO}.${FREEOCL_VERSION_PATCH}")
 SET(FREEOCL_VENDOR	"Roland Brochard")
 
+SET(CMAKE_THREAD_PREFER_PTHREAD pthread)
+include(FindThreads)
+if(NOT CMAKE_THREAD_LIBS_INIT)
+	message(FATAL_ERROR "thread library not found")
+endif(NOT CMAKE_THREAD_LIBS_INIT)
+
 include(FindOpenMP)
 if(NOT OPENMP_FOUND)
 	message(FATAL_ERROR "OpenMP not found, OpenMP is required")
@@ -33,6 +39,7 @@ SET(SOURCES
 	src/event.cpp		src/event.h
 	src/mutex.cpp		src/mutex.h
 	src/condition.cpp	src/condition.h
+	src/thread.cpp		src/thread.h
 	)
 
 SET(DEMO_SOURCES
@@ -43,6 +50,7 @@ SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
 configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 
 include_directories(include)
+LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT})
 add_library(FreeOCL SHARED ${SOURCES})
 
 IF(BUILD_DEMO)

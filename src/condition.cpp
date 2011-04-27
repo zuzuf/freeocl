@@ -28,7 +28,5 @@ namespace FreeOCL
 	{
 		const size_t ref = i;
 		while(pthread_cond_wait(&pc, &pm) == 0 && ref == i)	{}
-
-		pthread_mutex_unlock(&pm);
 	}
 }

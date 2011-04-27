@@ -1,5 +1,6 @@
 #include "event.h"
 #include "context.h"
+#include "commandqueue.h"
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 
@@ -162,6 +163,7 @@ void _cl_event::change_status(cl_int new_status)
 				i->pfn_notify(this, new_status, i->user_data);
 
 	wakeup();
+	command_queue->wakeup();		// If the command queue is waiting for a status change, notify it
 
 	lock();
 }

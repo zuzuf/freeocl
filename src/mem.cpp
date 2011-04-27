@@ -1,8 +1,10 @@
 #include "mem.h"
 #include "context.h"
 #include "commandqueue.h"
+#include "event.h"
 #include <cstring>
 #include <iostream>
+#include <algorithm>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 
@@ -82,7 +84,9 @@ extern "C"
 
 	cl_int clRetainMemObject (cl_mem memobj)
 	{
-		memobj->lock();
+		if (!FreeOCL::isValid(memobj))
+			return CL_INVALID_MEM_OBJECT;
+
 		memobj->retain();
 		memobj->unlock();
 		return CL_SUCCESS;
@@ -90,7 +94,9 @@ extern "C"
 
 	cl_int clReleaseMemObject (cl_mem memobj)
 	{
-		memobj->lock();
+		if (!FreeOCL::isValid(memobj))
+			return CL_INVALID_MEM_OBJECT;
+
 		memobj->release();
 		if (memobj->get_ref_count() == 0)
 			delete memobj;
@@ -107,7 +113,9 @@ extern "C"
 		if (pfn_notify)
 			return CL_INVALID_VALUE;
 
-		memobj->lock();
+		if (!FreeOCL::isValid(memobj))
+			return CL_INVALID_MEM_OBJECT;
+
 		FreeOCL::mem_call_back call_back = { pfn_notify, user_data };
 		memobj->call_backs.push_back(call_back);
 		memobj->unlock();
@@ -120,7 +128,9 @@ extern "C"
 							   void *param_value,
 							   size_t *param_value_size_ret)
 	{
-		memobj->lock();
+		if (!FreeOCL::isValid(memobj))
+			return CL_INVALID_MEM_OBJECT;
+
 		bool bTooSmall = false;
 		switch(param_name)
 		{
@@ -155,8 +165,75 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
-		command_queue->lock();
+		if (ptr == NULL)
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		if (!FreeOCL::isValid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+
+		command_queue->context->unlock();
+
+		if (!FreeOCL::isValid(buffer))
+		{
+			command_queue->unlock();
+			return CL_INVALID_MEM_OBJECT;
+		}
+
+		if (buffer->size < offset + cb)
+		{
+			buffer->unlock();
+			command_queue->unlock();
+			return CL_INVALID_VALUE;
+		}
+
+		if (blocking_read == CL_TRUE)
+		{
+			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+				if (event_wait_list[i]->status < 0)
+				{
+					buffer->unlock();
+					command_queue->unlock();
+					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
+				}
+		}
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_READ_BUFFER;
+		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
+		cmd.common.event_wait_list = event_wait_list;
+		cmd.common.event = (blocking_read == CL_TRUE || event) ? new _cl_event : NULL;
+		cmd.read_buffer.buffer = buffer;
+		cmd.read_buffer.offset = offset;
+		cmd.read_buffer.cb = cb;
+		cmd.read_buffer.ptr = ptr;
+
+		if (cmd.common.event)
+		{
+			cmd.common.event->command_queue = command_queue;
+			cmd.common.event->command_type = CL_COMMAND_READ_BUFFER;
+			cmd.common.event->context = command_queue->context;
+			cmd.common.event->status = CL_SUBMITTED;
+		}
+
+		if (event)
+			*event = cmd.common.event;
+
+		command_queue->enqueue(cmd);
+
+		buffer->unlock();
 		command_queue->unlock();
+
+		if (blocking_read == CL_TRUE)
+		{
+			clWaitForEvents(1, &cmd.common.event);
+			if (event == NULL)
+				clReleaseEvent(cmd.common.event);
+		}
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clEnqueueWriteBuffer (cl_command_queue command_queue,
@@ -169,7 +246,162 @@ extern "C"
 								 const cl_event *event_wait_list,
 								 cl_event *event)
 	{
+		if (ptr == NULL)
+			return CL_INVALID_VALUE;
 
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		if (!FreeOCL::isValid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+
+		command_queue->context->unlock();
+
+		if (!FreeOCL::isValid(buffer))
+		{
+			command_queue->unlock();
+			return CL_INVALID_MEM_OBJECT;
+		}
+
+		if (buffer->size < offset + cb)
+		{
+			buffer->unlock();
+			command_queue->unlock();
+			return CL_INVALID_VALUE;
+		}
+
+		if (blocking_write == CL_TRUE)
+		{
+			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+				if (event_wait_list[i]->status < 0)
+				{
+					buffer->unlock();
+					command_queue->unlock();
+					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
+				}
+		}
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_WRITE_BUFFER;
+		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
+		cmd.common.event_wait_list = event_wait_list;
+		cmd.common.event = (blocking_write == CL_TRUE || event) ? new _cl_event : NULL;
+		cmd.write_buffer.buffer = buffer;
+		cmd.write_buffer.offset = offset;
+		cmd.write_buffer.cb = cb;
+		cmd.write_buffer.ptr = ptr;
+
+		if (cmd.common.event)
+		{
+			cmd.common.event->command_queue = command_queue;
+			cmd.common.event->command_type = CL_COMMAND_WRITE_BUFFER;
+			cmd.common.event->context = command_queue->context;
+			cmd.common.event->status = CL_SUBMITTED;
+		}
+
+		if (event)
+			*event = cmd.common.event;
+
+		command_queue->enqueue(cmd);
+
+		buffer->unlock();
+		command_queue->unlock();
+
+		if (blocking_write == CL_TRUE)
+		{
+			clWaitForEvents(1, &cmd.common.event);
+			if (event == NULL)
+				clReleaseEvent(cmd.common.event);
+		}
+
+		return CL_SUCCESS;
+	}
+
+	cl_int clEnqueueCopyBuffer (cl_command_queue command_queue,
+								cl_mem src_buffer,
+								cl_mem dst_buffer,
+								size_t src_offset,
+								size_t dst_offset,
+								size_t cb,
+								cl_uint num_events_in_wait_list,
+								const cl_event *event_wait_list,
+								cl_event *event)
+	{
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		if (!FreeOCL::isValid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+
+		command_queue->context->unlock();
+
+		if (!FreeOCL::isValid(src_buffer))
+		{
+			command_queue->unlock();
+			return CL_INVALID_MEM_OBJECT;
+		}
+		if (src_buffer->size < src_offset + cb)
+		{
+			src_buffer->unlock();
+			command_queue->unlock();
+			return CL_INVALID_VALUE;
+		}
+
+		if (dst_buffer != src_buffer)		// Don't lock it twice if it's the same buffer
+		{
+			if (!FreeOCL::isValid(dst_buffer))
+			{
+				src_buffer->unlock();
+				command_queue->unlock();
+				return CL_INVALID_MEM_OBJECT;
+			}
+			if (dst_buffer->size < dst_offset + cb)
+			{
+				dst_buffer->unlock();
+				src_buffer->unlock();
+				command_queue->unlock();
+				return CL_INVALID_VALUE;
+			}
+		}
+
+		if (src_buffer == dst_buffer
+			&& std::max(src_offset, dst_offset) - std::min(src_offset, dst_offset) < cb)
+		{
+			src_buffer->unlock();
+			command_queue->unlock();
+			return CL_MEM_COPY_OVERLAP;
+		}
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_COPY_BUFFER;
+		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
+		cmd.common.event_wait_list = event_wait_list;
+		cmd.common.event = event ? new _cl_event : NULL;
+		cmd.copy_buffer.src_buffer = src_buffer;
+		cmd.copy_buffer.src_offset = src_offset;
+		cmd.copy_buffer.dst_buffer = dst_buffer;
+		cmd.copy_buffer.dst_offset = dst_offset;
+		cmd.copy_buffer.cb = cb;
+
+		if (cmd.common.event)
+		{
+			cmd.common.event->command_queue = command_queue;
+			cmd.common.event->command_type = CL_COMMAND_COPY_BUFFER;
+			cmd.common.event->context = command_queue->context;
+			cmd.common.event->status = CL_SUBMITTED;
+		}
+
+		if (event)
+			*event = cmd.common.event;
+
+		command_queue->enqueue(cmd);
+
+		if (src_buffer != dst_buffer)
+			dst_buffer->unlock();
+		src_buffer->unlock();
+		command_queue->unlock();
+
+		return CL_SUCCESS;
 	}
 }
 
