@@ -1,3 +1,20 @@
+/*
+	FreeOCL - a free OpenCL implementation for CPU
+	Copyright (C) 2011  Roland Brochard
+
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/>
+*/
 #include "mem.h"
 #include "context.h"
 #include "commandqueue.h"
@@ -7,6 +24,7 @@
 #include <algorithm>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
 {
@@ -18,31 +36,27 @@ extern "C"
 	{
 		if (size == 0)
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_BUFFER_SIZE;
+			SET_RET(CL_INVALID_BUFFER_SIZE);
 			return 0;
 		}
 		if (((flags & (CL_MEM_USE_HOST_PTR | CL_MEM_COPY_HOST_PTR))
 			&& host_ptr == NULL)
 			|| (host_ptr != NULL && !(flags & (CL_MEM_USE_HOST_PTR | CL_MEM_COPY_HOST_PTR))))
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_HOST_PTR;
+			SET_RET(CL_INVALID_HOST_PTR);
 			return 0;
 		}
 
 		if ((flags & CL_MEM_USE_HOST_PTR) && (flags & (CL_MEM_ALLOC_HOST_PTR | CL_MEM_COPY_HOST_PTR)))
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_VALUE;
+			SET_RET(CL_INVALID_VALUE);
 			return 0;
 		}
 
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(context))
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_INVALID_CONTEXT;
+			SET_RET(CL_INVALID_CONTEXT);
 			return 0;
 		}
 		unlock.handle(context);
@@ -58,14 +72,15 @@ extern "C"
 			mem->ptr = host_ptr;
 		else if (posix_memalign(&(mem->ptr), 256, size) == ENOMEM)
 		{
-			if (errcode_ret)
-				*errcode_ret = CL_OUT_OF_RESOURCES;
+			SET_RET(CL_OUT_OF_RESOURCES);
 			delete mem;
 			return 0;
 		}
 
 		if (flags & CL_MEM_COPY_HOST_PTR)
 			memcpy(mem->ptr, host_ptr, size);
+
+		SET_RET(CL_SUCCESS);
 
 		return mem;
 	}
@@ -377,29 +392,33 @@ extern "C"
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 		{
-			if (errcode_ret)	*errcode_ret = CL_INVALID_COMMAND_QUEUE;
+			SET_RET(CL_INVALID_COMMAND_QUEUE);
 			return NULL;
 		}
 		unlock.handle(command_queue);
 
 		if (!FreeOCL::isValid(command_queue->context))
 		{
-			command_queue->unlock();
-			if (errcode_ret)	*errcode_ret = CL_INVALID_CONTEXT;
+			SET_RET(CL_INVALID_CONTEXT);
 			return NULL;
 		}
 		command_queue->context->unlock();
 
 		if (!FreeOCL::isValid(buffer))
 		{
-			if (errcode_ret)	*errcode_ret = CL_INVALID_MEM_OBJECT;
+			SET_RET(CL_INVALID_MEM_OBJECT);
 			return NULL;
 		}
 		unlock.handle(buffer);
 
 		if (buffer->size < offset + cb)
+		{
+			SET_RET(CL_INVALID_VALUE);
 			return NULL;
+		}
 
+		SET_RET(CL_SUCCESS);
+		return (char*)buffer->ptr + offset;
 	}
 }
 
