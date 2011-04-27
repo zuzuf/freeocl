@@ -89,21 +89,6 @@ namespace
 
 extern "C"
 {
-	cl_int clGetDeviceInfo (cl_device_id device,
-							cl_device_info param_name,
-							size_t param_value_size,
-							void *param_value,
-							size_t *param_value_size_ret)
-	{
-		if (!FreeOCL::isValid(device))
-			return CL_INVALID_DEVICE;
-		return device->dispatch->clGetDeviceInfo(device,
-												 param_name,
-												 param_value_size,
-												 param_value,
-												 param_value_size_ret);
-	}
-
 	cl_int clGetDeviceInfoFCL (cl_device_id device,
 							cl_device_info param_name,
 							size_t param_value_size,
@@ -198,21 +183,6 @@ extern "C"
 		if (bTooSmall && param_value != NULL)
 			return CL_INVALID_VALUE;
 		return CL_SUCCESS;
-	}
-
-	cl_int clGetDeviceIDs (cl_platform_id platform,
-						   cl_device_type device_type,
-						   cl_uint num_entries,
-						   cl_device_id *devices,
-						   cl_uint *num_devices)
-	{
-		if (!FreeOCL::isValid(platform))
-			return CL_INVALID_PLATFORM;
-		return platform->dispatch->clGetDeviceIDs(platform,
-												  device_type,
-												  num_entries,
-												  devices,
-												  num_devices);
 	}
 
 	cl_int clGetDeviceIDsFCL (cl_platform_id platform,

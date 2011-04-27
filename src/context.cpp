@@ -24,29 +24,6 @@
 
 extern "C"
 {
-	cl_context clCreateContext (const cl_context_properties *properties,
-								cl_uint num_devices,
-								const cl_device_id *devices,
-								void (CL_CALLBACK *pfn_notify)(const char *errinfo,
-															   const void *private_info,
-															   size_t cb,
-															   void *user_data),
-								void *user_data,
-								cl_int *errcode_ret)
-	{
-		if (num_devices == 0)
-		{
-			SET_RET(CL_INVALID_VALUE);
-			return 0;
-		}
-		return (*devices)->dispatch->clCreateContext(properties,
-													 num_devices,
-													 devices,
-													 pfn_notify,
-													 user_data,
-													 errcode_ret);
-	}
-
 	cl_context clCreateContextFCL (const cl_context_properties *properties,
 								   cl_uint num_devices,
 								   const cl_device_id *devices,
@@ -150,11 +127,6 @@ extern "C"
 		return clCreateContext(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);
 	}
 
-	cl_int clRetainContext (cl_context context)
-	{
-		return context->dispatch->clRetainContext(context);
-	}
-
 	cl_int clRetainContextFCL (cl_context context)
 	{
 		if (!FreeOCL::isValid(context))
@@ -163,11 +135,6 @@ extern "C"
 		context->retain();
 		context->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clReleaseContext (cl_context context)
-	{
-		return context->dispatch->clReleaseContext(context);
 	}
 
 	cl_int clReleaseContextFCL (cl_context context)
@@ -185,19 +152,6 @@ extern "C"
 		else
 			context->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clGetContextInfo (cl_context context,
-							 cl_context_info param_name,
-							 size_t param_value_size,
-							 void *param_value,
-							 size_t *param_value_size_ret)
-	{
-		return context->dispatch->clGetContextInfo(context,
-												   param_name,
-												   param_value_size,
-												   param_value,
-												   param_value_size_ret);
 	}
 
 	cl_int clGetContextInfoFCL (cl_context context,

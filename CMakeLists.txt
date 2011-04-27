@@ -46,6 +46,10 @@ SET(SOURCES
 	src/prototypes.h
 	)
 
+SET(API_SOURCES
+	src/icd_api.cpp
+	)
+
 SET(DEMO_SOURCES
 	samples/demo.cpp
 	samples/errors.cpp samples/errors.h)
@@ -57,8 +61,9 @@ configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 include_directories(include)
 LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT})
 add_library(FreeOCL SHARED ${SOURCES})
+add_library(OpenCL SHARED ${API_SOURCES})
 
 IF(BUILD_DEMO)
-	LINK_LIBRARIES(FreeOCL)
+	LINK_LIBRARIES(OpenCL)
 	add_executable(demo ${DEMO_SOURCES})
 ENDIF(BUILD_DEMO)

@@ -24,12 +24,6 @@
 
 extern "C"
 {
-	cl_event clCreateUserEvent (cl_context context, cl_int *errcode_ret)
-	{
-		return context->dispatch->clCreateUserEvent(context,
-													errcode_ret);
-	}
-
 	cl_event clCreateUserEventFCL (cl_context context, cl_int *errcode_ret)
 	{
 		if (!FreeOCL::isValid(context))
@@ -50,12 +44,6 @@ extern "C"
 		return e;
 	}
 
-	cl_int clSetUserEventStatus (cl_event event, cl_int execution_status)
-	{
-		return event->dispatch->clSetUserEventStatus(event,
-													 execution_status);
-	}
-
 	cl_int clSetUserEventStatusFCL (cl_event event, cl_int execution_status)
 	{
 		if (execution_status != CL_COMPLETE && execution_status >= 0)
@@ -70,13 +58,6 @@ extern "C"
 		event->change_status(execution_status);
 		event->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clWaitForEvents (cl_uint num_events, const cl_event *event_list)
-	{
-		if (num_events == 0 || event_list == NULL)
-			return CL_INVALID_VALUE;
-		return event_list[0]->dispatch->clWaitForEvents(num_events, event_list);
 	}
 
 	cl_int clWaitForEventsFCL (cl_uint num_events, const cl_event *event_list)
@@ -104,19 +85,6 @@ extern "C"
 		}
 
 		return CL_SUCCESS;
-	}
-
-	cl_int clGetEventInfo (cl_event event,
-						   cl_event_info param_name,
-						   size_t param_value_size,
-						   void *param_value,
-						   size_t *param_value_size_ret)
-	{
-		return event->dispatch->clGetEventInfo(event,
-											   param_name,
-											   param_value_size,
-											   param_value,
-											   param_value_size_ret);
 	}
 
 	cl_int clGetEventInfoFCL (cl_event event,
@@ -152,19 +120,6 @@ extern "C"
 		return CL_SUCCESS;
 	}
 
-	cl_int clSetEventCallback (cl_event event,
-							   cl_int command_exec_callback_type,
-							   void (CL_CALLBACK *pfn_event_notify)(cl_event event,
-																	cl_int event_command_exec_status,
-																	void *user_data),
-							   void *user_data)
-	{
-		return event->dispatch->clSetEventCallback(event,
-												   command_exec_callback_type,
-												   pfn_event_notify,
-												   user_data);
-	}
-
 	cl_int clSetEventCallbackFCL (cl_event event,
 							   cl_int command_exec_callback_type,
 							   void (CL_CALLBACK *pfn_event_notify)(cl_event event,
@@ -186,11 +141,6 @@ extern "C"
 		return CL_SUCCESS;
 	}
 
-	cl_int clRetainEvent (cl_event event)
-	{
-		return event->dispatch->clRetainEvent(event);
-	}
-
 	cl_int clRetainEventFCL (cl_event event)
 	{
 		if (!FreeOCL::isValid(event))
@@ -199,11 +149,6 @@ extern "C"
 		event->retain();
 		event->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clReleaseEvent (cl_event event)
-	{
-		return event->dispatch->clReleaseEvent(event);
 	}
 
 	cl_int clReleaseEventFCL (cl_event event)
@@ -221,13 +166,6 @@ extern "C"
 		else
 			event->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clEnqueueMarker (cl_command_queue command_queue,
-							cl_event *event)
-	{
-		return command_queue->dispatch->clEnqueueMarker(command_queue,
-														event);
 	}
 
 	cl_int clEnqueueMarkerFCL (cl_command_queue command_queue,
@@ -254,11 +192,6 @@ extern "C"
 		return CL_SUCCESS;
 	}
 
-	cl_int clEnqueueBarrier (cl_command_queue command_queue)
-	{
-		return command_queue->dispatch->clEnqueueBarrier(command_queue);
-	}
-
 	cl_int clEnqueueBarrierFCL (cl_command_queue command_queue)
 	{
 		if (!FreeOCL::isValid(command_queue))
@@ -277,15 +210,6 @@ extern "C"
 		command_queue->enqueue(cmd);
 
 		return CL_SUCCESS;
-	}
-
-	cl_int clEnqueueWaitForEvents (cl_command_queue command_queue,
-								   cl_uint num_events,
-								   const cl_event *event_list)
-	{
-		return command_queue->dispatch->clEnqueueWaitForEvents(command_queue,
-															   num_events,
-															   event_list);
 	}
 
 	cl_int clEnqueueWaitForEventsFCL (cl_command_queue command_queue,
@@ -311,19 +235,6 @@ extern "C"
 		command_queue->enqueue(cmd);
 
 		return CL_SUCCESS;
-	}
-
-	cl_int clGetEventProfilingInfo (cl_event event,
-									cl_profiling_info param_name,
-									size_t param_value_size,
-									void *param_value,
-									size_t *param_value_size_ret)
-	{
-		return event->dispatch->clGetEventProfilingInfo(event,
-														param_name,
-														param_value_size,
-														param_value,
-														param_value_size_ret);
 	}
 
 	cl_int clGetEventProfilingInfoFCL (cl_event event,

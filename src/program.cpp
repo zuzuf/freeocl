@@ -24,19 +24,6 @@
 
 extern "C"
 {
-	cl_program clCreateProgramWithSource (cl_context context,
-										  cl_uint count,
-										  const char **strings,
-										  const size_t *lengths,
-										  cl_int *errcode_ret)
-	{
-		return context->dispatch->clCreateProgramWithSource(context,
-															count,
-															strings,
-															lengths,
-															errcode_ret);
-	}
-
 	cl_program clCreateProgramWithSourceFCL (cl_context context,
 										  cl_uint count,
 										  const char **strings,
@@ -76,23 +63,6 @@ extern "C"
 		return program;
 	}
 
-	cl_program clCreateProgramWithBinary (cl_context context,
-										  cl_uint num_devices,
-										  const cl_device_id *device_list,
-										  const size_t *lengths,
-										  const unsigned char **binaries,
-										  cl_int *binary_status,
-										  cl_int *errcode_ret)
-	{
-		return context->dispatch->clCreateProgramWithBinary(context,
-															num_devices,
-															device_list,
-															lengths,
-															binaries,
-															binary_status,
-															errcode_ret);
-	}
-
 	cl_program clCreateProgramWithBinaryFCL (cl_context context,
 										  cl_uint num_devices,
 										  const cl_device_id *device_list,
@@ -104,11 +74,6 @@ extern "C"
 
 	}
 
-	cl_int clRetainProgram (cl_program program)
-	{
-		return program->dispatch->clRetainProgram(program);
-	}
-
 	cl_int clRetainProgramFCL (cl_program program)
 	{
 		if (!FreeOCL::isValid(program))
@@ -116,11 +81,6 @@ extern "C"
 		program->retain();
 		program->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clReleaseProgram (cl_program program)
-	{
-		return program->dispatch->clReleaseProgram(program);
 	}
 
 	cl_int clReleaseProgramFCL (cl_program program)
@@ -137,22 +97,6 @@ extern "C"
 		else
 			program->unlock();
 		return CL_SUCCESS;
-	}
-
-	cl_int clBuildProgram (cl_program program,
-						   cl_uint num_devices,
-						   const cl_device_id *device_list,
-						   const char *options,
-						   void (CL_CALLBACK *pfn_notify)(cl_program program,
-														  void *user_data),
-						   void *user_data)
-	{
-		return program->dispatch->clBuildProgram(program,
-												 num_devices,
-												 device_list,
-												 options,
-												 pfn_notify,
-												 user_data);
 	}
 
 	cl_int clBuildProgramFCL (cl_program program,
@@ -174,25 +118,6 @@ extern "C"
 		unlock.handle(program);
 
 		return CL_COMPILER_NOT_AVAILABLE;
-	}
-
-	cl_int clUnloadCompiler (void)
-	{
-		// Guess what ? We never load the compiler as it is an external program!
-		return CL_SUCCESS;
-	}
-
-	cl_int clGetProgramInfo (cl_program program,
-							 cl_program_info param_name,
-							 size_t param_value_size,
-							 void *param_value,
-							 size_t *param_value_size_ret)
-	{
-		return program->dispatch->clGetProgramInfo(program,
-												   param_name,
-												   param_value_size,
-												   param_value,
-												   param_value_size_ret);
 	}
 
 	cl_int clGetProgramInfoFCL (cl_program program,
@@ -227,21 +152,6 @@ extern "C"
 			return CL_INVALID_VALUE;
 
 		return CL_SUCCESS;
-	}
-
-	cl_int clGetProgramBuildInfo (cl_program program,
-								  cl_device_id device,
-								  cl_program_build_info param_name,
-								  size_t param_value_size,
-								  void *param_value,
-								  size_t *param_value_size_ret)
-	{
-		return program->dispatch->clGetProgramBuildInfo(program,
-														device,
-														param_name,
-														param_value_size,
-														param_value,
-														param_value_size_ret);
 	}
 
 	cl_int clGetProgramBuildInfoFCL (cl_program program,

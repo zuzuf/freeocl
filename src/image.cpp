@@ -24,25 +24,6 @@
 
 extern "C"
 {
-	cl_mem clCreateImage2D (cl_context context,
-							cl_mem_flags flags,
-							const cl_image_format *image_format,
-							size_t image_width,
-							size_t image_height,
-							size_t image_row_pitch,
-							void *host_ptr,
-							cl_int *errcode_ret)
-	{
-		return context->dispatch->clCreateImage2D(context,
-												  flags,
-												  image_format,
-												  image_width,
-												  image_height,
-												  image_row_pitch,
-												  host_ptr,
-												  errcode_ret);
-	}
-
 	cl_mem clCreateImage2DFCL (cl_context context,
 							cl_mem_flags flags,
 							const cl_image_format *image_format,
@@ -54,29 +35,6 @@ extern "C"
 	{
 		SET_RET(CL_INVALID_OPERATION);
 		return 0;
-	}
-
-	cl_mem clCreateImage3D (cl_context context,
-							cl_mem_flags flags,
-							const cl_image_format *image_format,
-							size_t image_width,
-							size_t image_height,
-							size_t image_depth,
-							size_t image_row_pitch,
-							size_t image_slice_pitch,
-							void *host_ptr,
-							cl_int *errcode_ret)
-	{
-		return context->dispatch->clCreateImage3D(context,
-												  flags,
-												  image_format,
-												  image_width,
-												  image_height,
-												  image_depth,
-												  image_row_pitch,
-												  image_slice_pitch,
-												  host_ptr,
-												  errcode_ret);
 	}
 
 	cl_mem clCreateImage3DFCL (cl_context context,
@@ -92,21 +50,6 @@ extern "C"
 	{
 		SET_RET(CL_INVALID_OPERATION);
 		return 0;
-	}
-
-	cl_int clGetSupportedImageFormats (cl_context context,
-									   cl_mem_flags flags,
-									   cl_mem_object_type image_type,
-									   cl_uint num_entries,
-									   cl_image_format *image_formats,
-									   cl_uint *num_image_formats)
-	{
-		return context->dispatch->clGetSupportedImageFormats(context,
-															 flags,
-															 image_type,
-															 num_entries,
-															 image_formats,
-															 num_image_formats);
 	}
 
 	cl_int clGetSupportedImageFormatsFCL (cl_context context,
@@ -134,31 +77,6 @@ extern "C"
 		return CL_SUCCESS;
 	}
 
-	cl_int clEnqueueReadImage (cl_command_queue command_queue,
-							   cl_mem image,
-							   cl_bool blocking_read,
-							   const size_t origin[3],
-							   const size_t region[3],
-							   size_t row_pitch,
-							   size_t slice_pitch,
-							   void *ptr,
-							   cl_uint num_events_in_wait_list,
-							   const cl_event *event_wait_list,
-							   cl_event *event)
-	{
-		return command_queue->dispatch->clEnqueueReadImage(command_queue,
-														   image,
-														   blocking_read,
-														   origin,
-														   region,
-														   row_pitch,
-														   slice_pitch,
-														   ptr,
-														   num_events_in_wait_list,
-														   event_wait_list,
-														   event);
-	}
-
 	cl_int clEnqueueReadImageFCL (cl_command_queue command_queue,
 							   cl_mem image,
 							   cl_bool blocking_read,
@@ -172,31 +90,6 @@ extern "C"
 							   cl_event *event)
 	{
 		return CL_INVALID_MEM_OBJECT;
-	}
-
-	cl_int clEnqueueWriteImage (cl_command_queue command_queue,
-								cl_mem image,
-								cl_bool blocking_write,
-								const size_t origin[3],
-								const size_t region[3],
-								size_t input_row_pitch,
-								size_t input_slice_pitch,
-								const void * ptr,
-								cl_uint num_events_in_wait_list,
-								const cl_event *event_wait_list,
-								cl_event *event)
-	{
-		return command_queue->dispatch->clEnqueueWriteImage(command_queue,
-															image,
-															blocking_write,
-															origin,
-															region,
-															input_row_pitch,
-															input_slice_pitch,
-															ptr,
-															num_events_in_wait_list,
-															event_wait_list,
-															event);
 	}
 
 	cl_int clEnqueueWriteImageFCL (cl_command_queue command_queue,
@@ -214,27 +107,6 @@ extern "C"
 		return CL_INVALID_MEM_OBJECT;
 	}
 
-	cl_int clEnqueueCopyImage (cl_command_queue command_queue,
-							   cl_mem src_image,
-							   cl_mem dst_image,
-							   const size_t src_origin[3],
-							   const size_t dst_origin[3],
-							   const size_t region[3],
-							   cl_uint num_events_in_wait_list,
-							   const cl_event *event_wait_list,
-							   cl_event *event)
-	{
-		return command_queue->dispatch->clEnqueueCopyImage(command_queue,
-														   src_image,
-														   dst_image,
-														   src_origin,
-														   dst_origin,
-														   region,
-														   num_events_in_wait_list,
-														   event_wait_list,
-														   event);
-	}
-
 	cl_int clEnqueueCopyImageFCL (cl_command_queue command_queue,
 							   cl_mem src_image,
 							   cl_mem dst_image,
@@ -246,27 +118,6 @@ extern "C"
 							   cl_event *event)
 	{
 		return CL_INVALID_MEM_OBJECT;
-	}
-
-	cl_int clEnqueueCopyImageToBuffer (cl_command_queue command_queue,
-									   cl_mem src_image,
-									   cl_mem dst_buffer,
-									   const size_t src_origin[3],
-									   const size_t region[3],
-									   size_t dst_offset,
-									   cl_uint num_events_in_wait_list,
-									   const cl_event *event_wait_list,
-									   cl_event *event)
-	{
-		return command_queue->dispatch->clEnqueueCopyImageToBuffer(command_queue,
-																   src_image,
-																   dst_buffer,
-																   src_origin,
-																   region,
-																   dst_offset,
-																   num_events_in_wait_list,
-																   event_wait_list,
-																   event);
 	}
 
 	cl_int clEnqueueCopyImageToBufferFCL (cl_command_queue command_queue,
@@ -282,27 +133,6 @@ extern "C"
 		return CL_INVALID_MEM_OBJECT;
 	}
 
-	cl_int clEnqueueCopyBufferToImage (cl_command_queue command_queue,
-									   cl_mem src_buffer,
-									   cl_mem dst_image,
-									   size_t src_offset,
-									   const size_t dst_origin[3],
-									   const size_t region[3],
-									   cl_uint num_events_in_wait_list,
-									   const cl_event *event_wait_list,
-									   cl_event *event)
-	{
-		return command_queue->dispatch->clEnqueueCopyBufferToImage(command_queue,
-																   src_buffer,
-																   dst_image,
-																   src_offset,
-																   dst_origin,
-																   region,
-																   num_events_in_wait_list,
-																   event_wait_list,
-																   event);
-	}
-
 	cl_int clEnqueueCopyBufferToImageFCL (cl_command_queue command_queue,
 									   cl_mem src_buffer,
 									   cl_mem dst_image,
@@ -314,33 +144,6 @@ extern "C"
 									   cl_event *event)
 	{
 		return CL_INVALID_MEM_OBJECT;
-	}
-
-	void *clEnqueueMapImage (cl_command_queue command_queue,
-							  cl_mem image,
-							  cl_bool blocking_map,
-							  cl_map_flags map_flags,
-							  const size_t origin[3],
-							  const size_t region[3],
-							  size_t *image_row_pitch,
-							  size_t *image_slice_pitch,
-							  cl_uint num_events_in_wait_list,
-							  const cl_event *event_wait_list,
-							  cl_event *event,
-							  cl_int *errcode_ret)
-	{
-		return command_queue->dispatch->clEnqueueMapImage(command_queue,
-														  image,
-														  blocking_map,
-														  map_flags,
-														  origin,
-														  region,
-														  image_row_pitch,
-														  image_slice_pitch,
-														  num_events_in_wait_list,
-														  event_wait_list,
-														  event,
-														  errcode_ret);
 	}
 
 	void *clEnqueueMapImageFCL (cl_command_queue command_queue,
@@ -358,19 +161,6 @@ extern "C"
 	{
 		SET_RET(CL_INVALID_MEM_OBJECT);
 		return NULL;
-	}
-
-	cl_int clGetImageInfo (cl_mem image,
-						   cl_image_info param_name,
-						   size_t param_value_size,
-						   void *param_value,
-						   size_t *param_value_size_ret)
-	{
-		return image->dispatch->clGetImageInfo(image,
-											   param_name,
-											   param_value_size,
-											   param_value,
-											   param_value_size_ret);
 	}
 
 	cl_int clGetImageInfoFCL (cl_mem image,

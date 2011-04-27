@@ -33,21 +33,6 @@ namespace
 
 extern "C"
 {
-	cl_int clGetPlatformInfo(cl_platform_id platform,
-							 cl_platform_info param_name,
-							 size_t param_value_size,
-							 void *param_value,
-							 size_t *param_value_size_ret)
-	{
-		if (!FreeOCL::isValid(platform))
-			return CL_INVALID_PLATFORM;
-		return platform->dispatch->clGetPlatformInfo(platform,
-													 param_name,
-													 param_value_size,
-													 param_value,
-													 param_value_size_ret);
-	}
-
 	cl_int clGetPlatformInfoFCL(cl_platform_id platform,
 							 cl_platform_info param_name,
 							 size_t param_value_size,
@@ -82,23 +67,6 @@ extern "C"
 		}
 		if (bTooSmall && param_value != NULL)
 			return CL_INVALID_VALUE;
-		return CL_SUCCESS;
-	}
-
-	cl_int clGetPlatformIDs (cl_uint num_entries,
-							 cl_platform_id *platforms,
-							 cl_uint *num_platforms)
-	{
-		if ((num_entries != 0 && platforms == NULL)
-			|| (platforms == NULL && num_platforms == NULL))
-			return CL_INVALID_VALUE;
-
-		if (num_platforms != NULL)
-			*num_platforms = 1;
-
-		if (platforms != NULL)
-			platforms[0] = FreeOCL::platform;
-
 		return CL_SUCCESS;
 	}
 
