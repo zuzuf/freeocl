@@ -18,6 +18,7 @@
 #include "program.h"
 #include "context.h"
 #include <cstring>
+#include <dlfcn.h>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -144,8 +145,14 @@ extern "C"
 		case CL_PROGRAM_REFERENCE_COUNT:	bTooSmall = SET_VAR(program->get_ref_count());	break;
 		case CL_PROGRAM_CONTEXT:			bTooSmall = SET_VAR(program->context);	break;
 		case CL_PROGRAM_NUM_DEVICES:
+			{
+				const cl_uint nb = program->devices.size();
+				bTooSmall = SET_VAR(nb);
+			}
+			break;
 		case CL_PROGRAM_DEVICES:
-			return CL_INVALID_VALUE;
+			bTooSmall = FreeOCL::copyMemoryWithinLimits(&(program->devices.front()), program->devices.size() * sizeof(cl_device_id), param_value_size, param_value, param_value_size_ret);
+			break;
 		case CL_PROGRAM_SOURCE:
 			bTooSmall = FreeOCL::copyMemoryWithinLimits(program->source_code.c_str(), program->source_code.size() + 1, param_value_size, param_value, param_value_size_ret);
 			break;
@@ -180,9 +187,13 @@ extern "C"
 		bool bTooSmall = false;
 		switch(param_name)
 		{
-		case CL_PROGRAM_BUILD_STATUS:
+		case CL_PROGRAM_BUILD_STATUS:		bTooSmall = SET_VAR(program->build_status);	break;
 		case CL_PROGRAM_BUILD_OPTIONS:
+			bTooSmall = FreeOCL::copyMemoryWithinLimits(program->build_options.c_str(), program->build_options.size() + 1, param_value_size, param_value, param_value_size_ret);
+			break;
 		case CL_PROGRAM_BUILD_LOG:
+			bTooSmall = FreeOCL::copyMemoryWithinLimits(program->build_log.c_str(), program->build_log.size() + 1, param_value_size, param_value, param_value_size_ret);
+			break;
 		default:
 			return CL_INVALID_VALUE;
 		}
@@ -193,7 +204,7 @@ extern "C"
 	}
 }
 
-_cl_program::_cl_program()
+_cl_program::_cl_program() : build_status(CL_BUILD_NONE)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_programs.insert(this);
