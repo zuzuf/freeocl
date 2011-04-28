@@ -190,6 +190,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		std::cout << "clEnqueueReadBufferFCL" << std::endl;
 		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
@@ -262,6 +263,7 @@ extern "C"
 								 const cl_event *event_wait_list,
 								 cl_event *event)
 	{
+		std::cout << "clEnqueueWriteBufferFCL" << std::endl;
 		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
@@ -334,6 +336,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		std::cout << "clEnqueueCopyBufferFCL" << std::endl;
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
@@ -551,6 +554,7 @@ extern "C"
 							 const cl_event *    /* event_wait_list */,
 							 cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
 	{
+		std::cout << "clEnqueueWriteBufferRectFCL" << std::endl;
 		return CL_INVALID_VALUE;
 	}
 
@@ -570,6 +574,7 @@ extern "C"
 							const cl_event *    /* event_wait_list */,
 							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
 	{
+		std::cout << "clEnqueueReadBufferRectFCL" << std::endl;
 		return CL_INVALID_VALUE;
 	}
 }

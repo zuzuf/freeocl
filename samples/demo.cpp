@@ -107,7 +107,11 @@ int main(void)
 		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 0x1000000);
 		std::cout << "E" << std::endl;
 		const char *msg = "Hello World!";
-		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
+		cl_event event;
+		clEnqueueWriteBuffer(queue(), buffer(), true, 0, strlen(msg) + 1, msg, 0, NULL, &event);
+		clRetainEvent(event);
+
+//		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
 		std::cout << "F" << std::endl;
 
 		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);

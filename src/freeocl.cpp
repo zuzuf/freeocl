@@ -151,7 +151,7 @@ namespace FreeOCL
 		return s.substr(start, end - start + 1);
 	}
 
-#define	STUB(X)	cl_int stub##X(void*)	{	std::cout << "stub" #X << std::endl;	}
+#define	STUB(X)	cl_int stub##X(void*)	{	std::cout << "stub" #X << std::endl;	return CL_INVALID_OPERATION;	}
 	STUB(0)
 	STUB(1)
 	STUB(2)
@@ -262,6 +262,7 @@ namespace FreeOCL
 		table.clGetDeviceIDs = clGetDeviceIDsFCL;
 		table.clGetDeviceInfo = clGetDeviceInfoFCL;
 		table.clCreateContext = clCreateContextFCL;
+		table.clCreateContextFromType = NULL;
 		table.clRetainContext = clRetainContextFCL;
 		table.clReleaseContext = clReleaseContextFCL;
 		table.clGetContextInfo = clGetContextInfoFCL;
@@ -270,6 +271,8 @@ namespace FreeOCL
 		table.clRetainCommandQueue = clRetainCommandQueueFCL;
 		table.clReleaseCommandQueue = clReleaseCommandQueueFCL;
 		table.clGetCommandQueueInfo = clGetCommandQueueInfoFCL;
+		table.clSetCommandQueueProperty = NULL;
+
 		table.clCreateBuffer = clCreateBufferFCL;
 		table.clCreateSubBuffer = clCreateSubBufferFCL;
 		table.clCreateImage2D = clCreateImage2DFCL;
@@ -291,6 +294,7 @@ namespace FreeOCL
 		table.clRetainProgram = clRetainProgramFCL;
 		table.clReleaseProgram = clReleaseProgramFCL;
 		table.clBuildProgram = clBuildProgramFCL;
+		table.clUnloadCompiler = NULL;
 		table.clGetProgramInfo = clGetProgramInfoFCL;
 		table.clGetProgramBuildInfo = clGetProgramBuildInfoFCL;
 
@@ -346,18 +350,18 @@ namespace FreeOCL
 //		t[4] = (void*)stub4;
 		t[5] = (void*)stub5;
 		t[6] = (void*)stub6;
-		t[7] = (void*)stub7;
+//		t[7] = (void*)stub7;
 		t[8] = (void*)stub8;
 //		t[9] = (void*)stub9;
 		t[10] = (void*)stub10;
-		t[11] = (void*)stub11;
+//		t[11] = (void*)stub11;
 		t[12] = (void*)stub12;
 		t[13] = (void*)stub13;
-		t[14] = (void*)stub14;
+//		t[14] = (void*)stub14;
 		t[15] = (void*)stub15;
 		t[16] = (void*)stub16;
 		t[17] = (void*)stub17;
-		t[18] = (void*)stub18;
+//		t[18] = (void*)stub18;
 		t[19] = (void*)stub19;
 		t[20] = (void*)stub20;
 		t[21] = (void*)stub21;
@@ -388,14 +392,14 @@ namespace FreeOCL
 		t[46] = (void*)stub46;
 		t[47] = (void*)stub47;
 		t[48] = (void*)stub48;
-		t[49] = (void*)stub49;
+//		t[49] = (void*)stub49;
 		t[50] = (void*)stub50;
 		t[51] = (void*)stub51;
 		t[52] = (void*)stub52;
 		t[53] = (void*)stub53;
 		t[54] = (void*)stub54;
 		t[55] = (void*)stub55;
-		t[56] = (void*)stub56;
+//		t[56] = (void*)stub56;
 		t[57] = (void*)stub57;
 		t[58] = (void*)stub58;
 		t[59] = (void*)stub59;

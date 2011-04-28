@@ -66,6 +66,7 @@ extern "C"
 
 	cl_int clRetainCommandQueueFCL (cl_command_queue command_queue)
 	{
+		std::cout << "x<" << std::endl;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -76,7 +77,6 @@ extern "C"
 
 	cl_int clReleaseCommandQueueFCL (cl_command_queue command_queue)
 	{
-		std::cout << "o<" << std::endl;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -121,6 +121,7 @@ extern "C"
 
 	cl_int clFlushFCL (cl_command_queue command_queue)
 	{
+		std::cout << "clFlushFCL" << std::endl;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		command_queue->unlock();
@@ -130,6 +131,7 @@ extern "C"
 
 	cl_int clFinishFCL (cl_command_queue command_queue)
 	{
+		std::cout << "clFinishFCL" << std::endl;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		if (command_queue->empty())

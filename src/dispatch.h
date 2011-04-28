@@ -62,6 +62,13 @@ struct _cl_icd_dispatch
 					void *                        /* user_data */,
 					cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+	CL_API_ENTRY cl_context (CL_API_CALL *
+	clCreateContextFromType)(const cl_context_properties * /* properties */,
+							cl_device_type                /* device_type */,
+							void (CL_CALLBACK *     /* pfn_notify*/ )(const char *, const void *, size_t, void *),
+							void *                        /* user_data */,
+							cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clRetainContext)(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;
 
@@ -94,6 +101,22 @@ struct _cl_icd_dispatch
 						  size_t                /* param_value_size */,
 						  void *                /* param_value */,
 						  size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
+
+	/*
+	 *  WARNING:
+	 *     This API introduces mutable state into the OpenCL implementation. It has been REMOVED
+	 *  to better facilitate thread safety.  The 1.0 API is not thread safe. It is not tested by the
+	 *  OpenCL 1.1 conformance test, and consequently may not work or may not work dependably.
+	 *  It is likely to be non-performant. Use of this API is not advised. Use at your own risk.
+	 *
+	 *  Software developers previously relying on this API are instructed to set the command queue
+	 *  properties when creating the queue, instead.
+	 */
+	CL_API_ENTRY cl_int (CL_API_CALL*
+	clSetCommandQueueProperty)(cl_command_queue              /* command_queue */,
+							  cl_command_queue_properties   /* properties */,
+							  cl_bool                        /* enable */,
+							  cl_command_queue_properties * /* old_properties */) CL_EXT_SUFFIX__VERSION_1_0_DEPRECATED;
 
 	/* Memory Object APIs */
 	CL_API_ENTRY cl_mem (CL_API_CALL *
@@ -218,6 +241,9 @@ struct _cl_icd_dispatch
 				   void *               /* user_data */) CL_API_SUFFIX__VERSION_1_0;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
+	clUnloadCompiler)(void) CL_API_SUFFIX__VERSION_1_0;
+
+	CL_API_ENTRY cl_int (CL_API_CALL *
 	clGetProgramInfo)(cl_program         /* program */,
 					 cl_program_info    /* param_name */,
 					 size_t             /* param_value_size */,
@@ -310,6 +336,8 @@ struct _cl_icd_dispatch
 							size_t              /* param_value_size */,
 							void *              /* param_value */,
 							size_t *            /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
+
+	void *p;
 
 	/* Flush and Finish APIs */
 	CL_API_ENTRY cl_int (CL_API_CALL *
