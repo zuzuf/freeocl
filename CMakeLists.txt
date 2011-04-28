@@ -48,6 +48,7 @@ SET(SOURCES
 
 SET(API_SOURCES
 	src/icd_api.cpp
+	src/icd_loader.cpp src/icd_loader.h
 	)
 
 SET(DEMO_SOURCES
@@ -60,6 +61,7 @@ configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 
 include_directories(include)
 LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT})
+LINK_LIBRARIES(-ldl)
 add_library(FreeOCL SHARED ${SOURCES})
 add_library(OpenCL SHARED ${API_SOURCES})
 
