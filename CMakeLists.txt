@@ -44,6 +44,7 @@ SET(SOURCES
 	src/image.cpp
 	src/dispatch.h
 	src/prototypes.h
+	src/codebuilder.cpp	src/codebuilder.h
 	)
 
 SET(API_SOURCES

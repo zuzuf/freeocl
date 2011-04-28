@@ -133,17 +133,23 @@ namespace FreeOCL
 		return size > maxSize;
 	}
 
-	std::string runCommand(const std::string &cmd)
+	std::string runCommand(const std::string &cmd, int *ret)
 	{
 		std::string result;
 		FILE *file = popen(cmd.c_str(), "r");
 		if (!file)
+		{
+			if (ret)
+				*ret = 0x7FFFFFFF;
 			return result;
+		}
 
 		int c;
 		while((c = fgetc(file)) != -1 && !feof(file))
 			result += (char)c;
-		pclose(file);
+		const int r = pclose(file);
+		if (ret)
+			*ret = r;
 
 		return result;
 	}

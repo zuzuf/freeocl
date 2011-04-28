@@ -64,7 +64,7 @@ namespace FreeOCL
 
 	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
 
-	std::string runCommand(const std::string &cmd);
+	std::string runCommand(const std::string &cmd, int *ret = NULL);
 	long int parseInt(const std::string &s);
 	std::string trim(const std::string &s);
 

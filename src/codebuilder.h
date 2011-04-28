@@ -15,27 +15,19 @@
 	You should have received a copy of the GNU General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PROGRAM_H__
-#define __FREEOCL_PROGRAM_H__
+#ifndef __FREEOCL_CODEBUILDER_H__
+#define __FREEOCL_CODEBUILDER_H__
 
-#include "freeocl.h"
+#include "../config.h"
 #include <string>
+#include <cstdio>
 
-struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
+namespace FreeOCL
 {
-	_cl_program();
-	~_cl_program();
-
-	cl_context context;
-	std::string source_code;
-
-	std::vector<cl_device_id> devices;
-
-	void *handle;
-	std::string binary_file;
-	cl_build_status build_status;
-	std::string build_options;
-	std::string build_log;
-};
+	// Return a string to the .so file built
+	// In case an error occurs, it returns an empty string
+	// In any case it'll write logs
+	std::string build_program(const std::string &code, std::string &log);
+}
 
 #endif

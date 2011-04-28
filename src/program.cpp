@@ -19,6 +19,7 @@
 #include "context.h"
 #include <cstring>
 #include <dlfcn.h>
+#include "codebuilder.h"
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -122,9 +123,39 @@ extern "C"
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 			return CL_INVALID_PROGRAM;
-		unlock.handle(program);
+		program->retain();
 
-		return CL_COMPILER_NOT_AVAILABLE;
+		program->build_status = CL_BUILD_IN_PROGRESS;
+		const std::string source_code = program->source_code;
+
+		program->unlock();
+
+		std::string build_log;
+		std::string binary_file = FreeOCL::build_program(source_code, build_log);
+
+		if (!FreeOCL::isValid(program))
+		{
+			if (!binary_file.empty())
+				remove(binary_file.c_str());
+			return CL_INVALID_PROGRAM;
+		}
+		program->binary_file = binary_file;
+		program->build_log = build_log;
+
+		if (program->binary_file.empty())
+		{
+			std::cout << "source code:" << std::endl << source_code << std::endl;
+			std::cout << "build log:" << std::endl << build_log << std::endl;
+			program->build_status = CL_BUILD_ERROR;
+			program->unlock();
+			clReleaseProgramFCL(program);
+			return CL_BUILD_PROGRAM_FAILURE;
+		}
+
+		program->build_status = CL_BUILD_SUCCESS;
+		program->unlock();
+		clReleaseProgramFCL(program);
+		return CL_SUCCESS;
 	}
 
 	cl_int clGetProgramInfoFCL (cl_program program,
@@ -157,7 +188,14 @@ extern "C"
 			bTooSmall = FreeOCL::copyMemoryWithinLimits(program->source_code.c_str(), program->source_code.size() + 1, param_value_size, param_value, param_value_size_ret);
 			break;
 		case CL_PROGRAM_BINARY_SIZES:
+			{
+				std::vector<size_t> sizes;
+				sizes.resize(program->devices.size(), 0);
+				bTooSmall = FreeOCL::copyMemoryWithinLimits(&(sizes.front()), sizes.size() * sizeof(size_t), param_value_size, param_value, param_value_size_ret);
+			}
+			break;
 		case CL_PROGRAM_BINARIES:
+			break;
 		default:
 			return CL_INVALID_VALUE;
 		}
