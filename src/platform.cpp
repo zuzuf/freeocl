@@ -71,6 +71,20 @@ extern "C"
 		return CL_SUCCESS;
 	}
 
+	// The ICD loader needs this version too
+	cl_int clGetPlatformInfo(cl_platform_id platform,
+							 cl_platform_info param_name,
+							 size_t param_value_size,
+							 void *param_value,
+							 size_t *param_value_size_ret)
+	{
+		return clGetPlatformInfoFCL(platform,
+									param_name,
+									param_value_size,
+									param_value,
+									param_value_size_ret);
+	}
+
 	cl_int clIcdGetPlatformIDsKHR (cl_uint num_entries,
 							 cl_platform_id *platforms,
 							 cl_uint *num_platforms)

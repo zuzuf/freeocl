@@ -18,7 +18,6 @@
 #include "icd_loader.h"
 #include <cstdio>
 #include <fstream>
-#include <iostream>
 #include <dlfcn.h>
 
 namespace FreeOCL

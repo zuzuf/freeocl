@@ -102,33 +102,6 @@ extern "C"
 		return c;
 	}
 
-	cl_context clCreateContextFromType (const cl_context_properties *properties,
-										 cl_device_type device_type,
-										 void (CL_CALLBACK *pfn_notify)(const char *errinfo,
-																		const void *private_info,
-																		size_t cb,
-																		void *user_data),
-										 void *user_data,
-										 cl_int *errcode_ret)
-	{
-		MSG(clCreateContextFromType);
-		switch(device_type)
-		{
-		case CL_DEVICE_TYPE_CPU:
-		case CL_DEVICE_TYPE_ALL:
-		case CL_DEVICE_TYPE_DEFAULT:
-			break;
-		case CL_DEVICE_TYPE_GPU:
-		case CL_DEVICE_TYPE_ACCELERATOR:
-			SET_RET(CL_DEVICE_NOT_FOUND);
-			return 0;
-		default:
-			SET_RET(CL_INVALID_DEVICE_TYPE);
-			return 0;
-		}
-		return clCreateContext(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);
-	}
-
 	cl_int clRetainContextFCL (cl_context context)
 	{
 		MSG(clRetainContextFCL);

@@ -25,6 +25,7 @@
 #include "kernel.h"
 #include "platform.h"
 #include "event.h"
+#include "icd_loader.h"
 
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 extern "C"
@@ -94,6 +95,68 @@ extern "C"
 													 pfn_notify,
 													 user_data,
 													 errcode_ret);
+	}
+
+	cl_context clCreateContextFromType (const cl_context_properties *properties,
+										 cl_device_type device_type,
+										 void (CL_CALLBACK *pfn_notify)(const char *errinfo,
+																		const void *private_info,
+																		size_t cb,
+																		void *user_data),
+										 void *user_data,
+										 cl_int *errcode_ret)
+	{
+		MSG(clCreateContextFromType);
+		if (properties == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		cl_platform_id platform = 0;
+		const cl_context_properties *prop = properties;
+		while(!*prop)
+		{
+			switch(*prop)
+			{
+			case CL_CONTEXT_PLATFORM:
+				if (platform != NULL)
+				{
+					SET_RET(CL_INVALID_PROPERTY);
+					return 0;
+				}
+				++prop;
+				platform = *((cl_platform_id*)prop);
+				break;
+			default:
+				SET_RET(CL_INVALID_PROPERTY);
+				return 0;
+			}
+			++prop;
+		}
+
+		switch(device_type)
+		{
+		case CL_DEVICE_TYPE_CPU:
+		case CL_DEVICE_TYPE_ALL:
+		case CL_DEVICE_TYPE_DEFAULT:
+		case CL_DEVICE_TYPE_GPU:
+		case CL_DEVICE_TYPE_ACCELERATOR:
+			break;
+		default:
+			SET_RET(CL_INVALID_DEVICE_TYPE);
+			return 0;
+		}
+
+		std::vector<cl::Device> devices;
+		cl_int err = cl::Platform(platform).getDevices(device_type, &devices);
+		if (err != CL_SUCCESS)
+		{
+			SET_RET(CL_DEVICE_NOT_AVAILABLE);
+			return 0;
+		}
+
+		cl_device_id dev = devices.front()();
+		return clCreateContext(properties, 1, &dev, pfn_notify, user_data, errcode_ret);
 	}
 
 	cl_int clRetainContext (cl_context context)
@@ -830,6 +893,8 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		if (!FreeOCL::icd_loader.isValid(platform))
+			return CL_INVALID_PLATFORM;
 		return platform->dispatch->clGetPlatformInfo(platform,
 													 param_name,
 													 param_value_size,
@@ -845,12 +910,15 @@ extern "C"
 			|| (platforms == NULL && num_platforms == NULL))
 			return CL_INVALID_VALUE;
 
+		const std::vector<cl_platform_id> &v_platforms = FreeOCL::icd_loader.get_platforms();
+		if (v_platforms.empty())
+			return CL_PLATFORM_NOT_FOUND_KHR;
+
 		if (num_platforms != NULL)
-			*num_platforms = 0;
+			*num_platforms = v_platforms.size();
 
 		if (platforms != NULL)
-		{
-		}
+			memcpy(platforms, &(v_platforms.front()), v_platforms.size() * sizeof(cl_platform_id));
 
 		return CL_SUCCESS;
 	}
