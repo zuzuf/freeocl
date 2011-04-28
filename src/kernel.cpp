@@ -41,6 +41,7 @@ extern "C"
 								  const cl_event *event_wait_list,
 								  cl_event *event)
 	{
+		MSG(clEnqueueNativeKernelFCL);
 		if (user_func == NULL
 			|| (args == NULL && cb_args + num_mem_objects > 0)
 			|| (cb_args == 0 && args != NULL)
@@ -101,6 +102,7 @@ extern "C"
 							  const char *kernel_name,
 							  cl_int *errcode_ret)
 	{
+		MSG(clCreateKernelFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 		{
@@ -122,11 +124,13 @@ extern "C"
 									 cl_kernel *kernels,
 									 cl_uint *num_kernels_ret)
 	{
+		MSG(clCreateKernelsInProgramFCL);
 		return CL_INVALID_OPERATION;
 	}
 
 	cl_int clRetainKernelFCL (cl_kernel kernel)
 	{
+		MSG(clRetainKernelFCL);
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
 
@@ -137,6 +141,7 @@ extern "C"
 
 	cl_int clReleaseKernelFCL (cl_kernel kernel)
 	{
+		MSG(clReleaseKernelFCL);
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
 		kernel->release();
@@ -156,6 +161,7 @@ extern "C"
 						   size_t arg_size,
 						   const void *arg_value)
 	{
+		MSG(clSetKernelArgFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
@@ -170,6 +176,7 @@ extern "C"
 							void *param_value,
 							size_t *param_value_size_ret)
 	{
+		MSG(clGetKernelInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
@@ -201,6 +208,7 @@ extern "C"
 									 void *param_value,
 									 size_t *param_value_size_ret)
 	{
+		MSG(clGetKernelWorkGroupInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
@@ -237,6 +245,7 @@ extern "C"
 								   const cl_event *event_wait_list,
 								   cl_event *event)
 	{
+		MSG(clEnqueueNDRangeKernelFCL);
 		return CL_INVALID_VALUE;
 	}
 
@@ -246,6 +255,7 @@ extern "C"
 						  const cl_event *event_wait_list,
 						  cl_event *event)
 	{
+		MSG(clEnqueueTaskFCL);
 		const size_t global_work_size = 1;
 		const size_t local_work_size = 1;
 		return clEnqueueNDRangeKernel(command_queue,

@@ -30,6 +30,7 @@ extern "C"
 										  const size_t *lengths,
 										  cl_int *errcode_ret)
 	{
+		MSG(clCreateProgramWithSourceFCL);
 		if (count == 0 || strings == NULL)
 		{
 			SET_RET(CL_INVALID_VALUE);
@@ -43,7 +44,7 @@ extern "C"
 				SET_RET(CL_INVALID_VALUE);
 				return 0;
 			}
-			const size_t len = (lengths[i] == 0) ? strlen(strings[i]) : lengths[i];
+			const size_t len = (lengths == NULL || lengths[i] == 0) ? strlen(strings[i]) : lengths[i];
 			source_code.append(strings[i], len);
 		}
 
@@ -71,11 +72,14 @@ extern "C"
 										  cl_int *binary_status,
 										  cl_int *errcode_ret)
 	{
-
+		MSG(clCreateProgramWithBinaryFCL);
+		SET_RET(CL_INVALID_OPERATION);
+		return 0;
 	}
 
 	cl_int clRetainProgramFCL (cl_program program)
 	{
+		MSG(clRetainProgramFCL);
 		if (!FreeOCL::isValid(program))
 			return CL_INVALID_PROGRAM;
 		program->retain();
@@ -85,6 +89,7 @@ extern "C"
 
 	cl_int clReleaseProgramFCL (cl_program program)
 	{
+		MSG(clReleaseProgramFCL);
 		if (!FreeOCL::isValid(program))
 			return CL_INVALID_PROGRAM;
 		program->release();
@@ -107,6 +112,7 @@ extern "C"
 														  void *user_data),
 						   void *user_data)
 	{
+		MSG(clBuildProgramFCL);
 		if (device_list == NULL && num_devices > 0)
 			return CL_INVALID_VALUE;
 		if (pfn_notify == NULL && user_data != NULL)
@@ -126,6 +132,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		MSG(clGetProgramInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 			return CL_INVALID_PROGRAM;
@@ -161,6 +168,7 @@ extern "C"
 								  void *param_value,
 								  size_t *param_value_size_ret)
 	{
+		MSG(clGetProgramBuildInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 			return CL_INVALID_PROGRAM;

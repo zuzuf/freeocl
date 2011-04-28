@@ -34,6 +34,7 @@ extern "C"
 								   void *user_data,
 								   cl_int *errcode_ret)
 	{
+		MSG(clCreateContextFCL);
 		if (devices == NULL
 			|| num_devices == 0
 			|| (pfn_notify == NULL && user_data != NULL))
@@ -110,6 +111,7 @@ extern "C"
 										 void *user_data,
 										 cl_int *errcode_ret)
 	{
+		MSG(clCreateContextFromType);
 		switch(device_type)
 		{
 		case CL_DEVICE_TYPE_CPU:
@@ -129,6 +131,7 @@ extern "C"
 
 	cl_int clRetainContextFCL (cl_context context)
 	{
+		MSG(clRetainContextFCL);
 		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;
 
@@ -139,6 +142,7 @@ extern "C"
 
 	cl_int clReleaseContextFCL (cl_context context)
 	{
+		MSG(clReleaseContextFCL);
 		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;
 
@@ -160,6 +164,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		MSG(clGetContextInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(context))
 			return CL_INVALID_CONTEXT;

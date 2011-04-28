@@ -33,6 +33,7 @@ extern "C"
 							void *host_ptr,
 							cl_int *errcode_ret)
 	{
+		MSG(clCreateImage2DFCL);
 		SET_RET(CL_INVALID_OPERATION);
 		return 0;
 	}
@@ -48,6 +49,7 @@ extern "C"
 							void *host_ptr,
 							cl_int *errcode_ret)
 	{
+		MSG(clCreateImage3DFCL);
 		SET_RET(CL_INVALID_OPERATION);
 		return 0;
 	}
@@ -59,6 +61,7 @@ extern "C"
 									   cl_image_format *image_formats,
 									   cl_uint *num_image_formats)
 	{
+		MSG(clGetSupportedImageFormatsFCL);
 		if (image_type != CL_MEM_OBJECT_IMAGE2D
 			&& image_type != CL_MEM_OBJECT_IMAGE3D)
 			return CL_INVALID_VALUE;
@@ -89,6 +92,7 @@ extern "C"
 							   const cl_event *event_wait_list,
 							   cl_event *event)
 	{
+		MSG(clEnqueueReadImageFCL);
 		return CL_INVALID_MEM_OBJECT;
 	}
 
@@ -104,6 +108,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		MSG(clEnqueueWriteImageFCL);
 		return CL_INVALID_MEM_OBJECT;
 	}
 
@@ -117,6 +122,7 @@ extern "C"
 							   const cl_event *event_wait_list,
 							   cl_event *event)
 	{
+		MSG(clEnqueueCopyImageFCL);
 		return CL_INVALID_MEM_OBJECT;
 	}
 
@@ -130,6 +136,7 @@ extern "C"
 									   const cl_event *event_wait_list,
 									   cl_event *event)
 	{
+		MSG(clEnqueueCopyImageToBufferFCL);
 		return CL_INVALID_MEM_OBJECT;
 	}
 
@@ -143,6 +150,7 @@ extern "C"
 									   const cl_event *event_wait_list,
 									   cl_event *event)
 	{
+		MSG(clEnqueueCopyBufferToImageFCL);
 		return CL_INVALID_MEM_OBJECT;
 	}
 
@@ -159,6 +167,7 @@ extern "C"
 							  cl_event *event,
 							  cl_int *errcode_ret)
 	{
+		MSG(clEnqueueMapImageFCL);
 		SET_RET(CL_INVALID_MEM_OBJECT);
 		return NULL;
 	}
@@ -169,6 +178,7 @@ extern "C"
 						   void *param_value,
 						   size_t *param_value_size_ret)
 	{
+		MSG(clGetImageInfoFCL);
 		return CL_INVALID_MEM_OBJECT;
 	}
 }

@@ -95,6 +95,7 @@ extern "C"
 							void *param_value,
 							size_t *param_value_size_ret)
 	{
+		MSG(clGetDeviceInfoFCL);
 		if (device != FreeOCL::device)
 			return CL_INVALID_DEVICE;
 		bool bTooSmall = false;
@@ -191,6 +192,7 @@ extern "C"
 							  cl_device_id *devices,
 							  cl_uint *num_devices)
 	{
+		MSG(clGetDeviceIDsFCL);
 		if (platform != FreeOCL::platform)
 			return CL_INVALID_PLATFORM;
 

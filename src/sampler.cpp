@@ -28,17 +28,20 @@ extern "C"
 								cl_filter_mode filter_mode,
 								cl_int *errcode_ret)
 	{
+		MSG(clCreateSamplerFCL);
 		SET_RET(CL_INVALID_OPERATION);
 		return NULL;
 	}
 
 	cl_int clRetainSamplerFCL (cl_sampler sampler)
 	{
+		MSG(clRetainSamplerFCL);
 		return CL_INVALID_SAMPLER;
 	}
 
 	cl_int clReleaseSamplerFCL (cl_sampler sampler)
 	{
+		MSG(clReleaseSamplerFCL);
 		return CL_INVALID_SAMPLER;
 	}
 
@@ -48,6 +51,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		MSG(clGetSamplerInfoFCL);
 		return CL_INVALID_SAMPLER;
 	}
 }

@@ -46,6 +46,11 @@ inline std::string memSuffix(const size_t s)
 	return buf.str();
 }
 
+void pfn_notify(cl_event, cl_int, void*)
+{
+
+}
+
 int main(void)
 {
 	try
@@ -106,18 +111,18 @@ int main(void)
 
 		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 0x1000000);
 		std::cout << "E" << std::endl;
-		const char *msg = "Hello World!";
-		cl_event event;
-		clEnqueueWriteBuffer(queue(), buffer(), true, 0, strlen(msg) + 1, msg, 0, NULL, &event);
-		clRetainEvent(event);
+		char *msg = (char*)"Hello World!";
+
+		clEnqueueReadBuffer(queue(), buffer(), true, 0, strlen(msg) + 1, msg, 0, NULL, NULL);
 
 //		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
 		std::cout << "F" << std::endl;
 
-		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
+//		void *p = clEnqueueMapBuffer(queue(), buffer(), CL_TRUE, CL_MAP_READ, 0, strlen(msg) + 1, 0, NULL, NULL, NULL);
+//		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
 		std::cout << "G" << std::endl;
-		std::cout << (char*)p << std::endl;
-		queue.enqueueUnmapMemObject(buffer, p);
+//		std::cout << (char*)p << std::endl;
+//		queue.enqueueUnmapMemObject(buffer, p);
 		std::cout << "H" << std::endl;
 	}
 	catch(cl::Error err)

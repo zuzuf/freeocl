@@ -39,6 +39,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		MSG(clGetPlatformInfoFCL);
 		if (platform != FreeOCL::platform)
 			return CL_INVALID_PLATFORM;
 		bool bTooSmall = false;
@@ -74,6 +75,7 @@ extern "C"
 							 cl_platform_id *platforms,
 							 cl_uint *num_platforms)
 	{
+		MSG(clIcdGetPlatformIDsKHR);
 		if ((num_entries != 0 && platforms == NULL)
 			|| (platforms == NULL && num_platforms == NULL))
 			return CL_INVALID_VALUE;

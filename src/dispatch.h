@@ -570,6 +570,8 @@ struct _cl_icd_dispatch
 	 * calling the returned function address.
 	 */
 	CL_API_ENTRY void * (CL_API_CALL * clGetExtensionFunctionAddress)(const char * /* func_name */) CL_API_SUFFIX__VERSION_1_0;
+
+	void *empty[256];
 };
 
 #endif

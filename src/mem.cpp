@@ -34,6 +34,7 @@ extern "C"
 						   void *host_ptr,
 						   cl_int *errcode_ret)
 	{
+		MSG(clCreateBufferFCL);
 		if (size == 0)
 		{
 			SET_RET(CL_INVALID_BUFFER_SIZE);
@@ -91,7 +92,7 @@ extern "C"
 							  const void *buffer_create_info,
 							  cl_int *errcode_ret)
 	{
-		std::cerr << "Stub : clCreateSubBuffer" << std::endl;
+		MSG(clCreateSubBufferFCL);
 		if (errcode_ret)
 			*errcode_ret = CL_INVALID_VALUE;
 		return 0;
@@ -99,6 +100,7 @@ extern "C"
 
 	cl_int clRetainMemObjectFCL (cl_mem memobj)
 	{
+		MSG(clRetainMemObjectFCL);
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 
@@ -109,6 +111,7 @@ extern "C"
 
 	cl_int clReleaseMemObjectFCL (cl_mem memobj)
 	{
+		MSG(clReleaseMemObjectFCL);
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 
@@ -129,6 +132,7 @@ extern "C"
 																			void *user_data),
 											 void *user_data)
 	{
+		MSG(clSetMemObjectDestructorCallbackFCL);
 		if (pfn_notify)
 			return CL_INVALID_VALUE;
 
@@ -148,6 +152,7 @@ extern "C"
 							   void *param_value,
 							   size_t *param_value_size_ret)
 	{
+		MSG(clGetMemObjectInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(memobj))
 			return CL_INVALID_MEM_OBJECT;
@@ -190,7 +195,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
-		std::cout << "clEnqueueReadBufferFCL" << std::endl;
+		MSG(clEnqueueReadBufferFCL);
 		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
@@ -263,7 +268,7 @@ extern "C"
 								 const cl_event *event_wait_list,
 								 cl_event *event)
 	{
-		std::cout << "clEnqueueWriteBufferFCL" << std::endl;
+		MSG(clEnqueueWriteBufferFCL);
 		FreeOCL::unlocker unlock;
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
@@ -336,7 +341,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
-		std::cout << "clEnqueueCopyBufferFCL" << std::endl;
+		MSG(clEnqueueCopyBufferFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
@@ -404,6 +409,7 @@ extern "C"
 							   cl_event *event,
 							   cl_int *errcode_ret)
 	{
+		MSG(clEnqueueMapBufferFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 		{
@@ -487,6 +493,7 @@ extern "C"
 									const cl_event *event_wait_list,
 									cl_event *event)
 	{
+		MSG(clEnqueueUnmapMemObjectFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
@@ -535,6 +542,7 @@ extern "C"
 							const cl_event *    /* event_wait_list */,
 							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
 	{
+		MSG(clEnqueueCopyBufferRectFCL);
 		return CL_INVALID_VALUE;
 	}
 
@@ -554,7 +562,7 @@ extern "C"
 							 const cl_event *    /* event_wait_list */,
 							 cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
 	{
-		std::cout << "clEnqueueWriteBufferRectFCL" << std::endl;
+		MSG(clEnqueueWriteBufferRectFCL);
 		return CL_INVALID_VALUE;
 	}
 
@@ -574,7 +582,7 @@ extern "C"
 							const cl_event *    /* event_wait_list */,
 							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
 	{
-		std::cout << "clEnqueueReadBufferRectFCL" << std::endl;
+		MSG(clEnqueueReadBufferRectFCL);
 		return CL_INVALID_VALUE;
 	}
 }

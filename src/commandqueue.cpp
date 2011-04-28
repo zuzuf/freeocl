@@ -34,6 +34,7 @@ extern "C"
 										   cl_command_queue_properties properties,
 										   cl_int *errcode_ret)
 	{
+		MSG(clCreateCommandQueueFCL);
 		if (properties & ~(CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE | CL_QUEUE_PROFILING_ENABLE))
 		{
 			SET_RET(CL_INVALID_VALUE);
@@ -66,7 +67,7 @@ extern "C"
 
 	cl_int clRetainCommandQueueFCL (cl_command_queue command_queue)
 	{
-		std::cout << "x<" << std::endl;
+		MSG(clRetainCommandQueueFCL);
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -77,6 +78,7 @@ extern "C"
 
 	cl_int clReleaseCommandQueueFCL (cl_command_queue command_queue)
 	{
+		MSG(clReleaseCommandQueueFCL);
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -98,6 +100,7 @@ extern "C"
 								  void *param_value,
 								  size_t *param_value_size_ret)
 	{
+		MSG(clGetCommandQueueInfoFCL);
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -121,7 +124,7 @@ extern "C"
 
 	cl_int clFlushFCL (cl_command_queue command_queue)
 	{
-		std::cout << "clFlushFCL" << std::endl;
+		MSG(clFlushFCL);
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		command_queue->unlock();
@@ -131,7 +134,7 @@ extern "C"
 
 	cl_int clFinishFCL (cl_command_queue command_queue)
 	{
-		std::cout << "clFinishFCL" << std::endl;
+		MSG(clFinishFCL);
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		if (command_queue->empty())
@@ -162,7 +165,8 @@ _cl_command_queue::_cl_command_queue() : q_thread(this), b_stop(false)
 _cl_command_queue::~_cl_command_queue()
 {
 	b_stop = true;
-	wakeup();
+	while(q_thread.running())
+		wakeup();
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_command_queues.erase(this);
 	FreeOCL::global_mutex.unlock();
@@ -175,8 +179,11 @@ void _cl_command_queue::enqueue(const FreeOCL::command &cmd)
 	q_mutex.unlock();
 
 	unlock();
-	q_thread.start();		// Make sure the scheduler is running
-	wakeup();
+	if (!b_stop)
+	{
+		q_thread.start();		// Make sure the scheduler is running
+		wakeup();
+	}
 }
 
 bool _cl_command_queue::empty()

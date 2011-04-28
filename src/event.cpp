@@ -26,6 +26,7 @@ extern "C"
 {
 	cl_event clCreateUserEventFCL (cl_context context, cl_int *errcode_ret)
 	{
+		MSG(clCreateUserEventFCL);
 		if (!FreeOCL::isValid(context))
 		{
 			SET_RET(CL_INVALID_CONTEXT);
@@ -46,6 +47,7 @@ extern "C"
 
 	cl_int clSetUserEventStatusFCL (cl_event event, cl_int execution_status)
 	{
+		MSG(clSetUserEventStatusFCL);
 		if (execution_status != CL_COMPLETE && execution_status >= 0)
 			return CL_INVALID_VALUE;
 		if (!FreeOCL::isValid(event))
@@ -62,6 +64,7 @@ extern "C"
 
 	cl_int clWaitForEventsFCL (cl_uint num_events, const cl_event *event_list)
 	{
+		MSG(clWaitForEventsFCL);
 		if (num_events == 0 || event_list == NULL)
 			return CL_INVALID_VALUE;
 
@@ -93,6 +96,7 @@ extern "C"
 						   void *param_value,
 						   size_t *param_value_size_ret)
 	{
+		MSG(clGetEventInfoFCL);
 		bool bTooSmall = false;
 		if (!FreeOCL::isValid(event))
 			return CL_INVALID_EVENT;
@@ -127,6 +131,7 @@ extern "C"
 																	void *user_data),
 							   void *user_data)
 	{
+		MSG(clSetEventCallbackFCL);
 		if (command_exec_callback_type != CL_COMPLETE
 			|| pfn_event_notify == NULL)
 			return CL_INVALID_VALUE;
@@ -143,6 +148,7 @@ extern "C"
 
 	cl_int clRetainEventFCL (cl_event event)
 	{
+		MSG(clRetainEventFCL);
 		if (!FreeOCL::isValid(event))
 			return CL_INVALID_EVENT;
 
@@ -153,6 +159,7 @@ extern "C"
 
 	cl_int clReleaseEventFCL (cl_event event)
 	{
+		MSG(clReleaseEventFCL);
 		if (!FreeOCL::isValid(event))
 			return CL_INVALID_EVENT;
 
@@ -171,7 +178,8 @@ extern "C"
 	cl_int clEnqueueMarkerFCL (cl_command_queue command_queue,
 							cl_event *event)
 	{
-		if (event)
+		MSG(clEnqueueMarkerFCL);
+		if (event == NULL)
 			return CL_INVALID_VALUE;
 
 		if (!FreeOCL::isValid(command_queue))
@@ -194,6 +202,7 @@ extern "C"
 
 	cl_int clEnqueueBarrierFCL (cl_command_queue command_queue)
 	{
+		MSG(clEnqueueBarrierFCL);
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
@@ -202,10 +211,6 @@ extern "C"
 		cmd.common.num_events_in_wait_list = 0;
 		cmd.common.event_wait_list = NULL;
 		cmd.common.event = NULL;
-		cmd.common.event->command_queue = command_queue;
-		cmd.common.event->context = command_queue->context;
-		cmd.common.event->command_type = CL_COMMAND_MARKER;
-		cmd.common.event->status = CL_SUBMITTED;
 
 		command_queue->enqueue(cmd);
 
@@ -216,6 +221,7 @@ extern "C"
 								   cl_uint num_events,
 								   const cl_event *event_list)
 	{
+		MSG(clEnqueueWaitForEventsFCL);
 		if (num_events == 0 || event_list == NULL)
 			return CL_INVALID_VALUE;
 
@@ -227,10 +233,6 @@ extern "C"
 		cmd.common.num_events_in_wait_list = num_events;
 		cmd.common.event_wait_list = event_list;
 		cmd.common.event = NULL;
-		cmd.common.event->command_queue = command_queue;
-		cmd.common.event->context = command_queue->context;
-		cmd.common.event->command_type = CL_COMMAND_MARKER;
-		cmd.common.event->status = CL_SUBMITTED;
 
 		command_queue->enqueue(cmd);
 
@@ -243,6 +245,7 @@ extern "C"
 									   void *param_value,
 									   size_t *param_value_size_ret)
 	{
+		MSG(clGetEventProfilingInfoFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(event))
 			return CL_INVALID_EVENT;
@@ -279,7 +282,8 @@ void _cl_event::change_status(cl_int new_status)
 				i->pfn_notify(this, new_status, i->user_data);
 
 	wakeup();
-	command_queue->wakeup();		// If the command queue is waiting for a status change, notify it
+	if (command_queue)
+		command_queue->wakeup();		// If the command queue is waiting for a status change, notify it
 
 	lock();
 }

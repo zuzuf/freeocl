@@ -253,6 +253,177 @@ namespace FreeOCL
 	STUB(98)
 	STUB(99)
 	STUB(100)
+	STUB(101)
+	STUB(102)
+	STUB(103)
+	STUB(104)
+	STUB(105)
+	STUB(106)
+	STUB(107)
+	STUB(108)
+	STUB(109)
+	STUB(110)
+	STUB(111)
+	STUB(112)
+	STUB(113)
+	STUB(114)
+	STUB(115)
+	STUB(116)
+	STUB(117)
+	STUB(118)
+	STUB(119)
+	STUB(120)
+	STUB(121)
+	STUB(122)
+	STUB(123)
+	STUB(124)
+	STUB(125)
+	STUB(126)
+	STUB(127)
+	STUB(128)
+	STUB(129)
+	STUB(130)
+	STUB(131)
+	STUB(132)
+	STUB(133)
+	STUB(134)
+	STUB(135)
+	STUB(136)
+	STUB(137)
+	STUB(138)
+	STUB(139)
+	STUB(140)
+	STUB(141)
+	STUB(142)
+	STUB(143)
+	STUB(144)
+	STUB(145)
+	STUB(146)
+	STUB(147)
+	STUB(148)
+	STUB(149)
+	STUB(150)
+	STUB(151)
+	STUB(152)
+	STUB(153)
+	STUB(154)
+	STUB(155)
+	STUB(156)
+	STUB(157)
+	STUB(158)
+	STUB(159)
+	STUB(160)
+	STUB(161)
+	STUB(162)
+	STUB(163)
+	STUB(164)
+	STUB(165)
+	STUB(166)
+	STUB(167)
+	STUB(168)
+	STUB(169)
+	STUB(170)
+	STUB(171)
+	STUB(172)
+	STUB(173)
+	STUB(174)
+	STUB(175)
+	STUB(176)
+	STUB(177)
+	STUB(178)
+	STUB(179)
+	STUB(180)
+	STUB(181)
+	STUB(182)
+	STUB(183)
+	STUB(184)
+	STUB(185)
+	STUB(186)
+	STUB(187)
+	STUB(188)
+	STUB(189)
+	STUB(190)
+	STUB(191)
+	STUB(192)
+	STUB(193)
+	STUB(194)
+	STUB(195)
+	STUB(196)
+	STUB(197)
+	STUB(198)
+	STUB(199)
+	STUB(200)
+	STUB(201)
+	STUB(202)
+	STUB(203)
+	STUB(204)
+	STUB(205)
+	STUB(206)
+	STUB(207)
+	STUB(208)
+	STUB(209)
+	STUB(210)
+	STUB(211)
+	STUB(212)
+	STUB(213)
+	STUB(214)
+	STUB(215)
+	STUB(216)
+	STUB(217)
+	STUB(218)
+	STUB(219)
+	STUB(220)
+	STUB(221)
+	STUB(222)
+	STUB(223)
+	STUB(224)
+	STUB(225)
+	STUB(226)
+	STUB(227)
+	STUB(228)
+	STUB(229)
+	STUB(230)
+	STUB(231)
+	STUB(232)
+	STUB(233)
+	STUB(234)
+	STUB(235)
+	STUB(236)
+	STUB(237)
+	STUB(238)
+	STUB(239)
+	STUB(240)
+	STUB(241)
+	STUB(242)
+	STUB(243)
+	STUB(244)
+	STUB(245)
+	STUB(246)
+	STUB(247)
+	STUB(248)
+	STUB(249)
+	STUB(250)
+	STUB(251)
+	STUB(252)
+	STUB(253)
+	STUB(254)
+	STUB(255)
+	STUB(256)
+	STUB(257)
+	STUB(258)
+	STUB(259)
+	STUB(260)
+	STUB(261)
+	STUB(262)
+	STUB(263)
+	STUB(264)
+	STUB(265)
+	STUB(266)
+	STUB(267)
+	STUB(268)
+	STUB(269)
+	STUB(270)
+	STUB(271)
 
 	_cl_icd_dispatch init_dispatch()
 	{
@@ -343,77 +514,278 @@ namespace FreeOCL
 		table.clGetExtensionFunctionAddress = clGetExtensionFunctionAddress;
 
 		void **t = ((void**)&table);
-//		t[0] = (void*)stub0;
-//		t[1] = (void*)stub1;
-//		t[2] = (void*)stub2;
-//		t[3] = (void*)stub3;
-//		t[4] = (void*)stub4;
+		t[0] = (void*)clIcdGetPlatformIDsKHR;
+		t[1] = (void*)clGetPlatformInfoFCL;
+		t[2] = (void*)clGetDeviceIDsFCL;
+		t[3] = (void*)clGetDeviceInfoFCL;
+		t[4] = (void*)clCreateContextFCL;
 		t[5] = (void*)stub5;
-		t[6] = (void*)stub6;
-//		t[7] = (void*)stub7;
-		t[8] = (void*)stub8;
-//		t[9] = (void*)stub9;
-		t[10] = (void*)stub10;
-//		t[11] = (void*)stub11;
-		t[12] = (void*)stub12;
+		t[6] = (void*)clRetainContextFCL;
+		t[7] = (void*)clReleaseContextFCL;
+		t[8] = (void*)clGetContextInfoFCL;
+		t[9] = (void*)clCreateCommandQueueFCL;
+		t[10] = (void*)clRetainCommandQueueFCL;
+		t[11] = (void*)clReleaseCommandQueueFCL;
+		t[12] = (void*)clGetCommandQueueInfoFCL;
 		t[13] = (void*)stub13;
-//		t[14] = (void*)stub14;
-		t[15] = (void*)stub15;
-		t[16] = (void*)stub16;
-		t[17] = (void*)stub17;
-//		t[18] = (void*)stub18;
-		t[19] = (void*)stub19;
-		t[20] = (void*)stub20;
-		t[21] = (void*)stub21;
+		t[14] = (void*)clCreateBufferFCL;
+		t[15] = (void*)clCreateImage2DFCL;
+		t[16] = (void*)clCreateImage3DFCL;
+		t[17] = (void*)clRetainMemObjectFCL;
+		t[18] = (void*)clReleaseMemObjectFCL;
+		t[19] = (void*)clGetSupportedImageFormatsFCL;
+		t[20] = (void*)clGetMemObjectInfoFCL;
+		t[21] = (void*)clGetImageInfoFCL;
 		t[22] = (void*)stub22;
 		t[23] = (void*)stub23;
 		t[24] = (void*)stub24;
 		t[25] = (void*)stub25;
-		t[26] = (void*)stub26;
+		t[26] = (void*)clCreateProgramWithSourceFCL;
 		t[27] = (void*)stub27;
-		t[28] = (void*)stub28;
-		t[29] = (void*)stub29;
-		t[30] = (void*)stub30;
+		t[28] = (void*)clRetainProgramFCL;
+		t[29] = (void*)clReleaseProgramFCL;
+		t[30] = (void*)clBuildProgramFCL;
 		t[31] = (void*)stub31;
-		t[32] = (void*)stub32;
-		t[33] = (void*)stub33;
-		t[34] = (void*)stub34;
-		t[35] = (void*)stub35;
-		t[36] = (void*)stub36;
-		t[37] = (void*)stub37;
-		t[38] = (void*)stub38;
-		t[39] = (void*)stub39;
-		t[40] = (void*)stub40;
-		t[41] = (void*)stub41;
-		t[42] = (void*)stub42;
-		t[43] = (void*)stub43;
-		t[44] = (void*)stub44;
-		t[45] = (void*)stub45;
-		t[46] = (void*)stub46;
-		t[47] = (void*)stub47;
-		t[48] = (void*)stub48;
-//		t[49] = (void*)stub49;
+		t[32] = (void*)clGetProgramInfoFCL;
+		t[33] = (void*)clGetProgramBuildInfoFCL;
+		t[34] = (void*)clCreateKernelFCL;
+		t[35] = (void*)clCreateKernelsInProgramFCL;
+		t[36] = (void*)clRetainKernelFCL;
+		t[37] = (void*)clReleaseKernelFCL;
+		t[38] = (void*)clSetKernelArgFCL;
+		t[39] = (void*)clGetKernelInfoFCL;
+		t[40] = (void*)clGetKernelWorkGroupInfoFCL;
+		t[41] = (void*)clWaitForEventsFCL;
+		t[42] = (void*)clGetEventInfoFCL;
+		t[43] = (void*)clRetainEventFCL;
+		t[44] = (void*)clReleaseEventFCL;
+		t[45] = (void*)clGetEventProfilingInfoFCL;
+		t[46] = (void*)clFlushFCL;
+		t[47] = (void*)clFinishFCL;
+		t[48] = (void*)clEnqueueReadBufferFCL;
+		t[49] = (void*)clEnqueueWriteBufferFCL;
 		t[50] = (void*)stub50;
 		t[51] = (void*)stub51;
 		t[52] = (void*)stub52;
 		t[53] = (void*)stub53;
 		t[54] = (void*)stub54;
 		t[55] = (void*)stub55;
-//		t[56] = (void*)stub56;
+		t[56] = (void*)clEnqueueMapBufferFCL;
 		t[57] = (void*)stub57;
-		t[58] = (void*)stub58;
+		t[58] = (void*)clEnqueueUnmapMemObjectFCL;
 		t[59] = (void*)stub59;
 		t[60] = (void*)stub60;
 		t[61] = (void*)stub61;
-		t[62] = (void*)stub62;
-		t[63] = (void*)stub63;
-		t[64] = (void*)stub64;
+		t[62] = (void*)clEnqueueMarkerFCL;
+		t[63] = (void*)clEnqueueWaitForEventsFCL;
+		t[64] = (void*)clEnqueueBarrierFCL;
 		t[65] = (void*)stub65;
 		t[66] = (void*)stub66;
 		t[67] = (void*)stub67;
 		t[68] = (void*)stub68;
 		t[69] = (void*)stub69;
 		t[70] = (void*)stub70;
+		t[71] = (void*)stub71;
+		t[72] = (void*)stub72;
+		t[73] = (void*)stub73;
+		t[74] = (void*)stub74;
+		t[75] = (void*)stub75;
+		t[76] = (void*)stub76;
+		t[77] = (void*)stub77;
+		t[78] = (void*)stub78;
+		t[79] = (void*)stub79;
+		t[80] = (void*)stub80;
+		t[81] = (void*)clSetEventCallbackFCL;
+		t[82] = (void*)stub82;
+		t[83] = (void*)clSetMemObjectDestructorCallbackFCL;
+		t[84] = (void*)clCreateUserEventFCL;
+		t[85] = (void*)clSetUserEventStatusFCL;
+		t[86] = (void*)stub86;
+		t[87] = (void*)stub87;
+		t[88] = (void*)stub88;
+		t[89] = (void*)stub89;
+		t[90] = (void*)stub90;
+		t[91] = (void*)stub91;
+		t[92] = (void*)stub92;
+		t[93] = (void*)stub93;
+		t[94] = (void*)stub94;
+		t[95] = (void*)stub95;
+		t[96] = (void*)stub96;
+		t[97] = (void*)stub97;
+		t[98] = (void*)stub98;
+		t[99] = (void*)stub99;
+		t[100] = (void*)stub100;
+		t[101] = (void*)stub101;
+		t[102] = (void*)stub102;
+		t[103] = (void*)stub103;
+		t[104] = (void*)stub104;
+		t[105] = (void*)stub105;
+		t[106] = (void*)stub106;
+		t[107] = (void*)stub107;
+		t[108] = (void*)stub108;
+		t[109] = (void*)stub109;
+		t[110] = (void*)stub110;
+		t[111] = (void*)stub111;
+		t[112] = (void*)stub112;
+		t[113] = (void*)stub113;
+		t[114] = (void*)stub114;
+		t[115] = (void*)stub115;
+		t[116] = (void*)stub116;
+		t[117] = (void*)stub117;
+		t[118] = (void*)stub118;
+		t[119] = (void*)stub119;
+		t[120] = (void*)stub120;
+		t[121] = (void*)stub121;
+		t[122] = (void*)stub122;
+		t[123] = (void*)stub123;
+		t[124] = (void*)stub124;
+		t[125] = (void*)stub125;
+		t[126] = (void*)stub126;
+		t[127] = (void*)stub127;
+		t[128] = (void*)stub128;
+		t[129] = (void*)stub129;
+		t[130] = (void*)stub130;
+		t[131] = (void*)stub131;
+		t[132] = (void*)stub132;
+		t[133] = (void*)stub133;
+		t[134] = (void*)stub134;
+		t[135] = (void*)stub135;
+		t[136] = (void*)stub136;
+		t[137] = (void*)stub137;
+		t[138] = (void*)stub138;
+		t[139] = (void*)stub139;
+		t[140] = (void*)stub140;
+		t[141] = (void*)stub141;
+		t[142] = (void*)stub142;
+		t[143] = (void*)stub143;
+		t[144] = (void*)stub144;
+		t[145] = (void*)stub145;
+		t[146] = (void*)stub146;
+		t[147] = (void*)stub147;
+		t[148] = (void*)stub148;
+		t[149] = (void*)stub149;
+		t[150] = (void*)stub150;
+		t[151] = (void*)stub151;
+		t[152] = (void*)stub152;
+		t[153] = (void*)stub153;
+		t[154] = (void*)stub154;
+		t[155] = (void*)stub155;
+		t[156] = (void*)stub156;
+		t[157] = (void*)stub157;
+		t[158] = (void*)stub158;
+		t[159] = (void*)stub159;
+		t[160] = (void*)stub160;
+		t[161] = (void*)stub161;
+		t[162] = (void*)stub162;
+		t[163] = (void*)stub163;
+		t[164] = (void*)stub164;
+		t[165] = (void*)stub165;
+		t[166] = (void*)stub166;
+		t[167] = (void*)stub167;
+		t[168] = (void*)stub168;
+		t[169] = (void*)stub169;
+		t[170] = (void*)stub170;
+		t[171] = (void*)stub171;
+		t[172] = (void*)stub172;
+		t[173] = (void*)stub173;
+		t[174] = (void*)stub174;
+		t[175] = (void*)stub175;
+		t[176] = (void*)stub176;
+		t[177] = (void*)stub177;
+		t[178] = (void*)stub178;
+		t[179] = (void*)stub179;
+		t[180] = (void*)stub180;
+		t[181] = (void*)stub181;
+		t[182] = (void*)stub182;
+		t[183] = (void*)stub183;
+		t[184] = (void*)stub184;
+		t[185] = (void*)stub185;
+		t[186] = (void*)stub186;
+		t[187] = (void*)stub187;
+		t[188] = (void*)stub188;
+		t[189] = (void*)stub189;
+		t[190] = (void*)stub190;
+		t[191] = (void*)stub191;
+		t[192] = (void*)stub192;
+		t[193] = (void*)stub193;
+		t[194] = (void*)stub194;
+		t[195] = (void*)stub195;
+		t[196] = (void*)stub196;
+		t[197] = (void*)stub197;
+		t[198] = (void*)stub198;
+		t[199] = (void*)stub199;
+		t[200] = (void*)stub200;
+		t[201] = (void*)stub201;
+		t[202] = (void*)stub202;
+		t[203] = (void*)stub203;
+		t[204] = (void*)stub204;
+		t[205] = (void*)stub205;
+		t[206] = (void*)stub206;
+		t[207] = (void*)stub207;
+		t[208] = (void*)stub208;
+		t[209] = (void*)stub209;
+		t[210] = (void*)stub210;
+		t[211] = (void*)stub211;
+		t[212] = (void*)stub212;
+		t[213] = (void*)stub213;
+		t[214] = (void*)stub214;
+		t[215] = (void*)stub215;
+		t[216] = (void*)stub216;
+		t[217] = (void*)stub217;
+		t[218] = (void*)stub218;
+		t[219] = (void*)stub219;
+		t[220] = (void*)stub220;
+		t[221] = (void*)stub221;
+		t[222] = (void*)stub222;
+		t[223] = (void*)stub223;
+		t[224] = (void*)stub224;
+		t[225] = (void*)stub225;
+		t[226] = (void*)stub226;
+		t[227] = (void*)stub227;
+		t[228] = (void*)stub228;
+		t[229] = (void*)stub229;
+		t[230] = (void*)stub230;
+		t[231] = (void*)stub231;
+		t[232] = (void*)stub232;
+		t[233] = (void*)stub233;
+		t[234] = (void*)stub234;
+		t[235] = (void*)stub235;
+		t[236] = (void*)stub236;
+		t[237] = (void*)stub237;
+		t[238] = (void*)stub238;
+		t[239] = (void*)stub239;
+		t[240] = (void*)stub240;
+		t[241] = (void*)stub241;
+		t[242] = (void*)stub242;
+		t[243] = (void*)stub243;
+		t[244] = (void*)stub244;
+		t[245] = (void*)stub245;
+		t[246] = (void*)stub246;
+		t[247] = (void*)stub247;
+		t[248] = (void*)stub248;
+		t[249] = (void*)stub249;
+		t[250] = (void*)stub250;
+		t[251] = (void*)stub251;
+		t[252] = (void*)stub252;
+		t[253] = (void*)stub253;
+		t[254] = (void*)stub254;
+		t[255] = (void*)stub255;
+		t[256] = (void*)stub256;
+		t[257] = (void*)stub257;
+		t[258] = (void*)stub258;
+		t[259] = (void*)stub259;
+		t[260] = (void*)stub260;
+		t[261] = (void*)stub261;
+		t[262] = (void*)stub262;
+		t[263] = (void*)stub263;
+		t[264] = (void*)stub264;
+		t[265] = (void*)stub265;
+		t[266] = (void*)stub266;
+		t[267] = (void*)stub267;
+		t[268] = (void*)stub268;
+		t[269] = (void*)stub269;
+		t[270] = (void*)stub270;
+		t[271] = (void*)stub271;
 		return table;
 	}
 }

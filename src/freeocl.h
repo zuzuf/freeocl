@@ -28,6 +28,10 @@
 #include <set>
 #include "mutex.h"
 #include "dispatch.h"
+#include <iostream>
+
+#define MSG(X)	std::cout << #X << std::endl
+#define CRASH()	(*((int*)NULL) = 0)
 
 namespace FreeOCL
 {
