@@ -3,19 +3,20 @@
 	Copyright (C) 2011  Roland Brochard
 
 	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
+	it under the terms of the GNU Lesser General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
+	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "icd_loader.h"
+#include "platform.h"
 #include <cstdio>
 #include <fstream>
 #include <dlfcn.h>
@@ -162,12 +163,12 @@ namespace FreeOCL
 				continue;
 
 			cl_uint nb_devices;
-			err = clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, NULL, &nb_devices);
+			err = platforms[i]->dispatch->clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, 0, NULL, &nb_devices);
 			if (err != CL_SUCCESS || nb_devices == 0)		// We need the device list to check for valid devices
 				continue;
 			std::vector<cl_device_id> devices;
 			devices.resize(nb_devices);
-			err = clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, nb_devices, &(devices.front()), NULL);
+			err = platforms[i]->dispatch->clGetDeviceIDs(platforms[i], CL_DEVICE_TYPE_ALL, nb_devices, &(devices.front()), NULL);
 			if (err != CL_SUCCESS)
 				continue;
 

@@ -3,16 +3,16 @@
 	Copyright (C) 2011  Roland Brochard
 
 	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
+	it under the terms of the GNU Lesser General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
+	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "context.h"
@@ -100,6 +100,59 @@ extern "C"
 		SET_RET(CL_SUCCESS);
 
 		return c;
+	}
+
+	cl_context clCreateContextFromTypeFCL (const cl_context_properties *properties,
+										 cl_device_type device_type,
+										 void (CL_CALLBACK *pfn_notify)(const char *errinfo,
+																		const void *private_info,
+																		size_t cb,
+																		void *user_data),
+										 void *user_data,
+										 cl_int *errcode_ret)
+	{
+		MSG(clCreateContextFromType);
+		cl_platform_id platform = 0;
+		if (!properties)
+		{
+			const cl_context_properties *prop = properties;
+			while(!*prop)
+			{
+				switch(*prop)
+				{
+				case CL_CONTEXT_PLATFORM:
+					if (platform != NULL)
+					{
+						SET_RET(CL_INVALID_PROPERTY);
+						return 0;
+					}
+					++prop;
+					platform = *((cl_platform_id*)prop);
+					break;
+				default:
+					SET_RET(CL_INVALID_PROPERTY);
+					return 0;
+				}
+				++prop;
+			}
+		}
+
+		switch(device_type)
+		{
+		case CL_DEVICE_TYPE_CPU:
+		case CL_DEVICE_TYPE_ALL:
+		case CL_DEVICE_TYPE_DEFAULT:
+			break;
+		case CL_DEVICE_TYPE_GPU:
+		case CL_DEVICE_TYPE_ACCELERATOR:
+			break;
+			SET_RET(CL_DEVICE_NOT_AVAILABLE);
+			return 0;
+		default:
+			SET_RET(CL_INVALID_DEVICE_TYPE);
+			return 0;
+		}
+		return clCreateContext(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);
 	}
 
 	cl_int clRetainContextFCL (cl_context context)

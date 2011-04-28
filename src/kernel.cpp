@@ -3,16 +3,16 @@
 	Copyright (C) 2011  Roland Brochard
 
 	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
+	it under the terms of the GNU Lesser General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
+	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "kernel.h"
@@ -23,6 +23,11 @@
 #include "program.h"
 #include <cstdlib>
 #include <cstring>
+
+namespace
+{
+	const size_t kernel_preferred_work_group_size_multiple = 1;
+}
 
 #define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
@@ -224,7 +229,10 @@ extern "C"
 		case CL_KERNEL_WORK_GROUP_SIZE:
 		case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
 		case CL_KERNEL_LOCAL_MEM_SIZE:
+			return CL_INVALID_VALUE;
 		case CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE:
+			bTooSmall = SET_VAR(kernel_preferred_work_group_size_multiple);
+			break;
 		case CL_KERNEL_PRIVATE_MEM_SIZE:
 		default:
 			return CL_INVALID_VALUE;
@@ -268,4 +276,18 @@ extern "C"
 									  event_wait_list,
 									  event);
 	}
+}
+
+_cl_kernel::_cl_kernel()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_kernels.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
+_cl_kernel::~_cl_kernel()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_kernels.erase(this);
+	FreeOCL::global_mutex.unlock();
 }

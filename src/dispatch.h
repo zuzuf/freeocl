@@ -3,16 +3,16 @@
 	Copyright (C) 2011  Roland Brochard
 
 	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
+	it under the terms of the GNU Lesser General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
+	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #ifndef __FREEOCL_DISPATCH_H__
@@ -68,13 +68,13 @@ struct _cl_icd_dispatch
 					cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 /* #5 */
-	_stub	unknown;
-//	CL_API_ENTRY cl_context (CL_API_CALL *
-//	clCreateContextFromType)(const cl_context_properties * /* properties */,
-//							cl_device_type                /* device_type */,
-//							void (CL_CALLBACK *     /* pfn_notify*/ )(const char *, const void *, size_t, void *),
-//							void *                        /* user_data */,
-//							cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+//	_stub	unknown;
+	CL_API_ENTRY cl_context (CL_API_CALL *
+	clCreateContextFromType)(const cl_context_properties * /* properties */,
+							cl_device_type                /* device_type */,
+							void (CL_CALLBACK *     /* pfn_notify*/ )(const char *, const void *, size_t, void *),
+							void *                        /* user_data */,
+							cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clRetainContext)(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;

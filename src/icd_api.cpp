@@ -3,16 +3,16 @@
 	Copyright (C) 2011  Roland Brochard
 
 	This program is free software: you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
+	it under the terms of the GNU Lesser General Public License as published by
 	the Free Software Foundation, either version 3 of the License, or
 	(at your option) any later version.
 
 	This program is distributed in the hope that it will be useful,
 	but WITHOUT ANY WARRANTY; without even the implied warranty of
 	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+	GNU Lesser General Public License for more details.
 
-	You should have received a copy of the GNU General Public License
+	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "freeocl.h"
@@ -107,31 +107,29 @@ extern "C"
 										 cl_int *errcode_ret)
 	{
 		MSG(clCreateContextFromType);
-		if (properties == NULL)
-		{
-			SET_RET(CL_INVALID_VALUE);
-			return 0;
-		}
 		cl_platform_id platform = 0;
-		const cl_context_properties *prop = properties;
-		while(!*prop)
+		if (!properties)
 		{
-			switch(*prop)
+			const cl_context_properties *prop = properties;
+			while(!*prop)
 			{
-			case CL_CONTEXT_PLATFORM:
-				if (platform != NULL)
+				switch(*prop)
 				{
+				case CL_CONTEXT_PLATFORM:
+					if (platform != NULL)
+					{
+						SET_RET(CL_INVALID_PROPERTY);
+						return 0;
+					}
+					++prop;
+					platform = *((cl_platform_id*)prop);
+					break;
+				default:
 					SET_RET(CL_INVALID_PROPERTY);
 					return 0;
 				}
 				++prop;
-				platform = *((cl_platform_id*)prop);
-				break;
-			default:
-				SET_RET(CL_INVALID_PROPERTY);
-				return 0;
 			}
-			++prop;
 		}
 
 		switch(device_type)
@@ -147,25 +145,33 @@ extern "C"
 			return 0;
 		}
 
-		std::vector<cl::Device> devices;
-		cl_int err = cl::Platform(platform).getDevices(device_type, &devices);
-		if (err != CL_SUCCESS)
+		if (platform == 0)		// No hint ? Ok, try them all
 		{
+			const std::vector<cl_platform_id> &platforms = FreeOCL::icd_loader.get_platforms();
+			for(std::vector<cl_platform_id>::const_iterator i = platforms.begin() ; i != platforms.end() ; ++i)
+			{
+				cl_context context = (*i)->dispatch->clCreateContextFromType(properties, device_type, pfn_notify, user_data, errcode_ret);
+				if (!context)
+					continue;
+				return context;
+			}
+
 			SET_RET(CL_DEVICE_NOT_AVAILABLE);
 			return 0;
 		}
 
-		cl_device_id dev = devices.front()();
-		return clCreateContext(properties, 1, &dev, pfn_notify, user_data, errcode_ret);
+		return platform->dispatch->clCreateContextFromType(properties, device_type, pfn_notify, user_data, errcode_ret);
 	}
 
 	cl_int clRetainContext (cl_context context)
 	{
+		if (!context)	return CL_INVALID_CONTEXT;
 		return context->dispatch->clRetainContext(context);
 	}
 
 	cl_int clReleaseContext (cl_context context)
 	{
+		if (!context)	return CL_INVALID_CONTEXT;
 		return context->dispatch->clReleaseContext(context);
 	}
 
@@ -175,6 +181,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		if (!context)	return CL_INVALID_CONTEXT;
 		return context->dispatch->clGetContextInfo(context,
 												   param_name,
 												   param_value_size,
@@ -188,6 +195,7 @@ extern "C"
 							void *param_value,
 							size_t *param_value_size_ret)
 	{
+		if (!device)	return CL_INVALID_DEVICE;
 		return device->dispatch->clGetDeviceInfo(device,
 												 param_name,
 												 param_value_size,
@@ -201,6 +209,8 @@ extern "C"
 						   cl_device_id *devices,
 						   cl_uint *num_devices)
 	{
+		if (!FreeOCL::icd_loader.isValid(platform))
+			return CL_INVALID_PLATFORM;
 		return platform->dispatch->clGetDeviceIDs(platform,
 												  device_type,
 												  num_entries,
@@ -210,12 +220,14 @@ extern "C"
 
 	cl_event clCreateUserEvent (cl_context context, cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateUserEvent(context,
 													errcode_ret);
 	}
 
 	cl_int clSetUserEventStatus (cl_event event, cl_int execution_status)
 	{
+		if (!event)	return CL_INVALID_EVENT;
 		return event->dispatch->clSetUserEventStatus(event,
 													 execution_status);
 	}
@@ -233,6 +245,7 @@ extern "C"
 						   void *param_value,
 						   size_t *param_value_size_ret)
 	{
+		if (!event)	return CL_INVALID_EVENT;
 		return event->dispatch->clGetEventInfo(event,
 											   param_name,
 											   param_value_size,
@@ -247,6 +260,7 @@ extern "C"
 																	void *user_data),
 							   void *user_data)
 	{
+		if (!event)	return CL_INVALID_EVENT;
 		return event->dispatch->clSetEventCallback(event,
 												   command_exec_callback_type,
 												   pfn_event_notify,
@@ -255,23 +269,27 @@ extern "C"
 
 	cl_int clRetainEvent (cl_event event)
 	{
+		if (!event)	return CL_INVALID_EVENT;
 		return event->dispatch->clRetainEvent(event);
 	}
 
 	cl_int clReleaseEvent (cl_event event)
 	{
+		if (!event)	return CL_INVALID_EVENT;
 		return event->dispatch->clReleaseEvent(event);
 	}
 
 	cl_int clEnqueueMarker (cl_command_queue command_queue,
 							cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueMarker(command_queue,
 														event);
 	}
 
 	cl_int clEnqueueBarrier (cl_command_queue command_queue)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueBarrier(command_queue);
 	}
 
@@ -279,6 +297,7 @@ extern "C"
 								   cl_uint num_events,
 								   const cl_event *event_list)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueWaitForEvents(command_queue,
 															   num_events,
 															   event_list);
@@ -290,6 +309,7 @@ extern "C"
 									void *param_value,
 									size_t *param_value_size_ret)
 	{
+		if (!event)	return CL_INVALID_EVENT;
 		return event->dispatch->clGetEventProfilingInfo(event,
 														param_name,
 														param_value_size,
@@ -306,6 +326,7 @@ extern "C"
 							void *host_ptr,
 							cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateImage2D(context,
 												  flags,
 												  image_format,
@@ -327,6 +348,7 @@ extern "C"
 							void *host_ptr,
 							cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateImage3D(context,
 												  flags,
 												  image_format,
@@ -346,6 +368,7 @@ extern "C"
 									   cl_image_format *image_formats,
 									   cl_uint *num_image_formats)
 	{
+		if (!context)	return CL_INVALID_CONTEXT;
 		return context->dispatch->clGetSupportedImageFormats(context,
 															 flags,
 															 image_type,
@@ -366,6 +389,7 @@ extern "C"
 							   const cl_event *event_wait_list,
 							   cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueReadImage(command_queue,
 														   image,
 														   blocking_read,
@@ -391,6 +415,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueWriteImage(command_queue,
 															image,
 															blocking_write,
@@ -414,6 +439,7 @@ extern "C"
 							   const cl_event *event_wait_list,
 							   cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueCopyImage(command_queue,
 														   src_image,
 														   dst_image,
@@ -435,6 +461,7 @@ extern "C"
 									   const cl_event *event_wait_list,
 									   cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueCopyImageToBuffer(command_queue,
 																   src_image,
 																   dst_buffer,
@@ -456,6 +483,7 @@ extern "C"
 									   const cl_event *event_wait_list,
 									   cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueCopyBufferToImage(command_queue,
 																   src_buffer,
 																   dst_image,
@@ -480,6 +508,7 @@ extern "C"
 							  cl_event *event,
 							  cl_int *errcode_ret)
 	{
+		if (!command_queue)	{	SET_RET(CL_INVALID_COMMAND_QUEUE);	return 0;	}
 		return command_queue->dispatch->clEnqueueMapImage(command_queue,
 														  image,
 														  blocking_map,
@@ -500,6 +529,7 @@ extern "C"
 						   void *param_value,
 						   size_t *param_value_size_ret)
 	{
+		if (!image)	return CL_INVALID_MEM_OBJECT;
 		return image->dispatch->clGetImageInfo(image,
 											   param_name,
 											   param_value_size,
@@ -518,6 +548,7 @@ extern "C"
 								  const cl_event *event_wait_list,
 								  cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueNativeKernel(command_queue,
 															  user_func,
 															  args,
@@ -534,6 +565,7 @@ extern "C"
 							  const char *kernel_name,
 							  cl_int *errcode_ret)
 	{
+		if (!program)	{	SET_RET(CL_INVALID_PROGRAM);	return 0;	}
 		return program->dispatch->clCreateKernel(program,
 												 kernel_name,
 												 errcode_ret);
@@ -544,6 +576,7 @@ extern "C"
 									 cl_kernel *kernels,
 									 cl_uint *num_kernels_ret)
 	{
+		if (!program)	return CL_INVALID_PROGRAM;
 		return program->dispatch->clCreateKernelsInProgram(program,
 														   num_kernels,
 														   kernels,
@@ -552,11 +585,13 @@ extern "C"
 
 	cl_int clRetainKernel (cl_kernel kernel)
 	{
+		if (!kernel)	return CL_INVALID_KERNEL;
 		return kernel->dispatch->clRetainKernel(kernel);
 	}
 
 	cl_int clReleaseKernel (cl_kernel kernel)
 	{
+		if (!kernel)	return CL_INVALID_KERNEL;
 		return kernel->dispatch->clReleaseKernel(kernel);
 	}
 
@@ -565,6 +600,7 @@ extern "C"
 						   size_t arg_size,
 						   const void *arg_value)
 	{
+		if (!kernel)	return CL_INVALID_KERNEL;
 		return kernel->dispatch->clSetKernelArg(kernel,
 												arg_index,
 												arg_size,
@@ -577,6 +613,7 @@ extern "C"
 							void *param_value,
 							size_t *param_value_size_ret)
 	{
+		if (!kernel)	return CL_INVALID_KERNEL;
 		return kernel->dispatch->clGetKernelInfo(kernel,
 												 param_name,
 												 param_value_size,
@@ -591,6 +628,7 @@ extern "C"
 									 void *param_value,
 									 size_t *param_value_size_ret)
 	{
+		if (!kernel)	return CL_INVALID_KERNEL;
 		return kernel->dispatch->clGetKernelWorkGroupInfo(kernel,
 														  device,
 														  param_name,
@@ -609,6 +647,7 @@ extern "C"
 								   const cl_event *event_wait_list,
 								   cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueNDRangeKernel(command_queue,
 															   kernel,
 															   work_dim,
@@ -626,6 +665,7 @@ extern "C"
 						  const cl_event *event_wait_list,
 						  cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueTask(command_queue,
 													  kernel,
 													  num_events_in_wait_list,
@@ -639,6 +679,7 @@ extern "C"
 						   void *host_ptr,
 						   cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateBuffer(context,
 												 flags,
 												 size,
@@ -652,6 +693,7 @@ extern "C"
 							  const void *buffer_create_info,
 							  cl_int *errcode_ret)
 	{
+		if (!buffer)	{	SET_RET(CL_INVALID_MEM_OBJECT);	return 0;	}
 		return buffer->dispatch->clCreateSubBuffer(buffer,
 												   flags,
 												   buffer_create_type,
@@ -661,11 +703,13 @@ extern "C"
 
 	cl_int clRetainMemObject (cl_mem memobj)
 	{
+		if (!memobj)	return CL_INVALID_MEM_OBJECT;
 		return memobj->dispatch->clRetainMemObject(memobj);
 	}
 
 	cl_int clReleaseMemObject (cl_mem memobj)
 	{
+		if (!memobj)	return CL_INVALID_MEM_OBJECT;
 		return memobj->dispatch->clReleaseMemObject(memobj);
 	}
 
@@ -674,6 +718,7 @@ extern "C"
 																			void *user_data),
 											 void *user_data)
 	{
+		if (!memobj)	return CL_INVALID_MEM_OBJECT;
 		return memobj->dispatch->clSetMemObjectDestructorCallback(memobj,
 																  pfn_notify,
 																  user_data);
@@ -685,6 +730,7 @@ extern "C"
 							   void *param_value,
 							   size_t *param_value_size_ret)
 	{
+		if (!memobj)	return CL_INVALID_MEM_OBJECT;
 		return memobj->dispatch->clGetMemObjectInfo(memobj,
 													param_name,
 													param_value_size,
@@ -702,6 +748,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueReadBuffer(command_queue,
 															buffer,
 															blocking_read,
@@ -723,6 +770,7 @@ extern "C"
 								 const cl_event *event_wait_list,
 								 cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueWriteBuffer(command_queue,
 															 buffer,
 															 blocking_write,
@@ -744,6 +792,7 @@ extern "C"
 								const cl_event *event_wait_list,
 								cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueCopyBuffer(command_queue,
 															src_buffer,
 															dst_buffer,
@@ -766,6 +815,7 @@ extern "C"
 							   cl_event *event,
 							   cl_int *errcode_ret)
 	{
+		if (!command_queue)	{	SET_RET(CL_INVALID_COMMAND_QUEUE);	return 0;	}
 		return command_queue->dispatch->clEnqueueMapBuffer(command_queue,
 														   buffer,
 														   blocking_map,
@@ -785,6 +835,7 @@ extern "C"
 									const cl_event *event_wait_list,
 									cl_event *event)
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueUnmapMemObject(command_queue,
 																memobj,
 																mapped_ptr,
@@ -808,6 +859,7 @@ extern "C"
 							const cl_event *     event_wait_list,
 							cl_event *           event ) CL_API_SUFFIX__VERSION_1_1
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueCopyBufferRect(command_queue,
 																src_buffer,
 																dst_buffer,
@@ -839,6 +891,7 @@ extern "C"
 							 const cl_event *     event_wait_list,
 							 cl_event *           event) CL_API_SUFFIX__VERSION_1_1
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueWriteBufferRect(command_queue,
 																 buffer,
 																 blocking_write,
@@ -871,6 +924,7 @@ extern "C"
 							const cl_event *     event_wait_list,
 							cl_event *           event) CL_API_SUFFIX__VERSION_1_1
 	{
+		if (!command_queue)	return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueReadBufferRect(command_queue,
 																buffer,
 																blocking_read,
@@ -929,6 +983,7 @@ extern "C"
 										  const size_t *lengths,
 										  cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateProgramWithSource(context,
 															count,
 															strings,
@@ -944,6 +999,7 @@ extern "C"
 										  cl_int *binary_status,
 										  cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateProgramWithBinary(context,
 															num_devices,
 															device_list,
@@ -955,11 +1011,13 @@ extern "C"
 
 	cl_int clRetainProgram (cl_program program)
 	{
+		if (!program)	return CL_INVALID_PROGRAM;
 		return program->dispatch->clRetainProgram(program);
 	}
 
 	cl_int clReleaseProgram (cl_program program)
 	{
+		if (!program)	return CL_INVALID_PROGRAM;
 		return program->dispatch->clReleaseProgram(program);
 	}
 
@@ -971,6 +1029,7 @@ extern "C"
 														  void *user_data),
 						   void *user_data)
 	{
+		if (!program)	return CL_INVALID_PROGRAM;
 		return program->dispatch->clBuildProgram(program,
 												 num_devices,
 												 device_list,
@@ -991,6 +1050,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		if (!program)	return CL_INVALID_PROGRAM;
 		return program->dispatch->clGetProgramInfo(program,
 												   param_name,
 												   param_value_size,
@@ -1005,6 +1065,7 @@ extern "C"
 								  void *param_value,
 								  size_t *param_value_size_ret)
 	{
+		if (!program)	return CL_INVALID_PROGRAM;
 		return program->dispatch->clGetProgramBuildInfo(program,
 														device,
 														param_name,
@@ -1019,6 +1080,7 @@ extern "C"
 								cl_filter_mode filter_mode,
 								cl_int *errcode_ret)
 	{
+		if (!context)	{	SET_RET(CL_INVALID_CONTEXT);	return 0;	}
 		return context->dispatch->clCreateSampler(context,
 												  normalized_coords,
 												  addressing_mode,
@@ -1028,11 +1090,13 @@ extern "C"
 
 	cl_int clRetainSampler (cl_sampler sampler)
 	{
+		if (!sampler)	return CL_INVALID_SAMPLER;
 		return sampler->dispatch->clRetainSampler(sampler);
 	}
 
 	cl_int clReleaseSampler (cl_sampler sampler)
 	{
+		if (!sampler)	return CL_INVALID_SAMPLER;
 		return sampler->dispatch->clReleaseSampler(sampler);
 	}
 
@@ -1042,6 +1106,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
+		if (!sampler)	return CL_INVALID_SAMPLER;
 		return sampler->dispatch->clGetSamplerInfo(sampler,
 												   param_name,
 												   param_value_size,
