@@ -109,26 +109,16 @@ int main(void)
 		std::cout << "D" << std::endl;
 
 		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 0x1000000);
-		cl::Buffer buffer2(context, CL_MEM_READ_WRITE, 0x1000000);
 		std::cout << "E" << std::endl;
 		char *msg = (char*)"Hello World!";
 
-//		clEnqueueReadBuffer(queue(), buffer(), true, 0, strlen(msg) + 1, msg, 0, NULL, NULL);
-		cl::Program::Sources sources;
-		sources.push_back(std::make_pair("", 0));
-		cl::Program p(context, sources);
-		cl::Kernel k(p, "k");
-		size_t s;
-		clEnqueueTask(queue(), k(), 0, NULL, NULL);
-
-//		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
+		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
 		std::cout << "F" << std::endl;
 
-//		void *p = clEnqueueMapBuffer(queue(), buffer(), CL_TRUE, CL_MAP_READ, 0, strlen(msg) + 1, 0, NULL, NULL, NULL);
-//		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
+		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
 		std::cout << "G" << std::endl;
-//		std::cout << (char*)p << std::endl;
-//		queue.enqueueUnmapMemObject(buffer, p);
+		std::cout << (char*)p << std::endl;
+		queue.enqueueUnmapMemObject(buffer, p);
 		std::cout << "H" << std::endl;
 	}
 	catch(cl::Error err)

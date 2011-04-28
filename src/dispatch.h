@@ -24,8 +24,11 @@
 #include <CL/cl.hpp>
 #endif
 
+typedef CL_API_ENTRY cl_int (CL_API_CALL *_stub)(void*);
+
 struct _cl_icd_dispatch
 {
+/* #0 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clGetPlatformIDs)(cl_uint          /* num_entries */,
 					 cl_platform_id * /* platforms */,
@@ -38,6 +41,7 @@ struct _cl_icd_dispatch
 					  void *           /* param_value */,
 					  size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #2 */
 	/* Device APIs */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clGetDeviceIDs)(cl_platform_id   /* platform */,
@@ -53,6 +57,7 @@ struct _cl_icd_dispatch
 					void *          /* param_value */,
 					size_t *        /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #4 */
 	/* Context APIs  */
 	CL_API_ENTRY cl_context (CL_API_CALL *
 	clCreateContext)(const cl_context_properties * /* properties */,
@@ -62,12 +67,14 @@ struct _cl_icd_dispatch
 					void *                        /* user_data */,
 					cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
-	CL_API_ENTRY cl_context (CL_API_CALL *
-	clCreateContextFromType)(const cl_context_properties * /* properties */,
-							cl_device_type                /* device_type */,
-							void (CL_CALLBACK *     /* pfn_notify*/ )(const char *, const void *, size_t, void *),
-							void *                        /* user_data */,
-							cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
+/* #5 */
+	_stub	unknown;
+//	CL_API_ENTRY cl_context (CL_API_CALL *
+//	clCreateContextFromType)(const cl_context_properties * /* properties */,
+//							cl_device_type                /* device_type */,
+//							void (CL_CALLBACK *     /* pfn_notify*/ )(const char *, const void *, size_t, void *),
+//							void *                        /* user_data */,
+//							cl_int *                      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clRetainContext)(cl_context /* context */) CL_API_SUFFIX__VERSION_1_0;
@@ -82,6 +89,7 @@ struct _cl_icd_dispatch
 					 void *             /* param_value */,
 					 size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #9 */
 	/* Command Queue APIs */
 	CL_API_ENTRY cl_command_queue (CL_API_CALL *
 	clCreateCommandQueue)(cl_context                     /* context */,
@@ -112,12 +120,14 @@ struct _cl_icd_dispatch
 	 *  Software developers previously relying on this API are instructed to set the command queue
 	 *  properties when creating the queue, instead.
 	 */
+/* #13 */
 	CL_API_ENTRY cl_int (CL_API_CALL*
 	clSetCommandQueueProperty)(cl_command_queue              /* command_queue */,
 							  cl_command_queue_properties   /* properties */,
 							  cl_bool                        /* enable */,
 							  cl_command_queue_properties * /* old_properties */) CL_EXT_SUFFIX__VERSION_1_0_DEPRECATED;
 
+/* #14 */
 	/* Memory Object APIs */
 	CL_API_ENTRY cl_mem (CL_API_CALL *
 	clCreateBuffer)(cl_context   /* context */,
@@ -125,13 +135,6 @@ struct _cl_icd_dispatch
 				   size_t       /* size */,
 				   void *       /* host_ptr */,
 				   cl_int *     /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
-
-	CL_API_ENTRY cl_mem (CL_API_CALL *
-	clCreateSubBuffer)(cl_mem                   /* buffer */,
-					  cl_mem_flags             /* flags */,
-					  cl_buffer_create_type    /* buffer_create_type */,
-					  const void *             /* buffer_create_info */,
-					  cl_int *                 /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
 
 	CL_API_ENTRY cl_mem (CL_API_CALL *
 	clCreateImage2D)(cl_context              /* context */,
@@ -169,6 +172,7 @@ struct _cl_icd_dispatch
 							   cl_image_format *    /* image_formats */,
 							   cl_uint *            /* num_image_formats */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #20 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clGetMemObjectInfo)(cl_mem           /* memobj */,
 					   cl_mem_info      /* param_name */,
@@ -183,11 +187,7 @@ struct _cl_icd_dispatch
 				   void *           /* param_value */,
 				   size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
-	CL_API_ENTRY cl_int (CL_API_CALL *
-	clSetMemObjectDestructorCallback)(  cl_mem /* memobj */,
-										void (CL_CALLBACK * /*pfn_notify*/)( cl_mem /* memobj */, void* /*user_data*/),
-										void * /*user_data */ )             CL_API_SUFFIX__VERSION_1_1;
-
+/* #22 */
 	/* Sampler APIs  */
 	CL_API_ENTRY cl_sampler (CL_API_CALL *
 	clCreateSampler)(cl_context          /* context */,
@@ -209,6 +209,7 @@ struct _cl_icd_dispatch
 					 void *             /* param_value */,
 					 size_t *           /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #26 */
 	/* Program Object APIs  */
 	CL_API_ENTRY cl_program (CL_API_CALL *
 	clCreateProgramWithSource)(cl_context        /* context */,
@@ -243,6 +244,7 @@ struct _cl_icd_dispatch
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clUnloadCompiler)(void) CL_API_SUFFIX__VERSION_1_0;
 
+/* #32 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clGetProgramInfo)(cl_program         /* program */,
 					 cl_program_info    /* param_name */,
@@ -258,6 +260,7 @@ struct _cl_icd_dispatch
 						  void *                /* param_value */,
 						  size_t *              /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #34 */
 	/* Kernel Object APIs */
 	CL_API_ENTRY cl_kernel (CL_API_CALL *
 	clCreateKernel)(cl_program      /* program */,
@@ -297,6 +300,7 @@ struct _cl_icd_dispatch
 							 void *                     /* param_value */,
 							 size_t *                   /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #41 */
 	/* Event Object APIs  */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clWaitForEvents)(cl_uint             /* num_events */,
@@ -309,25 +313,11 @@ struct _cl_icd_dispatch
 				   void *           /* param_value */,
 				   size_t *         /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
-	CL_API_ENTRY cl_event (CL_API_CALL *
-	clCreateUserEvent)(cl_context    /* context */,
-					  cl_int *      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
-
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clRetainEvent)(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clReleaseEvent)(cl_event /* event */) CL_API_SUFFIX__VERSION_1_0;
-
-	CL_API_ENTRY cl_int (CL_API_CALL *
-	clSetUserEventStatus)(cl_event   /* event */,
-						 cl_int     /* execution_status */) CL_API_SUFFIX__VERSION_1_1;
-
-	CL_API_ENTRY cl_int (CL_API_CALL *
-	clSetEventCallback)( cl_event    /* event */,
-						cl_int      /* command_exec_callback_type */,
-						void (CL_CALLBACK * /* pfn_notify */)(cl_event, cl_int, void *),
-						void *      /* user_data */) CL_API_SUFFIX__VERSION_1_1;
 
 	/* Profiling APIs  */
 	CL_API_ENTRY cl_int (CL_API_CALL *
@@ -337,8 +327,7 @@ struct _cl_icd_dispatch
 							void *              /* param_value */,
 							size_t *            /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
-	void *p;
-
+/* #46 */
 	/* Flush and Finish APIs */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clFlush)(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
@@ -346,6 +335,7 @@ struct _cl_icd_dispatch
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clFinish)(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #48 */
 	/* Enqueued Commands APIs */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueReadBuffer)(cl_command_queue    /* command_queue */,
@@ -359,22 +349,6 @@ struct _cl_icd_dispatch
 						cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
-	clEnqueueReadBufferRect)(cl_command_queue    /* command_queue */,
-							cl_mem              /* buffer */,
-							cl_bool             /* blocking_read */,
-							const size_t *      /* buffer_origin */,
-							const size_t *      /* host_origin */,
-							const size_t *      /* region */,
-							size_t              /* buffer_row_pitch */,
-							size_t              /* buffer_slice_pitch */,
-							size_t              /* host_row_pitch */,
-							size_t              /* host_slice_pitch */,
-							void *              /* ptr */,
-							cl_uint             /* num_events_in_wait_list */,
-							const cl_event *    /* event_wait_list */,
-							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
-
-	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueWriteBuffer)(cl_command_queue   /* command_queue */,
 						 cl_mem             /* buffer */,
 						 cl_bool            /* blocking_write */,
@@ -386,22 +360,6 @@ struct _cl_icd_dispatch
 						 cl_event *         /* event */) CL_API_SUFFIX__VERSION_1_0;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
-	clEnqueueWriteBufferRect)(cl_command_queue    /* command_queue */,
-							 cl_mem              /* buffer */,
-							 cl_bool             /* blocking_write */,
-							 const size_t *      /* buffer_origin */,
-							 const size_t *      /* host_origin */,
-							 const size_t *      /* region */,
-							 size_t              /* buffer_row_pitch */,
-							 size_t              /* buffer_slice_pitch */,
-							 size_t              /* host_row_pitch */,
-							 size_t              /* host_slice_pitch */,
-							 const void *        /* ptr */,
-							 cl_uint             /* num_events_in_wait_list */,
-							 const cl_event *    /* event_wait_list */,
-							 cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
-
-	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueCopyBuffer)(cl_command_queue    /* command_queue */,
 						cl_mem              /* src_buffer */,
 						cl_mem              /* dst_buffer */,
@@ -411,21 +369,6 @@ struct _cl_icd_dispatch
 						cl_uint             /* num_events_in_wait_list */,
 						const cl_event *    /* event_wait_list */,
 						cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
-
-	CL_API_ENTRY cl_int (CL_API_CALL *
-	clEnqueueCopyBufferRect)(cl_command_queue    /* command_queue */,
-							cl_mem              /* src_buffer */,
-							cl_mem              /* dst_buffer */,
-							const size_t *      /* src_origin */,
-							const size_t *      /* dst_origin */,
-							const size_t *      /* region */,
-							size_t              /* src_row_pitch */,
-							size_t              /* src_slice_pitch */,
-							size_t              /* dst_row_pitch */,
-							size_t              /* dst_slice_pitch */,
-							cl_uint             /* num_events_in_wait_list */,
-							const cl_event *    /* event_wait_list */,
-							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
 
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueReadImage)(cl_command_queue     /* command_queue */,
@@ -453,6 +396,7 @@ struct _cl_icd_dispatch
 						const cl_event *    /* event_wait_list */,
 						cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #53 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueCopyImage)(cl_command_queue     /* command_queue */,
 					   cl_mem               /* src_image */,
@@ -512,6 +456,7 @@ struct _cl_icd_dispatch
 					  cl_event *        /* event */,
 					  cl_int *          /* errcode_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #58 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueUnmapMemObject)(cl_command_queue /* command_queue */,
 							cl_mem           /* memobj */,
@@ -554,6 +499,7 @@ struct _cl_icd_dispatch
 	clEnqueueMarker)(cl_command_queue    /* command_queue */,
 					cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_0;
 
+/* #63 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueWaitForEvents)(cl_command_queue /* command_queue */,
 						   cl_uint          /* num_events */,
@@ -562,16 +508,83 @@ struct _cl_icd_dispatch
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clEnqueueBarrier)(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;
 
-	/* Extension function access
-	 *
-	 * Returns the extension function address for the given function name,
-	 * or NULL if a valid function can not be found.  The client must
-	 * check to make sure the address is not NULL, before using or
-	 * calling the returned function address.
-	 */
-	CL_API_ENTRY void * (CL_API_CALL * clGetExtensionFunctionAddress)(const char * /* func_name */) CL_API_SUFFIX__VERSION_1_0;
+	_stub		empty_after_1_0_API[16];
 
-	void *empty[256];
+/* #81 */
+	CL_API_ENTRY cl_int (CL_API_CALL *
+	clSetEventCallback)( cl_event    /* event */,
+						cl_int      /* command_exec_callback_type */,
+						void (CL_CALLBACK * /* pfn_notify */)(cl_event, cl_int, void *),
+						void *      /* user_data */) CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_mem (CL_API_CALL *
+	clCreateSubBuffer)(cl_mem                   /* buffer */,
+					  cl_mem_flags             /* flags */,
+					  cl_buffer_create_type    /* buffer_create_type */,
+					  const void *             /* buffer_create_info */,
+					  cl_int *                 /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_int (CL_API_CALL *
+	clSetMemObjectDestructorCallback)(  cl_mem /* memobj */,
+										void (CL_CALLBACK * /*pfn_notify*/)( cl_mem /* memobj */, void* /*user_data*/),
+										void * /*user_data */ )             CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_event (CL_API_CALL *
+	clCreateUserEvent)(cl_context    /* context */,
+					  cl_int *      /* errcode_ret */) CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_int (CL_API_CALL *
+	clSetUserEventStatus)(cl_event   /* event */,
+						 cl_int     /* execution_status */) CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_int (CL_API_CALL *
+	clEnqueueReadBufferRect)(cl_command_queue    /* command_queue */,
+							cl_mem              /* buffer */,
+							cl_bool             /* blocking_read */,
+							const size_t *      /* buffer_origin */,
+							const size_t *      /* host_origin */,
+							const size_t *      /* region */,
+							size_t              /* buffer_row_pitch */,
+							size_t              /* buffer_slice_pitch */,
+							size_t              /* host_row_pitch */,
+							size_t              /* host_slice_pitch */,
+							void *              /* ptr */,
+							cl_uint             /* num_events_in_wait_list */,
+							const cl_event *    /* event_wait_list */,
+							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_int (CL_API_CALL *
+	clEnqueueWriteBufferRect)(cl_command_queue    /* command_queue */,
+							 cl_mem              /* buffer */,
+							 cl_bool             /* blocking_write */,
+							 const size_t *      /* buffer_origin */,
+							 const size_t *      /* host_origin */,
+							 const size_t *      /* region */,
+							 size_t              /* buffer_row_pitch */,
+							 size_t              /* buffer_slice_pitch */,
+							 size_t              /* host_row_pitch */,
+							 size_t              /* host_slice_pitch */,
+							 const void *        /* ptr */,
+							 cl_uint             /* num_events_in_wait_list */,
+							 const cl_event *    /* event_wait_list */,
+							 cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
+
+	CL_API_ENTRY cl_int (CL_API_CALL *
+	clEnqueueCopyBufferRect)(cl_command_queue    /* command_queue */,
+							cl_mem              /* src_buffer */,
+							cl_mem              /* dst_buffer */,
+							const size_t *      /* src_origin */,
+							const size_t *      /* dst_origin */,
+							const size_t *      /* region */,
+							size_t              /* src_row_pitch */,
+							size_t              /* src_slice_pitch */,
+							size_t              /* dst_row_pitch */,
+							size_t              /* dst_slice_pitch */,
+							cl_uint             /* num_events_in_wait_list */,
+							const cl_event *    /* event_wait_list */,
+							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
+
+	_stub		empty_after_1_1_API[72];
 };
 
 #endif

@@ -30,8 +30,13 @@
 #include "dispatch.h"
 #include <iostream>
 
+#ifdef DEBUG_UTILS
 #define MSG(X)	std::cout << #X << std::endl
 #define CRASH()	(*((int*)NULL) = 0)
+#else
+#define MSG(X)
+#define CRASH()
+#endif
 
 namespace FreeOCL
 {
