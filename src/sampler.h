@@ -20,8 +20,15 @@
 
 #include "freeocl.h"
 
-struct _cl_sampler : public FreeOCL::icd_table
+struct _cl_sampler : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
 {
+	cl_context			context;
+	cl_bool				normalized_coords;
+	cl_addressing_mode	addressing_mode;
+	cl_filter_mode		filter_mode;
+
+	_cl_sampler();
+	~_cl_sampler();
 };
 
 #endif

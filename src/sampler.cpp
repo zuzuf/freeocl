@@ -18,6 +18,7 @@
 #include "sampler.h"
 #include "context.h"
 
+#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -29,20 +30,53 @@ extern "C"
 								cl_int *errcode_ret)
 	{
 		MSG(clCreateSamplerFCL);
-		SET_RET(CL_INVALID_OPERATION);
-		return NULL;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return 0;
+		}
+		unlock.handle(context);
+
+		cl_sampler sampler = new _cl_sampler;
+		sampler->context = context;
+		sampler->normalized_coords = normalized_coords;
+		sampler->filter_mode = filter_mode;
+		sampler->addressing_mode = addressing_mode;
+
+		SET_RET(CL_SUCCESS);
+
+		return sampler;
 	}
 
 	cl_int clRetainSamplerFCL (cl_sampler sampler)
 	{
 		MSG(clRetainSamplerFCL);
-		return CL_INVALID_SAMPLER;
+		if (!FreeOCL::isValid(sampler))
+			return CL_INVALID_SAMPLER;
+
+		sampler->retain();
+		sampler->unlock();
+		return CL_SUCCESS;
 	}
 
 	cl_int clReleaseSamplerFCL (cl_sampler sampler)
 	{
 		MSG(clReleaseSamplerFCL);
-		return CL_INVALID_SAMPLER;
+		if (!FreeOCL::isValid(sampler))
+			return CL_INVALID_SAMPLER;
+
+		sampler->release();
+		if (sampler->get_ref_count() == 0)
+		{
+			sampler->invalidate();
+			sampler->unlock();
+			delete sampler;
+		}
+		else
+			sampler->unlock();
+		return CL_SUCCESS;
 	}
 
 	cl_int clGetSamplerInfoFCL (cl_sampler sampler,
@@ -52,6 +86,39 @@ extern "C"
 							 size_t *param_value_size_ret)
 	{
 		MSG(clGetSamplerInfoFCL);
-		return CL_INVALID_SAMPLER;
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(sampler))
+			return CL_INVALID_SAMPLER;
+		unlock.handle(sampler);
+
+		bool bTooSmall = false;
+		switch(param_name)
+		{
+		case CL_SAMPLER_REFERENCE_COUNT:	bTooSmall = SET_VAR(sampler->get_ref_count());	break;
+		case CL_SAMPLER_CONTEXT:			bTooSmall = SET_VAR(sampler->context);	break;
+		case CL_SAMPLER_NORMALIZED_COORDS:	bTooSmall = SET_VAR(sampler->normalized_coords);	break;
+		case CL_SAMPLER_ADDRESSING_MODE:	bTooSmall = SET_VAR(sampler->addressing_mode);	break;
+		case CL_SAMPLER_FILTER_MODE:		bTooSmall = SET_VAR(sampler->filter_mode);	break;
+		default:
+			return CL_INVALID_VALUE;
+		}
+		if (bTooSmall && param_value != NULL)
+			return CL_INVALID_VALUE;
+
+		return CL_SUCCESS;
 	}
+}
+
+_cl_sampler::_cl_sampler()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_samplers.insert(this);
+	FreeOCL::global_mutex.unlock();
+}
+
+_cl_sampler::~_cl_sampler()
+{
+	FreeOCL::global_mutex.lock();
+	FreeOCL::valid_samplers.erase(this);
+	FreeOCL::global_mutex.unlock();
 }

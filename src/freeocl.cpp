@@ -26,6 +26,7 @@
 #include "event.h"
 #include "kernel.h"
 #include "program.h"
+#include "sampler.h"
 #include "prototypes.h"
 
 namespace FreeOCL
@@ -38,6 +39,7 @@ namespace FreeOCL
 	std::set<cl_event> valid_events;
 	std::set<cl_kernel> valid_kernels;
 	std::set<cl_program> valid_programs;
+	std::set<cl_sampler> valid_samplers;
 	mutex global_mutex;
 	_cl_icd_dispatch dispatch = init_dispatch();
 
@@ -97,6 +99,16 @@ namespace FreeOCL
 		const bool r = valid_programs.count(p) != 0 && p->valid();
 		if (r)
 			p->lock();
+		global_mutex.unlock();
+		return r;
+	}
+
+	bool isValid(cl_sampler s)
+	{
+		global_mutex.lock();
+		const bool r = valid_samplers.count(s) != 0 && s->valid();
+		if (r)
+			s->lock();
 		global_mutex.unlock();
 		return r;
 	}
@@ -536,12 +548,12 @@ namespace FreeOCL
 		t[19] = (void*)clGetSupportedImageFormatsFCL;
 		t[20] = (void*)clGetMemObjectInfoFCL;
 		t[21] = (void*)clGetImageInfoFCL;
-		t[22] = (void*)stub22;
-		t[23] = (void*)stub23;
-		t[24] = (void*)stub24;
-		t[25] = (void*)stub25;
+		t[22] = (void*)clCreateSamplerFCL;
+		t[23] = (void*)clRetainSamplerFCL;
+		t[24] = (void*)clReleaseSamplerFCL;
+		t[25] = (void*)clGetSamplerInfoFCL;
 		t[26] = (void*)clCreateProgramWithSourceFCL;
-		t[27] = (void*)stub27;
+		t[27] = (void*)clCreateProgramWithBinaryFCL;
 		t[28] = (void*)clRetainProgramFCL;
 		t[29] = (void*)clReleaseProgramFCL;
 		t[30] = (void*)clBuildProgramFCL;
@@ -564,18 +576,18 @@ namespace FreeOCL
 		t[47] = (void*)clFinishFCL;
 		t[48] = (void*)clEnqueueReadBufferFCL;
 		t[49] = (void*)clEnqueueWriteBufferFCL;
-		t[50] = (void*)stub50;
-		t[51] = (void*)stub51;
-		t[52] = (void*)stub52;
-		t[53] = (void*)stub53;
-		t[54] = (void*)stub54;
-		t[55] = (void*)stub55;
+		t[50] = (void*)clEnqueueCopyBufferFCL;
+		t[51] = (void*)clEnqueueReadImageFCL;
+		t[52] = (void*)clEnqueueWriteImageFCL;
+		t[53] = (void*)clEnqueueCopyImageFCL;
+		t[54] = (void*)clEnqueueCopyImageToBufferFCL;
+		t[55] = (void*)clEnqueueCopyBufferToImageFCL;
 		t[56] = (void*)clEnqueueMapBufferFCL;
-		t[57] = (void*)stub57;
+		t[57] = (void*)clEnqueueMapImageFCL;
 		t[58] = (void*)clEnqueueUnmapMemObjectFCL;
-		t[59] = (void*)stub59;
-		t[60] = (void*)stub60;
-		t[61] = (void*)stub61;
+		t[59] = (void*)clEnqueueNDRangeKernelFCL;
+		t[60] = (void*)clEnqueueTaskFCL;
+		t[61] = (void*)clEnqueueNativeKernelFCL;
 		t[62] = (void*)clEnqueueMarkerFCL;
 		t[63] = (void*)clEnqueueWaitForEventsFCL;
 		t[64] = (void*)clEnqueueBarrierFCL;
@@ -596,13 +608,13 @@ namespace FreeOCL
 		t[79] = (void*)stub79;
 		t[80] = (void*)stub80;
 		t[81] = (void*)clSetEventCallbackFCL;
-		t[82] = (void*)stub82;
+		t[82] = (void*)clCreateSubBufferFCL;
 		t[83] = (void*)clSetMemObjectDestructorCallbackFCL;
 		t[84] = (void*)clCreateUserEventFCL;
 		t[85] = (void*)clSetUserEventStatusFCL;
-		t[86] = (void*)stub86;
-		t[87] = (void*)stub87;
-		t[88] = (void*)stub88;
+		t[86] = (void*)clEnqueueReadBufferRectFCL;
+		t[87] = (void*)clEnqueueWriteBufferRectFCL;
+		t[88] = (void*)clEnqueueCopyBufferRectFCL;
 		t[89] = (void*)stub89;
 		t[90] = (void*)stub90;
 		t[91] = (void*)stub91;

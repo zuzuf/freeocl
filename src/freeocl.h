@@ -43,6 +43,7 @@ namespace FreeOCL
 	extern std::set<cl_event> valid_events;
 	extern std::set<cl_kernel> valid_kernels;
 	extern std::set<cl_program> valid_programs;
+	extern std::set<cl_sampler> valid_samplers;
 	extern mutex global_mutex;
 	extern _cl_icd_dispatch dispatch;
 
@@ -54,6 +55,7 @@ namespace FreeOCL
 	bool isValid(cl_kernel);
 	bool isValid(cl_device_id);
 	bool isValid(cl_platform_id);
+	bool isValid(cl_sampler);
 
 	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
 
