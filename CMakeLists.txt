@@ -27,6 +27,7 @@ SET(SOURCES
 	include/CL/cl.hpp
 	include/CL/cl_platform.h
 	include/CL/opencl.h
+	include/FreeOCL/opencl_c.h
 
 	src/freeocl.cpp		src/freeocl.h
 	src/platform.cpp	src/platform.h

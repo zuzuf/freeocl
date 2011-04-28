@@ -61,6 +61,8 @@ extern "C"
 		cl_program program = new _cl_program;
 		program->context = context;
 		program->source_code.swap(source_code);
+		program->build_status = CL_BUILD_NONE;
+		program->handle = NULL;
 		SET_RET(CL_SUCCESS);
 
 		return program;
@@ -120,7 +122,6 @@ extern "C"
 		if (pfn_notify == NULL && user_data != NULL)
 			return CL_INVALID_VALUE;
 
-		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 			return CL_INVALID_PROGRAM;
 		program->retain();
@@ -139,13 +140,12 @@ extern "C"
 				remove(binary_file.c_str());
 			return CL_INVALID_PROGRAM;
 		}
+
 		program->binary_file = binary_file;
 		program->build_log = build_log;
 
 		if (program->binary_file.empty())
 		{
-			std::cout << "source code:" << std::endl << source_code << std::endl;
-			std::cout << "build log:" << std::endl << build_log << std::endl;
 			program->build_status = CL_BUILD_ERROR;
 			program->unlock();
 			clReleaseProgramFCL(program);

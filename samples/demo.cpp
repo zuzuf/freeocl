@@ -46,9 +46,15 @@ inline std::string memSuffix(const size_t s)
 	return buf.str();
 }
 
-void pfn_notify(void*)
-{
-}
+#define STRINGIFY(X)	#X
+
+const char *source_code = STRINGIFY(
+__kernel void hello()\n
+{\n
+	size_t i = get_global_id(0);\n
+	size_t j = get_global_id(1);\n
+}\n
+		);
 
 int main(void)
 {
@@ -58,6 +64,7 @@ int main(void)
 		cl::Platform::get(&platforms);
 
 		std::cout << platforms.size() << " platform" << (platforms.size() > 1 ? "s" : "") << " found:" << std::endl;
+		size_t id = 0;
 		for(size_t i = 0 ; i < platforms.size() ; ++i)
 		{
 			const cl::Platform &p = platforms[i];
@@ -68,6 +75,8 @@ int main(void)
 					<< "\t\tversion: " << p.getInfo<CL_PLATFORM_VERSION>() << std::endl
 					<< "\t\tvendor: " << p.getInfo<CL_PLATFORM_VENDOR>() << std::endl
 					<< "\t\textensions: " << p.getInfo<CL_PLATFORM_EXTENSIONS>() << std::endl;
+			if (p.getInfo<CL_PLATFORM_NAME>() == "FreeOCL")
+				id = i;
 
 			std::vector<cl::Device> devices;
 			p.getDevices(CL_DEVICE_TYPE_ALL, &devices);
@@ -90,36 +99,29 @@ int main(void)
 		if (platforms.empty())
 			return 0;
 
-		std::cout << "A" << std::endl;
+		cl::Platform &platform = platforms[id];
 
 		std::vector<cl::Device> devices;
-		platforms.front().getDevices(CL_DEVICE_TYPE_ALL, &devices);
-		std::cout << "B" << std::endl;
+		platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
 		// Create a context
-		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[0])(), 0};
+		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(platform)(), 0};
 		cl::Context context(devices, properties);
-		std::cout << "C" << std::endl;
 
 		cl_int err;
-//		std::vector<cl::Device> devices = context.getInfo<CL_CONTEXT_DEVICES>();
 
 		// Create a command queue
 		cl::CommandQueue queue(context, devices[0], 0, &err);
-		std::cout << "D" << std::endl;
 
-		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 0x1000000);
-		std::cout << "E" << std::endl;
-		char *msg = (char*)"Hello World!";
-
-		queue.enqueueWriteBuffer(buffer, true, 0, strlen(msg) + 1, msg);
-		std::cout << "F" << std::endl;
-
-		void *p = queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, strlen(msg) + 1);
-		std::cout << "G" << std::endl;
-		std::cout << (char*)p << std::endl;
-		queue.enqueueUnmapMemObject(buffer, p);
-		std::cout << "H" << std::endl;
+		cl::Program::Sources sources;
+		sources.push_back(std::make_pair(source_code, strlen(source_code)));
+		cl::Program program(context, sources);
+		try {
+			program.build(devices);
+		} catch(...)	{}
+		std::cout << "source code: " << std::endl << source_code << std::endl;
+		std::cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << std::endl;
+		std::cout << "build log: " << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
 	}
 	catch(cl::Error err)
 	{

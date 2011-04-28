@@ -212,6 +212,7 @@ namespace FreeOCL
 		table.clReleaseSampler = clReleaseSamplerFCL;
 		table.clGetSamplerInfo = clGetSamplerInfoFCL;
 
+		std::cout << clCreateProgramWithSourceFCL << std::endl;
 		table.clCreateProgramWithSource = clCreateProgramWithSourceFCL;
 		table.clCreateProgramWithBinary = clCreateProgramWithBinaryFCL;
 		table.clRetainProgram = clRetainProgramFCL;

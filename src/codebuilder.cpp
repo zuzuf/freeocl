@@ -42,10 +42,11 @@ namespace FreeOCL
 				return filename_out;
 			}
 			filename_in = tmpnam(buf);
-			fd_in = open(filename_in.c_str(), O_EXCL | O_CREAT | O_WRONLY);
+			fd_in = open(filename_in.c_str(), O_EXCL | O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
 		}
 
 		FILE *file_in = fdopen(fd_in, "w");
+		fputs("#include <FreeOCL/opencl_c.h>\n", file_in);
 		fwrite(code.c_str(), 1, code.size(), file_in);
 		fflush(file_in);
 
@@ -71,6 +72,7 @@ namespace FreeOCL
 		cmd << FREEOCL_CXX_COMPILER
 			<< ' ' << FREEOCL_OMP_FLAGS
 			<< " -shared -fPIC -pipe"
+			<< " -I./include"
 			<< " -o " << filename_out
 			<< " -g -O0 -march=native -mtune=native"
 			<< " -ffast-math"
