@@ -1114,4 +1114,35 @@ extern "C"
 												   param_value_size_ret);
 	}
 
+	void* clGetExtensionFunctionAddress (const char *funcname)
+	{
+		if (funcname == NULL)
+			return NULL;
+
+#define ADD(name)	if (strcmp(funcname, #name) == 0)	return (void*)name
+
+#undef ADD
+
+		const size_t l = strlen(funcname);
+		if (l >= 3)
+		{
+			if (strcmp(funcname + l - 3, "KHR") == 0)
+				return NULL;
+			if (strcmp(funcname + l - 3, "EXT") == 0)
+				return NULL;
+		}
+
+		const std::deque<FreeOCL::ICDLib> &libs = FreeOCL::icd_loader.getLibs();
+		for(std::deque<FreeOCL::ICDLib>::const_iterator i = libs.begin() ; i != libs.end() ; ++i)
+		{
+			const FreeOCL::ICDLib &lib = *i;
+			const std::string &ICD_vendor_suffix = lib.platforms.front().second;
+			if (ICD_vendor_suffix.size() < l)
+				continue;
+			if (strcmp(funcname + l - ICD_vendor_suffix.size(), ICD_vendor_suffix.c_str()) == 0)
+				return lib.__clGetExtensionFunctionAddress(funcname);
+		}
+
+		return NULL;
+	}
 }

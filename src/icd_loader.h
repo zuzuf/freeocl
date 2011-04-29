@@ -37,6 +37,7 @@ namespace FreeOCL
 		std::string	lib;
 		void *handle;
 		std::deque<std::pair<cl_platform_id, std::string> > platforms;
+		void* (*__clGetExtensionFunctionAddress) (const char *funcname);
 	};
 
 	class ICDLoader
@@ -58,6 +59,8 @@ namespace FreeOCL
 		{
 			return valid_platforms.count(platform) != 0;
 		}
+
+		inline const std::deque<ICDLib> &getLibs() const	{	return libs;	}
 
 	private:
 		std::deque<ICDLib> libs;

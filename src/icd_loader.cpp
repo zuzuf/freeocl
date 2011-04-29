@@ -131,6 +131,7 @@ namespace FreeOCL
 		ICDLib icdlib;
 		icdlib.handle = handle;
 		icdlib.lib = lib;
+		icdlib.__clGetExtensionFunctionAddress = __clGetExtensionFunctionAddress;
 
 		// Check those platforms for the cl_khr_icd extension
 		for(size_t i = 0 ; i < n ; ++i)

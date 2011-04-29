@@ -42,7 +42,7 @@ struct X##N\
 {\
 	X v[N];\
 	X##N() {}\
-	explicit X##N(X p0) {	v[0] = p0;	}\
+	explicit X##N(X p0) {	for(size_t i = 0 ; i < N ; ++i)	v[i] = p0;	}\
 	explicit X##N(X p0, X p1) {	v[0] = p0, v[1] = p1;	}\
 	explicit X##N(X p0, X p1, X p2) {	v[0] = p0, v[1] = p1, v[2] = p2;	}\
 	explicit X##N(X p0, X p1, X p2, X p3) {	v[0] = p0, v[1] = p1, v[2] = p2, v[3] = p3;	}\

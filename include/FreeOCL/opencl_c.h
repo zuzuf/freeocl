@@ -21,7 +21,6 @@
 #include <cstddef>
 #include <x86intrin.h>
 #include <omp.h>
-#include <math.h>
 
 #define __OPENCL_VERSION__	110
 #define CL_VERSION_1_0		100
