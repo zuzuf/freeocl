@@ -77,7 +77,7 @@
 #define UINT_MAX	0xffffffff
 #define ULONG_MAX	0xffffffffffffffffUL
 
-#define __kernel
+#define __kernel	extern "C"
 
 #define __global
 #define __local
@@ -136,48 +136,19 @@ DEFINE_VECTORS(double);
 #undef DEFINE_VECTORS
 #undef DEFINE_VECTOR_TYPE
 
-// Built-in work-item functions
-inline uint get_work_dim()
-{
-	return 1;
-}
-
-inline size_t get_global_size(uint dimindx)
-{
-
-}
-
-inline size_t get_global_id(uint dimindx)
-{
-
-}
-
-inline size_t get_local_size(uint dimindx)
-{
-
-}
-
-inline size_t get_local_id(uint dimindx)
-{
-
-}
-
-inline size_t get_num_groups(uint dimindx)
-{
-
-}
-
-inline size_t get_group_id(uint dimindx)
-{
-
-}
-
-inline size_t get_global_offset(uint dimindx)
-{
-
-}
-
-// Built-in math functions
+#include "workitem.h"
+#include "math.h"
+#include "integer.h"
+#include "common.h"
+#include "geometric.h"
+#include "relational.h"
+#include "vloadstore.h"
+#include "sync.h"
+#include "memfence.h"
+#include "asyncmemop.h"
+#include "atomic.h"
+#include "vmisc.h"
+#include "imgreadwrite.h"
 
 #undef FLOAT2
 #undef FLOAT4

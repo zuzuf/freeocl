@@ -46,9 +46,10 @@ namespace FreeOCL
 		}
 
 		FILE *file_in = fdopen(fd_in, "w");
-		fputs("#include <FreeOCL/opencl_c.h>\n", file_in);
-		fwrite(code.c_str(), 1, code.size(), file_in);
-		fflush(file_in);
+		(void)fputs("#include <FreeOCL/opencl_c.h>\n", file_in);
+		(void)fputs("#line 0\n", file_in);
+		(void)fwrite(code.c_str(), 1, code.size(), file_in);
+		(void)fflush(file_in);
 
 		// Creates a unique temporary file to write the binary data
 		n = 0;

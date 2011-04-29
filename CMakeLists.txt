@@ -27,7 +27,21 @@ SET(SOURCES
 	include/CL/cl.hpp
 	include/CL/cl_platform.h
 	include/CL/opencl.h
+
 	include/FreeOCL/opencl_c.h
+	include/FreeOCL/asyncmemop.h
+	include/FreeOCL/atomic.h
+	include/FreeOCL/common.h
+	include/FreeOCL/geometric.h
+	include/FreeOCL/imgreadwrite.h
+	include/FreeOCL/integer.h
+	include/FreeOCL/math.h
+	include/FreeOCL/memfence.h
+	include/FreeOCL/relational.h
+	include/FreeOCL/sync.h
+	include/FreeOCL/vloadstore.h
+	include/FreeOCL/vmisc.h
+	include/FreeOCL/workitem.h
 
 	src/freeocl.cpp		src/freeocl.h
 	src/platform.cpp	src/platform.h
