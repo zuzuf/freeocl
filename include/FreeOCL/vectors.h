@@ -53,6 +53,7 @@ template<>	struct __vector<X##N>\
 {\
 	typedef X	base_type;\
 	enum { components = N };\
+	typedef X##N	type;\
 }
 
 #define DEFINE_VECTORS(X)\
@@ -75,5 +76,95 @@ DEFINE_VECTORS(double);
 
 #undef DEFINE_VECTORS
 #undef DEFINE_VECTOR_TYPE
+
+// vector op vector
+#define IMPLEMENT_BINARY_OP(op)\
+template<class V>\
+inline typename __vector<V>::type operator op (const V &lhs, const V &rhs)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = lhs.v[i] op rhs.v[i];\
+	return ret;\
+}
+
+IMPLEMENT_BINARY_OP(+)
+IMPLEMENT_BINARY_OP(-)
+IMPLEMENT_BINARY_OP(*)
+IMPLEMENT_BINARY_OP(/)
+IMPLEMENT_BINARY_OP(%)
+IMPLEMENT_BINARY_OP(<<)
+IMPLEMENT_BINARY_OP(>>)
+IMPLEMENT_BINARY_OP(|)
+IMPLEMENT_BINARY_OP(&)
+IMPLEMENT_BINARY_OP(^)
+
+#undef IMPLEMENT_BINARY_OP
+
+// scalar op vector
+#define IMPLEMENT_BINARY_OP(op)\
+template<class V>\
+inline typename __vector<V>::type operator op (const typename __vector<V>::base_type &lhs, const V &rhs)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = lhs op rhs.v[i];\
+	return ret;\
+}
+
+IMPLEMENT_BINARY_OP(+)
+IMPLEMENT_BINARY_OP(-)
+IMPLEMENT_BINARY_OP(*)
+IMPLEMENT_BINARY_OP(/)
+IMPLEMENT_BINARY_OP(%)
+IMPLEMENT_BINARY_OP(<<)
+IMPLEMENT_BINARY_OP(>>)
+IMPLEMENT_BINARY_OP(|)
+IMPLEMENT_BINARY_OP(&)
+IMPLEMENT_BINARY_OP(^)
+
+#undef IMPLEMENT_BINARY_OP
+
+// vector op scalar
+#define IMPLEMENT_BINARY_OP(op)\
+template<class V>\
+inline typename __vector<V>::type operator op (const V &lhs, const typename __vector<V>::base_type &rhs)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = lhs.v[i] op rhs;\
+	return ret;\
+}
+
+IMPLEMENT_BINARY_OP(+)
+IMPLEMENT_BINARY_OP(-)
+IMPLEMENT_BINARY_OP(*)
+IMPLEMENT_BINARY_OP(/)
+IMPLEMENT_BINARY_OP(%)
+IMPLEMENT_BINARY_OP(<<)
+IMPLEMENT_BINARY_OP(>>)
+IMPLEMENT_BINARY_OP(|)
+IMPLEMENT_BINARY_OP(&)
+IMPLEMENT_BINARY_OP(^)
+
+#undef IMPLEMENT_BINARY_OP
+
+// vector op= vector
+#define IMPLEMENT_ASSIGN_OP(op)\
+template<class V>\
+inline typename __vector<V>::type &operator op (V &lhs, const V &rhs)\
+{\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		lhs.v[i] op rhs.v[i];\
+	return lhs;\
+}
+
+IMPLEMENT_ASSIGN_OP(+=)
+IMPLEMENT_ASSIGN_OP(-=)
+IMPLEMENT_ASSIGN_OP(*=)
+IMPLEMENT_ASSIGN_OP(/=)
+IMPLEMENT_ASSIGN_OP(%=)
+
+#undef IMPLEMENT_ASSIGN_OP
 
 #endif

@@ -57,8 +57,8 @@ const char *source_code =
 "		int4 i;\n"
 "		float4 f;\n"
 "	} f;\n"
-"	int4 i4;\n"
-"	(float4)(i, j, 0, 0);\n"
+"	float4 f4;\n"
+"	f4 += (float4)(i, j, 0, 0);\n"
 "}\n";
 
 int main(void)

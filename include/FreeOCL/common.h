@@ -18,4 +18,22 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_COMMON_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_COMMON_H__
 // Built-in common functions
+// for float
+inline float clamp(float x, float minval, float maxval)	{	return fmin(fmax(x, minval), maxval);	}
+inline float degrees(float radians)	{	return radians * 57.295779513082f;	}
+inline float max(float x, float y)	{	return x < y ? y : x;	}
+inline float min(float x, float y)	{	return y < x ? y : x;	}
+inline float mix(float x, float y, float a)	{	return x + (y - x) * a;	}
+inline float radians(float degrees)	{	return degrees * 0.017453292519943f;	}
+inline float step(float edge, float x)	{	return x < edge ? 0.0f : 1.0f;	}
+inline float smoothstep(float edge0, float edge1, float x)
+{
+	float t = clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+	return t * t * (3.0f - 2.0f * t);
+}
+inline float sign(float x)
+{
+	return x > 0.0f ? 1.0f : x < 0.0f ? -1.0f : isnan(x) ? 0.0f : x;
+}
+
 #endif
