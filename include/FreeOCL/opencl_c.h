@@ -91,7 +91,37 @@ struct half
 	ushort v;
 };
 
+template<class A, class B>	struct __right {	typedef B	type;	};
+
+// A small template to filter scalar types allowed for arithmetic operations
+template<typename S>	struct __scalar;
+template<>	struct __scalar<char>	{	typedef char	type;	};
+template<>	struct __scalar<short>	{	typedef short	type;	};
+template<>	struct __scalar<int>	{	typedef int	type;	};
+template<>	struct __scalar<long>	{	typedef long	type;	};
+template<>	struct __scalar<uchar>	{	typedef uchar	type;	};
+template<>	struct __scalar<ushort>	{	typedef ushort	type;	};
+template<>	struct __scalar<uint>	{	typedef uint	type;	};
+template<>	struct __scalar<ulong>	{	typedef ulong	type;	};
+template<>	struct __scalar<float>	{	typedef float	type;	};
+template<>	struct __scalar<double>	{	typedef double	type;	};
+
 #include "vectors.h"
+
+template<typename S, typename V = void>	struct __igentype;
+template<>	struct __igentype<char>	{	typedef char	type;	};
+template<>	struct __igentype<short>	{	typedef short	type;	};
+template<>	struct __igentype<int>	{	typedef int	type;	};
+template<>	struct __igentype<long>	{	typedef long	type;	};
+template<>	struct __igentype<uchar>	{	typedef uchar	type;	};
+template<>	struct __igentype<ushort>	{	typedef ushort	type;	};
+template<>	struct __igentype<uint>	{	typedef uint	type;	};
+template<>	struct __igentype<ulong>	{	typedef ulong	type;	};
+template<class V>
+struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type>, void>::type >
+{
+	typedef V	type;
+};
 
 #include "workitem.h"
 #include "math.h"

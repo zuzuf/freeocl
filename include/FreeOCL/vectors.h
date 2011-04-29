@@ -22,20 +22,7 @@
 // A small template to get base type and components of a vector type
 template<typename V>	struct __vector;
 
-// this template exists only if its first parameter is true
-// it returns T in its type member
-template<bool, class T>	struct _If;
-template<class T>	struct _If<true, T>	{	typedef T	type;	};
-
-// this template is a wrapper to avoid adding endless my_type::value everywhere
-template<class B, class T>	struct If : public _If<B::value, T>	{};
-
-// This predicate is true for vector types
-template<class T>	struct IsAVector	{	enum { value = false };	};
-template<typename V>	struct IsAVector<__vector<V> >	{	enum { value = true };	};
-
-// The operator not for template values
-template<class B>	struct Not	{	enum { value = !B::value };	};
+template<typename B, int N>	struct __vector_type;
 
 #define DEFINE_VECTOR_TYPE(X, N)\
 struct X##N\
@@ -53,6 +40,10 @@ template<>	struct __vector<X##N>\
 {\
 	typedef X	base_type;\
 	enum { components = N };\
+	typedef X##N	type;\
+};\
+template<>	struct __vector_type<X, N>\
+{\
 	typedef X##N	type;\
 }
 
