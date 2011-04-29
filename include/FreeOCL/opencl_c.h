@@ -79,22 +79,6 @@
 
 #define __kernel	extern "C"
 
-#define __global
-#define __local
-#define __constant
-#define __private
-#define global		__global
-#define local		__local
-#define constant	__constant
-#define private		__private
-
-#define __read_only	const
-#define __write_only
-#define __read_write
-#define read_only	__read_only
-#define write_only	__write_only
-#define read_write	__read_write
-
 #define FLOAT2	__m64
 #define FLOAT4	__m128
 
@@ -108,33 +92,7 @@ struct half
 	ushort v;
 };
 
-// Built-in vector types
-#define DEFINE_VECTOR_TYPE(X, N)\
-struct X##N\
-{\
-	X v[N];\
-}
-
-#define DEFINE_VECTORS(X)\
-DEFINE_VECTOR_TYPE(X, 2);\
-DEFINE_VECTOR_TYPE(X, 3);\
-DEFINE_VECTOR_TYPE(X, 4);\
-DEFINE_VECTOR_TYPE(X, 8);\
-DEFINE_VECTOR_TYPE(X, 16)
-
-DEFINE_VECTORS(char);
-DEFINE_VECTORS(short);
-DEFINE_VECTORS(int);
-DEFINE_VECTORS(long);
-DEFINE_VECTORS(uchar);
-DEFINE_VECTORS(ushort);
-DEFINE_VECTORS(uint);
-DEFINE_VECTORS(ulong);
-DEFINE_VECTORS(float);
-DEFINE_VECTORS(double);
-
-#undef DEFINE_VECTORS
-#undef DEFINE_VECTOR_TYPE
+#include "vectors.h"
 
 #include "workitem.h"
 #include "math.h"
@@ -152,5 +110,21 @@ DEFINE_VECTORS(double);
 
 #undef FLOAT2
 #undef FLOAT4
+
+#define __global
+#define __local
+#define __constant
+#define __private
+#define global		__global
+#define local		__local
+#define constant	__constant
+#define private		__private
+
+#define __read_only	const
+#define __write_only
+#define __read_write
+#define read_only	__read_only
+#define write_only	__write_only
+#define read_write	__read_write
 
 #endif

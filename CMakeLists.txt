@@ -42,6 +42,7 @@ SET(SOURCES
 	include/FreeOCL/vloadstore.h
 	include/FreeOCL/vmisc.h
 	include/FreeOCL/workitem.h
+	include/FreeOCL/vectors.h
 
 	src/freeocl.cpp		src/freeocl.h
 	src/platform.cpp	src/platform.h

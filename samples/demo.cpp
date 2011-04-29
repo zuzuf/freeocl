@@ -48,13 +48,18 @@ inline std::string memSuffix(const size_t s)
 
 #define STRINGIFY(X)	#X
 
-const char *source_code = STRINGIFY(
-__kernel void hello()\n
-{\n
-	size_t i = get_global_id(0);\n
-	size_t j = get_global_id(1);\n
-}\n
-		);
+const char *source_code =
+"__kernel void hello()\n"
+"{\n"
+"	size_t i = get_global_id(0);\n"
+"	size_t j = get_global_id(1);\n"
+"	struct {\n"
+"		int4 i;\n"
+"		float4 f;\n"
+"	} f;\n"
+"	int4 i4;\n"
+"	(float4)(i, j, 0, 0);\n"
+"}\n";
 
 int main(void)
 {
@@ -100,6 +105,7 @@ int main(void)
 			return 0;
 
 		cl::Platform &platform = platforms[id];
+		std::cout << std::endl << "platform selected: " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl << std::endl;
 
 		std::vector<cl::Device> devices;
 		platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);

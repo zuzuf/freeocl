@@ -72,7 +72,7 @@ namespace FreeOCL
 		std::stringstream cmd;
 		cmd << FREEOCL_CXX_COMPILER
 			<< ' ' << FREEOCL_OMP_FLAGS
-			<< " -shared -fPIC -pipe"
+			<< " -shared -fPIC -pipe"// -Wall"
 			<< " -I./include"
 			<< " -o " << filename_out
 			<< " -g -O0 -march=native -mtune=native"
