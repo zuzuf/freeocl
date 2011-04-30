@@ -20,6 +20,7 @@
 #include <cstdio>
 #include <fstream>
 #include <dlfcn.h>
+#include <cstdlib>
 
 namespace FreeOCL
 {
@@ -56,15 +57,16 @@ namespace FreeOCL
 		std::deque<std::string> result;
 
 		size_t pos = s.find_first_not_of(sep, 0);
-		do
-		{
-			size_t next = s.find_first_of(sep, pos);
-			result.push_back(s.substr(pos, next - pos));
-			if (next != std::string::npos)
-				pos = s.find_first_not_of(sep, next);
-			else
-				pos = std::string::npos;
-		} while(pos != std::string::npos);
+		if (pos != -1)
+			do
+			{
+				const size_t next = s.find_first_of(sep, pos);
+				result.push_back(s.substr(pos, next - pos));
+				if (next != std::string::npos)
+					pos = s.find_first_not_of(sep, next);
+				else
+					pos = std::string::npos;
+			} while(pos != std::string::npos);
 
 		return result;
 	}
@@ -72,7 +74,7 @@ namespace FreeOCL
 	ICDLoader::ICDLoader()
 	{
 		// Get the list of all *.icd files in /etc/OpenCL/vendors/
-		std::deque<std::string> files = split(trim(runCommand("ls -1 /etc/OpenCL/vendors/*.icd")), "\n");
+		std::deque<std::string> files = split(trim(runCommand("ls -1 /etc/OpenCL/vendors/*.icd 2>/dev/null")), "\n");
 		// For each file
 		for(std::deque<std::string>::const_iterator i = files.begin() ; i != files.end() ; ++i)
 		{
