@@ -80,6 +80,7 @@
 
 #define FLOAT2	__m64
 #define FLOAT4	__m128
+#define packed	__packed__
 
 // Built-in scalar types
 typedef unsigned int uint;
@@ -89,6 +90,61 @@ typedef unsigned long ulong;
 struct half
 {
 	ushort v;
+
+	inline operator float() const
+	{
+		union
+		{
+			uint i;
+			float f;
+		} u;
+		const uint s = (v & 0x8000U) << 16;
+		const uint e = (v & 0x7C00U) >> 10;
+		const uint m = v & 0x03FFU;
+		switch(e)
+		{
+		case 0:
+			u.i = s;	// flush denormalized numbers to 0 for now
+			break;
+		case 0x1F:
+			u.i = s				// signbit
+				  | 0x7F800000U				// exponent
+				  | (m << 13);	// significand
+			break;
+		default:
+			u.i = s				// signbit
+				  | ((e + 126 - 15) << 23)	// exponent
+				  | (m << 13);	// significand
+		}
+		return u.f;
+	}
+
+	static inline half from_float(float f)
+	{
+		union
+		{
+			uint i;
+			float f;
+		} u;
+		u.f = f;
+
+		half h;
+		const uint s = (u.i & 0x80000000U) >> 16;
+		const uint e = (u.i & 0x7F800000U) >> 23;
+		const uint m = (u.i & 0x007FFFFFU) >> 13;
+		switch(e)
+		{
+		case 0:
+			h.v = s;
+			break;
+		case 0xFF:
+			h.v = s | 0x7C00U | m;
+			break;
+		default:
+			h.v = s | (e << 10) | m;
+		}
+		return h;
+	}
 };
 
 template<class A, class B>	struct __right {	typedef B	type;	};
