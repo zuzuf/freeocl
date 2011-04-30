@@ -111,7 +111,7 @@ inline uint atomic_xor(volatile uint *p, uint val)
 {	return __sync_fetch_and_xor(p, val);	}
 
 // 64-bit atomics
-inline long atomic_add(volatile long *p, int val)
+inline long atomic_add(volatile long *p, long val)
 {	return __sync_fetch_and_add(p, val);	}
 inline ulong atomic_add(volatile ulong *p, ulong val)
 {	return __sync_fetch_and_add(p, val);	}
@@ -202,17 +202,189 @@ inline long atomic_xor(volatile long *p, long val)
 inline ulong atomic_xor(volatile ulong *p, ulong val)
 {	return __sync_fetch_and_xor(p, val);	}
 
-// declare alias for the atom_* versions
-#define atom_add		atomic_add
-#define atom_sub		atomic_sub
-#define atom_and		atomic_and
-#define atom_xor		atomic_xor
-#define atom_or			atomic_or
-#define atom_min		atomic_min
-#define atom_max		atomic_max
-#define atom_inc		atomic_inc
-#define atom_dec		atomic_dec
-#define atom_xchg		atomic_xchg
-#define atom_cmpxchg	atomic_cmpxchg
+// atom_* versions (which use non-volatile pointers)
+// 32-bit atomics
+inline int atom_add(int *p, int val)
+{	return __sync_fetch_and_add(p, val);	}
+inline uint atom_add(uint *p, uint val)
+{	return __sync_fetch_and_add(p, val);	}
+
+inline int atom_sub(int *p, int val)
+{	return __sync_fetch_and_sub(p, val);	}
+inline uint atom_sub(uint *p, uint val)
+{	return __sync_fetch_and_sub(p, val);	}
+
+inline int atom_xchg(int *p, int val)
+{	return __sync_lock_test_and_set(p, val);	}
+inline uint atom_xchg(uint *p, uint val)
+{	return __sync_lock_test_and_set(p, val);	}
+
+inline int atom_inc(int *p)
+{	return atom_add(p, 1);	}
+inline uint atom_inc(uint *p)
+{	return atom_add(p, 1U);	}
+
+inline int atom_dec(int *p)
+{	return atom_sub(p, 1);	}
+inline uint atom_dec(uint *p)
+{	return atom_sub(p, 1U);	}
+
+inline int atom_cmpxchg(int *p, int cmp, int val)
+{	return __sync_val_compare_and_swap(p, cmp, val);	}
+inline uint atom_cmpxchg(uint *p, uint cmp, uint val)
+{	return __sync_val_compare_and_swap(p, cmp, val);	}
+
+inline int atom_min(int *p, int val)
+{
+	int old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old > val)
+			*p = val;
+	}
+	return old;
+}
+inline uint atom_min(uint *p, uint val)
+{
+	uint old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old > val)
+			*p = val;
+	}
+	return old;
+}
+
+inline int atom_max(int *p, int val)
+{
+	int old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old < val)
+			*p = val;
+	}
+	return old;
+}
+inline uint atom_max(uint *p, uint val)
+{
+	uint old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old < val)
+			*p = val;
+	}
+	return old;
+}
+
+inline int atom_and(int *p, int val)
+{	return __sync_fetch_and_and(p, val);	}
+inline uint atom_and(uint *p, uint val)
+{	return __sync_fetch_and_and(p, val);	}
+
+inline int atom_or(int *p, int val)
+{	return __sync_fetch_and_or(p, val);	}
+inline uint atom_or(uint *p, uint val)
+{	return __sync_fetch_and_or(p, val);	}
+
+inline int atom_xor(int *p, int val)
+{	return __sync_fetch_and_xor(p, val);	}
+inline uint atom_xor(uint *p, uint val)
+{	return __sync_fetch_and_xor(p, val);	}
+
+// 64-bit atomics
+inline long atom_add(long *p, long val)
+{	return __sync_fetch_and_add(p, val);	}
+inline ulong atom_add(ulong *p, ulong val)
+{	return __sync_fetch_and_add(p, val);	}
+
+inline long atom_sub(long *p, long val)
+{	return __sync_fetch_and_sub(p, val);	}
+inline ulong atom_sub(ulong *p, ulong val)
+{	return __sync_fetch_and_sub(p, val);	}
+
+inline long atom_xchg(long *p, long val)
+{	return __sync_lock_test_and_set(p, val);	}
+inline ulong atom_xchg(ulong *p, ulong val)
+{	return __sync_lock_test_and_set(p, val);	}
+
+inline long atom_inc(long *p)
+{	return atom_add(p, 1);	}
+inline ulong atom_inc(ulong *p)
+{	return atom_add(p, 1U);	}
+
+inline long atom_dec(long *p)
+{	return atom_sub(p, 1);	}
+inline ulong atom_dec(ulong *p)
+{	return atom_sub(p, 1U);	}
+
+inline long atom_cmpxchg(long *p, long cmp, long val)
+{	return __sync_val_compare_and_swap(p, cmp, val);	}
+inline ulong atom_cmpxchg(ulong *p, ulong cmp, ulong val)
+{	return __sync_val_compare_and_swap(p, cmp, val);	}
+
+inline long atom_min(long *p, long val)
+{
+	long old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old > val)
+			*p = val;
+	}
+	return old;
+}
+inline ulong atom_min(ulong *p, ulong val)
+{
+	ulong old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old > val)
+			*p = val;
+	}
+	return old;
+}
+
+inline long atom_max(long *p, long val)
+{
+	long old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old < val)
+			*p = val;
+	}
+	return old;
+}
+inline ulong atom_max(ulong *p, ulong val)
+{
+	ulong old;
+#pragma omp critical
+	{
+		old = *p;
+		if (old < val)
+			*p = val;
+	}
+	return old;
+}
+
+inline long atom_and(long *p, long val)
+{	return __sync_fetch_and_and(p, val);	}
+inline ulong atom_and(ulong *p, ulong val)
+{	return __sync_fetch_and_and(p, val);	}
+
+inline long atom_or(long *p, long val)
+{	return __sync_fetch_and_or(p, val);	}
+inline ulong atom_or(ulong *p, ulong val)
+{	return __sync_fetch_and_or(p, val);	}
+
+inline long atom_xor(long *p, long val)
+{	return __sync_fetch_and_xor(p, val);	}
+inline ulong atom_xor(ulong *p, ulong val)
+{	return __sync_fetch_and_xor(p, val);	}
 
 #endif
