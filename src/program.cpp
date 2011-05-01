@@ -20,6 +20,7 @@
 #include <cstring>
 #include <dlfcn.h>
 #include "codebuilder.h"
+#include <sstream>
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -137,7 +138,7 @@ extern "C"
 		program->binary_file.clear();
 		program->unlock();
 
-		std::string build_log;
+		std::stringstream build_log;
 		std::string binary_file = FreeOCL::build_program(source_code, build_log);
 
 		if (!FreeOCL::isValid(program))
@@ -148,7 +149,7 @@ extern "C"
 		}
 
 		program->binary_file = binary_file;
-		program->build_log = build_log;
+		program->build_log = build_log.str();
 
 		if (program->binary_file.empty())
 		{

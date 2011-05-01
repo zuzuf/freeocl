@@ -18,6 +18,7 @@
 #include "Parser.h"
 #include <map>
 #include <cmath>
+#include <sstream>
 
 template<class Key, class Value>
 struct Map
@@ -37,6 +38,31 @@ namespace FreeOCL
 
 		if (!in)					// no characters were obtained
 			return 0;               // indicate End Of Input
+
+		if (c == '#')		// Preprocessor directive, skip line
+		{
+			if (!get(c))
+				return 0;
+			if (isspace(c))		// read line number and file name
+			{
+				std::stringstream line;
+				while(get(c) && c != '\n')	line << c;
+				line >> this->line >> current_file;
+				this->line--;
+				if (current_file.size() >= 2)
+				{
+					if (current_file[0] == '"')
+						current_file.erase(0, 1);
+					if (*current_file.rbegin() == '"')
+						current_file.erase(current_file.size() - 1, 1);
+				}
+				std::cout << "line = " << this->line << std::endl;
+				std::cout << "current_file = " << current_file << std::endl;
+				return lex();
+			}
+			while(get(c) && c != '\n');
+			return lex();
+		}
 
 		if (c == '"')
 		{
@@ -62,7 +88,7 @@ namespace FreeOCL
 			if (!in)                  // end of input
 				return 0;
 			d_val__ = NULL;
-			return STRING;
+			return STRING_LITERAL;
 		}
 
 		int i = 0;
@@ -96,7 +122,7 @@ namespace FreeOCL
 				if (c != '.' || base != 10)
 					putback(c);
 				d_val__ = NULL;
-				return INTEGER;
+				return CONSTANT;
 			}
 		}
 		if (c == '.' && isdigit(peek()))		// a float
@@ -123,7 +149,7 @@ namespace FreeOCL
 			}
 			putback(c);
 			d_val__ = NULL;
-			return NUMBER;				// return the NUMBER token
+			return CONSTANT;				// return the NUMBER token
 		}
 
 		if (c == '\'')		// A char
@@ -144,7 +170,7 @@ namespace FreeOCL
 			if (c != '\'')
 				return 0;
 			d_val__ = NULL;
-			return INTEGER;
+			return CONSTANT;
 		}
 
 		if (isalpha(c) || c == '_')		// an identifier ?
@@ -159,18 +185,34 @@ namespace FreeOCL
 			if (bInitKeywords)
 			{
 				bInitKeywords = false;
-				keywords["while"] = WHILE;
-				keywords["for"] = FOR;
-				keywords["return"] = RETURN;
+				keywords["typedef"] = TYPEDEF;
+				keywords["char"] = CHAR;
+				keywords["short"] = SHORT;
+				keywords["int"] = INT;
+				keywords["long"] = LONG;
+				keywords["signed"] = SIGNED;
+				keywords["unsigned"] = UNSIGNED;
+				keywords["float"] = FLOAT;
+				keywords["double"] = DOUBLE;
+				keywords["const"] = CONST;
+				keywords["volatile"] = VOLATILE;
+				keywords["void"] = VOID;
+				keywords["struct"] = STRUCT;
+				keywords["union"] = UNION;
+				keywords["enum"] = ENUM;
+				keywords["ellipsis"] = ELLIPSIS;
+				keywords["case"] = CASE;
+				keywords["default"] = DEFAULT;
 				keywords["if"] = IF;
 				keywords["else"] = ELSE;
 				keywords["switch"] = SWITCH;
-				keywords["sizeof"] = SIZEOF;
-				keywords["case"] = CASE;
-				keywords["default"] = DEFAULT;
-				keywords["typedef"] = TYPEDEF;
-				keywords["struct"] = STRUCT;
-				keywords["union"] = UNION;
+				keywords["while"] = WHILE;
+				keywords["do"] = DO;
+				keywords["for"] = FOR;
+				keywords["goto"] = GOTO;
+				keywords["continue"] = CONTINUE;
+				keywords["break"] = BREAK;
+				keywords["return"] = RETURN;
 			}
 
 			Map<string, int>::type::const_iterator it = keywords.find(name);
@@ -179,7 +221,7 @@ namespace FreeOCL
 			if (name == "true" || name == "false")
 			{
 				d_val__ = NULL;
-				return BOOLEAN;
+				return CONSTANT;
 			}
 
 			d_val__ = NULL;
@@ -192,102 +234,102 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return LE_OP;
 			}
 			if (peek() == '<')
 			{
 				get(c);
-				return OPERATOR;
+				return LEFT_OP;
 			}
 			break;
 		case '>':
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return GE_OP;
 			}
 			if (peek() == '>')
 			{
 				get(c);
-				return OPERATOR;
+				return RIGHT_OP;
 			}
 			break;
 		case '=':
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return EQ_OP;
 			}
 			break;
 		case '!':
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return NE_OP;
 			}
 			break;
 		case '+':
 			if (peek() == '+')
 			{
 				get(c);
-				return OPERATOR;
+				return INC_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return ADD_ASSIGN;
 			}
 			break;
 		case '-':
 			if (peek() == '-')
 			{
 				get(c);
-				return OPERATOR;
+				return DEC_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return SUB_ASSIGN;
 			}
 			if (peek() == '>')
 			{
 				get(c);
-				return ARROW;
+				return PTR_OP;
 			}
 			break;
 		case '*':
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return MUL_ASSIGN;
 			}
 			break;
 		case '/':
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return DIV_ASSIGN;
 			}
 			break;
 		case '%':
 			if (peek() == '=')
 			{
 				get(c);
-				return OPERATOR;
+				return MOD_ASSIGN;
 			}
 			break;
 		case '&':
 			if (peek() == '&')
 			{
 				get(c);
-				return OPERATOR;
+				return AND_OP;
 			}
 			break;
 		case '|':
 			if (peek() == '|')
 			{
 				get(c);
-				return OPERATOR;
+				return OR_OP;
 			}
 			break;
 		};

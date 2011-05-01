@@ -20,11 +20,22 @@
 #include <fcntl.h>
 #include <sstream>
 #include "freeocl.h"
+#include "parser/Parser.h"
 
 namespace FreeOCL
 {
-	std::string build_program(const std::string &code, std::string &log)
+	std::string build_program(const std::string &code, std::stringstream &log)
 	{
+		const std::string preprocessed_code = preprocess_code(code, log);
+
+		if (preprocessed_code.empty())
+			return std::string();
+
+		const std::string validated_code = validate_code(preprocessed_code, log);
+
+		if (validated_code.empty())
+			return std::string();
+
 		char buf[1024];		// Buffer for tmpnam (to make it thread safe)
 		int fd_in = -1;
 		int fd_out = -1;
@@ -38,7 +49,7 @@ namespace FreeOCL
 			++n;
 			if (n > 0x10000)
 			{
-				log = "error: impossible to get a temporary file as compiler input";
+				log << "error: impossible to get a temporary file as compiler input" << std::endl;
 				return filename_out;
 			}
 			filename_in = tmpnam(buf);
@@ -48,7 +59,7 @@ namespace FreeOCL
 		FILE *file_in = fdopen(fd_in, "w");
 		(void)fputs("#include <FreeOCL/opencl_c.h>\n", file_in);
 		(void)fputs("#line 0\n", file_in);
-		(void)fwrite(code.c_str(), 1, code.size(), file_in);
+		(void)fwrite(validated_code.c_str(), 1, validated_code.size(), file_in);
 		(void)fflush(file_in);
 
 		// Creates a unique temporary file to write the binary data
@@ -60,7 +71,7 @@ namespace FreeOCL
 			{
 				fclose(file_in);
 				remove(filename_in.c_str());
-				log = "error: impossible to get a temporary file as compiler output";
+				log << "error: impossible to get a temporary file as compiler output" << std::endl;
 				filename_out.clear();
 				return filename_out;
 			}
@@ -81,7 +92,7 @@ namespace FreeOCL
 			<< " -x c++ " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
-		log = runCommand(cmd.str(), &ret);
+		log << runCommand(cmd.str(), &ret) << std::endl;
 
 		close(fd_out);
 		fclose(file_in);
@@ -93,8 +104,80 @@ namespace FreeOCL
 			remove(filename_out.c_str());
 			filename_out.clear();
 		}
-		else
-			runCommand("cp " + filename_out + " ~/program.so");
 		return filename_out;
+	}
+
+	std::string preprocess_code(const std::string &code, std::stringstream &log)
+	{
+		log << "preprocessor log:" << std::endl;
+		char buf[1024];		// Buffer for tmpnam (to make it thread safe)
+		int fd_in = -1;
+		int fd_out = -1;
+		std::string filename_in;
+		std::string filename_out;
+		std::string out;
+
+		// Open a unique temporary file to write the code
+		size_t n = 0;
+		while(fd_in == -1)
+		{
+			++n;
+			if (n > 0x10000)
+			{
+				log << "error: impossible to get a temporary file as preprocessor input" << std::endl;
+				return out;
+			}
+			filename_in = tmpnam(buf);
+			fd_in = open(filename_in.c_str(), O_EXCL | O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
+		}
+
+		FILE *file_in = fdopen(fd_in, "w");
+		(void)fwrite(code.c_str(), 1, code.size(), file_in);
+		(void)fflush(file_in);
+
+		// Creates a unique temporary file to write the binary data
+		n = 0;
+		while(fd_out == -1)
+		{
+			++n;
+			if (n > 0x10000)
+			{
+				fclose(file_in);
+				remove(filename_in.c_str());
+				log << "error: impossible to get a temporary file as preprocessor output" << std::endl;
+				return out;
+			}
+			filename_out = tmpnam(buf);
+			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDWR, S_IWUSR | S_IRUSR | S_IXUSR);
+		}
+
+		std::stringstream cmd;
+		cmd << "cpp"
+			<< " -x c --std=c99"
+			<< " -o " << filename_out
+			<< " " << filename_in
+			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
+		int ret = 0;
+		log << runCommand(cmd.str(), &ret) << std::endl;
+
+		fclose(file_in);
+		// Remove the input file which is now useless
+		remove(filename_in.c_str());
+
+		if (ret == 0)
+			out = runCommand("cat " + filename_out);
+		close(fd_out);
+		remove(filename_out.c_str());
+		return out;
+	}
+
+	std::string validate_code(const std::string &code, std::stringstream &log)
+	{
+		log << "code validator log:" << std::endl;
+		log << "code:" << std::endl << code << std::endl;
+		std::stringstream in(code);
+		Parser parser(in, log);
+		parser.parse();
+		return code;
 	}
 }

@@ -15,7 +15,7 @@ namespace FreeOCL
 	{
 
 	public:
-		Parser(std::istream &in, std::ostream &err) : in(in), err(err)	{}
+		Parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0)	{}
 
 		int parse();
 		inline bool errors() const {	return bErrors; }
@@ -43,6 +43,7 @@ namespace FreeOCL
 		std::ostream &err;			// Error output stream
 		size_t line;
 		std::string current_line;
+		std::string current_file;
 		bool bErrors;
 	};
 

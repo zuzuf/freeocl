@@ -145,7 +145,7 @@ namespace FreeOCL
 		}
 
 		int c;
-		while((c = fgetc(file)) != -1 && !feof(file))
+		while((c = fgetc(file)) != -1)
 			result += (char)c;
 		const int r = pclose(file);
 		if (ret)
