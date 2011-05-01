@@ -68,6 +68,8 @@ SET(SOURCES
 	src/parser/Parser.h
 	src/parser/Parser.ih
 	src/parser/macros.h
+	src/parser/lex.cpp
+	src/parser/error.cpp
 	)
 
 SET(API_SOURCES

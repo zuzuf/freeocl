@@ -3,6 +3,27 @@
 
 %stype void*
 
+%token STRING
+%token INTEGER
+%token NUMBER
+%token BOOLEAN
+
+%token WHILE
+%token FOR
+%token RETURN
+%token IF
+%token ELSE
+%token SWITCH
+%token SIZEOF
+%token CASE
+%token DEFAULT
+%token TYPEDEF
+%token STRUCT
+%token UNION
+%token IDENTIFIER
+%token OPERATOR
+%token ARROW
+
 %%
 
 input:

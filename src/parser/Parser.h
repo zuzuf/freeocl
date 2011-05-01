@@ -11,36 +11,47 @@ namespace FreeOCL
 {
 
 #undef Parser
-class Parser: public ParserBase
-{
-        
-    public:
-        int parse();
+	class Parser: public ParserBase
+	{
 
-    private:
-        void error(char const *msg);    // called on (syntax) errors
-        int lex();                      // returns the next token from the
-                                        // lexical scanner. 
-        void print();                   // use, e.g., d_token, d_loc
+	public:
+		Parser(std::istream &in, std::ostream &err) : in(in), err(err)	{}
 
-    // support functions for parse():
-        void executeAction(int ruleNr);
-        void errorRecovery();
-        int lookup(bool recovery);
-        void nextToken();
-};
+		int parse();
+		inline bool errors() const {	return bErrors; }
 
-inline void Parser::error(char const *msg)
-{
-    std::cerr << msg << std::endl;
-}
+	private:
+		void error(const std::string &msg);	// called on (syntax) errors
+		int lex();							// returns the next token from the
+		// lexical scanner.
+		void print();						// use, e.g., d_token, d_loc
 
-// $insert lex
+		// support functions for parse():
+		void executeAction(int ruleNr);
+		void errorRecovery();
+		int lookup(bool recovery);
+		void nextToken();
 
-inline void Parser::print()      // use d_token, d_loc
-{}
+		// support functions for lex()
+		int get();
+		std::istream &get(char &c);
+		void putback(char c);
+		int peek();
 
-// $insert namespace-close
+	private:
+		std::istream &in;			// Input stream
+		std::ostream &err;			// Error output stream
+		size_t line;
+		std::string current_line;
+		bool bErrors;
+	};
+
+	// $insert lex
+
+	inline void Parser::print()	  // use d_token, d_loc
+	{}
+
+	// $insert namespace-close
 }
 
 #endif
