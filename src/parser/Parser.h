@@ -19,6 +19,7 @@ namespace FreeOCL
 
 		int parse();
 		inline bool errors() const {	return bErrors; }
+		inline const Node &getAST() const	{	return root;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
@@ -45,6 +46,7 @@ namespace FreeOCL
 		std::string current_line;
 		std::string current_file;
 		bool bErrors;
+		Node root;
 	};
 
 	// $insert lex

@@ -56,8 +56,6 @@ namespace FreeOCL
 					if (*current_file.rbegin() == '"')
 						current_file.erase(current_file.size() - 1, 1);
 				}
-				std::cout << "line = " << this->line << std::endl;
-				std::cout << "current_file = " << current_file << std::endl;
 				return lex();
 			}
 			while(get(c) && c != '\n');
@@ -87,7 +85,7 @@ namespace FreeOCL
 
 			if (!in)                  // end of input
 				return 0;
-			d_val__ = NULL;
+			d_val__ = Node(str);
 			return STRING_LITERAL;
 		}
 
@@ -121,7 +119,7 @@ namespace FreeOCL
 			{
 				if (c != '.' || base != 10)
 					putback(c);
-				d_val__ = NULL;
+				d_val__ = Node(i);
 				return CONSTANT;
 			}
 		}
@@ -148,7 +146,10 @@ namespace FreeOCL
 					f *= pow10(exponent);
 			}
 			putback(c);
-			d_val__ = NULL;
+			if (c == 'f')
+				d_val__ = Node((float)f);
+			else
+				d_val__ = Node(f);
 			return CONSTANT;				// return the NUMBER token
 		}
 
@@ -169,7 +170,7 @@ namespace FreeOCL
 			get(c);
 			if (c != '\'')
 				return 0;
-			d_val__ = NULL;
+			d_val__ = Node(v);
 			return CONSTANT;
 		}
 
@@ -251,14 +252,17 @@ namespace FreeOCL
 
 			Map<string, int>::type::const_iterator it = keywords.find(name);
 			if (it != keywords.end())
+			{
+				d_val__ = Node(name);
 				return it->second;
+			}
 			if (name == "true" || name == "false")
 			{
-				d_val__ = NULL;
+				d_val__ = Node(name == "true" ? 1 : 0);
 				return CONSTANT;
 			}
 
-			d_val__ = NULL;
+			d_val__ = Node(name);
 			return IDENTIFIER;
 		}
 
@@ -268,11 +272,13 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("<=");
 				return LE_OP;
 			}
 			if (peek() == '<')
 			{
 				get(c);
+				d_val__ = Node("<<");
 				return LEFT_OP;
 			}
 			break;
@@ -280,11 +286,13 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node(">=");
 				return GE_OP;
 			}
 			if (peek() == '>')
 			{
 				get(c);
+				d_val__ = Node(">>");
 				return RIGHT_OP;
 			}
 			break;
@@ -292,6 +300,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("==");
 				return EQ_OP;
 			}
 			break;
@@ -299,6 +308,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("!=");
 				return NE_OP;
 			}
 			break;
@@ -306,11 +316,13 @@ namespace FreeOCL
 			if (peek() == '+')
 			{
 				get(c);
+				d_val__ = Node("++");
 				return INC_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("+=");
 				return ADD_ASSIGN;
 			}
 			break;
@@ -318,16 +330,19 @@ namespace FreeOCL
 			if (peek() == '-')
 			{
 				get(c);
+				d_val__ = Node("--");
 				return DEC_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("-=");
 				return SUB_ASSIGN;
 			}
 			if (peek() == '>')
 			{
 				get(c);
+				d_val__ = Node("->");
 				return PTR_OP;
 			}
 			break;
@@ -335,6 +350,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("*=");
 				return MUL_ASSIGN;
 			}
 			break;
@@ -342,6 +358,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("/=");
 				return DIV_ASSIGN;
 			}
 			break;
@@ -349,6 +366,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
+				d_val__ = Node("%=");
 				return MOD_ASSIGN;
 			}
 			break;
@@ -356,6 +374,7 @@ namespace FreeOCL
 			if (peek() == '&')
 			{
 				get(c);
+				d_val__ = Node("&&");
 				return AND_OP;
 			}
 			break;
@@ -363,11 +382,13 @@ namespace FreeOCL
 			if (peek() == '|')
 			{
 				get(c);
+				d_val__ = Node("||");
 				return OR_OP;
 			}
 			break;
 		};
 
+		d_val__ = Node(std::string(1, c));
 		return c;                       // otherwise return the extracted char.
 	}
 

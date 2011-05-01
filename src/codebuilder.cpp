@@ -154,6 +154,10 @@ namespace FreeOCL
 		std::stringstream cmd;
 		cmd << "cpp"
 			<< " -x c --std=c99"
+			<< " -D__OPENCL_VERSION__=110 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110"
+			<< " -D__ENDIAN_LITTLE__=1"
+//			<< " -D__IMAGE_SUPPORT__=1"
+//			<< " -D__FAST_RELAXED_MATH__=1"
 			<< " -o " << filename_out
 			<< " " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
@@ -178,6 +182,7 @@ namespace FreeOCL
 		std::stringstream in(code);
 		Parser parser(in, log);
 		parser.parse();
-		return code;
+		log << "converted code:" << std::endl << parser.getAST().toString() << std::endl;
+		return parser.getAST().toString();
 	}
 }

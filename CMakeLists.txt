@@ -70,6 +70,7 @@ SET(SOURCES
 	src/parser/macros.h
 	src/parser/lex.cpp
 	src/parser/error.cpp
+	src/parser/node.cpp	src/parser/node.h
 	)
 
 SET(API_SOURCES

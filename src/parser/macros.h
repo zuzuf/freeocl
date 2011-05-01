@@ -17,4 +17,7 @@
 */
 #ifndef __FREEOCL_PARSER_MACROS_H__
 #define __FREEOCL_PARSER_MACROS_H__
+
+#include "node.h"
+
 #endif
