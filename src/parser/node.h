@@ -21,6 +21,7 @@
 #include <deque>
 #include <string>
 #include <stdint.h>
+#include "../utils/smartptr.h"
 
 namespace FreeOCL
 {
@@ -48,13 +49,13 @@ namespace FreeOCL
 		void pop_back();
 		void pop_front();
 
-		const std::deque<Node> &getChilds() const	{	return childs;	}
+		const std::deque<Node> &getChilds() const	{	return *childs;	}
 		const std::string &getValue() const	{	return value;	}
 
 		std::string toString() const;
 	private:
-		std::string			value;
-		std::deque<Node>	childs;
+		std::string		value;
+		smartptr<std::deque<Node> >	childs;
 	};
 }
 

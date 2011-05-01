@@ -49,7 +49,7 @@ inline std::string memSuffix(const size_t s)
 #define STRINGIFY(X)	#X
 
 const char *source_code =
-"__kernel void hello()\n"
+"__kernel void hello(int _i)\n"
 "{\n"
 "	size_t i = get_global_id(0);\n"
 "	size_t j = get_global_id(1);\n"

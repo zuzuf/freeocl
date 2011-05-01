@@ -71,6 +71,8 @@ SET(SOURCES
 	src/parser/lex.cpp
 	src/parser/error.cpp
 	src/parser/node.cpp	src/parser/node.h
+
+	src/utils/smartptr.h
 	)
 
 SET(API_SOURCES

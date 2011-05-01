@@ -69,34 +69,34 @@ namespace FreeOCL
 	{
 	}
 
-	Node::Node(const Node &n0, const Node &n1)
+	Node::Node(const Node &n0, const Node &n1) : childs(new std::deque<Node>)
 	{
-		childs << n0 << n1;
+		*childs << n0 << n1;
 	}
 
-	Node::Node(const Node &n0, const Node &n1, const Node &n2)
+	Node::Node(const Node &n0, const Node &n1, const Node &n2) : childs(new std::deque<Node>)
 	{
-		childs << n0 << n1 << n2;
+		*childs << n0 << n1 << n2;
 	}
 
-	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3)
+	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3) : childs(new std::deque<Node>)
 	{
-		childs << n0 << n1 << n2 << n3;
+		*childs << n0 << n1 << n2 << n3;
 	}
 
-	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4)
+	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4) : childs(new std::deque<Node>)
 	{
-		childs << n0 << n1 << n2 << n3 << n4;
+		*childs << n0 << n1 << n2 << n3 << n4;
 	}
 
-	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5)
+	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5) : childs(new std::deque<Node>)
 	{
-		childs << n0 << n1 << n2 << n3 << n4 << n5;
+		*childs << n0 << n1 << n2 << n3 << n4 << n5;
 	}
 
-	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5, const Node &n6)
+	Node::Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5, const Node &n6) : childs(new std::deque<Node>)
 	{
-		childs << n0 << n1 << n2 << n3 << n4 << n5 << n6;
+		*childs << n0 << n1 << n2 << n3 << n4 << n5 << n6;
 	}
 
 	Node::~Node()
@@ -106,22 +106,26 @@ namespace FreeOCL
 
 	void Node::push_back(const Node &n)
 	{
-		childs.push_back(n);
+		if (childs)
+			childs->push_back(n);
 	}
 
 	void Node::push_front(const Node &n)
 	{
-		childs.push_front(n);
+		if (childs)
+			childs->push_front(n);
 	}
 
 	void Node::pop_back()
 	{
-		childs.pop_back();
+		if (childs)
+			childs->pop_back();
 	}
 
 	void Node::pop_front()
 	{
-		childs.pop_front();
+		if (childs)
+			childs->pop_front();
 	}
 
 	std::string Node::toString() const
@@ -130,11 +134,11 @@ namespace FreeOCL
 		tmp << value;
 		if (value == "{" || value == "}" || value == ";")
 			tmp << std::endl;
-		if (!childs.empty())
+		if (childs && !childs->empty())
 		{
 			if (!value.empty())
 				tmp << ' ';
-			for(std::deque<Node>::const_iterator i = childs.begin(), end = childs.end() ; i != end ; ++i)
+			for(std::deque<Node>::const_iterator i = childs->begin(), end = childs->end() ; i != end ; ++i)
 			{
 				tmp << i->toString();
 				if (i + 1 != end)

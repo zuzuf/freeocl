@@ -485,11 +485,18 @@ function_definition
 	: declaration_specifiers declarator declaration_list compound_statement
 	| declaration_specifiers declarator compound_statement
 	| function_qualifier declaration_specifiers declarator declaration_list compound_statement
+	{
+		$$ = Node( $1, $2, $3, $4, $5 );
+		if ($2.getValue() != "void")
+			error("return type for kernels must be void");
+		std::cout << $$.toString() << std::endl;
+	}
 	| function_qualifier declaration_specifiers declarator compound_statement
 	{
 		$$ = Node( $1, $2, $3, $4 );
 		if ($2.getValue() != "void")
 			error("return type for kernels must be void");
+		std::cout << $3.toString() << std::endl;
 	}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
