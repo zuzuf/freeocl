@@ -29,6 +29,7 @@
 #include "mutex.h"
 #include "dispatch.h"
 #include <iostream>
+#include <deque>
 
 #ifdef DEBUG_UTILS
 #define MSG(X)	std::cout << #X << std::endl
@@ -67,6 +68,7 @@ namespace FreeOCL
 	std::string runCommand(const std::string &cmd, int *ret = NULL);
 	long int parseInt(const std::string &s);
 	std::string trim(const std::string &s);
+	std::deque<std::string> split(const std::string &s, const std::string &sep);
 
 	struct icd_table
 	{

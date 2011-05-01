@@ -129,6 +129,12 @@ extern "C"
 		program->build_status = CL_BUILD_IN_PROGRESS;
 		const std::string source_code = program->source_code;
 
+		if (program->handle)
+			dlclose(program->handle);
+		if (!program->binary_file.empty())
+			remove(program->binary_file.c_str());
+		program->handle = NULL;
+		program->binary_file.clear();
 		program->unlock();
 
 		std::string build_log;
@@ -151,6 +157,21 @@ extern "C"
 			clReleaseProgramFCL(program);
 			return CL_BUILD_PROGRAM_FAILURE;
 		}
+
+		program->handle = dlopen(binary_file.c_str(), RTLD_LAZY | RTLD_LOCAL);
+		if (!program->handle)
+		{
+			remove(program->binary_file.c_str());
+			program->binary_file.clear();
+			program->build_status = CL_BUILD_ERROR;
+			program->unlock();
+			clReleaseProgramFCL(program);
+			return CL_BUILD_PROGRAM_FAILURE;
+		}
+
+		program->kernel_names.clear();
+		std::deque<std::string> kernel_names = FreeOCL::split(FreeOCL::runCommand("for i in `nm " + binary_file + " | awk '{ print $3 }' | grep -v \"^_\"`; do echo $i; done"), "\n");
+		program->kernel_names.insert(kernel_names.begin(), kernel_names.end());
 
 		program->build_status = CL_BUILD_SUCCESS;
 		program->unlock();
@@ -242,7 +263,7 @@ extern "C"
 	}
 }
 
-_cl_program::_cl_program() : build_status(CL_BUILD_NONE)
+_cl_program::_cl_program() : handle(NULL), build_status(CL_BUILD_NONE)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_programs.insert(this);
@@ -254,4 +275,9 @@ _cl_program::~_cl_program()
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_programs.erase(this);
 	FreeOCL::global_mutex.unlock();
+
+	if (handle)
+		dlclose(handle);
+	if (!binary_file.empty())
+		remove(binary_file.c_str());
 }

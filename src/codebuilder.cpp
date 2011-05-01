@@ -73,6 +73,7 @@ namespace FreeOCL
 		cmd << FREEOCL_CXX_COMPILER
 			<< ' ' << FREEOCL_OMP_FLAGS
 			<< " -shared -fPIC -pipe"// -Wall"
+			<< " -m" << (sizeof(void*) * 8)
 			<< " -I./include"
 			<< " -o " << filename_out
 			<< " -g -O0 -march=native -mtune=native"
@@ -92,6 +93,8 @@ namespace FreeOCL
 			remove(filename_out.c_str());
 			filename_out.clear();
 		}
+		else
+			runCommand("cp " + filename_out + " ~/program.so");
 		return filename_out;
 	}
 }

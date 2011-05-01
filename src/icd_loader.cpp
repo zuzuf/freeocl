@@ -97,7 +97,7 @@ namespace FreeOCL
 
 	void ICDLoader::load(const std::string &lib)
 	{
-		void *handle = dlopen(lib.c_str(), RTLD_NOW);
+		void *handle = dlopen(lib.c_str(), RTLD_NOW | RTLD_LOCAL);
 
 		// If dlopens fails, stop here
 		if (!handle)

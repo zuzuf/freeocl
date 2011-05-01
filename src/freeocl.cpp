@@ -170,6 +170,25 @@ namespace FreeOCL
 		return s.substr(start, end - start + 1);
 	}
 
+	std::deque<std::string> split(const std::string &s, const std::string &sep)
+	{
+		std::deque<std::string> result;
+
+		size_t pos = s.find_first_not_of(sep, 0);
+		if (pos != -1)
+			do
+			{
+				const size_t next = s.find_first_of(sep, pos);
+				result.push_back(s.substr(pos, next - pos));
+				if (next != std::string::npos)
+					pos = s.find_first_not_of(sep, next);
+				else
+					pos = std::string::npos;
+			} while(pos != std::string::npos);
+
+		return result;
+	}
+
 	cl_int empty_slot(void*)
 	{
 		std::cerr << "FreeOCL: unimplemented function" << std::endl;

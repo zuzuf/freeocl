@@ -1,0 +1,10 @@
+%baseclass-preinclude macros.h
+%namespace FreeOCL
+
+%stype void*
+
+%%
+
+input:
+	// empty
+;

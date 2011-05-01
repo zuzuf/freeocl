@@ -61,6 +61,13 @@ SET(SOURCES
 	src/dispatch.h
 	src/prototypes.h
 	src/codebuilder.cpp	src/codebuilder.h
+
+	src/parser/grammar
+	src/parser/parse.cc
+	src/parser/Parserbase.h
+	src/parser/Parser.h
+	src/parser/Parser.ih
+	src/parser/macros.h
 	)
 
 SET(API_SOURCES
