@@ -11,10 +11,18 @@
 %token TYPE_NAME
 
 %token TYPEDEF
-%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
-%token STRUCT UNION ENUM ELLIPSIS
+%token CHAR SHORT INT LONG UCHAR USHORT UINT ULONG FLOAT DOUBLE
+%token CHAR2 SHORT2 INT2 LONG2 UCHAR2 USHORT2 UINT2 ULONG2 FLOAT2 DOUBLE2
+%token CHAR3 SHORT3 INT3 LONG3 UCHAR3 USHORT3 UINT3 ULONG3 FLOAT3 DOUBLE3
+%token CHAR4 SHORT4 INT4 LONG4 UCHAR4 USHORT4 UINT4 ULONG4 FLOAT4 DOUBLE4
+%token CHAR8 SHORT8 INT8 LONG8 UCHAR8 USHORT8 UINT8 ULONG8 FLOAT8 DOUBLE8
+%token CHAR16 SHORT16 INT16 LONG16 UCHAR16 USHORT16 UINT16 ULONG16 FLOAT16 DOUBLE16
+%token SIGNED UNSIGNED SIZE_T CONST VOLATILE VOID
+%token STRUCT UNION ENUM
 
 %token CASE DEFAULT IF SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+
+%token __KERNEL __GLOBAL __LOCAL __PRIVATE __CONSTANT
 
 %start translation_unit
 
@@ -166,6 +174,8 @@ declaration
 declaration_specifiers
 	: storage_class_specifier
 	| storage_class_specifier declaration_specifiers
+	| function_qualifier
+	| function_qualifier declaration_specifiers
 	| type_specifier
 	| type_specifier declaration_specifiers
 	| type_qualifier
@@ -186,14 +196,73 @@ storage_class_specifier
 	: TYPEDEF
 	;
 
+function_qualifier
+	: __KERNEL
+	;
+
 type_specifier
 	: VOID
 	| CHAR
 	| SHORT
 	| INT
 	| LONG
+	| UCHAR
+	| USHORT
+	| UINT
+	| ULONG
 	| FLOAT
 	| DOUBLE
+	| CHAR2
+	| SHORT2
+	| INT2
+	| LONG2
+	| UCHAR2
+	| USHORT2
+	| UINT2
+	| ULONG2
+	| FLOAT2
+	| DOUBLE2
+	| CHAR3
+	| SHORT3
+	| INT3
+	| LONG3
+	| UCHAR3
+	| USHORT3
+	| UINT3
+	| ULONG3
+	| FLOAT3
+	| DOUBLE3
+	| CHAR4
+	| SHORT4
+	| INT4
+	| LONG4
+	| UCHAR4
+	| USHORT4
+	| UINT4
+	| ULONG4
+	| FLOAT4
+	| DOUBLE4
+	| CHAR8
+	| SHORT8
+	| INT8
+	| LONG8
+	| UCHAR8
+	| USHORT8
+	| UINT8
+	| ULONG8
+	| FLOAT8
+	| DOUBLE8
+	| CHAR16
+	| SHORT16
+	| INT16
+	| LONG16
+	| UCHAR16
+	| USHORT16
+	| UINT16
+	| ULONG16
+	| FLOAT16
+	| DOUBLE16
+	| SIZE_T
 	| SIGNED
 	| UNSIGNED
 	| struct_or_union_specifier
@@ -258,6 +327,10 @@ enumerator
 type_qualifier
 	: CONST
 	| VOLATILE
+	| __GLOBAL
+	| __LOCAL
+	| __PRIVATE
+	| __CONSTANT
 	;
 
 declarator
@@ -290,7 +363,6 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list
-	| parameter_list ',' ELLIPSIS
 	;
 
 parameter_list

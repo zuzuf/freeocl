@@ -186,21 +186,44 @@ namespace FreeOCL
 			{
 				bInitKeywords = false;
 				keywords["typedef"] = TYPEDEF;
+
 				keywords["char"] = CHAR;
 				keywords["short"] = SHORT;
 				keywords["int"] = INT;
 				keywords["long"] = LONG;
-				keywords["signed"] = SIGNED;
-				keywords["unsigned"] = UNSIGNED;
+				keywords["uchar"] = UCHAR;
+				keywords["ushort"] = USHORT;
+				keywords["uint"] = UINT;
+				keywords["ulong"] = ULONG;
 				keywords["float"] = FLOAT;
 				keywords["double"] = DOUBLE;
+#define IMPLEMENT_VECTOR(N)\
+				keywords["char"#N] = CHAR##N;\
+				keywords["short"#N] = SHORT##N;\
+				keywords["int"#N] = INT##N;\
+				keywords["long"#N] = LONG##N;\
+				keywords["uchar"#N] = UCHAR##N;\
+				keywords["ushort"#N] = USHORT##N;\
+				keywords["uint"#N] = UINT##N;\
+				keywords["ulong"#N] = ULONG##N;\
+				keywords["float"#N] = FLOAT##N;\
+				keywords["double"#N] = DOUBLE##N
+				IMPLEMENT_VECTOR(2);
+				IMPLEMENT_VECTOR(3);
+				IMPLEMENT_VECTOR(4);
+				IMPLEMENT_VECTOR(8);
+				IMPLEMENT_VECTOR(16);
+#undef IMPLEMENT_VECTOR
+
+				keywords["signed"] = SIGNED;
+				keywords["unsigned"] = UNSIGNED;
+				keywords["size_t"] = SIZE_T;
 				keywords["const"] = CONST;
 				keywords["volatile"] = VOLATILE;
 				keywords["void"] = VOID;
 				keywords["struct"] = STRUCT;
 				keywords["union"] = UNION;
 				keywords["enum"] = ENUM;
-				keywords["ellipsis"] = ELLIPSIS;
 				keywords["case"] = CASE;
 				keywords["default"] = DEFAULT;
 				keywords["if"] = IF;
@@ -213,6 +236,17 @@ namespace FreeOCL
 				keywords["continue"] = CONTINUE;
 				keywords["break"] = BREAK;
 				keywords["return"] = RETURN;
+
+				keywords["__kernel"] = __KERNEL;
+				keywords["__global"] = __GLOBAL;
+				keywords["__local"] = __LOCAL;
+				keywords["__private"] = __PRIVATE;
+				keywords["__constant"] = __CONSTANT;
+				keywords["kernel"] = __KERNEL;
+				keywords["global"] = __GLOBAL;
+				keywords["local"] = __LOCAL;
+				keywords["private"] = __PRIVATE;
+				keywords["constant"] = __CONSTANT;
 			}
 
 			Map<string, int>::type::const_iterator it = keywords.find(name);
