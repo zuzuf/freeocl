@@ -139,7 +139,8 @@ extern "C"
 		program->unlock();
 
 		std::stringstream build_log;
-		std::string binary_file = FreeOCL::build_program(source_code, build_log);
+		std::set<std::string> kernel_names;
+		std::string binary_file = FreeOCL::build_program(source_code, build_log, kernel_names);
 
 		if (!FreeOCL::isValid(program))
 		{
@@ -170,9 +171,7 @@ extern "C"
 			return CL_BUILD_PROGRAM_FAILURE;
 		}
 
-		program->kernel_names.clear();
-		std::deque<std::string> kernel_names = FreeOCL::split(FreeOCL::runCommand("for i in `nm " + binary_file + " | awk '{ print $3 }' | grep -v \"^_\"`; do echo $i; done"), "\n");
-		program->kernel_names.insert(kernel_names.begin(), kernel_names.end());
+		program->kernel_names = kernel_names;
 
 		program->build_status = CL_BUILD_SUCCESS;
 		program->unlock();

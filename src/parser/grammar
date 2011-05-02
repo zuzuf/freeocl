@@ -499,7 +499,6 @@ function_definition
 			error("return type for kernels must be void");
 		const std::string kernel_name = $3.front().getValue();
 		kernels[kernel_name] = $3.getChilds()[2].clone();
-		std::cout << kernels[kernel_name].toString() << std::endl;
 	}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement

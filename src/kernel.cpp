@@ -23,6 +23,7 @@
 #include "program.h"
 #include <cstdlib>
 #include <cstring>
+#include <dlfcn.h>
 
 namespace
 {
@@ -107,6 +108,12 @@ extern "C"
 							  const char *kernel_name,
 							  cl_int *errcode_ret)
 	{
+		if (kernel_name == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+
 		MSG(clCreateKernelFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
@@ -116,8 +123,39 @@ extern "C"
 		}
 		unlock.handle(program);
 
+		if (program->build_status != CL_BUILD_SUCCESS)
+		{
+			SET_RET(CL_INVALID_PROGRAM_EXECUTABLE);
+			return 0;
+		}
+
+		if (program->kernel_names.count(kernel_name) == 0)
+		{
+			SET_RET(CL_INVALID_KERNEL_NAME);
+			return 0;
+		}
+
 		cl_kernel kernel = new _cl_kernel;
 		kernel->program = program;
+		kernel->function_name = kernel_name;
+		kernel->__FCL_info = (size_t (*)(size_t)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
+		kernel->__FCL_kernel = (void (*)(const void*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
+
+		if (kernel->__FCL_info == NULL || kernel->__FCL_kernel == NULL)
+		{
+			delete kernel;
+			SET_RET(CL_OUT_OF_RESOURCES);
+			return 0;
+		}
+
+		size_t offset = 0;
+		for(size_t s = kernel->__FCL_info(0), i = 1 ; s != 0 ; s = kernel->__FCL_info(i), ++i)
+		{
+			kernel->args_size.push_back(s);
+			kernel->args_offset.push_back(offset);
+			offset += s;
+		}
+		kernel->args_buffer.resize(offset);
 
 		SET_RET(CL_SUCCESS);
 
@@ -171,6 +209,11 @@ extern "C"
 		if (!FreeOCL::isValid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
+		if (kernel->args_size.size() <= arg_index)
+			return CL_INVALID_ARG_INDEX;
+		if (kernel->args_size[arg_index] != arg_size)
+			return CL_INVALID_ARG_SIZE;
+		memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), arg_value, arg_size);
 
 		return CL_SUCCESS;
 	}
@@ -193,7 +236,11 @@ extern "C"
 		{
 		case CL_KERNEL_FUNCTION_NAME:	bTooSmall = SET_STRING(kernel->function_name.c_str());	break;
 		case CL_KERNEL_NUM_ARGS:
-			return CL_INVALID_VALUE;
+			{
+				const cl_uint num = cl_uint(kernel->args_size.size());
+				bTooSmall = SET_VAR(num);
+			}
+			break;
 		case CL_KERNEL_REFERENCE_COUNT:	bTooSmall = SET_VAR(kernel->get_ref_count());	break;
 		case CL_KERNEL_CONTEXT:			bTooSmall = SET_VAR(kernel->program->context);	break;
 		case CL_KERNEL_PROGRAM:			bTooSmall = SET_VAR(kernel->program);	break;

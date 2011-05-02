@@ -26,6 +26,12 @@ struct _cl_kernel : public FreeOCL::icd_table, public FreeOCL::ref_counter, publ
 	cl_program program;
 	std::string function_name;
 
+	size_t (*__FCL_info)(size_t);
+	void (*__FCL_kernel)(const void*);
+	std::deque<size_t> args_size;
+	std::deque<size_t> args_offset;
+	std::vector<char> args_buffer;
+
 	_cl_kernel();
 	~_cl_kernel();
 };

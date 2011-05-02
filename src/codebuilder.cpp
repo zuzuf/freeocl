@@ -17,22 +17,22 @@
 */
 #include "codebuilder.h"
 #include <cstdlib>
-#include <fcntl.h>
 #include <sstream>
+#include <fcntl.h>
 #include "freeocl.h"
 #include "parser/Parser.h"
 #include "utils/string.h"
 
 namespace FreeOCL
 {
-	std::string build_program(const std::string &code, std::stringstream &log)
+	std::string build_program(const std::string &code, std::stringstream &log, std::set<std::string> &kernels)
 	{
 		const std::string preprocessed_code = preprocess_code(code, log);
 
 		if (preprocessed_code.empty())
 			return std::string();
 
-		const std::string validated_code = validate_code(preprocessed_code, log);
+		const std::string validated_code = validate_code(preprocessed_code, log, kernels);
 
 		if (validated_code.empty())
 			return std::string();
@@ -176,10 +176,10 @@ namespace FreeOCL
 		return out;
 	}
 
-	std::string validate_code(const std::string &code, std::stringstream &log)
+	std::string validate_code(const std::string &code, std::stringstream &log, std::set<std::string> &kernels)
 	{
 		log << "code validator log:" << std::endl;
-		log << "code:" << std::endl << code << std::endl;
+//		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
 		Parser parser(in, log);
 		parser.parse();
@@ -204,9 +204,10 @@ namespace FreeOCL
 		gen << std::endl;
 		for(std::map<std::string, Node>::const_iterator i = parser.getKernels().begin(), end = parser.getKernels().end() ; i != end ; ++i)
 		{
+			kernels.insert(i->first);
+
 			std::deque<Node> params;
 			Node n = i->second;
-			std::cout << n.size() << std::endl;
 			while(n.size() != 0)
 			{
 				if (n.size() != 3 || n.getChilds()[1].getValue() != ",")
@@ -249,7 +250,7 @@ namespace FreeOCL
 			gen	<< "}" << std::endl;
 		}
 
-		log << "converted code:" << std::endl << gen.str() << std::endl;
+//		log << "converted code:" << std::endl << gen.str() << std::endl;
 		return gen.str();
 	}
 }
