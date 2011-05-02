@@ -52,6 +52,16 @@ namespace FreeOCL
 		const std::deque<Node> &getChilds() const	{	return *childs;	}
 		const std::string &getValue() const	{	return value;	}
 
+		const Node &front() const	{	return childs->front();	}
+		Node &front()	{	return childs->front();	}
+
+		const Node &back() const	{	return childs->back();	}
+		Node &back()	{	return childs->back();	}
+
+		size_t size() const	{	return childs ? childs->size() : 0;	}
+
+		Node clone() const;
+
 		std::string toString() const;
 	private:
 		std::string		value;

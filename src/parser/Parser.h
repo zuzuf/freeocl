@@ -5,6 +5,7 @@
 
 // $insert baseclass
 #include "Parserbase.h"
+#include <map>
 
 // $insert namespace-open
 namespace FreeOCL
@@ -20,6 +21,7 @@ namespace FreeOCL
 		int parse();
 		inline bool errors() const {	return bErrors; }
 		inline const Node &getAST() const	{	return root;	}
+		const std::map<std::string, Node>	&getKernels() const	{	return kernels;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
@@ -47,6 +49,8 @@ namespace FreeOCL
 		std::string current_file;
 		bool bErrors;
 		Node root;
+
+		std::map<std::string, Node>	kernels;
 	};
 
 	// $insert lex

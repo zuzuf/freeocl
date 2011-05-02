@@ -21,6 +21,7 @@
 #include <sstream>
 #include "freeocl.h"
 #include "parser/Parser.h"
+#include "utils/string.h"
 
 namespace FreeOCL
 {
@@ -182,7 +183,73 @@ namespace FreeOCL
 		std::stringstream in(code);
 		Parser parser(in, log);
 		parser.parse();
-		log << "converted code:" << std::endl << parser.getAST().toString() << std::endl;
-		return parser.getAST().toString();
+
+		static std::set<std::string> types;
+		static bool bInit = true;
+		if (bInit)
+		{
+			bInit = false;
+			const char *base_types[] = { "char", "uchar", "short", "ushort", "int", "uint", "long", "ulong", "float", "double" };
+			for(size_t i = 0 ; i < 10 ; ++i)
+				types.insert(std::string(base_types[i]));
+			int n[] = { 2, 3, 4, 8, 16 };
+			for(size_t j = 0 ; j < 5 ; ++j)
+				for(size_t i = 0 ; i < 10 ; ++i)
+					types.insert(std::string(base_types[i]) + toString(n[j]));
+		}
+
+		std::stringstream gen;
+		gen << parser.getAST().toString();
+
+		gen << std::endl;
+		for(std::map<std::string, Node>::const_iterator i = parser.getKernels().begin(), end = parser.getKernels().end() ; i != end ; ++i)
+		{
+			std::deque<Node> params;
+			Node n = i->second;
+			std::cout << n.size() << std::endl;
+			while(n.size() != 0)
+			{
+				if (n.size() != 3 || n.getChilds()[1].getValue() != ",")
+				{
+					params.push_front(n);
+					break;
+				}
+				params.push_front(n.back());
+				n = n.front();
+			}
+			for(size_t j = 0 ; j < params.size() ; ++j)
+				if (params[j].size() > 0 && types.count(params[j].back().getValue()) == 0)
+					params[j].pop_back();
+			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx)" << std::endl
+				<< "{" << std::endl
+				<< "\tswitch(idx)" << std::endl
+				<< "\t{" << std::endl;
+			for(size_t j = 0 ; j < params.size() ; ++j)
+			{
+				gen	<< "\tcase " << j << ":" << std::endl
+					<< "\t\treturn sizeof(" << params[j].toString() << ");" << std::endl;
+			}
+			gen	<< "\t}" << std::endl
+				<< "\treturn 0;" << std::endl
+				<< "}" << std::endl;
+
+			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void *args)" << std::endl
+				<< "{" << std::endl
+				<< "\t" << i->first << "(";
+			std::stringstream cat;
+			cat << '0';
+			for(size_t j = 0 ; j < params.size() ; ++j)
+			{
+				if (j)
+					gen << ',';
+				gen << "*(" << params[j].toString() << "*)((const char*)args + " << cat.str() << ')';
+				cat << " + sizeof(" << params[j].toString() << ")";
+			}
+			gen << ");" << std::endl;
+			gen	<< "}" << std::endl;
+		}
+
+		log << "converted code:" << std::endl << gen.str() << std::endl;
+		return gen.str();
 	}
 }

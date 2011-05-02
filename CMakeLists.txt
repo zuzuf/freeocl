@@ -73,6 +73,7 @@ SET(SOURCES
 	src/parser/node.cpp	src/parser/node.h
 
 	src/utils/smartptr.h
+	src/utils/string.h
 	)
 
 SET(API_SOURCES

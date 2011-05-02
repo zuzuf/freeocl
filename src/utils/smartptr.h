@@ -59,30 +59,32 @@ namespace FreeOCL
 
 		smartptr &operator=(const smartptr &ptr)
 		{
-			if (pwrapper)
-			{
-				pwrapper->release();
-				if (pwrapper->getRefCount() == 0)
-					delete pwrapper;
-			}
+			wrapper *old = pwrapper;
 			pwrapper = const_cast<wrapper*>(ptr.pwrapper);
 			if (pwrapper)
 				pwrapper->retain();
+			if (old)
+			{
+				old->release();
+				if (old->getRefCount() == 0)
+					delete old;
+			}
 			return *this;
 		}
 
 		smartptr &operator=(const T *ptr)
 		{
-			if (pwrapper)
-			{
-				pwrapper->release();
-				if (pwrapper->getRefCount() == 0)
-					delete pwrapper;
-			}
+			wrapper *old = pwrapper;
 			if (ptr)
-				pwrapper = new wrapper(ptr);
+				pwrapper = new wrapper(const_cast<T*>(ptr));
 			else
 				pwrapper = NULL;
+			if (old)
+			{
+				old->release();
+				if (old->getRefCount() == 0)
+					delete old;
+			}
 			return *this;
 		}
 

@@ -17,17 +17,10 @@
 */
 #include "node.h"
 #include <sstream>
+#include "../utils/string.h"
 
 namespace
 {
-	template<class T>
-	inline std::string toString(const T &v)
-	{
-		std::stringstream tmp;
-		tmp << v;
-		return tmp.str();
-	}
-
 	inline std::deque<FreeOCL::Node> &operator<<(std::deque<FreeOCL::Node> &childs, const FreeOCL::Node &n)
 	{
 		childs.push_back(n);
@@ -41,27 +34,27 @@ namespace FreeOCL
 	{
 	}
 
-	Node::Node(const int32_t i) : value(::toString(i))
+	Node::Node(const int32_t i) : value(FreeOCL::toString(i))
 	{
 	}
 
-	Node::Node(const uint32_t ui) : value(::toString(ui))
+	Node::Node(const uint32_t ui) : value(FreeOCL::toString(ui))
 	{
 	}
 
-	Node::Node(const int64_t i) : value(::toString(i))
+	Node::Node(const int64_t i) : value(FreeOCL::toString(i))
 	{
 	}
 
-	Node::Node(const uint64_t ui) : value(::toString(ui))
+	Node::Node(const uint64_t ui) : value(FreeOCL::toString(ui))
 	{
 	}
 
-	Node::Node(const float f) : value(::toString(f))
+	Node::Node(const float f) : value(FreeOCL::toString(f))
 	{
 	}
 
-	Node::Node(const double d) : value(::toString(d))
+	Node::Node(const double d) : value(FreeOCL::toString(d))
 	{
 	}
 
@@ -146,5 +139,13 @@ namespace FreeOCL
 			}
 		}
 		return tmp.str();
+	}
+
+	Node Node::clone() const
+	{
+		Node copy(value);
+		copy.childs = new std::deque<Node>;
+		*copy.childs = *childs;
+		return copy;
 	}
 }
