@@ -108,13 +108,13 @@ extern "C"
 							  const char *kernel_name,
 							  cl_int *errcode_ret)
 	{
+		MSG(clCreateKernelFCL);
+
 		if (kernel_name == NULL)
 		{
 			SET_RET(CL_INVALID_VALUE);
 			return 0;
 		}
-
-		MSG(clCreateKernelFCL);
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::isValid(program))
 		{
@@ -301,7 +301,64 @@ extern "C"
 								   cl_event *event)
 	{
 		MSG(clEnqueueNDRangeKernelFCL);
-		return CL_INVALID_VALUE;
+
+		if (work_dim < 1 || work_dim > 3)
+			return CL_INVALID_WORK_DIMENSION;
+
+		if (global_work_size == NULL)
+			return CL_INVALID_GLOBAL_WORK_SIZE;
+
+		if (local_work_size == NULL)
+			return CL_INVALID_WORK_DIMENSION;
+
+		if ((num_events_in_wait_list > 0 && event_wait_list == NULL)
+			|| (num_events_in_wait_list == 0 && event_wait_list != NULL))
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::isValid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::isValid(kernel))
+			return CL_INVALID_KERNEL;
+		unlock.handle(kernel);
+
+		FreeOCL::command cmd;
+		cmd.type = CL_COMMAND_NDRANGE_KERNEL;
+		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
+		cmd.common.event_wait_list = event_wait_list;
+		cmd.common.event = NULL;
+		cmd.ndrange_kernel.dim = work_dim;
+		cmd.ndrange_kernel.kernel = kernel;
+		for(size_t i = work_dim ; i < 3 ; ++i)
+		{
+			cmd.ndrange_kernel.global_size[i] = 0;
+			cmd.ndrange_kernel.global_offset[i] = 0;
+			cmd.ndrange_kernel.local_size[i] = 0;
+		}
+		for(size_t i = 0 ; i < work_dim ; ++i)
+		{
+			cmd.ndrange_kernel.global_size[i] = global_work_size[i];
+			cmd.ndrange_kernel.global_offset[i] = global_work_offset ? global_work_offset[i] : 0;
+			cmd.ndrange_kernel.local_size[i] = local_work_size[i];
+		}
+		cmd.ndrange_kernel.args = malloc(kernel->args_buffer.size());
+		memcpy(cmd.ndrange_kernel.args, &(kernel->args_buffer.front()), kernel->args_buffer.size());
+
+		if (event)
+		{
+			cmd.common.event = *event = new _cl_event;
+			cmd.common.event->command_queue = command_queue;
+			cmd.common.event->command_type = CL_COMMAND_NDRANGE_KERNEL;
+			cmd.common.event->context = command_queue->context;
+			cmd.common.event->status = CL_SUBMITTED;
+		}
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clEnqueueTaskFCL (cl_command_queue command_queue,

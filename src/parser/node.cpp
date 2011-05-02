@@ -144,8 +144,11 @@ namespace FreeOCL
 	Node Node::clone() const
 	{
 		Node copy(value);
-		copy.childs = new std::deque<Node>;
-		*copy.childs = *childs;
+		if (childs)
+		{
+			copy.childs = new std::deque<Node>;
+			*copy.childs = *childs;
+		}
 		return copy;
 	}
 }

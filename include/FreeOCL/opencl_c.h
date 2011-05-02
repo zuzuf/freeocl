@@ -213,4 +213,6 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #define write_only	__write_only
 #define read_write	__read_write
 
+#include <stdio.h>
+
 #endif

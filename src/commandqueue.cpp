@@ -21,6 +21,7 @@
 #include "event.h"
 #include "mem.h"
 #include "context.h"
+#include "kernel.h"
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
@@ -330,6 +331,10 @@ int _cl_command_queue::proc()
 		case CL_COMMAND_NATIVE_KERNEL:
 			cmd.native_kernel.user_func(cmd.native_kernel.args);
 			free(cmd.native_kernel.args);
+			break;
+		case CL_COMMAND_NDRANGE_KERNEL:
+			cmd.ndrange_kernel.kernel->__FCL_kernel(cmd.ndrange_kernel.args);
+			free(cmd.ndrange_kernel.args);
 			break;
 		}
 

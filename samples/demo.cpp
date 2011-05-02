@@ -49,7 +49,7 @@ inline std::string memSuffix(const size_t s)
 #define STRINGIFY(X)	#X
 
 const char *source_code =
-"__kernel void hello(int _i, float, int4 _i4)\n"
+"__kernel void hello()\n"
 "{\n"
 "	size_t i = get_global_id(0);\n"
 "	size_t j = get_global_id(1);\n"
@@ -59,6 +59,7 @@ const char *source_code =
 "	} f;\n"
 "	float4 f4;\n"
 "	f4 += (float4)(i, j, 0, 0);\n"
+"	printf(\"o<\\n\");\n"
 "}\n";
 
 int main(void)
@@ -128,6 +129,9 @@ int main(void)
 		std::cout << "source code: " << std::endl << source_code << std::endl;
 		std::cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << std::endl;
 		std::cout << "build log: " << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
+
+		cl::Kernel k(program, "hello");
+		queue.enqueueTask(k);
 	}
 	catch(cl::Error err)
 	{

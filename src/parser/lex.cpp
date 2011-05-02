@@ -72,10 +72,10 @@ namespace FreeOCL
 				{
 					switch(c)
 					{
-					case 'n':	str += '\n';	break;
-					case 'r':	str += '\r';	break;
-					case 't':	str += '\t';	break;
-					default:	str += c;		break;
+					case 'n':	str += "\\n";	break;
+					case 'r':	str += "\\r";	break;
+					case 't':	str += "\\t";	break;
+					default:	str += std::string("\\") + c;		break;
 					};
 				}
 				else if (c != '\\')
@@ -85,7 +85,7 @@ namespace FreeOCL
 
 			if (!in)                  // end of input
 				return 0;
-			d_val__ = Node(str);
+			d_val__ = Node('"' + str + '"');
 			return STRING_LITERAL;
 		}
 

@@ -79,6 +79,16 @@ namespace FreeOCL
 		void *args;
 	};
 
+	struct command_ndrange_kernel : public command_common
+	{
+		cl_kernel kernel;
+		void *args;
+		cl_uint dim;
+		size_t global_offset[3];
+		size_t global_size[3];
+		size_t local_size[3];
+	};
+
 	union command
 	{
 		cl_command_type			type;
@@ -90,6 +100,7 @@ namespace FreeOCL
 		command_unmap_buffer	unmap_buffer;
 		command_marker			marker;
 		command_native_kernel	native_kernel;
+		command_ndrange_kernel	ndrange_kernel;
 	};
 }
 

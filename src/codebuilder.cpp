@@ -250,7 +250,7 @@ namespace FreeOCL
 			gen	<< "}" << std::endl;
 		}
 
-//		log << "converted code:" << std::endl << gen.str() << std::endl;
+		log << "converted code:" << std::endl << gen.str() << std::endl;
 		return gen.str();
 	}
 }
