@@ -89,7 +89,8 @@ namespace FreeOCL
 			<< " -I./include"
 			<< " -o " << filename_out
 			<< " -g -O0 -march=native -mtune=native"
-			<< " -ffast-math"
+			<< " -rdynamic"
+//			<< " -ffast-math"
 			<< " -x c++ " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
@@ -234,9 +235,25 @@ namespace FreeOCL
 				<< "\treturn 0;" << std::endl
 				<< "}" << std::endl;
 
-			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void *args)" << std::endl
+			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void *args, size_t dim, size_t *global_offset, size_t *global_size, size_t *local_size)" << std::endl
 				<< "{" << std::endl
-				<< "\t" << i->first << "(";
+				<< "\tconst size_t num = local_size[0] * local_size[1] * local_size[2];" << std::endl
+				<< "\tomp_set_num_threads(num);" << std::endl
+				<< "\tFreeOCL::dim = dim;" << std::endl
+				<< "\tfor(size_t i = 0 ; i < 3 ; ++i)" << std::endl
+				<< "\t{" << std::endl
+				<< "\t\tFreeOCL::global_offset[i] = global_offset[i];" << std::endl
+				<< "\t\tFreeOCL::global_size[i] = global_size[i];" << std::endl
+				<< "\t\tFreeOCL::local_size[i] = local_size[i];" << std::endl
+				<< "\t}" << std::endl
+				<< std::endl
+				<< "\tfor(size_t x = 0 ; x < global_size[0] ; ++x)" << std::endl
+				<< "\tfor(size_t y = 0 ; y < global_size[1] ; ++y)" << std::endl
+				<< "\tfor(size_t z = 0 ; z < global_size[2] ; ++z)" << std::endl
+				<< "\t{" << std::endl
+				<< "#pragma omp parallel" << std::endl
+				<< "\t\t{" << std::endl
+				<< "\t\t\t" << i->first << "(";
 			std::stringstream cat;
 			cat << '0';
 			for(size_t j = 0 ; j < params.size() ; ++j)
@@ -247,6 +264,8 @@ namespace FreeOCL
 				cat << " + sizeof(" << params[j].toString() << ")";
 			}
 			gen << ");" << std::endl;
+			gen << "\t\t}" << std::endl
+				<< "\t}" << std::endl;
 			gen	<< "}" << std::endl;
 		}
 

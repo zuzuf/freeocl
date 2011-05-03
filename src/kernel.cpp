@@ -139,7 +139,7 @@ extern "C"
 		kernel->program = program;
 		kernel->function_name = kernel_name;
 		kernel->__FCL_info = (size_t (*)(size_t)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
-		kernel->__FCL_kernel = (void (*)(const void*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
+		kernel->__FCL_kernel = (void (*)(const void*,size_t,size_t*,size_t*,size_t*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
 
 		if (kernel->__FCL_info == NULL || kernel->__FCL_kernel == NULL)
 		{
@@ -156,6 +156,8 @@ extern "C"
 			offset += s;
 		}
 		kernel->args_buffer.resize(offset);
+
+		program->retain();
 
 		SET_RET(CL_SUCCESS);
 
@@ -192,6 +194,7 @@ extern "C"
 		{
 			kernel->invalidate();
 			kernel->unlock();
+			clReleaseProgram(kernel->program);
 			delete kernel;
 		}
 		else
@@ -333,9 +336,9 @@ extern "C"
 		cmd.ndrange_kernel.kernel = kernel;
 		for(size_t i = work_dim ; i < 3 ; ++i)
 		{
-			cmd.ndrange_kernel.global_size[i] = 0;
+			cmd.ndrange_kernel.global_size[i] = 1;
 			cmd.ndrange_kernel.global_offset[i] = 0;
-			cmd.ndrange_kernel.local_size[i] = 0;
+			cmd.ndrange_kernel.local_size[i] = 1;
 		}
 		for(size_t i = 0 ; i < work_dim ; ++i)
 		{
@@ -343,8 +346,13 @@ extern "C"
 			cmd.ndrange_kernel.global_offset[i] = global_work_offset ? global_work_offset[i] : 0;
 			cmd.ndrange_kernel.local_size[i] = local_work_size[i];
 		}
-		cmd.ndrange_kernel.args = malloc(kernel->args_buffer.size());
-		memcpy(cmd.ndrange_kernel.args, &(kernel->args_buffer.front()), kernel->args_buffer.size());
+		if (kernel->args_buffer.empty())
+			cmd.ndrange_kernel.args = NULL;
+		else
+		{
+			cmd.ndrange_kernel.args = malloc(kernel->args_buffer.size());
+			memcpy(cmd.ndrange_kernel.args, &(kernel->args_buffer.front()), kernel->args_buffer.size());
+		}
 
 		if (event)
 		{
@@ -354,6 +362,8 @@ extern "C"
 			cmd.common.event->context = command_queue->context;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
+
+		kernel->retain();
 
 		unlock.forget(command_queue);
 		command_queue->enqueue(cmd);

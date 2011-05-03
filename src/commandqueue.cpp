@@ -180,12 +180,15 @@ void _cl_command_queue::enqueue(const FreeOCL::command &cmd)
 	queue.push_back(cmd);
 	q_mutex.unlock();
 
-	unlock();
 	if (!b_stop)
 	{
+		retain();
+		unlock();
 		q_thread.start();		// Make sure the scheduler is running
 		wakeup();
 	}
+	else
+		unlock();
 }
 
 bool _cl_command_queue::empty()
@@ -333,8 +336,14 @@ int _cl_command_queue::proc()
 			free(cmd.native_kernel.args);
 			break;
 		case CL_COMMAND_NDRANGE_KERNEL:
-			cmd.ndrange_kernel.kernel->__FCL_kernel(cmd.ndrange_kernel.args);
-			free(cmd.ndrange_kernel.args);
+			cmd.ndrange_kernel.kernel->__FCL_kernel(cmd.ndrange_kernel.args,
+													cmd.ndrange_kernel.dim,
+													cmd.ndrange_kernel.global_offset,
+													cmd.ndrange_kernel.global_size,
+													cmd.ndrange_kernel.local_size);
+			if (cmd.ndrange_kernel.args)
+				free(cmd.ndrange_kernel.args);
+			clReleaseKernel(cmd.ndrange_kernel.kernel);
 			break;
 		}
 
@@ -350,5 +359,7 @@ int _cl_command_queue::proc()
 
 int _cl_command_queue::thread::proc()
 {
-	return command_queue->proc();
+	const int ret = command_queue->proc();
+	clReleaseCommandQueue(command_queue);
+	return ret;
 }

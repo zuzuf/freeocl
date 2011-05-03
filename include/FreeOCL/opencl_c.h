@@ -76,7 +76,7 @@
 #define UINT_MAX	0xffffffff
 #define ULONG_MAX	0xffffffffffffffffUL
 
-#define __kernel	extern "C"
+#define __kernel	inline
 #define kernel	__kernel
 
 #define FLOAT2	__m64

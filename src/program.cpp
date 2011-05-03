@@ -160,7 +160,7 @@ extern "C"
 			return CL_BUILD_PROGRAM_FAILURE;
 		}
 
-		program->handle = dlopen(binary_file.c_str(), RTLD_LAZY | RTLD_LOCAL);
+		program->handle = dlopen(binary_file.c_str(), RTLD_NOW | RTLD_LOCAL);
 		if (!program->handle)
 		{
 			remove(program->binary_file.c_str());

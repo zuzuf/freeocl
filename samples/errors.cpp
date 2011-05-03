@@ -22,6 +22,9 @@
 #endif
 
 #include "errors.h"
+#include <cstdlib>
+#include <sstream>
+#include <unistd.h>
 
 #define IMPLEMENT(X)	case X:	return #X
 
@@ -85,4 +88,13 @@ const char *getErrorAsString(cl_int err)
 		return "unknown error";
 	}
 	return NULL;
+}
+
+void signal_handler(int)
+{
+	pid_t mypid = getpid();
+	std::stringstream cmd;
+	cmd << "gdb --pid " << mypid << " -ex \"bt\"";
+	system(cmd.str().c_str());
+	exit(-1);
 }

@@ -26,6 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <signal.h>
 
 #include "errors.h"
 
@@ -64,6 +65,9 @@ const char *source_code =
 
 int main(void)
 {
+	struct sigaction s;
+	s.sa_handler = signal_handler;
+	sigaction(SIGSEGV, &s, NULL);
 	try
 	{
 		std::vector<cl::Platform> platforms;
@@ -131,7 +135,7 @@ int main(void)
 		std::cout << "build log: " << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
 
 		cl::Kernel k(program, "hello");
-		queue.enqueueTask(k);
+		queue.enqueueNDRangeKernel(k, cl::NDRange(0), cl::NDRange(16), cl::NDRange(16));
 	}
 	catch(cl::Error err)
 	{
