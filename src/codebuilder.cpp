@@ -197,6 +197,7 @@ namespace FreeOCL
 			for(size_t j = 0 ; j < 5 ; ++j)
 				for(size_t i = 0 ; i < 10 ; ++i)
 					types.insert(std::string(base_types[i]) + toString(n[j]));
+			types.insert("*");
 		}
 
 		std::stringstream gen;
@@ -207,7 +208,10 @@ namespace FreeOCL
 		{
 			kernels.insert(i->first);
 
+			std::cout << i->second.toString() << std::endl;
+
 			std::deque<Node> params;
+			std::deque<std::string> params_str;
 			Node n = i->second;
 			while(n.size() != 0)
 			{
@@ -220,16 +224,30 @@ namespace FreeOCL
 				n = n.front();
 			}
 			for(size_t j = 0 ; j < params.size() ; ++j)
-				if (params[j].size() > 0 && types.count(params[j].back().getValue()) == 0)
-					params[j].pop_back();
-			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx)" << std::endl
+			{
+				Node *cur = &(params[j]);
+				while (cur->size() > 0)
+				{
+					if (cur->back().size() == 0)
+					{
+						if (types.count(cur->back().getValue()) == 0)
+							cur->pop_back();
+						break;
+					}
+					cur = &(cur->back());
+				}
+			}
+			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx, int *type)" << std::endl
 				<< "{" << std::endl
 				<< "\tswitch(idx)" << std::endl
 				<< "\t{" << std::endl;
 			for(size_t j = 0 ; j < params.size() ; ++j)
 			{
+				const std::string str = params[j].toString();
+				bool bPointer = !str.empty() && *str.rbegin() == '*';
 				gen	<< "\tcase " << j << ":" << std::endl
-					<< "\t\treturn sizeof(" << params[j].toString() << ");" << std::endl;
+					<< "\t\t*type = " << (bPointer ? CL_MEM_OBJECT_BUFFER : 0) << ';' << std::endl
+					<< "\t\treturn sizeof(" << (bPointer ? "void*" : params[j].toString()) << ");" << std::endl;
 			}
 			gen	<< "\t}" << std::endl
 				<< "\treturn 0;" << std::endl
@@ -238,6 +256,7 @@ namespace FreeOCL
 			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void *args, size_t dim, size_t *global_offset, size_t *global_size, size_t *local_size)" << std::endl
 				<< "{" << std::endl
 				<< "\tconst size_t num = local_size[0] * local_size[1] * local_size[2];" << std::endl
+				<< "\tomp_set_dynamic(0);" << std::endl
 				<< "\tomp_set_num_threads(num);" << std::endl
 				<< "\tFreeOCL::dim = dim;" << std::endl
 				<< "\tfor(size_t i = 0 ; i < 3 ; ++i)" << std::endl
@@ -245,12 +264,16 @@ namespace FreeOCL
 				<< "\t\tFreeOCL::global_offset[i] = global_offset[i];" << std::endl
 				<< "\t\tFreeOCL::global_size[i] = global_size[i];" << std::endl
 				<< "\t\tFreeOCL::local_size[i] = local_size[i];" << std::endl
+				<< "\t\tFreeOCL::num_groups[i] = global_size[i] / local_size[i];" << std::endl
 				<< "\t}" << std::endl
 				<< std::endl
-				<< "\tfor(size_t x = 0 ; x < global_size[0] ; ++x)" << std::endl
-				<< "\tfor(size_t y = 0 ; y < global_size[1] ; ++y)" << std::endl
-				<< "\tfor(size_t z = 0 ; z < global_size[2] ; ++z)" << std::endl
+				<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
+				<< "\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
+				<< "\tfor(size_t z = 0 ; z < FreeOCL::num_groups[2] ; ++z)" << std::endl
 				<< "\t{" << std::endl
+				<< "\t\tFreeOCL::group_id[0] = x;" << std::endl
+				<< "\t\tFreeOCL::group_id[1] = y;" << std::endl
+				<< "\t\tFreeOCL::group_id[2] = z;" << std::endl
 				<< "#pragma omp parallel" << std::endl
 				<< "\t\t{" << std::endl
 				<< "\t\t\t" << i->first << "(";

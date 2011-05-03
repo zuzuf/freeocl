@@ -138,7 +138,7 @@ extern "C"
 		cl_kernel kernel = new _cl_kernel;
 		kernel->program = program;
 		kernel->function_name = kernel_name;
-		kernel->__FCL_info = (size_t (*)(size_t)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
+		kernel->__FCL_info = (size_t (*)(size_t,int*)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
 		kernel->__FCL_kernel = (void (*)(const void*,size_t,size_t*,size_t*,size_t*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
 
 		if (kernel->__FCL_info == NULL || kernel->__FCL_kernel == NULL)
@@ -149,10 +149,12 @@ extern "C"
 		}
 
 		size_t offset = 0;
-		for(size_t s = kernel->__FCL_info(0), i = 1 ; s != 0 ; s = kernel->__FCL_info(i), ++i)
+		int type = 0;
+		for(size_t s = kernel->__FCL_info(0, &type), i = 1 ; s != 0 ; s = kernel->__FCL_info(i, &type), ++i)
 		{
 			kernel->args_size.push_back(s);
 			kernel->args_offset.push_back(offset);
+			kernel->args_type.push_back(type);
 			offset += s;
 		}
 		kernel->args_buffer.resize(offset);
@@ -214,9 +216,26 @@ extern "C"
 		unlock.handle(kernel);
 		if (kernel->args_size.size() <= arg_index)
 			return CL_INVALID_ARG_INDEX;
-		if (kernel->args_size[arg_index] != arg_size)
-			return CL_INVALID_ARG_SIZE;
-		memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), arg_value, arg_size);
+		switch(kernel->args_type[arg_index])
+		{
+		case CL_MEM_OBJECT_BUFFER:
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				if (arg_value == NULL)
+					return CL_INVALID_MEM_OBJECT;
+				cl_mem mem_object = *(cl_mem*)arg_value;
+				if (!FreeOCL::isValid(mem_object))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(mem_object);
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &(mem_object->ptr), arg_size);
+			}
+			break;
+		default:
+			if (kernel->args_size[arg_index] != arg_size)
+				return CL_INVALID_ARG_SIZE;
+			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), arg_value, arg_size);
+		}
 
 		return CL_SUCCESS;
 	}

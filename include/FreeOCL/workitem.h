@@ -26,6 +26,7 @@ namespace FreeOCL
 	static size_t global_offset[3];
 	static size_t local_size[3];
 	static size_t group_id[3];
+	static size_t num_groups[3];
 }
 
 // Built-in work-item functions
@@ -39,9 +40,10 @@ inline size_t get_global_size(uint dimindx)
 	return dimindx < FreeOCL::dim ? FreeOCL::global_size[dimindx] : 1;
 }
 
+inline size_t get_local_id(uint dimindx);
 inline size_t get_global_id(uint dimindx)
 {
-	return 0;
+	return dimindx < FreeOCL::dim ? FreeOCL::group_id[dimindx] * FreeOCL::local_size[dimindx] + get_local_id(dimindx) + FreeOCL::global_offset[dimindx] : 0;
 }
 
 inline size_t get_local_size(uint dimindx)
@@ -66,7 +68,7 @@ inline size_t get_local_id(uint dimindx)
 
 inline size_t get_num_groups(uint dimindx)
 {
-
+	return dimindx < FreeOCL::dim ? FreeOCL::num_groups[dimindx] : 1;
 }
 
 inline size_t get_group_id(uint dimindx)

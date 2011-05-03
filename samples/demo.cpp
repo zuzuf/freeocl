@@ -50,17 +50,12 @@ inline std::string memSuffix(const size_t s)
 #define STRINGIFY(X)	#X
 
 const char *source_code =
-"__kernel void hello()\n"
+"__kernel void hello(char *out)\n"
 "{\n"
 "	size_t i = get_global_id(0);\n"
-"	size_t j = get_global_id(1);\n"
-"	struct {\n"
-"		int4 i;\n"
-"		float4 f;\n"
-"	} f;\n"
-"	float4 f4;\n"
-"	f4 += (float4)(i, j, 0, 0);\n"
-"	printf(\"o<\\n\");\n"
+"	const char *msg = \"hello world\";"
+"	out[i] = msg[i];\n"
+""
 "}\n";
 
 int main(void)
@@ -134,8 +129,15 @@ int main(void)
 		std::cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << std::endl;
 		std::cout << "build log: " << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
 
+		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 32);
 		cl::Kernel k(program, "hello");
-		queue.enqueueNDRangeKernel(k, cl::NDRange(0), cl::NDRange(16), cl::NDRange(16));
+		k.setArg(0, buffer());
+		queue.enqueueNDRangeKernel(k, cl::NDRange(0), cl::NDRange(12), cl::NDRange(12));
+
+		queue.finish();
+		char *p = (char*)queue.enqueueMapBuffer(buffer, true, CL_MEM_READ_ONLY, 0, 16);
+		std::cout << "p = " << p << std::endl;
+		queue.enqueueUnmapMemObject(buffer, p);
 	}
 	catch(cl::Error err)
 	{
