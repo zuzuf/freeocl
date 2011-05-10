@@ -17,5 +17,17 @@
 */
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_SYNC_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_SYNC_H__
+
+enum cl_mem_fence_flags
+{
+	CLK_LOCAL_MEM_FENCE,
+	CLK_GLOBAL_MEM_FENCE
+};
+
 // Built-in synchronization functions
+inline void barrier(cl_mem_fence_flags /*flags*/)
+{
+#pragma omp barrier
+}
+
 #endif

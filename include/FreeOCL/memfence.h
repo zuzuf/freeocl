@@ -17,5 +17,25 @@
 */
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_MEMFENCE_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_MEMFENCE_H__
+
+#include "sync.h"
+#include <x86intrin.h>
+
 // Built-in memory fence functions
+
+inline void mem_fence(cl_mem_fence_flags /*flags*/)
+{
+	_mm_mfence();
+}
+
+inline void read_mem_fence(cl_mem_fence_flags /*flags*/)
+{
+	_mm_lfence();
+}
+
+inline void write_mem_fence(cl_mem_fence_flags /*flags*/)
+{
+	_mm_sfence();
+}
+
 #endif
