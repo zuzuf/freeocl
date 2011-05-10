@@ -74,7 +74,7 @@ namespace
 	const cl_uint mem_cacheline_size = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));
 	const cl_ulong mem_cache_size = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U;
 	const cl_device_local_mem_type local_mem_type = CL_GLOBAL;
-	const cl_ulong local_mem_size = mem_cache_size;
+	const cl_ulong local_mem_size = 0x100000;
 	const size_t max_parameter_size	= 8192;
 	const cl_uint mem_base_addr_align = 128;
 	const cl_device_fp_config fp_config = CL_FP_DENORM | CL_FP_INF_NAN | CL_FP_FMA | CL_FP_ROUND_TO_NEAREST;

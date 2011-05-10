@@ -69,6 +69,7 @@ namespace FreeOCL
 	long int parseInt(const std::string &s);
 	std::string trim(const std::string &s);
 	std::deque<std::string> split(const std::string &s, const std::string &sep);
+	bool containsWord(const std::string &s, const std::string &w);
 
 	struct icd_table
 	{

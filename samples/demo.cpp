@@ -50,11 +50,13 @@ inline std::string memSuffix(const size_t s)
 #define STRINGIFY(X)	#X
 
 const char *source_code =
-"__kernel void hello(char *out)\n"
+"__kernel void hello(char *out, __local char *test)\n"
 "{\n"
 "	size_t i = get_global_id(0);\n"
-"	const char *msg = \"hello world\";"
-"	out[i] = msg[i];\n"
+"	const char *msg = \"hello world\";\n"
+"	test[i] = msg[11 - i];\n"
+"	barrier(CLK_LOCAL_MEM_FENCE);\n"
+"	out[i] = test[11 - i];\n"
 ""
 "}\n";
 
@@ -132,6 +134,7 @@ int main(void)
 		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 32);
 		cl::Kernel k(program, "hello");
 		k.setArg(0, buffer());
+		k.setArg(1, 256, NULL);
 		queue.enqueueNDRangeKernel(k, cl::NDRange(0), cl::NDRange(12), cl::NDRange(12));
 
 		queue.finish();

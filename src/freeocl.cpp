@@ -29,6 +29,7 @@
 #include "sampler.h"
 #include "prototypes.h"
 #include <stdexcept>
+#include <algorithm>
 
 namespace FreeOCL
 {
@@ -187,6 +188,12 @@ namespace FreeOCL
 			} while(pos != std::string::npos);
 
 		return result;
+	}
+
+	bool containsWord(const std::string &s, const std::string &w)
+	{
+		std::deque<std::string> words = split(s, " \t\n\r");
+		return std::find(words.begin(), words.end(), w) != words.end();
 	}
 
 	cl_int empty_slot(void*)

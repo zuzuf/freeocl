@@ -211,7 +211,6 @@ namespace FreeOCL
 			std::cout << i->second.toString() << std::endl;
 
 			std::deque<Node> params;
-			std::deque<std::string> params_str;
 			Node n = i->second;
 			while(n.size() != 0)
 			{
@@ -244,9 +243,18 @@ namespace FreeOCL
 			for(size_t j = 0 ; j < params.size() ; ++j)
 			{
 				const std::string str = params[j].toString();
-				bool bPointer = !str.empty() && *str.rbegin() == '*';
+				const bool bPointer = !str.empty() && *str.rbegin() == '*';
+				const bool bLocal = bPointer && (FreeOCL::containsWord(str, "local") || FreeOCL::containsWord(str, "__local"));
+				int type = 0;
+				if (bPointer)
+				{
+					if (bLocal)
+						type = CL_LOCAL;
+					else
+						type = CL_GLOBAL;
+				}
 				gen	<< "\tcase " << j << ":" << std::endl
-					<< "\t\t*type = " << (bPointer ? CL_MEM_OBJECT_BUFFER : 0) << ';' << std::endl
+					<< "\t\t*type = " << type << ';' << std::endl
 					<< "\t\treturn sizeof(" << (bPointer ? "void*" : params[j].toString()) << ");" << std::endl;
 			}
 			gen	<< "\t}" << std::endl
@@ -266,14 +274,35 @@ namespace FreeOCL
 				<< "\t\tFreeOCL::local_size[i] = local_size[i];" << std::endl
 				<< "\t\tFreeOCL::num_groups[i] = global_size[i] / local_size[i];" << std::endl
 				<< "\t}" << std::endl
-				<< std::endl
-				<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
+				<< std::endl;
+			int lastShift = -1;
+			std::stringstream _cat;
+			_cat << '0';
+			for(size_t j = 0 ; j < params.size() ; ++j)
+			{
+				const std::string str = params[j].toString();
+				const bool bPointer = !str.empty() && *str.rbegin() == '*';
+				const bool bLocal = bPointer && (FreeOCL::containsWord(str, "local") || FreeOCL::containsWord(str, "__local"));
+				if (bLocal)
+				{
+					gen << "\tconst size_t __shift" << j << " = ";
+					if (lastShift >= 0)
+						gen << "__shift" << lastShift << " - ";
+					else
+						gen << "0x100000 - ";
+					gen << "*(const size_t*)((const char*)args + " << _cat.str() << ");" << std::endl;
+					_cat << " + sizeof(" << params[j].toString() << ")";
+					lastShift = j;
+				}
+			}
+			gen	<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
 				<< "\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
 				<< "\tfor(size_t z = 0 ; z < FreeOCL::num_groups[2] ; ++z)" << std::endl
 				<< "\t{" << std::endl
 				<< "\t\tFreeOCL::group_id[0] = x;" << std::endl
 				<< "\t\tFreeOCL::group_id[1] = y;" << std::endl
 				<< "\t\tFreeOCL::group_id[2] = z;" << std::endl
+				<< "\t\tstatic char local_memory[0x100000];" << std::endl
 				<< "#pragma omp parallel" << std::endl
 				<< "\t\t{" << std::endl
 				<< "\t\t\t" << i->first << "(";
@@ -281,9 +310,16 @@ namespace FreeOCL
 			cat << '0';
 			for(size_t j = 0 ; j < params.size() ; ++j)
 			{
+				const std::string str = params[j].toString();
+				const bool bPointer = !str.empty() && *str.rbegin() == '*';
+				const bool bLocal = bPointer && (FreeOCL::containsWord(str, "local") || FreeOCL::containsWord(str, "__local"));
+
 				if (j)
 					gen << ',';
-				gen << "*(" << params[j].toString() << "*)((const char*)args + " << cat.str() << ')';
+				if (bLocal)
+					gen << "(" << params[j].toString() << ")(local_memory + __shift" << j << ")";
+				else
+					gen << "*(" << params[j].toString() << "*)((const char*)args + " << cat.str() << ')';
 				cat << " + sizeof(" << params[j].toString() << ")";
 			}
 			gen << ");" << std::endl;

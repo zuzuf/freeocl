@@ -218,18 +218,27 @@ extern "C"
 			return CL_INVALID_ARG_INDEX;
 		switch(kernel->args_type[arg_index])
 		{
-		case CL_MEM_OBJECT_BUFFER:
+		case CL_GLOBAL:
 			{
-				if (arg_size != sizeof(cl_mem))
-					return CL_INVALID_ARG_SIZE;
-				if (arg_value == NULL)
-					return CL_INVALID_MEM_OBJECT;
-				cl_mem mem_object = *(cl_mem*)arg_value;
-				if (!FreeOCL::isValid(mem_object))
-					return CL_INVALID_MEM_OBJECT;
-				unlock.handle(mem_object);
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &(mem_object->ptr), arg_size);
+				if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				{
+					memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
+				}
+				else
+				{
+					if (arg_size != sizeof(cl_mem))
+						return CL_INVALID_ARG_SIZE;
+					cl_mem mem_object = *(cl_mem*)arg_value;
+					if (!FreeOCL::isValid(mem_object))
+						return CL_INVALID_MEM_OBJECT;
+					unlock.handle(mem_object);
+					memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &(mem_object->ptr), arg_size);
+				}
 			}
+			break;
+		case CL_LOCAL:
+			if (arg_value != NULL || arg_size == 0)
+				return CL_INVALID_ARG_VALUE;
 			break;
 		default:
 			if (kernel->args_size[arg_index] != arg_size)
