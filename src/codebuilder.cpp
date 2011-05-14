@@ -180,10 +180,12 @@ namespace FreeOCL
 	std::string validate_code(const std::string &code, std::stringstream &log, std::set<std::string> &kernels)
 	{
 		log << "code validator log:" << std::endl;
-//		log << "code:" << std::endl << code << std::endl;
+		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
 		Parser parser(in, log);
 		parser.parse();
+		if (parser.errors())
+			return std::string();
 
 		static std::set<std::string> types;
 		static bool bInit = true;

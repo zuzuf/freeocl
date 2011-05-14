@@ -115,7 +115,12 @@ namespace FreeOCL
 						 || (c >= 'A' && c <= 'F'))
 						&& base == 16)))
 				i = i * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
-			if (!in || c != '.' || base != 10)
+			if (c == 'U')
+			{
+				d_val__ = Node(Node(i).toString() + 'U');
+				return CONSTANT;
+			}
+			else if (!in || c != '.' || base != 10)
 			{
 				if (c != '.' || base != 10)
 					putback(c);
@@ -145,11 +150,13 @@ namespace FreeOCL
 				if (exponent)
 					f *= pow10(exponent);
 			}
-			putback(c);
 			if (c == 'f')
 				d_val__ = Node((float)f);
 			else
+			{
+				putback(c);
 				d_val__ = Node(f);
+			}
 			return CONSTANT;				// return the NUMBER token
 		}
 
@@ -262,6 +269,7 @@ namespace FreeOCL
 				return CONSTANT;
 			}
 
+			std::cerr << name << std::endl;
 			d_val__ = Node(name);
 			return IDENTIFIER;
 		}

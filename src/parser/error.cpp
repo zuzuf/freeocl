@@ -30,21 +30,21 @@ using namespace std;
 
 namespace FreeOCL
 {
-		void Parser::error(const std::string &msg)
-		{
-				size_t pos = current_line.size();
-				char c;
-				while(get(c) && c != '\n');
-				if (!current_line.empty() && *current_line.rbegin() != '\n')
-						current_line += '\n';
-				stringstream tmp;
-				tmp << line;
-				const string shift = std::string(8 + tmp.tellp() + current_file.size(), ' ');
-				err << std::endl
-					<< RED << "error " << NORMAL << WHITE << current_file << ":" << line << ": " << NORMAL << current_line
-					<< shift << std::string(pos, ' ') << YELLOW << '^' << NORMAL << std::endl
-					<< shift << ' ' << BLUE << msg << NORMAL << std::endl;
-				bErrors = true;
-		}
+	void Parser::error(const std::string &msg)
+	{
+		const size_t pos = current_line.size();
+		char c;
+		while(get(c) && c != '\n');
+		if (!current_line.empty() && *current_line.rbegin() != '\n')
+			current_line += '\n';
+		stringstream tmp;
+		tmp << line;
+		const string shift = std::string(8 + tmp.tellp() + current_file.size(), ' ');
+		err << std::endl
+				<< RED << "error " << NORMAL << WHITE << current_file << ":" << line << ": " << NORMAL << current_line
+				<< shift << std::string(pos, ' ') << YELLOW << '^' << NORMAL << std::endl
+				<< shift << ' ' << BLUE << msg << NORMAL << std::endl;
+		bErrors = true;
+	}
 
 }

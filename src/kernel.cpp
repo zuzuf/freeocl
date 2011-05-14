@@ -306,7 +306,16 @@ extern "C"
 		{
 		case CL_KERNEL_WORK_GROUP_SIZE:
 		case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
+			{
+				const size_t val = 4;
+				bTooSmall = SET_VAR(val);
+			}
+			break;
 		case CL_KERNEL_LOCAL_MEM_SIZE:
+			{
+				const size_t val = 0x100000;
+				bTooSmall = SET_VAR(val);
+			}
 			return CL_INVALID_VALUE;
 		case CL_KERNEL_PREFERRED_WORK_GROUP_SIZE_MULTIPLE:
 			bTooSmall = SET_VAR(kernel_preferred_work_group_size_multiple);

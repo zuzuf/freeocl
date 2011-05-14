@@ -53,7 +53,7 @@ argument_expression_list
 	;
 
 unary_expression
-	: postfix_expression	{ $$ = $1; }
+	: postfix_expression	%prec ELSE	{ $$ = $1; }
 	| INC_OP unary_expression	{ $$ = Node($1,$2); }
 	| DEC_OP unary_expression	{ $$ = Node($1,$2); }
 	| unary_operator cast_expression	{ $$ = Node($1,$2); }
@@ -461,6 +461,8 @@ iteration_statement
 	| DO statement WHILE '(' expression ')' ';'	{ $$ = Node($1,$2,$3,$4,$5,$6,$7); }
 	| FOR '(' expression_statement expression_statement ')' statement	{ $$ = Node($1,$2,$3,$4,$5,$6); }
 	| FOR '(' expression_statement expression_statement expression ')' statement	{ $$ = Node($1,$2,$3,$4,$5,$6,$7); }
+	| FOR '(' declaration expression_statement ')' statement	{ $$ = Node($1,$2,$3,$4,$5,$6); }
+	| FOR '(' declaration expression_statement expression ')' statement	{ $$ = Node($1,$2,$3,$4,$5,$6,$7); }
 	;
 
 jump_statement
