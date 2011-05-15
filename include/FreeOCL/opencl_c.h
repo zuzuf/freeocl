@@ -199,7 +199,7 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 
 #define __global
 #define __local
-#define __constant
+#define __constant	const
 #define __private
 #define global		__global
 #define local		__local

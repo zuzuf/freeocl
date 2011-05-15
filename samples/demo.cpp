@@ -50,17 +50,17 @@ inline std::string memSuffix(const size_t s)
 #define STRINGIFY(X)	#X
 
 const char *source_code =
-"__kernel void hello(char *out, __local char *test)\n"
+"__kernel void hello(__global char *out, __local char *test)\n"
 "{\n"
 "	size_t i = get_global_id(0);\n"
-"	const char *msg = \"hello world\";\n"
+"	__constant char *msg = \"hello world\";\n"
 "	test[i] = msg[11 - i];\n"
 "	barrier(CLK_LOCAL_MEM_FENCE);\n"
 "	out[i] = test[11 - i];\n"
 ""
 "}\n";
 
-int main(void)
+int main(int argc, const char **argv)
 {
 	struct sigaction s;
 	s.sa_handler = signal_handler;
@@ -105,6 +105,19 @@ int main(void)
 
 		if (platforms.empty())
 			return 0;
+
+		for(int i = 1 ; i < argc ; ++i)
+		{
+			if (!strcmp(argv[i], "--platform"))
+			{
+				if (i + 1 < argc)
+				{
+					++i;
+					id = strtol(argv[i], NULL, 0);
+				}
+				continue;
+			}
+		}
 
 		cl::Platform &platform = platforms[id];
 		std::cout << std::endl << "platform selected: " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl << std::endl;
