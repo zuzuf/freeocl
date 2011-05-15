@@ -59,6 +59,8 @@ namespace FreeOCL
 
 		smartptr &operator=(const smartptr &ptr)
 		{
+			if (pwrapper == ptr.pwrapper)
+				return *this;
 			wrapper *old = pwrapper;
 			pwrapper = const_cast<wrapper*>(ptr.pwrapper);
 			if (pwrapper)

@@ -44,6 +44,8 @@ namespace FreeOCL
 		Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5, const Node &n6);
 		~Node();
 
+		Node &operator=(const Node &n);
+
 		void push_back(const Node &n);
 		void push_front(const Node &n);
 		void pop_back();
@@ -51,6 +53,8 @@ namespace FreeOCL
 
 		const std::deque<Node> &getChilds() const	{	return *childs;	}
 		const std::string &getValue() const	{	return value;	}
+		const Node &operator[](size_t idx) const	{	return (*childs)[idx];	}
+		Node &operator[](size_t idx)	{	return (*childs)[idx];	}
 
 		const Node &front() const	{	return childs->front();	}
 		Node &front()	{	return childs->front();	}
@@ -64,7 +68,7 @@ namespace FreeOCL
 
 		std::string toString() const;
 	private:
-		std::string		value;
+		std::string	value;
 		smartptr<std::deque<Node> >	childs;
 	};
 }

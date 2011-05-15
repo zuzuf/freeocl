@@ -15,7 +15,7 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#include "Parser.h"
+#include "parser.h"
 #include <map>
 #include <cmath>
 #include <sstream>
@@ -37,12 +37,12 @@ namespace FreeOCL
 		while (get(c) && (c == ' ' || c == '\t' || c == '\n'));
 
 		if (!in)					// no characters were obtained
-			return 0;               // indicate End Of Input
+			return _EOF;             // indicate End Of Input
 
 		if (c == '#')		// Preprocessor directive, skip line
 		{
 			if (!get(c))
-				return 0;
+				return _EOF;
 			if (isspace(c))		// read line number and file name
 			{
 				std::stringstream line;
@@ -269,7 +269,6 @@ namespace FreeOCL
 				return CONSTANT;
 			}
 
-			std::cerr << name << std::endl;
 			d_val__ = Node(name);
 			return IDENTIFIER;
 		}

@@ -63,10 +63,7 @@ SET(SOURCES
 	src/codebuilder.cpp	src/codebuilder.h
 
 	src/parser/grammar
-	src/parser/parse.cc
-	src/parser/Parserbase.h
-	src/parser/Parser.h
-	src/parser/Parser.ih
+	src/parser/parser.cpp	src/parser/parser.h
 	src/parser/macros.h
 	src/parser/lex.cpp
 	src/parser/error.cpp

@@ -97,6 +97,13 @@ namespace FreeOCL
 
 	}
 
+	Node &Node::operator=(const Node &n)
+	{
+		value = n.value;
+		childs = n.childs;
+		return *this;
+	}
+
 	void Node::push_back(const Node &n)
 	{
 		if (childs)

@@ -20,7 +20,7 @@
 #include <sstream>
 #include <fcntl.h>
 #include "freeocl.h"
-#include "parser/Parser.h"
+#include "parser/parser.h"
 #include "utils/string.h"
 
 namespace FreeOCL
