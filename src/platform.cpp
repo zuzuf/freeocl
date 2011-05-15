@@ -22,7 +22,7 @@
 namespace
 {
 	const char *profile = "FULL_PROFILE";
-	const char *version = FREEOCL_VERSION_STRING;
+	const char *version = "OpenCL 1.1 FreeOCL-" FREEOCL_VERSION_STRING;
 	const char *name = "FreeOCL";
 	const char *vendor = FREEOCL_VENDOR;
 	const char *extensions = "cl_khr_icd";

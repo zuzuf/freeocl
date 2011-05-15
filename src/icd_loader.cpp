@@ -97,11 +97,13 @@ namespace FreeOCL
 
 	void ICDLoader::load(const std::string &lib)
 	{
+#define FAIL()	return
+
 		void *handle = dlopen(lib.c_str(), RTLD_NOW | RTLD_LOCAL);
 
 		// If dlopens fails, stop here
 		if (!handle)
-			return;
+			FAIL();
 		typedef cl_int (*fn_clIcdGetPlatformIDsKHR) (cl_uint, cl_platform_id *, cl_uint *);
 		typedef cl_int (*fn_clGetPlatformInfo) (cl_platform_id, cl_platform_info, size_t, void *, size_t *);
 		typedef void* (*fn_clGetExtensionFunctionAddress) (const char *funcname);
@@ -109,26 +111,36 @@ namespace FreeOCL
 		fn_clGetPlatformInfo __clGetPlatformInfo = (fn_clGetPlatformInfo) dlsym(handle, "clGetPlatformInfo");
 		fn_clGetExtensionFunctionAddress __clGetExtensionFunctionAddress = (fn_clGetExtensionFunctionAddress) dlsym(handle, "clGetExtensionFunctionAddress");
 
+		// If we don't find all the required functions but if we have
+		// the one which can let us query them, let's do it this way
+		if (__clGetExtensionFunctionAddress)
+		{
+			if (!__clIcdGetPlatformIDsKHR)
+				__clIcdGetPlatformIDsKHR = (fn_clIcdGetPlatformIDsKHR) __clGetExtensionFunctionAddress("clIcdGetPlatformIDsKHR");
+			if (!__clGetPlatformInfo)
+				__clGetPlatformInfo = (fn_clGetPlatformInfo) __clGetExtensionFunctionAddress("clGetPlatformInfo");
+		}
+
 		// If any of these function is missing we must stop
 		if (!__clGetExtensionFunctionAddress
 			|| !__clGetPlatformInfo
 			|| !__clIcdGetPlatformIDsKHR)
-			return;
+			FAIL();
 
 		cl_uint n;
 		cl_int err;
 		err = __clIcdGetPlatformIDsKHR(0, NULL, &n);
 		if (err != CL_SUCCESS)
-			return;
+			FAIL();
 
 		if (n == 0)		// If this ICD is useless
-			return;
+			FAIL();
 
 		std::vector<cl_platform_id> platforms;
 		platforms.resize(n);
 		err = __clIcdGetPlatformIDsKHR(n, &(platforms.front()), NULL);
 		if (err != CL_SUCCESS)
-			return;
+			FAIL();
 
 		ICDLib icdlib;
 		icdlib.handle = handle;
@@ -183,7 +195,7 @@ namespace FreeOCL
 
 		// All returned platforms were invalid
 		if (icdlib.platforms.empty())
-			return;
+			FAIL();
 
 		libs.push_back(icdlib);
 	}
