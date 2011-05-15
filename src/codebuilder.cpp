@@ -210,8 +210,6 @@ namespace FreeOCL
 		{
 			kernels.insert(i->first);
 
-			std::cout << i->second.toString() << std::endl;
-
 			std::deque<Node> params;
 			Node n = i->second;
 			while(n.size() != 0)

@@ -478,9 +478,22 @@ namespace FreeOCL
 	{
 		BEGIN();
 		RULE2(token<'{'>, token<'}'>);
-		RULE3(token<'{'>, statement_list, token<'}'>);
-		RULE3(token<'{'>, declaration_list, token<'}'>);
-		RULE4(token<'{'>, declaration_list, statement_list, token<'}'>);
+		RULE3(token<'{'>, declaration_statement_list, token<'}'>);
+		END();
+	}
+
+	int Parser::__declaration_statement_list()
+	{
+		BEGIN();
+		LISTOF_LEFT(declaration_statement);
+		END();
+	}
+
+	int Parser::__declaration_statement()
+	{
+		BEGIN();
+		RULE1(declaration);
+		RULE1(statement);
 		END();
 	}
 
