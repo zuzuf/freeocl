@@ -91,7 +91,9 @@ namespace FreeOCL
 			if (d_val__[1].getValue() != "void")
 				error("return type for kernels must be void");
 			const std::string kernel_name = d_val__[2].front().getValue();
-			kernels[kernel_name] = d_val__[2][1].clone();
+			kernels[kernel_name] = d_val__[2][2].clone();
+			kernels[kernel_name].pop_front();
+			kernels[kernel_name].pop_back();
 			return 1;
 		}
 		MATCH4(function_qualifier, declaration_specifiers, declarator, compound_statement)
@@ -99,7 +101,7 @@ namespace FreeOCL
 			if (d_val__[1].getValue() != "void")
 				error("return type for kernels must be void");
 			const std::string kernel_name = d_val__[2].front().getValue();
-			kernels[kernel_name] = d_val__[2][1].clone();
+			kernels[kernel_name] = d_val__[2][2].clone();
 			return 1;
 		}
 		RULE3(declarator, declaration_list, compound_statement);
@@ -317,7 +319,10 @@ namespace FreeOCL
 		{
 			Node N = d_val__;
 			while(__direct_declarator_suffix())
-				N = Node(N, d_val__);
+			{
+				d_val__.push_front(N);
+				N = d_val__;
+			}
 			d_val__ = N;
 			return 1;
 		}
@@ -390,7 +395,10 @@ namespace FreeOCL
 		{
 			Node N = d_val__;
 			while(__direct_abstract_declarator_suffix())
-				N = Node(N, d_val__);
+			{
+				d_val__.push_front(N);
+				N = d_val__;
+			}
 			d_val__ = N;
 			return 1;
 		}
@@ -751,7 +759,15 @@ namespace FreeOCL
 		{
 			Node N = d_val__;
 			while (__postfix_expression_suffix())
-				N = Node(N, d_val__);
+			{
+				if (d_val__.size() == 0)
+					N = Node(N, d_val__);
+				else
+				{
+					d_val__.push_front(N);
+					N = d_val__;
+				}
+			}
 			d_val__ = N;
 			return 1;
 		}
