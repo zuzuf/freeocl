@@ -195,6 +195,8 @@ namespace FreeOCL
 				bInitKeywords = false;
 				keywords["typedef"] = TYPEDEF;
 
+				keywords["bool"] = BOOL;
+
 				keywords["char"] = CHAR;
 				keywords["short"] = SHORT;
 				keywords["int"] = INT;

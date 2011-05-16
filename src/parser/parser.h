@@ -38,7 +38,7 @@ namespace FreeOCL
 			XOR_ASSIGN, OR_ASSIGN,
 			TYPE_NAME,
 
-			TYPEDEF,
+			TYPEDEF, BOOL,
 			CHAR, SHORT, INT, LONG, UCHAR, USHORT, UINT, ULONG, FLOAT, DOUBLE,
 			CHAR2, SHORT2, INT2, LONG2, UCHAR2, USHORT2, UINT2, ULONG2, FLOAT2, DOUBLE2,
 			CHAR3, SHORT3, INT3, LONG3, UCHAR3, USHORT3, UINT3, ULONG3, FLOAT3, DOUBLE3,
@@ -65,9 +65,10 @@ namespace FreeOCL
 		int lex();							// returns the next token from the
 
 		// support functions for parse()
-		int readToken();
-		void rollBack();
-		void rollBackTo(size_t size);
+		inline int readToken();
+		inline int peekToken();
+		inline void rollBack();
+		inline void rollBackTo(size_t size);
 
 		// support functions for lex()
 		int get();

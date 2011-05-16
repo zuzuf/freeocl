@@ -22,7 +22,7 @@
 
 namespace FreeOCL
 {
-	int Parser::readToken()
+	inline int Parser::readToken()
 	{
 		if (tokens.empty())
 		{
@@ -37,13 +37,23 @@ namespace FreeOCL
 		return token.first;
 	}
 
-	void Parser::rollBack()
+	inline int Parser::peekToken()
+	{
+		if (tokens.empty())
+		{
+			const int token = lex();
+			tokens.push_back(std::make_pair(token, d_val__));
+		}
+		return tokens.back().first;
+	}
+
+	inline void Parser::rollBack()
 	{
 		tokens.push_back(processed.back());
 		processed.pop_back();
 	}
 
-	void Parser::rollBackTo(size_t size)
+	inline void Parser::rollBackTo(size_t size)
 	{
 		while(processed.size() > size)
 			rollBack();
@@ -115,6 +125,7 @@ namespace FreeOCL
 
 		RULE2(declaration_specifiers, token<';'>);
 		RULE3(declaration_specifiers, init_declarator_list, token<';'>);
+		CHECK(1, "syntax error, ';' expected");
 		END();
 	}
 
@@ -156,109 +167,116 @@ namespace FreeOCL
 	int Parser::__pointer()
 	{
 		BEGIN();
-		RULE3(token<'*'>, type_qualifier_list, pointer);
-		RULE2(token<'*'>, type_qualifier_list);
-		RULE2(token<'*'>, pointer);
-		RULE1(token<'*'>);
+		if (peekToken() == '*')
+		{
+			RULE3(token<'*'>, type_qualifier_list, pointer);
+			RULE2(token<'*'>, type_qualifier_list);
+			RULE2(token<'*'>, pointer);
+			RULE1(token<'*'>);
+		}
 		END();
 	}
 
 	int Parser::__function_qualifier()
 	{
-		BEGIN();
-		RULE1(token<__KERNEL>);
-		END();
+		return __token<__KERNEL>();
 	}
 
 	int Parser::__storage_class_specifier()
 	{
-		BEGIN();
-		RULE1(token<TYPEDEF>);
-		END();
+		return __token<TYPEDEF>();
 	}
 
 	int Parser::__type_specifier()
 	{
 		BEGIN();
-		RULE1(token<VOID>);
-		RULE1(token<CHAR>);
-		RULE1(token<SHORT>);
-		RULE1(token<INT>);
-		RULE1(token<LONG>);
-		RULE1(token<UCHAR>);
-		RULE1(token<USHORT>);
-		RULE1(token<UINT>);
-		RULE1(token<ULONG>);
-		RULE1(token<FLOAT>);
-		RULE1(token<DOUBLE>);
-		RULE1(token<CHAR2>);
-		RULE1(token<SHORT2>);
-		RULE1(token<INT2>);
-		RULE1(token<LONG2>);
-		RULE1(token<UCHAR2>);
-		RULE1(token<USHORT2>);
-		RULE1(token<UINT2>);
-		RULE1(token<ULONG2>);
-		RULE1(token<FLOAT2>);
-		RULE1(token<DOUBLE2>);
-		RULE1(token<CHAR3>);
-		RULE1(token<SHORT3>);
-		RULE1(token<INT3>);
-		RULE1(token<LONG3>);
-		RULE1(token<UCHAR3>);
-		RULE1(token<USHORT3>);
-		RULE1(token<UINT3>);
-		RULE1(token<ULONG3>);
-		RULE1(token<FLOAT3>);
-		RULE1(token<DOUBLE3>);
-		RULE1(token<CHAR4>);
-		RULE1(token<SHORT4>);
-		RULE1(token<INT4>);
-		RULE1(token<LONG4>);
-		RULE1(token<UCHAR4>);
-		RULE1(token<USHORT4>);
-		RULE1(token<UINT4>);
-		RULE1(token<ULONG4>);
-		RULE1(token<FLOAT4>);
-		RULE1(token<DOUBLE4>);
-		RULE1(token<CHAR8>);
-		RULE1(token<SHORT8>);
-		RULE1(token<INT8>);
-		RULE1(token<LONG8>);
-		RULE1(token<UCHAR8>);
-		RULE1(token<USHORT8>);
-		RULE1(token<UINT8>);
-		RULE1(token<ULONG8>);
-		RULE1(token<FLOAT8>);
-		RULE1(token<DOUBLE8>);
-		RULE1(token<CHAR16>);
-		RULE1(token<SHORT16>);
-		RULE1(token<INT16>);
-		RULE1(token<LONG16>);
-		RULE1(token<UCHAR16>);
-		RULE1(token<USHORT16>);
-		RULE1(token<UINT16>);
-		RULE1(token<ULONG16>);
-		RULE1(token<FLOAT16>);
-		RULE1(token<DOUBLE16>);
-		RULE1(token<SIZE_T>);
-		RULE1(token<SIGNED>);
-		RULE1(token<UNSIGNED>);
-		RULE1(struct_or_union_specifier);
-		RULE1(enum_specifier);
-		RULE1(token<TYPE_NAME>);
+		switch(peekToken())
+		{
+		case BOOL:		RULE1(token<BOOL>);			break;
+		case VOID:		RULE1(token<VOID>);			break;
+		case CHAR:		RULE1(token<CHAR>);			break;
+		case SHORT:		RULE1(token<SHORT>);		break;
+		case INT:		RULE1(token<INT>);			break;
+		case LONG:		RULE1(token<LONG>);			break;
+		case UCHAR:		RULE1(token<UCHAR>);		break;
+		case USHORT:	RULE1(token<USHORT>);		break;
+		case UINT:		RULE1(token<UINT>);			break;
+		case ULONG:		RULE1(token<ULONG>);		break;
+		case FLOAT:		RULE1(token<FLOAT>);		break;
+		case DOUBLE:	RULE1(token<DOUBLE>);		break;
+		case CHAR2:		RULE1(token<CHAR2>);		break;
+		case SHORT2:	RULE1(token<SHORT2>);		break;
+		case INT2:		RULE1(token<INT2>);			break;
+		case LONG2:		RULE1(token<LONG2>);		break;
+		case UCHAR2:	RULE1(token<UCHAR2>);		break;
+		case USHORT2:	RULE1(token<USHORT2>);		break;
+		case UINT2:		RULE1(token<UINT2>);		break;
+		case ULONG2:	RULE1(token<ULONG2>);		break;
+		case FLOAT2:	RULE1(token<FLOAT2>);		break;
+		case DOUBLE2:	RULE1(token<DOUBLE2>);		break;
+		case CHAR3:		RULE1(token<CHAR3>);		break;
+		case SHORT3:	RULE1(token<SHORT3>);		break;
+		case INT3:		RULE1(token<INT3>);			break;
+		case LONG3:		RULE1(token<LONG3>);		break;
+		case UCHAR3:	RULE1(token<UCHAR3>);		break;
+		case USHORT3:	RULE1(token<USHORT3>);		break;
+		case UINT3:		RULE1(token<UINT3>);		break;
+		case ULONG3:	RULE1(token<ULONG3>);		break;
+		case FLOAT3:	RULE1(token<FLOAT3>);		break;
+		case DOUBLE3:	RULE1(token<DOUBLE3>);		break;
+		case CHAR4:		RULE1(token<CHAR4>);		break;
+		case SHORT4:	RULE1(token<SHORT4>);		break;
+		case INT4:		RULE1(token<INT4>);			break;
+		case LONG4:		RULE1(token<LONG4>);		break;
+		case UCHAR4:	RULE1(token<UCHAR4>);		break;
+		case USHORT4:	RULE1(token<USHORT4>);		break;
+		case UINT4:		RULE1(token<UINT4>);		break;
+		case ULONG4:	RULE1(token<ULONG4>);		break;
+		case FLOAT4:	RULE1(token<FLOAT4>);		break;
+		case DOUBLE4:	RULE1(token<DOUBLE4>);		break;
+		case CHAR8:		RULE1(token<CHAR8>);		break;
+		case SHORT8:	RULE1(token<SHORT8>);		break;
+		case INT8:		RULE1(token<INT8>);			break;
+		case LONG8:		RULE1(token<LONG8>);		break;
+		case UCHAR8:	RULE1(token<UCHAR8>);		break;
+		case USHORT8:	RULE1(token<USHORT8>);		break;
+		case UINT8:		RULE1(token<UINT8>);		break;
+		case ULONG8:	RULE1(token<ULONG8>);		break;
+		case FLOAT8:	RULE1(token<FLOAT8>);		break;
+		case DOUBLE8:	RULE1(token<DOUBLE8>);		break;
+		case CHAR16:	RULE1(token<CHAR16>);		break;
+		case SHORT16:	RULE1(token<SHORT16>);		break;
+		case INT16:		RULE1(token<INT16>);		break;
+		case LONG16:	RULE1(token<LONG16>);		break;
+		case UCHAR16:	RULE1(token<UCHAR16>);		break;
+		case USHORT16:	RULE1(token<USHORT16>);		break;
+		case UINT16:	RULE1(token<UINT16>);		break;
+		case ULONG16:	RULE1(token<ULONG16>);		break;
+		case FLOAT16:	RULE1(token<FLOAT16>);		break;
+		case DOUBLE16:	RULE1(token<DOUBLE16>);		break;
+		case SIZE_T:	RULE1(token<SIZE_T>);		break;
+		case SIGNED:	RULE1(token<SIGNED>);		break;
+		case UNSIGNED:	RULE1(token<UNSIGNED>);		break;
+		case TYPE_NAME:	RULE1(token<TYPE_NAME>);	break;
+		default:
+			RULE1(struct_or_union_specifier);
+			RULE1(enum_specifier);
+		}
 		END();
 	}
 
 	int Parser::__type_qualifier()
 	{
 		BEGIN();
-		RULE1(token<CONST>);
-		RULE1(token<VOLATILE>);
-		RULE1(token<__GLOBAL>);
-		RULE1(token<__LOCAL>);
-		RULE1(token<__PRIVATE>);
-		RULE1(token<__CONSTANT>);
+		switch(peekToken())
+		{
+		case CONST:			RULE1(token<CONST>);		break;
+		case VOLATILE:		RULE1(token<VOLATILE>);		break;
+		case __GLOBAL:		RULE1(token<__GLOBAL>);		break;
+		case __LOCAL:		RULE1(token<__LOCAL>);		break;
+		case __PRIVATE:		RULE1(token<__PRIVATE>);	break;
+		case __CONSTANT:	RULE1(token<__CONSTANT>);	break;
+		}
 		END();
 	}
 
@@ -272,9 +290,12 @@ namespace FreeOCL
 	int Parser::__enum_specifier()
 	{
 		BEGIN();
+		if (peekToken() != ENUM)
+			END();
 		RULE4(token<ENUM>, token<'{'>, enumerator_list, token<'}'>);
 		RULE5(token<ENUM>, token<IDENTIFIER>, token<'{'>, enumerator_list, token<'}'>);
 		RULE2(token<ENUM>, token<IDENTIFIER>);
+		CHECK(1, "syntax error");
 		END();
 	}
 
@@ -288,19 +309,29 @@ namespace FreeOCL
 	int Parser::__enumerator()
 	{
 		BEGIN();
-		RULE3(token<IDENTIFIER>, token<'='>, constant_expression);
-		RULE1(token<IDENTIFIER>);
+		if (peekToken() == IDENTIFIER)
+		{
+			RULE3(token<IDENTIFIER>, token<'='>, constant_expression);
+			RULE1(token<IDENTIFIER>);
+		}
 		END();
 	}
 
 	int Parser::__direct_declarator_suffix()
 	{
 		BEGIN();
-		RULE3(token<'['>, constant_expression, token<']'>);
-		RULE2(token<'['>, token<']'>);
-		RULE3(token<'('>, parameter_type_list, token<')'>);
-		RULE3(token<'('>, identifier_list, token<')'>);
-		RULE2(token<'('>, token<')'>);
+		switch(peekToken())
+		{
+		case '[':
+			RULE3(token<'['>, constant_expression, token<']'>);
+			RULE2(token<'['>, token<']'>);
+			break;
+		case '(':
+			RULE3(token<'('>, parameter_type_list, token<')'>);
+			RULE3(token<'('>, identifier_list, token<')'>);
+			RULE2(token<'('>, token<')'>);
+			break;
+		}
 		END();
 	}
 
@@ -338,9 +369,7 @@ namespace FreeOCL
 
 	int Parser::__parameter_type_list()
 	{
-		BEGIN();
-		RULE1(parameter_list);
-		END();
+		return __parameter_list();
 	}
 
 	int Parser::__parameter_list()
@@ -370,21 +399,35 @@ namespace FreeOCL
 	int Parser::__direct_abstract_declarator_base()
 	{
 		BEGIN();
-		RULE3(token<'('>, abstract_declarator, token<')'>);
-		RULE2(token<'['>, token<']'>);
-		RULE3(token<'['>, constant_expression, token<']'>);
-		RULE2(token<'('>, token<')'>);
-		RULE3(token<'('>, parameter_type_list, token<')'>);
+		switch(peekToken())
+		{
+		case '(':
+			RULE3(token<'('>, abstract_declarator, token<')'>);
+			RULE2(token<'('>, token<')'>);
+			RULE3(token<'('>, parameter_type_list, token<')'>);
+			break;
+		case '[':
+			RULE2(token<'['>, token<']'>);
+			RULE3(token<'['>, constant_expression, token<']'>);
+			break;
+		}
 		END();
 	}
 
 	int Parser::__direct_abstract_declarator_suffix()
 	{
 		BEGIN();
-		RULE2(token<'['>, token<']'>);
-		RULE3(token<'['>, constant_expression, token<']'>);
-		RULE2(token<'('>, token<')'>);
-		RULE3(token<'('>, parameter_type_list, token<')'>);
+		switch(peekToken())
+		{
+		case '[':
+			RULE2(token<'['>, token<']'>);
+			RULE3(token<'['>, constant_expression, token<']'>);
+			break;
+		case '(':
+			RULE2(token<'('>, token<')'>);
+			RULE3(token<'('>, parameter_type_list, token<')'>);
+			break;
+		}
 		END();
 	}
 
@@ -407,9 +450,7 @@ namespace FreeOCL
 
 	int Parser::__constant_expression()
 	{
-		BEGIN();
-		RULE1(conditional_expression);
-		END();
+		return __conditional_expression();
 	}
 
 	int Parser::__struct_or_union_specifier()
@@ -418,6 +459,8 @@ namespace FreeOCL
 		RULE5(struct_or_union, token<IDENTIFIER>, token<'{'>, struct_declaration_list, token<'}'>);
 		RULE4(struct_or_union, token<'{'>, struct_declaration_list, token<'}'>);
 		RULE2(struct_or_union, token<IDENTIFIER>);
+		CHECK(2, "syntax error");
+		CHECK(1, "syntax error, '{' or identifier expected");
 		END();
 	}
 
@@ -477,8 +520,12 @@ namespace FreeOCL
 	int Parser::__compound_statement()
 	{
 		BEGIN();
-		RULE2(token<'{'>, token<'}'>);
-		RULE3(token<'{'>, declaration_statement_list, token<'}'>);
+		if (peekToken() == '{')
+		{
+			RULE2(token<'{'>, token<'}'>);
+			RULE3(token<'{'>, declaration_statement_list, token<'}'>);
+			CHECK(1, "syntax error");
+		}
 		END();
 	}
 
@@ -519,41 +566,109 @@ namespace FreeOCL
 	int Parser::__labeled_statement()
 	{
 		BEGIN();
-		RULE3(token<IDENTIFIER>, token<':'>, statement);
-		RULE4(token<CASE>, constant_expression, token<':'>, statement);
-		RULE3(token<DEFAULT>, token<':'>, statement);
+		switch(peekToken())
+		{
+		case IDENTIFIER:
+			RULE3(token<IDENTIFIER>, token<':'>, statement);
+			CHECK(2, "syntax error, statement expected");
+			break;
+		case CASE:
+			RULE4(token<CASE>, constant_expression, token<':'>, statement);
+			CHECK(3, "syntax error, statement expected");
+			CHECK(2, "syntax error, ':' expected");
+			CHECK(1, "syntax error, constant expression expected");
+			break;
+		case DEFAULT:
+			RULE3(token<DEFAULT>, token<':'>, statement);
+			CHECK(2, "syntax error, statement expected");
+			CHECK(1, "syntax error, ':' expected");
+			break;
+		}
 		END();
 	}
 
 	int Parser::__jump_statement()
 	{
 		BEGIN();
-		RULE3(token<GOTO>, token<IDENTIFIER>, token<';'>);
-		RULE2(token<CONTINUE>, token<';'>);
-		RULE2(token<BREAK>, token<';'>);
-		RULE2(token<RETURN>, token<';'>);
-		RULE3(token<RETURN>, expression, token<';'>);
+		switch(peekToken())
+		{
+		case GOTO:
+			RULE3(token<GOTO>, token<IDENTIFIER>, token<';'>);
+			CHECK(2, "syntax error, ';' expected");
+			CHECK(1, "syntax error, identifier expected");
+			break;
+		case CONTINUE:
+			RULE2(token<CONTINUE>, token<';'>);
+			CHECK(1, "syntax error, ';' expected");
+			break;
+		case BREAK:
+			RULE2(token<BREAK>, token<';'>);
+			CHECK(1, "syntax error, ';' expected");
+			break;
+		case RETURN:
+			RULE2(token<RETURN>, token<';'>);
+			RULE3(token<RETURN>, expression, token<';'>);
+			CHECK(1, "syntax error");
+			break;
+		}
 		END();
 	}
 
 	int Parser::__iteration_statement()
 	{
 		BEGIN();
-		RULE5(token<WHILE>, token<'('>, expression, token<')'>, statement);
-		RULE7(token<DO>, statement, token<WHILE>, token<'('>, expression, token<')'>, token<';'>);
-		RULE6(token<FOR>, token<'('>, expression_statement, expression_statement, token<')'>, statement);
-		RULE7(token<FOR>, token<'('>, expression_statement, expression_statement, expression, token<')'>, statement);
-		RULE6(token<FOR>, token<'('>, declaration, expression_statement, token<')'>, statement);
-		RULE7(token<FOR>, token<'('>, declaration, expression_statement, expression, token<')'>, statement);
+		switch(peekToken())
+		{
+		case WHILE:
+			RULE5(token<WHILE>, token<'('>, expression, token<')'>, statement);
+			CHECK(4, "syntax error, statement expected");
+			CHECK(3, "syntax error, ')' expected");
+			CHECK(2, "syntax error, expression expected");
+			CHECK(1, "syntax error, '(' expected");
+			break;
+		case DO:
+			RULE7(token<DO>, statement, token<WHILE>, token<'('>, expression, token<')'>, token<';'>);
+			CHECK(6, "syntax error, ';' expected");
+			CHECK(5, "syntax error, ')' expected");
+			CHECK(4, "syntax error, expression expected");
+			CHECK(3, "syntax error, '(' expected");
+			CHECK(2, "syntax error, \"while\" expected");
+			CHECK(1, "syntax error, statement expected");
+			break;
+		case FOR:
+			RULE6(token<FOR>, token<'('>, expression_statement, expression_statement, token<')'>, statement);
+			RULE7(token<FOR>, token<'('>, expression_statement, expression_statement, expression, token<')'>, statement);
+			RULE6(token<FOR>, token<'('>, declaration, expression_statement, token<')'>, statement);
+			RULE7(token<FOR>, token<'('>, declaration, expression_statement, expression, token<')'>, statement);
+			CHECK(2, "syntax error");
+			CHECK(1, "syntax error, '(' expected");
+			break;
+		}
 		END();
 	}
 
 	int Parser::__selection_statement()
 	{
 		BEGIN();
-		RULE7(token<IF>, token<'('>, expression, token<')'>, statement, token<ELSE>, statement);
-		RULE5(token<IF>, token<'('>, expression, token<')'>, statement);
-		RULE5(token<SWITCH>, token<'('>, expression, token<')'>, statement);
+		switch(peekToken())
+		{
+		case IF:
+			RULE7(token<IF>, token<'('>, expression, token<')'>, statement, token<ELSE>, statement);
+			RULE5(token<IF>, token<'('>, expression, token<')'>, statement);
+			CHECK(5, "syntax error");
+			CHECK(4, "syntax error, statement expected");
+			CHECK(3, "syntax error, ')' expected");
+			CHECK(2, "syntax error, expression expected");
+			CHECK(1, "syntax error, '(' expected");
+			break;
+		case SWITCH:
+			RULE5(token<SWITCH>, token<'('>, expression, token<')'>, statement);
+			CHECK(4, "syntax error, statement expected");
+			CHECK(3, "syntax error, ')' expected");
+			CHECK(2, "syntax error, expression expected");
+			CHECK(1, "syntax error, '(' expected");
+			break;
+		}
 		END();
 	}
 
@@ -562,6 +677,7 @@ namespace FreeOCL
 		BEGIN();
 		RULE1(token<';'>);
 		RULE2(expression, token<';'>);
+		CHECK(1, "syntax error, ';' expected");
 		END();
 	}
 
@@ -582,17 +698,20 @@ namespace FreeOCL
 	int Parser::__assignment_operator()
 	{
 		BEGIN();
-		RULE1(token<'='>);
-		RULE1(token<MUL_ASSIGN>);
-		RULE1(token<DIV_ASSIGN>);
-		RULE1(token<MOD_ASSIGN>);
-		RULE1(token<ADD_ASSIGN>);
-		RULE1(token<SUB_ASSIGN>);
-		RULE1(token<LEFT_ASSIGN>);
-		RULE1(token<RIGHT_ASSIGN>);
-		RULE1(token<AND_ASSIGN>);
-		RULE1(token<XOR_ASSIGN>);
-		RULE1(token<OR_ASSIGN>);
+		switch(peekToken())
+		{
+		case '=':			RULE1(token<'='>);	break;
+		case MUL_ASSIGN:	RULE1(token<MUL_ASSIGN>);	break;
+		case DIV_ASSIGN:	RULE1(token<DIV_ASSIGN>);	break;
+		case MOD_ASSIGN:	RULE1(token<MOD_ASSIGN>);	break;
+		case ADD_ASSIGN:	RULE1(token<ADD_ASSIGN>);	break;
+		case SUB_ASSIGN:	RULE1(token<SUB_ASSIGN>);	break;
+		case LEFT_ASSIGN:	RULE1(token<LEFT_ASSIGN>);	break;
+		case RIGHT_ASSIGN:	RULE1(token<RIGHT_ASSIGN>);	break;
+		case AND_ASSIGN:	RULE1(token<AND_ASSIGN>);	break;
+		case XOR_ASSIGN:	RULE1(token<XOR_ASSIGN>);	break;
+		case OR_ASSIGN:		RULE1(token<OR_ASSIGN>);	break;
+		}
 		END();
 	}
 
@@ -600,6 +719,7 @@ namespace FreeOCL
 	{
 		BEGIN();
 		RULE5(logical_or_expression, token<'?'>, expression, token<':'>, conditional_expression);
+		CHECK(2, "syntax error");
 		RULE1(logical_or_expression);
 		END();
 	}
@@ -607,24 +727,40 @@ namespace FreeOCL
 	int Parser::__unary_expression()
 	{
 		BEGIN();
-		RULE1(postfix_expression);
-		RULE2(token<INC_OP>, unary_expression);
-		RULE2(token<DEC_OP>, unary_expression);
-		RULE2(unary_operator, cast_expression);
-		RULE2(token<SIZEOF>, unary_expression);
-		RULE4(token<SIZEOF>, token<'('>, type_name, token<')'>);
+		switch(peekToken())
+		{
+		case INC_OP:
+			RULE2(token<INC_OP>, unary_expression);
+			CHECK(1, "syntax error, unary expression expected");
+			break;
+		case DEC_OP:
+			RULE2(token<DEC_OP>, unary_expression);
+			CHECK(1, "syntax error, unary expression expected");
+			break;
+		case SIZEOF:
+			RULE2(token<SIZEOF>, unary_expression);
+			RULE4(token<SIZEOF>, token<'('>, type_name, token<')'>);
+			CHECK(1, "syntax error");
+			break;
+		default:
+			RULE1(postfix_expression);
+			RULE2(unary_operator, cast_expression);
+		}
 		END();
 	}
 
 	int Parser::__unary_operator()
 	{
 		BEGIN();
-		RULE1(token<'&'>);
-		RULE1(token<'*'>);
-		RULE1(token<'+'>);
-		RULE1(token<'-'>);
-		RULE1(token<'~'>);
-		RULE1(token<'!'>);
+		switch(peekToken())
+		{
+		case '&':	RULE1(token<'&'>);	break;
+		case '*':	RULE1(token<'*'>);	break;
+		case '+':	RULE1(token<'+'>);	break;
+		case '-':	RULE1(token<'-'>);	break;
+		case '~':	RULE1(token<'~'>);	break;
+		case '!':	RULE1(token<'!'>);	break;
+		}
 		END();
 	}
 
@@ -677,8 +813,11 @@ namespace FreeOCL
 	int Parser::__equality_operator()
 	{
 		BEGIN();
-		RULE1(token<EQ_OP>);
-		RULE1(token<NE_OP>);
+		switch(peekToken())
+		{
+		case EQ_OP:	RULE1(token<EQ_OP>);	break;
+		case NE_OP:	RULE1(token<NE_OP>);	break;
+		}
 		END();
 	}
 
@@ -692,10 +831,13 @@ namespace FreeOCL
 	int Parser::__relational_operator()
 	{
 		BEGIN();
-		RULE1(token<'<'>);
-		RULE1(token<'>'>);
-		RULE1(token<LE_OP>);
-		RULE1(token<GE_OP>);
+		switch(peekToken())
+		{
+		case '<':	RULE1(token<'<'>);	break;
+		case '>':	RULE1(token<'>'>);	break;
+		case LE_OP:	RULE1(token<LE_OP>);	break;
+		case GE_OP:	RULE1(token<GE_OP>);	break;
+		}
 		END();
 	}
 
@@ -709,8 +851,11 @@ namespace FreeOCL
 	int Parser::__shift_operator()
 	{
 		BEGIN();
-		RULE1(token<LEFT_OP>);
-		RULE1(token<RIGHT_OP>);
+		switch(peekToken())
+		{
+		case LEFT_OP:	RULE1(token<LEFT_OP>);	break;
+		case RIGHT_OP:	RULE1(token<RIGHT_OP>);	break;
+		}
 		END();
 	}
 
@@ -724,8 +869,11 @@ namespace FreeOCL
 	int Parser::__additive_operator()
 	{
 		BEGIN();
-		RULE1(token<'+'>);
-		RULE1(token<'-'>);
+		switch(peekToken())
+		{
+		case '+':	RULE1(token<'+'>);	break;
+		case '-':	RULE1(token<'-'>);	break;
+		}
 		END();
 	}
 
@@ -739,9 +887,12 @@ namespace FreeOCL
 	int Parser::__multiplicative_operator()
 	{
 		BEGIN();
-		RULE1(token<'*'>);
-		RULE1(token<'/'>);
-		RULE1(token<'%'>);
+		switch(peekToken())
+		{
+		case '*':	RULE1(token<'*'>);	break;
+		case '/':	RULE1(token<'/'>);	break;
+		case '%':	RULE1(token<'%'>);	break;
+		}
 		END();
 	}
 
@@ -755,13 +906,34 @@ namespace FreeOCL
 	int Parser::__postfix_expression_suffix()
 	{
 		BEGIN();
-		RULE3(token<'['>, expression, token<']'>);
-		RULE2(token<'('>, token<')'>);
-		RULE3(token<'('>, argument_expression_list, token<')'>);
-		RULE2(token<'.'>, token<IDENTIFIER>);
-		RULE2(token<PTR_OP>, token<IDENTIFIER>);
-		RULE1(token<INC_OP>);
-		RULE1(token<DEC_OP>);
+		switch(peekToken())
+		{
+		case '[':
+			RULE3(token<'['>, expression, token<']'>);
+			CHECK(2, "syntax error, ']' expected");
+			CHECK(1, "syntax error, expression expected");
+			break;
+		case '(':
+			RULE2(token<'('>, token<')'>);
+			RULE3(token<'('>, argument_expression_list, token<')'>);
+			CHECK(2, "syntax error, ')' expected");
+			CHECK(1, "syntax error");
+			break;
+		case '.':
+			RULE2(token<'.'>, token<IDENTIFIER>);
+			CHECK(1, "syntax error");
+			break;
+		case PTR_OP:
+			RULE2(token<PTR_OP>, token<IDENTIFIER>);
+			CHECK(1, "syntax error, identifier expected");
+			break;
+		case INC_OP:
+			RULE1(token<INC_OP>);
+			break;
+		case DEC_OP:
+			RULE1(token<DEC_OP>);
+			break;
+		}
 		END();
 	}
 
@@ -790,10 +962,23 @@ namespace FreeOCL
 	int Parser::__primary_expression()
 	{
 		BEGIN();
-		RULE1(token<IDENTIFIER>);
-		RULE1(token<CONSTANT>);
-		RULE1(token<STRING_LITERAL>);
-		RULE3(token<'('>, expression, token<')'>);
+		switch(peekToken())
+		{
+		case IDENTIFIER:
+			RULE1(token<IDENTIFIER>);
+			break;
+		case CONSTANT:
+			RULE1(token<CONSTANT>);
+			break;
+		case STRING_LITERAL:
+			RULE1(token<STRING_LITERAL>);
+			break;
+		case '(':
+			RULE3(token<'('>, expression, token<')'>);
+			CHECK(2, "syntax error, ')' expected");
+			CHECK(1, "syntax error, expression expected");
+			break;
+		}
 		END();
 	}
 
@@ -815,8 +1000,12 @@ namespace FreeOCL
 	{
 		BEGIN();
 		RULE1(assignment_expression);
-		RULE3(token<'{'>, initializer_list, token<'}'>);
-		RULE4(token<'{'>, initializer_list, token<','>, token<'}'>);
+		if (peekToken() == '{')
+		{
+			RULE3(token<'{'>, initializer_list, token<'}'>);
+			RULE4(token<'{'>, initializer_list, token<','>, token<'}'>);
+			CHECK(1, "syntax error");
+		}
 		END();
 	}
 

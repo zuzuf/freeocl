@@ -27,12 +27,10 @@
 						ROLLBACK();\
 						return 0;\
 					} while(false)
-#define CHECK(N)	if (__max > N)\
+#define CHECK(N, MSG)	if (__max >= N)\
 					{\
-						std::stringstream buf;\
-						buf << "syntax error (" << __FUNCTION__ << ")";\
-						error(buf.str());\
-						throw "syntax error";\
+						error(MSG);\
+						throw MSG;\
 					}
 #define MAX(X)		__max = std::max<size_t>(__max, X)
 
