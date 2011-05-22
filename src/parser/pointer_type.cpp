@@ -50,6 +50,14 @@ namespace FreeOCL
 		return type.base_type->getAddressSpace() == getAddressSpace();
 	}
 
+	smartptr<Type> PointerType::clone() const
+	{
+		const PointerType *ptr = base_type.as<PointerType>();
+		if (ptr)
+			return new PointerType(ptr->clone(), isConst(), getAddressSpace());
+		return new PointerType(base_type, isConst(), getAddressSpace());
+	}
+
 	smartptr<Type> PointerType::clone(const bool b_const, const AddressSpace address_space) const
 	{
 		return new PointerType(base_type, b_const, address_space);

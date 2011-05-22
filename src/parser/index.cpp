@@ -15,27 +15,33 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_NODE_H__
-#define __FREEOCL_PARSER_NODE_H__
-
-#include <ostream>
-#include "../utils/smartptr.h"
+#include "index.h"
+#include "pointer_type.h"
 
 namespace FreeOCL
 {
-	class Node : public ref_count
+	Index::Index(const smartptr<Expression> &ptr, const smartptr<Expression> &idx)
+		: ptr(ptr),
+		idx(idx)
 	{
-	public:
-		virtual ~Node()	{}
 
-		virtual void write(std::ostream& out) const = 0;
-	};
+	}
 
-	inline std::ostream &operator<<(std::ostream &out, const Node &n)
+	Index::~Index()
 	{
-		n.write(out);
-		return out;
+
+	}
+
+	smartptr<Type> Index::getType() const
+	{
+		const smartptr<PointerType> p_type = ptr->getType().as<PointerType>();
+		if (!p_type)		// This should never happen
+			return (Type*)NULL;
+		return p_type->getBaseType();
+	}
+
+	void Index::write(std::ostream& out) const
+	{
+		out << *ptr << '[' << *idx << ']';
 	}
 }
-
-#endif

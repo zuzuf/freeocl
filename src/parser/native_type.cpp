@@ -137,4 +137,155 @@ namespace FreeOCL
 	{
 		return new NativeType(type_id, b_const, address_space);
 	}
+
+	bool NativeType::isInteger() const
+	{
+		switch(type_id)
+		{
+		case BOOL:
+		case SIZE_T:
+		case CHAR:
+		case SHORT:
+		case INT:
+		case LONG:
+		case UCHAR:
+		case USHORT:
+		case UINT:
+		case ULONG:
+		case CHAR2:
+		case SHORT2:
+		case INT2:
+		case LONG2:
+		case UCHAR2:
+		case USHORT2:
+		case UINT2:
+		case ULONG2:
+		case CHAR3:
+		case SHORT3:
+		case INT3:
+		case LONG3:
+		case UCHAR3:
+		case USHORT3:
+		case UINT3:
+		case ULONG3:
+		case CHAR4:
+		case SHORT4:
+		case INT4:
+		case LONG4:
+		case UCHAR4:
+		case USHORT4:
+		case UINT4:
+		case ULONG4:
+		case CHAR8:
+		case SHORT8:
+		case INT8:
+		case LONG8:
+		case UCHAR8:
+		case USHORT8:
+		case UINT8:
+		case ULONG8:
+		case CHAR16:
+		case SHORT16:
+		case INT16:
+		case LONG16:
+		case UCHAR16:
+		case USHORT16:
+		case UINT16:
+		case ULONG16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool NativeType::isFloat() const
+	{
+		switch(type_id)
+		{
+		case HALF:
+		case FLOAT:
+		case DOUBLE:
+		case FLOAT2:
+		case DOUBLE2:
+		case FLOAT3:
+		case DOUBLE3:
+		case FLOAT4:
+		case DOUBLE4:
+		case FLOAT8:
+		case DOUBLE8:
+		case FLOAT16:
+		case DOUBLE16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool NativeType::isSigned() const
+	{
+		switch(type_id)
+		{
+		case HALF:
+		case CHAR:
+		case SHORT:
+		case INT:
+		case LONG:
+		case FLOAT:
+		case DOUBLE:
+		case CHAR2:
+		case SHORT2:
+		case INT2:
+		case LONG2:
+		case FLOAT2:
+		case DOUBLE2:
+		case CHAR3:
+		case SHORT3:
+		case INT3:
+		case LONG3:
+		case FLOAT3:
+		case DOUBLE3:
+		case CHAR4:
+		case SHORT4:
+		case INT4:
+		case LONG4:
+		case FLOAT4:
+		case DOUBLE4:
+		case CHAR8:
+		case SHORT8:
+		case INT8:
+		case LONG8:
+		case FLOAT8:
+		case DOUBLE8:
+		case CHAR16:
+		case SHORT16:
+		case INT16:
+		case LONG16:
+		case FLOAT16:
+		case DOUBLE16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	smartptr<Type> NativeType::getIntForDim(int dim)
+	{
+		switch(dim)
+		{
+		case 1:
+			return t_int;
+		case 2:
+			return t_int2;
+		case 3:
+			return t_int3;
+		case 4:
+			return t_int4;
+		case 8:
+			return t_int8;
+		case 16:
+			return t_int16;
+		default:
+			return t_int;
+		}
+	}
 }

@@ -78,6 +78,15 @@ SET(SOURCES
 	src/parser/pointer_type.h	src/parser/pointer_type.cpp
 	src/parser/function.h		src/parser/function.cpp
 	src/parser/kernel.h			src/parser/kernel.cpp
+	src/parser/binary.h			src/parser/binary.cpp
+	src/parser/unary.h			src/parser/unary.cpp
+	src/parser/index.h			src/parser/index.cpp
+	src/parser/var.h			src/parser/var.cpp
+	src/parser/call.h			src/parser/call.cpp
+	src/parser/expression.h
+	src/parser/callable.h
+	src/parser/symbol_table.h	src/parser/symbol_table.cpp
+	src/parser/builtin.h		src/parser/builtin.cpp
 
 	src/utils/smartptr.h
 	src/utils/string.h

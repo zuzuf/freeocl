@@ -15,27 +15,27 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_NODE_H__
-#define __FREEOCL_PARSER_NODE_H__
-
-#include <ostream>
-#include "../utils/smartptr.h"
+#include "var.h"
 
 namespace FreeOCL
 {
-	class Node : public ref_count
+	Var::Var(const std::string &name, const smartptr<Type> &type)
+		: name(name),
+		type(type)
 	{
-	public:
-		virtual ~Node()	{}
+	}
 
-		virtual void write(std::ostream& out) const = 0;
-	};
-
-	inline std::ostream &operator<<(std::ostream &out, const Node &n)
+	Var::~Var()
 	{
-		n.write(out);
-		return out;
+	}
+
+	smartptr<Type> Var::getType() const
+	{
+		return type;
+	}
+
+	void Var::write(std::ostream& out) const
+	{
+		out << name << ' ';
 	}
 }
-
-#endif

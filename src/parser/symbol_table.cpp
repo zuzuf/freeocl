@@ -15,27 +15,41 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_NODE_H__
-#define __FREEOCL_PARSER_NODE_H__
-
-#include <ostream>
-#include "../utils/smartptr.h"
+#include "symbol_table.h"
 
 namespace FreeOCL
 {
-	class Node : public ref_count
+	SymbolTable::SymbolTable()
 	{
-	public:
-		virtual ~Node()	{}
+		push();
+	}
 
-		virtual void write(std::ostream& out) const = 0;
-	};
-
-	inline std::ostream &operator<<(std::ostream &out, const Node &n)
+	SymbolTable::~SymbolTable()
 	{
-		n.write(out);
-		return out;
+	}
+
+	void SymbolTable::insert(const std::string &name, const smartptr<Node> &symbol)
+	{
+		if (!scope_stack.back().count(name))
+		{
+			scope_stack.back().insert(name);
+			table[name].push_back(symbol);
+		}
+		else
+			table[name].back() = symbol;
+	}
+
+	void SymbolTable::push()
+	{
+		scope_stack.push_back(std::unordered_set<std::string>());
+	}
+
+	void SymbolTable::pop()
+	{
+		for(std::unordered_set<std::string>::const_iterator it = scope_stack.back().begin(), end = scope_stack.back().end()
+			; it != end
+			; ++it)
+			table[*it].pop_back();
+		scope_stack.pop_back();
 	}
 }
-
-#endif

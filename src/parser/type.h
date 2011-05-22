@@ -36,8 +36,6 @@ namespace FreeOCL
 	public:
 		Type(const bool b_const, const AddressSpace address_space);
 
-		virtual smartptr<Type> getType() const;
-
 		virtual bool operator==(const Type &type) const = 0;
 		bool operator!=(const Type &type) const
 		{	return !(*this == type);	}
@@ -51,6 +49,9 @@ namespace FreeOCL
 	private:
 		const bool b_const;
 		const AddressSpace address_space;
+
+	public:
+		static smartptr<Type> computeResultingType(const smartptr<Type> &t0, const smartptr<Type> &t1);
 	};
 }
 

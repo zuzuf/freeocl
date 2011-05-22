@@ -38,8 +38,6 @@ namespace FreeOCL
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getType() const;
-
 		smartptr<Node> &operator[](size_t idx)	{	return childs[idx];	}
 		const smartptr<Node> &operator[](size_t idx) const	{	return childs[idx];	}
 

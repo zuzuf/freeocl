@@ -52,6 +52,7 @@ inline std::string memSuffix(const size_t s)
 const char *source_code =
 "__kernel void hello(__global char *out, __local char *test)\n"
 "{\n"
+"	int;\n"
 "	const size_t i = get_global_id(0);\n"
 "	__constant char *msg = \"hello world\";\n"
 "	test[i] = msg[11 - i];\n"

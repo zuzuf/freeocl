@@ -91,7 +91,8 @@ namespace FreeOCL
 			<< " -o " << filename_out
 			<< " -g -O0 -march=native -mtune=native"
 			<< " -rdynamic"
-//			<< " -ffast-math"
+			<< " -fno-exceptions"
+			<< " -ffast-math"
 			<< " -x c++ " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
@@ -315,7 +316,6 @@ namespace FreeOCL
 		}
 
 		log << "converted code:" << std::endl << gen.str() << std::endl;
-		std::cerr << gen.str() << std::endl;
 		return gen.str();
 	}
 }

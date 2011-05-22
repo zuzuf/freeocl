@@ -15,27 +15,26 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_NODE_H__
-#define __FREEOCL_PARSER_NODE_H__
+#ifndef __FREEOCL_PARSER_INDEX_H__
+#define __FREEOCL_PARSER_INDEX_H__
 
-#include <ostream>
-#include "../utils/smartptr.h"
+#include "expression.h"
 
 namespace FreeOCL
 {
-	class Node : public ref_count
+	class Index : public Expression
 	{
 	public:
-		virtual ~Node()	{}
+		Index(const smartptr<Expression> &ptr, const smartptr<Expression> &idx);
+		virtual ~Index();
 
-		virtual void write(std::ostream& out) const = 0;
+		virtual smartptr<Type> getType() const;
+		virtual void write(std::ostream& out) const;
+
+	private:
+		const smartptr<Expression> ptr;
+		const smartptr<Expression> idx;
 	};
-
-	inline std::ostream &operator<<(std::ostream &out, const Node &n)
-	{
-		n.write(out);
-		return out;
-	}
 }
 
 #endif

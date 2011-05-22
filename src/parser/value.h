@@ -18,15 +18,13 @@
 #ifndef __FREEOCL_PARSER_VALUE_H__
 #define __FREEOCL_PARSER_VALUE_H__
 
-#include "node.h"
-#include "native_type.h"
-#include "pointer_type.h"
+#include "expression.h"
 #include <cstdint>
 
 namespace FreeOCL
 {
 	template<class T>
-	class Value : public Node
+	class Value : public Expression
 	{
 	public:
 		Value(const T &v) : v(v)	{}

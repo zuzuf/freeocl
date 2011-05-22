@@ -236,6 +236,26 @@
 							return 1;\
 						}
 
+#define LISTOF_LEFT_OP(A, SEP)\
+						if (__##A())\
+						{\
+							smartptr<Expression> N = d_val__;\
+							size_t l = processed.size();\
+							while (__##SEP())\
+							{\
+								int op = d_val__.as<Token>()->getID();\
+								if (!__##A())\
+								{\
+									rollBackTo(l);\
+									break;\
+								}\
+								N = new Binary(op, N, d_val__);\
+								l = processed.size();\
+							}\
+							d_val__ = N;\
+							return 1;\
+						}
+
 #define LISTOF_RIGHT_SEP(A, SEP)\
 						if (__##A())\
 						{\

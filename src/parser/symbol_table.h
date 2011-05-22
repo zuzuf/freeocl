@@ -15,27 +15,40 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_NODE_H__
-#define __FREEOCL_PARSER_NODE_H__
+#ifndef __FREEOCL_PARSER_SYMBOL_TABLE_H__
+#define __FREEOCL_PARSER_SYMBOL_TABLE_H__
 
-#include <ostream>
-#include "../utils/smartptr.h"
+#include "node.h"
+#include <unordered_map>
+#include <unordered_set>
+#include <deque>
+#include <string>
 
 namespace FreeOCL
 {
-	class Node : public ref_count
+	class SymbolTable
 	{
 	public:
-		virtual ~Node()	{}
+		SymbolTable();
+		~SymbolTable();
 
-		virtual void write(std::ostream& out) const = 0;
+		void insert(const std::string &name, const smartptr<Node> &symbol);
+		template<class T>
+		smartptr<T> get(const std::string &name) const
+		{
+			std::unordered_map<std::string, std::deque<smartptr<Node> > >::const_iterator it = table.find(name);
+			if (it == table.end() || it->second.empty())
+				return (T*)NULL;
+			return it->second.back();
+		}
+
+		void push();
+		void pop();
+
+	private:
+		std::unordered_map<std::string, std::deque<smartptr<Node> > >	table;
+		std::deque<std::unordered_set<std::string> >	scope_stack;
 	};
-
-	inline std::ostream &operator<<(std::ostream &out, const Node &n)
-	{
-		n.write(out);
-		return out;
-	}
 }
 
 #endif

@@ -16,6 +16,8 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "value.h"
+#include "native_type.h"
+#include "pointer_type.h"
 
 namespace FreeOCL
 {

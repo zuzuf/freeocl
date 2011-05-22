@@ -1,5 +1,4 @@
 #include "token.h"
-#include "native_type.h"
 
 namespace FreeOCL
 {
@@ -11,11 +10,6 @@ namespace FreeOCL
 
 	Token::~Token()
 	{
-	}
-
-	smartptr<Type> Token::getType() const
-	{
-		return NativeType::t_void;
 	}
 
 	void Token::write(std::ostream& out) const

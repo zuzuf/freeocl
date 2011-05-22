@@ -34,6 +34,7 @@ namespace FreeOCL
 		bool isCompatibleWith(const PointerType &type) const;
 
 		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
+		smartptr<Type> clone() const;
 
 		void setRootType(const smartptr<Type> &root_type);
 	private:

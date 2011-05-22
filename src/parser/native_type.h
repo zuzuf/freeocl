@@ -45,6 +45,9 @@ namespace FreeOCL
 		int getDim() const;
 		bool isVector() const	{	return getDim() > 1;	}
 		bool isScalar() const	{	return getDim() == 1;	}
+		bool isInteger() const;
+		bool isFloat() const;
+		bool isSigned() const;
 	private:
 		const TypeID type_id;
 
@@ -113,6 +116,7 @@ namespace FreeOCL
 		static smartptr<Type> t_ulong16;
 		static smartptr<Type> t_float16;
 		static smartptr<Type> t_double16;
+		static smartptr<Type> getIntForDim(int dim);
 	};
 }
 

@@ -141,7 +141,7 @@ namespace FreeOCL
 				putback(c);
 				d_val__ = new Value<double>(f);
 			}
-			return CONSTANT;				// return the NUMBER token
+			return CONSTANT;				// return the CONSTANT token
 		}
 
 		if (c == '\'')		// A char

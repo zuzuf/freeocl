@@ -62,6 +62,7 @@ namespace FreeOCL
 		{
 			if (this->ptr == ptr.ptr)
 				return *this;
+
 			T *old = this->ptr;
 			this->ptr = const_cast<T*>(ptr.ptr);
 			if (this->ptr)
@@ -77,6 +78,9 @@ namespace FreeOCL
 
 		smartptr &operator=(const T *ptr)
 		{
+			if (this->ptr == ptr)
+				return *this;
+
 			T *old = this->ptr;
 			this->ptr = const_cast<T*>(ptr);
 			if (this->ptr)
@@ -88,6 +92,12 @@ namespace FreeOCL
 					delete old;
 			}
 			return *this;
+		}
+
+		template<class U>
+		smartptr &operator=(const U *ptr)
+		{
+			return operator=(dynamic_cast<const T*>(ptr));
 		}
 
 		T *operator->()	{	return ptr;	}

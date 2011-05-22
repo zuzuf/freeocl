@@ -28,8 +28,10 @@
 
 namespace FreeOCL
 {
+	class SymbolTable;
 	class Parser
 	{
+	public:
 		enum { _EOF = 256 };
 		enum TokenID
 		{
@@ -79,6 +81,8 @@ namespace FreeOCL
 		void putback(char c);
 		int peek();
 
+		void register_builtin();
+
 	private:
 		std::istream &in;			// Input stream
 		std::ostream &err;			// Error output stream
@@ -93,6 +97,7 @@ namespace FreeOCL
 		std::unordered_map<std::string, smartptr<Kernel> >	kernels;
 		std::vector<std::pair<int, smartptr<Node> > > tokens;
 		std::vector<std::pair<int, smartptr<Node> > > processed;
+		SymbolTable *symbols;
 
 	private:
 		// Parser grammar rules

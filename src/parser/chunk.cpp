@@ -16,7 +16,6 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "chunk.h"
-#include "native_type.h"
 
 namespace FreeOCL
 {
@@ -76,10 +75,5 @@ namespace FreeOCL
 	{
 		for(std::deque<smartptr<Node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
 			out << **it;
-	}
-
-	smartptr<Type> Chunk::getType() const
-	{
-		return NativeType::t_void;
 	}
 }

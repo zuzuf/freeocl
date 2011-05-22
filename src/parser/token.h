@@ -31,8 +31,6 @@ namespace FreeOCL
 		int getID() const	{	return tokenID;	}
 		const std::string &getString() const	{	return str;	}
 
-		virtual smartptr<Type> getType() const;
-
 		virtual void write(std::ostream& out) const;
 	private:
 		const int tokenID;

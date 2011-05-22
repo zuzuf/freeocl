@@ -22,10 +22,11 @@
 #include "node.h"
 #include "chunk.h"
 #include "type.h"
+#include "callable.h"
 
 namespace FreeOCL
 {
-	class Function : public Node
+	class Function : public Callable
 	{
 	public:
 		Function(const smartptr<Type> &return_type, const std::string &name, const smartptr<Chunk> &arguments, const smartptr<Chunk> &body);
@@ -33,9 +34,10 @@ namespace FreeOCL
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<Type> getReturnType() const;
+		virtual const std::string &getName() const;
+		virtual size_t getNumParams() const;
 
-		const std::string &getName() const	{	return name;	}
 		smartptr<Chunk> getArguments() const	{	return arguments;	}
 		smartptr<Chunk> getBody() const	{	return body;	}
 

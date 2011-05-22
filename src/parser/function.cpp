@@ -56,8 +56,18 @@ namespace FreeOCL
 			<< '}' << std::endl;
 	}
 
-	smartptr<Type> Function::getType() const
+	smartptr<Type> Function::getReturnType() const
 	{
 		return return_type;
+	}
+
+	const std::string &Function::getName() const
+	{
+		return name;
+	}
+
+	size_t Function::getNumParams() const
+	{
+		return arguments->size();
 	}
 }

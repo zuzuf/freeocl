@@ -23,8 +23,17 @@
 #include "value.h"
 #include "token.h"
 #include "kernel.h"
-#include "../utils/smartptr.h"
 #include "native_type.h"
+#include "pointer_type.h"
+#include "binary.h"
+#include "unary.h"
+#include "symbol_table.h"
+#include "var.h"
+#include "builtin.h"
+#include "index.h"
+#include "call.h"
+#include "callable.h"
+#include "../utils/smartptr.h"
 
 namespace FreeOCL
 {
@@ -70,17 +79,21 @@ namespace FreeOCL
 		processed.clear();
 		tokens.clear();
 		bErrors = false;
+		symbols = new SymbolTable;
+		register_builtin();
 		try
 		{
 			const int ret = __translation_unit();
 			processed.clear();
 			tokens.clear();
+			delete symbols;
 			return ret;
 		}
 		catch(...)
 		{
 			processed.clear();
 			tokens.clear();
+			delete symbols;
 			return 0;
 		}
 	}
@@ -110,70 +123,61 @@ namespace FreeOCL
 	int Parser::__function_definition()
 	{
 		BEGIN();
-		MATCH4(declaration_specifiers, declarator, declaration_list, compound_statement)
+		const bool b_qualifier = __function_qualifier();
+		MATCH2(declaration_specifiers, declarator)
 		{
-			smartptr<Chunk> chunk = N[1].as<Chunk>();
+			smartptr<Type> type = N[0];
+			smartptr<Chunk> chunk = N[1];
 			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
 			if (ptr)
 			{
-				ptr->setRootType(N[0].as<Type>());
-				N[0] = ptr;
+				ptr->setRootType(type);
+				type = ptr;
 				chunk = chunk->back();
 			}
-			const std::string function_name = chunk->front().as<Token>()->getString();
-			d_val__ = new Function(N[0], function_name, chunk->back(), N[3]);
-			return 1;
-		}
 
-		MATCH3(declaration_specifiers, declarator, compound_statement)
-		{
-			smartptr<Chunk> chunk = N[1].as<Chunk>();
-			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
-			if (ptr)
+			// Push a new scope
+			symbols->push();
+			smartptr<Chunk> args = chunk->back();
+			if (args->size() == 3)
 			{
-				ptr->setRootType(N[0].as<Type>());
-				N[0] = ptr;
-				chunk = chunk->back();
+				// Register all function parameters
+				args = (*args)[1];
+				for(size_t i = 0 ; i < args->size() ; ++i)
+				{
+					const smartptr<Chunk> cur = (*args)[i].as<Chunk>();
+					const smartptr<Type> type = cur->front().as<Type>();
+					std::string name = cur->back().as<Token>()
+									   ? cur->back().as<Token>()->getString()
+									   : cur->back().as<Chunk>()->front().as<Token>()->getString();
+					symbols->insert(name, new Var(name, type));
+				}
 			}
-			const std::string function_name = chunk->front().as<Token>()->getString();
-			d_val__ = new Function(N[0], function_name, chunk->back(), N[2]);
-			return 1;
-		}
 
-		MATCH5(function_qualifier, declaration_specifiers, declarator, declaration_list, compound_statement)
-		{
-			smartptr<Chunk> chunk = N[2].as<Chunk>();
-			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
-			if (ptr)
+			__declaration_list();		// Ignore it for now
+			if (__compound_statement())
 			{
-				ptr->setRootType(N[1].as<Type>());
-				N[1] = ptr;
-				chunk = chunk->back();
+				symbols->pop();
+				smartptr<Node> statement = d_val__;
+				const std::string function_name = chunk->front().as<Token>()->getString();
+				if (b_qualifier)
+				{
+					if (*type != NativeType(NativeType::VOID, false, Type::PRIVATE))
+						error("return type for kernels must be void");
+					d_val__ = kernels[function_name] = new Kernel(type, function_name, chunk->back(), statement);
+				}
+				else
+					d_val__ = new Function(type, function_name, chunk->back(), statement);
+				return 1;
 			}
-			if (*(N[1]->getType()) != NativeType(NativeType::VOID, false, Type::PRIVATE))
-				error("return type for kernels must be void");
-			const std::string kernel_name = chunk->front().as<Token>()->getString();
-			d_val__ = kernels[kernel_name] = new Kernel(N[1], kernel_name, chunk->back(), N[4]);
-			return 1;
+			symbols->pop();
+			ERROR("syntax error: compound statement expected!");
 		}
-		MATCH4(function_qualifier, declaration_specifiers, declarator, compound_statement)
-		{
-			smartptr<Chunk> chunk = N[2].as<Chunk>();
-			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
-			if (ptr)
-			{
-				ptr->setRootType(N[1].as<Type>());
-				N[1] = ptr;
-				chunk = chunk->back();
-			}
-			if (*(N[1]->getType()) != NativeType(NativeType::VOID, false, Type::PRIVATE))
-				error("return type for kernels must be void");
-			const std::string kernel_name = chunk->front().as<Token>()->getString();
-			d_val__ = kernels[kernel_name] = new Kernel(N[1], kernel_name, chunk->back(), N[3]);
-			return 1;
-		}
-		RULE3(declarator, declaration_list, compound_statement);
-		RULE2(declarator, compound_statement);
+		if (b_qualifier)
+			ERROR("syntax error: function definition expected!");
+
+//		RULE3(declarator, declaration_list, compound_statement);
+//		RULE2(declarator, compound_statement);
 		END();
 	}
 
@@ -181,9 +185,46 @@ namespace FreeOCL
 	{
 		BEGIN();
 
-		RULE2(declaration_specifiers, token<';'>);
-		RULE3(declaration_specifiers, init_declarator_list, token<';'>);
-		CHECK(1, "syntax error, ';' expected");
+		if (__declaration_specifiers())
+		{
+			smartptr<Type> type = d_val__;
+			if(__token<';'>())
+			{
+				warning("declaration doesn't declare anything!");
+				d_val__ = new Token("", 0);
+				return 1;
+			}
+
+			MATCH2(init_declarator_list, token<';'>)
+			{
+				// register variables
+				const smartptr<Chunk> var_list = N[0].as<Chunk>();
+				for(size_t i = 0 ; i < var_list->size() ; i += 2)
+				{
+					const smartptr<Chunk> declarator = (*var_list)[i].as<Chunk>()->front().as<Chunk>();
+					smartptr<Type> l_type;
+					std::string name;
+					if (declarator->front().as<PointerType>())
+					{
+						smartptr<PointerType> ptr = declarator->front().as<PointerType>()->clone();
+						ptr->setRootType(type);
+						l_type = ptr;
+
+						name = declarator->back().as<Chunk>()->front().as<Token>()->getString();
+					}
+					else
+					{
+						l_type = type;
+						name = declarator->front().as<Token>()->getString();
+					}
+					symbols->insert(name, new Var(name, l_type));
+				}
+				d_val__ = new Chunk(type, N[0], N[1]);
+				return 1;
+			}
+			ERROR("syntax error, ';' expected");
+		}
+
 		END();
 	}
 
@@ -258,7 +299,24 @@ namespace FreeOCL
 
 	int Parser::__init_declarator_list()
 	{
-		LISTOF_LEFT_SEP(init_declarator, token<','>);
+		if (__init_declarator())
+		{
+			smartptr<Chunk> N = new Chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				N->push_back(d_val__);
+				if (!__init_declarator())
+				{
+					rollBackTo(l);
+					break;
+				}
+				N->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
 		return 0;
 	}
 
@@ -872,14 +930,35 @@ namespace FreeOCL
 
 	int Parser::__expression()
 	{
-		LISTOF_LEFT_SEP(assignment_expression, token<','>);
+		if (__assignment_expression())
+		{
+			smartptr<Expression> N = d_val__;
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				if (!__assignment_expression())
+				{
+					rollBackTo(l);
+					break;
+				}
+				N = new Binary(',', N, d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
 		return 0;
 	}
 
 	int Parser::__assignment_expression()
 	{
 		BEGIN();
-		RULE3(unary_expression, assignment_operator, assignment_expression);
+		MATCH3(unary_expression, assignment_operator, assignment_expression)
+		{
+			d_val__ = new Binary(N[1].as<Token>()->getID(), N[0], N[2]);
+			return 1;
+		}
+
 		RULE1(conditional_expression);
 		END();
 	}
@@ -919,21 +998,37 @@ namespace FreeOCL
 		switch(peekToken())
 		{
 		case INC_OP:
-			RULE2(token<INC_OP>, unary_expression);
+			MATCH2(token<INC_OP>, unary_expression)
+			{
+				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				return 1;
+			}
 			CHECK(1, "syntax error, unary expression expected");
 			break;
 		case DEC_OP:
-			RULE2(token<DEC_OP>, unary_expression);
+			MATCH2(token<DEC_OP>, unary_expression)
+			{
+				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				return 1;
+			}
 			CHECK(1, "syntax error, unary expression expected");
 			break;
 		case SIZEOF:
-			RULE2(token<SIZEOF>, unary_expression);
+			MATCH2(token<SIZEOF>, unary_expression)
+			{
+				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				return 1;
+			}
 			RULE4(token<SIZEOF>, token<'('>, type_name, token<')'>);
 			CHECK(1, "syntax error");
 			break;
 		default:
 			RULE1(postfix_expression);
-			RULE2(unary_operator, cast_expression);
+			MATCH2(unary_operator, cast_expression)
+			{
+				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				return 1;
+			}
 		}
 		END();
 	}
@@ -971,31 +1066,31 @@ namespace FreeOCL
 
 	int Parser::__logical_or_expression()
 	{
-		LISTOF_LEFT_SEP(logical_and_expression, token<OR_OP>);
+		LISTOF_LEFT_OP(logical_and_expression, token<OR_OP>);
 		return 0;
 	}
 
 	int Parser::__logical_and_expression()
 	{
-		LISTOF_LEFT_SEP(inclusive_or_expression, token<AND_OP>);
+		LISTOF_LEFT_OP(inclusive_or_expression, token<AND_OP>);
 		return 0;
 	}
 
 	int Parser::__inclusive_or_expression()
 	{
-		LISTOF_LEFT_SEP(exclusive_or_expression, token<'|'>);
+		LISTOF_LEFT_OP(exclusive_or_expression, token<'|'>);
 		return 0;
 	}
 
 	int Parser::__exclusive_or_expression()
 	{
-		LISTOF_LEFT_SEP(and_expression, token<'^'>);
+		LISTOF_LEFT_OP(and_expression, token<'^'>);
 		return 0;
 	}
 
 	int Parser::__and_expression()
 	{
-		LISTOF_LEFT_SEP(equality_expression, token<'&'>);
+		LISTOF_LEFT_OP(equality_expression, token<'&'>);
 		return 0;
 	}
 
@@ -1013,7 +1108,7 @@ namespace FreeOCL
 	int Parser::__equality_expression()
 	{
 		BEGIN();
-		LISTOF_LEFT_SEP(relational_expression, equality_operator);
+		LISTOF_LEFT_OP(relational_expression, equality_operator);
 		END();
 	}
 
@@ -1033,7 +1128,7 @@ namespace FreeOCL
 	int Parser::__relational_expression()
 	{
 		BEGIN();
-		LISTOF_LEFT_SEP(shift_expression, relational_operator);
+		LISTOF_LEFT_OP(shift_expression, relational_operator);
 		END();
 	}
 
@@ -1051,7 +1146,7 @@ namespace FreeOCL
 	int Parser::__shift_expression()
 	{
 		BEGIN();
-		LISTOF_LEFT_SEP(additive_expression, shift_operator);
+		LISTOF_LEFT_OP(additive_expression, shift_operator);
 		END();
 	}
 
@@ -1069,7 +1164,7 @@ namespace FreeOCL
 	int Parser::__additive_expression()
 	{
 		BEGIN();
-		LISTOF_LEFT_SEP(multiplicative_expression, additive_operator);
+		LISTOF_LEFT_OP(multiplicative_expression, additive_operator);
 		END();
 	}
 
@@ -1088,7 +1183,7 @@ namespace FreeOCL
 	int Parser::__multiplicative_expression()
 	{
 		BEGIN();
-		LISTOF_LEFT_SEP(cast_expression, multiplicative_operator);
+		LISTOF_LEFT_OP(cast_expression, multiplicative_operator);
 		END();
 	}
 
@@ -1131,10 +1226,45 @@ namespace FreeOCL
 		BEGIN();
 		if (__primary_expression())
 		{
-			smartptr<Node> N = d_val__;
+			smartptr<Node> exp = d_val__;
 			while (__postfix_expression_suffix())
-				N = new Chunk(N, d_val__);
-			d_val__ = N;
+			{
+				const int token = d_val__.as<Token>()
+								  ? d_val__.as<Token>()->getID()
+								  : d_val__.as<Chunk>()->front().as<Token>()->getID();
+				switch(token)
+				{
+				case INC_OP:
+				case DEC_OP:
+					exp = new Unary(token, exp, true);
+					break;
+				case '[':
+					exp = new Index(exp, (*d_val__.as<Chunk>())[1].as<Expression>());
+					break;
+				case '(':
+					if (!exp.as<Callable>())
+						ERROR("this is not a function!");
+					if (d_val__.as<Chunk>()->size() == 3)
+					{
+						smartptr<Chunk> args = (*d_val__.as<Chunk>())[1];
+						if (exp.as<Callable>()->getNumParams() != args->size())
+							ERROR("wrong number of function parameters!");
+						exp = new Call(exp, args);
+					}
+					else
+					{
+						if (exp.as<Callable>()->getNumParams() != 0)
+							ERROR("this function doesn't take parameters!");
+						exp = new Call(exp, (Chunk*)NULL);
+					}
+					break;
+				case '.':
+					break;
+				case PTR_OP:
+					break;
+				}
+			}
+			d_val__ = exp;
 			return 1;
 		}
 		END();
@@ -1146,7 +1276,14 @@ namespace FreeOCL
 		switch(peekToken())
 		{
 		case IDENTIFIER:
-			RULE1(token<IDENTIFIER>);
+			MATCH1(token<IDENTIFIER>)
+			{
+				d_val__ = symbols->get<Node>(N[0].as<Token>()->getString());
+				if (!d_val__)
+					ERROR("unknown symbol");
+				return 1;
+			}
+
 			break;
 		case CONSTANT:
 			RULE1(token<CONSTANT>);
@@ -1155,7 +1292,11 @@ namespace FreeOCL
 			RULE1(token<STRING_LITERAL>);
 			break;
 		case '(':
-			RULE3(token<'('>, expression, token<')'>);
+			MATCH3(token<'('>, expression, token<')'>)
+			{
+				d_val__ = N[1];
+				return 1;
+			}
 			CHECK(2, "syntax error, ')' expected");
 			CHECK(1, "syntax error, expression expected");
 			break;
@@ -1165,7 +1306,23 @@ namespace FreeOCL
 
 	int Parser::__argument_expression_list()
 	{
-		LISTOF_LEFT_SEP(assignment_expression, token<','>);
+		if (__assignment_expression())
+		{
+			smartptr<Chunk> N = new Chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				if (!__assignment_expression())
+				{
+					rollBackTo(l);
+					break;
+				}
+				N->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
 		return 0;
 	}
 
@@ -1173,7 +1330,12 @@ namespace FreeOCL
 	{
 		BEGIN();
 		RULE3(declarator, token<'='>, initializer);
-		RULE1(declarator);
+		MATCH1(declarator)
+		{
+			d_val__ = new Chunk(N[0]);
+			return 1;
+		}
+
 		END();
 	}
 
