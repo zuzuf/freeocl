@@ -20,7 +20,8 @@
 
 #include "node.h"
 
-#define BEGIN()		const size_t start = processed.size();	size_t __max = 0;	bool bOk = false
+#define ERROR(MSG)	do { error(MSG); throw MSG; } while(false)
+#define BEGIN()		const size_t start = processed.size();	size_t __max = 0;	bool bOk = false;	smartptr<Node> N[8];
 #define ROLLBACK()	rollBackTo(start)
 #define END()		do\
 					{\
@@ -38,16 +39,16 @@
 						ROLLBACK();\
 					else
 
-#define MATCH1(A)		if (__##A())	bOk = true;\
+#define MATCH1(A)		if (__##A())	{	N[0] = d_val__; bOk = true;	}\
 						RUN()
 
 #define MATCH2(A,B)		if (__##A())\
 						{\
-							const Node N1 = d_val__;\
+							N[0] = d_val__;\
 							MAX(1);\
 							if (__##B())\
 							{\
-								d_val__ = Node(N1,d_val__);\
+								N[1] = d_val__;\
 								bOk = true;\
 							}\
 						}\
@@ -55,15 +56,15 @@
 
 #define MATCH3(A,B,C)	if (__##A())\
 						{\
-							const Node N1 = d_val__;\
+							N[0] = d_val__;\
 							MAX(1);\
 							if (__##B())\
 							{\
-								const Node N2 = d_val__;\
+								N[1] = d_val__;\
 								MAX(2);\
 								if (__##C())\
 								{\
-									d_val__ = Node(N1,N2,d_val__);\
+									N[2] = d_val__;\
 									bOk = true;\
 								}\
 							}\
@@ -72,19 +73,19 @@
 
 #define MATCH4(A,B,C,D)	if (__##A())\
 						{\
-							const Node N1 = d_val__;\
+							N[0] = d_val__;\
 							MAX(1);\
 							if (__##B())\
 							{\
-								const Node N2 = d_val__;\
+								N[1] = d_val__;\
 								MAX(2);\
 								if (__##C())\
 								{\
-									const Node N3 = d_val__;\
+									N[2] = d_val__;\
 									MAX(3);\
 									if (__##D())\
 									{\
-										d_val__ = Node(N1,N2,N3,d_val__);\
+										N[3] = d_val__;\
 										bOk = true;\
 									}\
 								}\
@@ -94,23 +95,23 @@
 
 #define MATCH5(A,B,C,D,E)	if (__##A())\
 							{\
-								const Node N1 = d_val__;\
+								N[0] = d_val__;\
 								MAX(1);\
 								if (__##B())\
 								{\
-									const Node N2 = d_val__;\
+									N[1] = d_val__;\
 									MAX(2);\
 									if (__##C())\
 									{\
-										const Node N3 = d_val__;\
+										N[2] = d_val__;\
 										MAX(3);\
 										if (__##D())\
 										{\
-											const Node N4 = d_val__;\
+											N[3] = d_val__;\
 											MAX(4);\
 											if (__##E())\
 											{\
-												d_val__ = Node(N1,N2,N3,N4,d_val__);\
+												N[4] = d_val__;\
 												bOk = true;\
 											}\
 										}\
@@ -121,27 +122,27 @@
 
 #define MATCH6(A,B,C,D,E,F)	if (__##A())\
 							{\
-								const Node N1 = d_val__;\
+								N[0] = d_val__;\
 								MAX(1);\
 								if (__##B())\
 								{\
-									const Node N2 = d_val__;\
+									N[1] = d_val__;\
 									MAX(2);\
 									if (__##C())\
 									{\
-										const Node N3 = d_val__;\
+										N[2] = d_val__;\
 										MAX(3);\
 										if (__##D())\
 										{\
-											const Node N4 = d_val__;\
+											N[3] = d_val__;\
 											MAX(4);\
 											if (__##E())\
 											{\
-												const Node N5 = d_val__;\
+												N[4] = d_val__;\
 												MAX(5);\
 												if (__##F())\
 												{\
-													d_val__ = Node(N1,N2,N3,N4,N5,d_val__);\
+													N[5] = d_val__;\
 													bOk = true;\
 												}\
 											}\
@@ -153,31 +154,31 @@
 
 #define MATCH7(A,B,C,D,E,F,G)	if (__##A())\
 							{\
-								const Node N1 = d_val__;\
+								N[0] = d_val__;\
 								MAX(1);\
 								if (__##B())\
 								{\
-									const Node N2 = d_val__;\
+									N[1] = d_val__;\
 									MAX(2);\
 									if (__##C())\
 									{\
-										const Node N3 = d_val__;\
+										N[2] = d_val__;\
 										MAX(3);\
 										if (__##D())\
 										{\
-											const Node N4 = d_val__;\
+											N[3] = d_val__;\
 											MAX(4);\
 											if (__##E())\
 											{\
-												const Node N5 = d_val__;\
+												N[4] = d_val__;\
 												MAX(5);\
 												if (__##F())\
 												{\
-													const Node N6 = d_val__;\
+													N[5] = d_val__;\
 													MAX(6);\
 													if (__##G())\
 													{\
-														d_val__ = Node(N1,N2,N3,N4,N5,N6,d_val__);\
+														N[6] = d_val__;\
 														bOk = true;\
 													}\
 												}\
@@ -190,26 +191,26 @@
 
 #define LISTOF_LEFT(A)	if (__##A())\
 						{\
-							Node N = d_val__;\
+							smartptr<Node> N = d_val__;\
 							while (__##A())\
-								N = Node(N, d_val__);\
+								N = new Chunk(N, d_val__);\
 							d_val__ = N;\
 							return 1;\
 						}
 
 #define LISTOF_RIGHT(A)	if (__##A())\
 						{\
-							std::deque<Node> stack;\
+							std::deque<smartptr<Node> > stack;\
 							stack.push_back(d_val__);\
 							while (__##A())\
 								stack.push_back(d_val__);\
 							while (stack.size() > 1)\
 							{\
-								const Node N0 = stack.back();\
+								const smartptr<Node> N0 = stack.back();\
 								stack.pop_back();\
-								const Node N1 = stack.back();\
+								const smartptr<Node> N1 = stack.back();\
 								stack.pop_back();\
-								stack.push_back(Node(N1, N0));\
+								stack.push_back(new Chunk(N1, N0));\
 							}\
 							d_val__ = stack.back();\
 							return 1;\
@@ -218,17 +219,17 @@
 #define LISTOF_LEFT_SEP(A, SEP)\
 						if (__##A())\
 						{\
-							Node N = d_val__;\
+							smartptr<Node> N = d_val__;\
 							size_t l = processed.size();\
 							while (__##SEP())\
 							{\
-								const Node N1 = d_val__;\
+								const smartptr<Node> N1 = d_val__;\
 								if (!__##A())\
 								{\
 									rollBackTo(l);\
 									break;\
 								}\
-								N = Node(N, N1, d_val__);\
+								N = new Chunk(N, N1, d_val__);\
 								l = processed.size();\
 							}\
 							d_val__ = N;\
@@ -238,14 +239,14 @@
 #define LISTOF_RIGHT_SEP(A, SEP)\
 						if (__##A())\
 						{\
-							std::deque<Node> stack;\
+							std::deque<smartptr<Node> > stack;\
 							stack.push_back(d_val__);\
 							size_t l = processed.size();\
 							while (__##SEP())\
 							{\
-								const Node N = stack.back();\
+								const smartptr<Node> N = stack.back();\
 								stack.pop_back();\
-								stack.push_back(Node(N, d_val__));\
+								stack.push_back(new Chunk(N, d_val__));\
 								if (!__##A())\
 								{\
 									rollBackTo(l);\
@@ -256,22 +257,46 @@
 							}\
 							while (stack.size() > 1)\
 							{\
-								const Node N0 = stack.back();\
+								const smartptr<Node> N0 = stack.back();\
 								stack.pop_back();\
-								const Node N1 = stack.back();\
+								const smartptr<Node> N1 = stack.back();\
 								stack.pop_back();\
-								stack.push_back(Node(N1, N0));\
+								stack.push_back(new Chunk(N1, N0));\
 							}\
 							d_val__ = stack.back();\
 							return 1;\
 						}
 
 #define RULE1(A)				MATCH1(A)				return 1
-#define RULE2(A,B)				MATCH2(A,B)				return 1
-#define RULE3(A,B,C)			MATCH3(A,B,C)			return 1
-#define RULE4(A,B,C,D)			MATCH4(A,B,C,D)			return 1
-#define RULE5(A,B,C,D,E)		MATCH5(A,B,C,D,E)		return 1
-#define RULE6(A,B,C,D,E,F)		MATCH6(A,B,C,D,E,F)		return 1
-#define RULE7(A,B,C,D,E,F,G)	MATCH7(A,B,C,D,E,F,G)	return 1
+#define RULE2(A,B)				MATCH2(A,B)\
+								do {\
+									d_val__ = new Chunk(N[0], N[1]);\
+									return 1;\
+								} while(false)
+#define RULE3(A,B,C)			MATCH3(A,B,C)\
+								do {\
+									d_val__ = new Chunk(N[0], N[1], N[2]);\
+									return 1;\
+								} while(false)
+#define RULE4(A,B,C,D)			MATCH4(A,B,C,D)\
+								do {\
+									d_val__ = new Chunk(N[0], N[1], N[2], N[3]);\
+									return 1;\
+								} while(false)
+#define RULE5(A,B,C,D,E)		MATCH5(A,B,C,D,E)\
+								do {\
+									d_val__ = new Chunk(N[0], N[1], N[2], N[3], N[4]);\
+									return 1;\
+								} while(false)
+#define RULE6(A,B,C,D,E,F)		MATCH6(A,B,C,D,E,F)\
+								do {\
+									d_val__ = new Chunk(N[0], N[1], N[2], N[3], N[4], N[5]);\
+									return 1;\
+								} while(false)
+#define RULE7(A,B,C,D,E,F,G)	MATCH7(A,B,C,D,E,F,G)\
+								do {\
+									d_val__ = new Chunk(N[0], N[1], N[2], N[3], N[4], N[5], N[6]);\
+									return 1;\
+								} while(false)
 
 #endif

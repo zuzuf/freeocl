@@ -19,6 +19,12 @@
 #include <iostream>
 #include <sstream>
 #include "macros.h"
+#include "chunk.h"
+#include "value.h"
+#include "token.h"
+#include "kernel.h"
+#include "../utils/smartptr.h"
+#include "native_type.h"
 
 namespace FreeOCL
 {
@@ -30,7 +36,7 @@ namespace FreeOCL
 			processed.push_back(std::make_pair(token, d_val__));
 			return token;
 		}
-		const std::pair<int, Node> token = tokens.back();
+		const std::pair<int, smartptr<Node> > token = tokens.back();
 		tokens.pop_back();
 		processed.push_back(token);
 		d_val__ = token.second;
@@ -61,13 +67,20 @@ namespace FreeOCL
 
 	int Parser::parse()
 	{
+		processed.clear();
+		tokens.clear();
 		bErrors = false;
 		try
 		{
-			return __translation_unit();
+			const int ret = __translation_unit();
+			processed.clear();
+			tokens.clear();
+			return ret;
 		}
 		catch(...)
 		{
+			processed.clear();
+			tokens.clear();
 			return 0;
 		}
 	}
@@ -76,10 +89,13 @@ namespace FreeOCL
 	{
 		if (__external_declaration())
 		{
-			root = d_val__;
+			Chunk *chunk = new Chunk(d_val__);
+			root = chunk;
 			while(__external_declaration())
-				root = Node(root, d_val__);
+				chunk->push_back(d_val__);
 		}
+		else
+			root = NULL;
 		return 1;
 	}
 
@@ -94,24 +110,66 @@ namespace FreeOCL
 	int Parser::__function_definition()
 	{
 		BEGIN();
-		RULE4(declaration_specifiers, declarator, declaration_list, compound_statement);
-		RULE3(declaration_specifiers, declarator, compound_statement);
+		MATCH4(declaration_specifiers, declarator, declaration_list, compound_statement)
+		{
+			smartptr<Chunk> chunk = N[1].as<Chunk>();
+			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			if (ptr)
+			{
+				ptr->setRootType(N[0].as<Type>());
+				N[0] = ptr;
+				chunk = chunk->back();
+			}
+			const std::string function_name = chunk->front().as<Token>()->getString();
+			d_val__ = new Function(N[0], function_name, chunk->back(), N[3]);
+			return 1;
+		}
+
+		MATCH3(declaration_specifiers, declarator, compound_statement)
+		{
+			smartptr<Chunk> chunk = N[1].as<Chunk>();
+			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			if (ptr)
+			{
+				ptr->setRootType(N[0].as<Type>());
+				N[0] = ptr;
+				chunk = chunk->back();
+			}
+			const std::string function_name = chunk->front().as<Token>()->getString();
+			d_val__ = new Function(N[0], function_name, chunk->back(), N[2]);
+			return 1;
+		}
+
 		MATCH5(function_qualifier, declaration_specifiers, declarator, declaration_list, compound_statement)
 		{
-			if (d_val__[1].getValue() != "void")
+			smartptr<Chunk> chunk = N[2].as<Chunk>();
+			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			if (ptr)
+			{
+				ptr->setRootType(N[1].as<Type>());
+				N[1] = ptr;
+				chunk = chunk->back();
+			}
+			if (*(N[1]->getType()) != NativeType(NativeType::VOID, false, Type::PRIVATE))
 				error("return type for kernels must be void");
-			const std::string kernel_name = d_val__[2].front().getValue();
-			kernels[kernel_name] = d_val__[2][2].clone();
-			kernels[kernel_name].pop_front();
-			kernels[kernel_name].pop_back();
+			const std::string kernel_name = chunk->front().as<Token>()->getString();
+			d_val__ = kernels[kernel_name] = new Kernel(N[1], kernel_name, chunk->back(), N[4]);
 			return 1;
 		}
 		MATCH4(function_qualifier, declaration_specifiers, declarator, compound_statement)
 		{
-			if (d_val__[1].getValue() != "void")
+			smartptr<Chunk> chunk = N[2].as<Chunk>();
+			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			if (ptr)
+			{
+				ptr->setRootType(N[1].as<Type>());
+				N[1] = ptr;
+				chunk = chunk->back();
+			}
+			if (*(N[1]->getType()) != NativeType(NativeType::VOID, false, Type::PRIVATE))
 				error("return type for kernels must be void");
-			const std::string kernel_name = d_val__[2].front().getValue();
-			kernels[kernel_name] = d_val__[2][2].clone();
+			const std::string kernel_name = chunk->front().as<Token>()->getString();
+			d_val__ = kernels[kernel_name] = new Kernel(N[1], kernel_name, chunk->back(), N[3]);
 			return 1;
 		}
 		RULE3(declarator, declaration_list, compound_statement);
@@ -140,7 +198,61 @@ namespace FreeOCL
 
 	int Parser::__declaration_specifiers()
 	{
-		LISTOF_RIGHT(declaration_specifier);
+		if (__declaration_specifier())
+		{
+			smartptr<Type> type;
+			Type::AddressSpace address_space = Type::PRIVATE;
+			bool b_address_space_set = false;
+			bool b_const = false;
+			do
+			{
+				if (d_val__.as<Type>())
+					type = d_val__;
+				else if (d_val__.as<Token>())
+				{
+					Token *token = d_val__.as<Token>();
+					switch(token->getID())
+					{
+					case CONST:
+						if (b_const)
+							ERROR("duplicate const");
+						b_const = true;
+						break;
+					case __GLOBAL:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::GLOBAL;
+						break;
+					case __LOCAL:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::LOCAL;
+						break;
+					case __PRIVATE:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::PRIVATE;
+						break;
+					case __CONSTANT:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::CONSTANT;
+						break;
+					}
+				}
+			}
+			while (__declaration_specifier());
+			if (!type)
+				ERROR("syntax error: missing type");
+			if (b_const && address_space == Type::CONSTANT)
+				warning("const used with __constant address space");
+			d_val__ = type->clone(b_const, address_space);
+			return 1;
+		}
 		return 0;
 	}
 
@@ -169,10 +281,55 @@ namespace FreeOCL
 		BEGIN();
 		if (peekToken() == '*')
 		{
-			RULE3(token<'*'>, type_qualifier_list, pointer);
-			RULE2(token<'*'>, type_qualifier_list);
-			RULE2(token<'*'>, pointer);
-			RULE1(token<'*'>);
+			smartptr<Type> ptr;
+			while(__token<'*'>())
+			{
+				bool b_const = false;
+				bool b_address_space_set = false;
+				Type::AddressSpace address_space = Type::PRIVATE;
+				if (__type_qualifier_list())
+				{
+					Chunk *chunk = d_val__.as<Chunk>();
+					for(size_t i = 0 ; i < chunk->size() ; ++i)
+					{
+						switch((*chunk)[i].as<Token>()->getID())
+						{
+						case CONST:
+							if (b_const)
+								ERROR("duplicate const");
+							b_const = true;
+							break;
+						case __GLOBAL:
+							if (b_address_space_set)
+								ERROR("2 address space qualifiers");
+							b_address_space_set = true;
+							address_space = Type::GLOBAL;
+							break;
+						case __LOCAL:
+							if (b_address_space_set)
+								ERROR("2 address space qualifiers");
+							b_address_space_set = true;
+							address_space = Type::LOCAL;
+							break;
+						case __CONSTANT:
+							if (b_address_space_set)
+								ERROR("2 address space qualifiers");
+							b_address_space_set = true;
+							address_space = Type::CONSTANT;
+							break;
+						case __PRIVATE:
+							if (b_address_space_set)
+								ERROR("2 address space qualifiers");
+							b_address_space_set = true;
+							address_space = Type::PRIVATE;
+							break;
+						}
+					}
+				}
+				ptr = new PointerType(ptr, b_const, address_space);
+			}
+			d_val__ = ptr;
+			return 1;
 		}
 		END();
 	}
@@ -190,75 +347,78 @@ namespace FreeOCL
 	int Parser::__type_specifier()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(readToken())
 		{
-		case BOOL:		RULE1(token<BOOL>);			break;
-		case VOID:		RULE1(token<VOID>);			break;
-		case CHAR:		RULE1(token<CHAR>);			break;
-		case SHORT:		RULE1(token<SHORT>);		break;
-		case INT:		RULE1(token<INT>);			break;
-		case LONG:		RULE1(token<LONG>);			break;
-		case UCHAR:		RULE1(token<UCHAR>);		break;
-		case USHORT:	RULE1(token<USHORT>);		break;
-		case UINT:		RULE1(token<UINT>);			break;
-		case ULONG:		RULE1(token<ULONG>);		break;
-		case FLOAT:		RULE1(token<FLOAT>);		break;
-		case DOUBLE:	RULE1(token<DOUBLE>);		break;
-		case CHAR2:		RULE1(token<CHAR2>);		break;
-		case SHORT2:	RULE1(token<SHORT2>);		break;
-		case INT2:		RULE1(token<INT2>);			break;
-		case LONG2:		RULE1(token<LONG2>);		break;
-		case UCHAR2:	RULE1(token<UCHAR2>);		break;
-		case USHORT2:	RULE1(token<USHORT2>);		break;
-		case UINT2:		RULE1(token<UINT2>);		break;
-		case ULONG2:	RULE1(token<ULONG2>);		break;
-		case FLOAT2:	RULE1(token<FLOAT2>);		break;
-		case DOUBLE2:	RULE1(token<DOUBLE2>);		break;
-		case CHAR3:		RULE1(token<CHAR3>);		break;
-		case SHORT3:	RULE1(token<SHORT3>);		break;
-		case INT3:		RULE1(token<INT3>);			break;
-		case LONG3:		RULE1(token<LONG3>);		break;
-		case UCHAR3:	RULE1(token<UCHAR3>);		break;
-		case USHORT3:	RULE1(token<USHORT3>);		break;
-		case UINT3:		RULE1(token<UINT3>);		break;
-		case ULONG3:	RULE1(token<ULONG3>);		break;
-		case FLOAT3:	RULE1(token<FLOAT3>);		break;
-		case DOUBLE3:	RULE1(token<DOUBLE3>);		break;
-		case CHAR4:		RULE1(token<CHAR4>);		break;
-		case SHORT4:	RULE1(token<SHORT4>);		break;
-		case INT4:		RULE1(token<INT4>);			break;
-		case LONG4:		RULE1(token<LONG4>);		break;
-		case UCHAR4:	RULE1(token<UCHAR4>);		break;
-		case USHORT4:	RULE1(token<USHORT4>);		break;
-		case UINT4:		RULE1(token<UINT4>);		break;
-		case ULONG4:	RULE1(token<ULONG4>);		break;
-		case FLOAT4:	RULE1(token<FLOAT4>);		break;
-		case DOUBLE4:	RULE1(token<DOUBLE4>);		break;
-		case CHAR8:		RULE1(token<CHAR8>);		break;
-		case SHORT8:	RULE1(token<SHORT8>);		break;
-		case INT8:		RULE1(token<INT8>);			break;
-		case LONG8:		RULE1(token<LONG8>);		break;
-		case UCHAR8:	RULE1(token<UCHAR8>);		break;
-		case USHORT8:	RULE1(token<USHORT8>);		break;
-		case UINT8:		RULE1(token<UINT8>);		break;
-		case ULONG8:	RULE1(token<ULONG8>);		break;
-		case FLOAT8:	RULE1(token<FLOAT8>);		break;
-		case DOUBLE8:	RULE1(token<DOUBLE8>);		break;
-		case CHAR16:	RULE1(token<CHAR16>);		break;
-		case SHORT16:	RULE1(token<SHORT16>);		break;
-		case INT16:		RULE1(token<INT16>);		break;
-		case LONG16:	RULE1(token<LONG16>);		break;
-		case UCHAR16:	RULE1(token<UCHAR16>);		break;
-		case USHORT16:	RULE1(token<USHORT16>);		break;
-		case UINT16:	RULE1(token<UINT16>);		break;
-		case ULONG16:	RULE1(token<ULONG16>);		break;
-		case FLOAT16:	RULE1(token<FLOAT16>);		break;
-		case DOUBLE16:	RULE1(token<DOUBLE16>);		break;
-		case SIZE_T:	RULE1(token<SIZE_T>);		break;
-		case SIGNED:	RULE1(token<SIGNED>);		break;
-		case UNSIGNED:	RULE1(token<UNSIGNED>);		break;
-		case TYPE_NAME:	RULE1(token<TYPE_NAME>);	break;
+		case BOOL:		d_val__ = new NativeType(NativeType::BOOL, false, Type::PRIVATE);		return 1;
+		case HALF:		d_val__ = new NativeType(NativeType::HALF, false, Type::PRIVATE);		return 1;
+		case VOID:		d_val__ = new NativeType(NativeType::VOID, false, Type::PRIVATE);		return 1;
+		case CHAR:		d_val__ = new NativeType(NativeType::CHAR, false, Type::PRIVATE);		return 1;
+		case SHORT:		d_val__ = new NativeType(NativeType::SHORT, false, Type::PRIVATE);		return 1;
+		case INT:		d_val__ = new NativeType(NativeType::INT, false, Type::PRIVATE);		return 1;
+		case LONG:		d_val__ = new NativeType(NativeType::LONG, false, Type::PRIVATE);		return 1;
+		case UCHAR:		d_val__ = new NativeType(NativeType::UCHAR, false, Type::PRIVATE);		return 1;
+		case USHORT:	d_val__ = new NativeType(NativeType::USHORT, false, Type::PRIVATE);		return 1;
+		case UINT:		d_val__ = new NativeType(NativeType::UINT, false, Type::PRIVATE);		return 1;
+		case ULONG:		d_val__ = new NativeType(NativeType::ULONG, false, Type::PRIVATE);		return 1;
+		case FLOAT:		d_val__ = new NativeType(NativeType::FLOAT, false, Type::PRIVATE);		return 1;
+		case DOUBLE:	d_val__ = new NativeType(NativeType::DOUBLE, false, Type::PRIVATE);		return 1;
+		case CHAR2:		d_val__ = new NativeType(NativeType::CHAR2, false, Type::PRIVATE);		return 1;
+		case SHORT2:	d_val__ = new NativeType(NativeType::SHORT2, false, Type::PRIVATE);		return 1;
+		case INT2:		d_val__ = new NativeType(NativeType::INT2, false, Type::PRIVATE);		return 1;
+		case LONG2:		d_val__ = new NativeType(NativeType::LONG2, false, Type::PRIVATE);		return 1;
+		case UCHAR2:	d_val__ = new NativeType(NativeType::UCHAR2, false, Type::PRIVATE);		return 1;
+		case USHORT2:	d_val__ = new NativeType(NativeType::USHORT2, false, Type::PRIVATE);	return 1;
+		case UINT2:		d_val__ = new NativeType(NativeType::UINT2, false, Type::PRIVATE);		return 1;
+		case ULONG2:	d_val__ = new NativeType(NativeType::ULONG2, false, Type::PRIVATE);		return 1;
+		case FLOAT2:	d_val__ = new NativeType(NativeType::FLOAT2, false, Type::PRIVATE);		return 1;
+		case DOUBLE2:	d_val__ = new NativeType(NativeType::DOUBLE2, false, Type::PRIVATE);	return 1;
+		case CHAR3:		d_val__ = new NativeType(NativeType::CHAR3, false, Type::PRIVATE);		return 1;
+		case SHORT3:	d_val__ = new NativeType(NativeType::SHORT3, false, Type::PRIVATE);		return 1;
+		case INT3:		d_val__ = new NativeType(NativeType::INT3, false, Type::PRIVATE);		return 1;
+		case LONG3:		d_val__ = new NativeType(NativeType::LONG3, false, Type::PRIVATE);		return 1;
+		case UCHAR3:	d_val__ = new NativeType(NativeType::UCHAR3, false, Type::PRIVATE);		return 1;
+		case USHORT3:	d_val__ = new NativeType(NativeType::USHORT3, false, Type::PRIVATE);	return 1;
+		case UINT3:		d_val__ = new NativeType(NativeType::UINT3, false, Type::PRIVATE);		return 1;
+		case ULONG3:	d_val__ = new NativeType(NativeType::ULONG3, false, Type::PRIVATE);		return 1;
+		case FLOAT3:	d_val__ = new NativeType(NativeType::FLOAT3, false, Type::PRIVATE);		return 1;
+		case DOUBLE3:	d_val__ = new NativeType(NativeType::DOUBLE3, false, Type::PRIVATE);	return 1;
+		case CHAR4:		d_val__ = new NativeType(NativeType::CHAR4, false, Type::PRIVATE);		return 1;
+		case SHORT4:	d_val__ = new NativeType(NativeType::SHORT4, false, Type::PRIVATE);		return 1;
+		case INT4:		d_val__ = new NativeType(NativeType::INT4, false, Type::PRIVATE);		return 1;
+		case LONG4:		d_val__ = new NativeType(NativeType::LONG4, false, Type::PRIVATE);		return 1;
+		case UCHAR4:	d_val__ = new NativeType(NativeType::UCHAR4, false, Type::PRIVATE);		return 1;
+		case USHORT4:	d_val__ = new NativeType(NativeType::USHORT4, false, Type::PRIVATE);	return 1;
+		case UINT4:		d_val__ = new NativeType(NativeType::UINT4, false, Type::PRIVATE);		return 1;
+		case ULONG4:	d_val__ = new NativeType(NativeType::ULONG4, false, Type::PRIVATE);		return 1;
+		case FLOAT4:	d_val__ = new NativeType(NativeType::FLOAT4, false, Type::PRIVATE);		return 1;
+		case DOUBLE4:	d_val__ = new NativeType(NativeType::DOUBLE4, false, Type::PRIVATE);	return 1;
+		case CHAR8:		d_val__ = new NativeType(NativeType::CHAR8, false, Type::PRIVATE);		return 1;
+		case SHORT8:	d_val__ = new NativeType(NativeType::SHORT8, false, Type::PRIVATE);		return 1;
+		case INT8:		d_val__ = new NativeType(NativeType::INT8, false, Type::PRIVATE);		return 1;
+		case LONG8:		d_val__ = new NativeType(NativeType::LONG8, false, Type::PRIVATE);		return 1;
+		case UCHAR8:	d_val__ = new NativeType(NativeType::UCHAR8, false, Type::PRIVATE);		return 1;
+		case USHORT8:	d_val__ = new NativeType(NativeType::USHORT8, false, Type::PRIVATE);	return 1;
+		case UINT8:		d_val__ = new NativeType(NativeType::UINT8, false, Type::PRIVATE);		return 1;
+		case ULONG8:	d_val__ = new NativeType(NativeType::ULONG8, false, Type::PRIVATE);		return 1;
+		case FLOAT8:	d_val__ = new NativeType(NativeType::FLOAT8, false, Type::PRIVATE);		return 1;
+		case DOUBLE8:	d_val__ = new NativeType(NativeType::DOUBLE8, false, Type::PRIVATE);	return 1;
+		case CHAR16:	d_val__ = new NativeType(NativeType::CHAR16, false, Type::PRIVATE);		return 1;
+		case SHORT16:	d_val__ = new NativeType(NativeType::SHORT16, false, Type::PRIVATE);	return 1;
+		case INT16:		d_val__ = new NativeType(NativeType::INT16, false, Type::PRIVATE);		return 1;
+		case LONG16:	d_val__ = new NativeType(NativeType::LONG16, false, Type::PRIVATE);		return 1;
+		case UCHAR16:	d_val__ = new NativeType(NativeType::UCHAR16, false, Type::PRIVATE);	return 1;
+		case USHORT16:	d_val__ = new NativeType(NativeType::USHORT16, false, Type::PRIVATE);	return 1;
+		case UINT16:	d_val__ = new NativeType(NativeType::UINT16, false, Type::PRIVATE);		return 1;
+		case ULONG16:	d_val__ = new NativeType(NativeType::ULONG16, false, Type::PRIVATE);	return 1;
+		case FLOAT16:	d_val__ = new NativeType(NativeType::FLOAT16, false, Type::PRIVATE);	return 1;
+		case DOUBLE16:	d_val__ = new NativeType(NativeType::DOUBLE16, false, Type::PRIVATE);	return 1;
+		case SIZE_T:	d_val__ = new NativeType(NativeType::SIZE_T, false, Type::PRIVATE);		return 1;
+
+		case SIGNED:	return 1;
+		case UNSIGNED:	return 1;
+		case TYPE_NAME:	return 1;
 		default:
+			rollBack();
 			RULE1(struct_or_union_specifier);
 			RULE1(enum_specifier);
 		}
@@ -283,7 +443,14 @@ namespace FreeOCL
 	int Parser::__type_qualifier_list()
 	{
 		BEGIN();
-		LISTOF_LEFT(type_qualifier);
+		if (__type_qualifier())
+		{
+			smartptr<Chunk> N = new Chunk(d_val__);
+			while (__type_qualifier())
+				N->push_back(d_val__);
+			d_val__ = N;
+			return 1;
+		}
 		END();
 	}
 
@@ -348,12 +515,9 @@ namespace FreeOCL
 		BEGIN();
 		if (__direct_declarator_base())
 		{
-			Node N = d_val__;
+			smartptr<Chunk> N = new Chunk(d_val__);
 			while(__direct_declarator_suffix())
-			{
-				d_val__.push_front(N);
-				N = d_val__;
-			}
+				N->push_back(d_val__);
 			d_val__ = N;
 			return 1;
 		}
@@ -374,14 +538,42 @@ namespace FreeOCL
 
 	int Parser::__parameter_list()
 	{
-		LISTOF_LEFT_SEP(parameter_declaration, token<','>);
+		if (__parameter_declaration())
+		{
+			smartptr<Chunk> N = new Chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				if (!__parameter_declaration())
+				{
+					rollBackTo(l);
+					break;
+				}
+				N->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
 		return 0;
 	}
 
 	int Parser::__parameter_declaration()
 	{
 		BEGIN();
-		RULE2(declaration_specifiers, declarator);
+		MATCH2(declaration_specifiers, declarator)
+		{
+			smartptr<Chunk> chunk = N[1].as<Chunk>();
+			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			if (ptr)
+			{
+				ptr->setRootType(N[0].as<Type>());
+				N[0] = ptr;
+				N[1] = chunk->back();
+			}
+			d_val__ = new Chunk(N[0], N[1]);
+			return 1;
+		}
 		RULE2(declaration_specifiers, abstract_declarator);
 		RULE1(declaration_specifiers);
 		END();
@@ -436,12 +628,9 @@ namespace FreeOCL
 		BEGIN();
 		if (__direct_abstract_declarator_base())
 		{
-			Node N = d_val__;
+			smartptr<Node> N = d_val__;
 			while(__direct_abstract_declarator_suffix())
-			{
-				d_val__.push_front(N);
-				N = d_val__;
-			}
+				N = new Chunk(N, d_val__);
 			d_val__ = N;
 			return 1;
 		}
@@ -942,17 +1131,9 @@ namespace FreeOCL
 		BEGIN();
 		if (__primary_expression())
 		{
-			Node N = d_val__;
+			smartptr<Node> N = d_val__;
 			while (__postfix_expression_suffix())
-			{
-				if (d_val__.size() == 0)
-					N = Node(N, d_val__);
-				else
-				{
-					d_val__.push_front(N);
-					N = d_val__;
-				}
-			}
+				N = new Chunk(N, d_val__);
 			d_val__ = N;
 			return 1;
 		}

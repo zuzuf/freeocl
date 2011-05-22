@@ -15,38 +15,31 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_EVENT_H__
-#define __FREEOCL_EVENT_H__
-
-#include "freeocl.h"
-#include "condition.h"
-#include <deque>
-#include <unordered_map>
+#include "value.h"
 
 namespace FreeOCL
 {
-	struct event_call_back
-	{
-		void (CL_CALLBACK *pfn_notify)(cl_event event,
-									   cl_int event_command_exec_status,
-									   void *user_data);
-		void *user_data;
-	};
+	template<>	smartptr<Type> Value<std::string>::getType() const
+	{	return PointerType::t_p_const_char;	}
+
+	template<>	smartptr<Type> Value<double>::getType() const
+	{	return NativeType::t_double;	}
+
+	template<>	smartptr<Type> Value<float>::getType() const
+	{	return NativeType::t_float;	}
+
+	template<>	smartptr<Type> Value<char>::getType() const
+	{	return NativeType::t_char;	}
+
+	template<>	smartptr<Type> Value<uint64_t>::getType() const
+	{	return NativeType::t_ulong;	}
+
+	template<>	smartptr<Type> Value<int64_t>::getType() const
+	{	return NativeType::t_long;	}
+
+	template<>	smartptr<Type> Value<int>::getType() const
+	{	return NativeType::t_int;	}
+
+	template<>	smartptr<Type> Value<bool>::getType() const
+	{	return NativeType::t_bool;	}
 }
-
-struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag
-{
-	_cl_event();
-	~_cl_event();
-
-	cl_context context;
-	cl_command_queue command_queue;
-	cl_command_type command_type;
-	volatile cl_int status;
-
-	std::unordered_map<cl_int, std::deque<FreeOCL::event_call_back> > call_backs;
-
-	void change_status(cl_int new_status);
-};
-
-#endif

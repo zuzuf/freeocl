@@ -22,49 +22,50 @@
 
 namespace FreeOCL
 {
+	class ref_count
+	{
+	public:
+		ref_count() : counter(0)	{}
+
+		void retain()	{	++counter;	}
+		void release()	{	--counter;	}
+		size_t getRefCount() const	{	return counter;	}
+	private:
+		size_t counter;
+	};
+
 	template<class T>
 	class smartptr
 	{
-	private:
-		class wrapper
-		{
-		public:
-			wrapper(T *ptr) : ptr(ptr), ref_count(1)	{}
-			~wrapper()	{	delete ptr;	}
-
-			void retain()	{	++ref_count;	}
-			void release()	{	--ref_count;	}
-			size_t getRefCount() const	{	return ref_count;	}
-			T *getPtr()	{	return ptr;	}
-			const T *getPtr() const	{	return ptr;	}
-		private:
-			size_t ref_count;
-			T *ptr;
-		};
-
+		template<class U> friend class FreeOCL::smartptr;
 	public:
-		smartptr() : pwrapper(NULL)	{}
-		smartptr(T *ptr) : pwrapper(new wrapper(ptr))	{}
-		smartptr(smartptr &ptr) : pwrapper(ptr.pwrapper)	{	if (pwrapper)	pwrapper->retain();	}
-		smartptr(const smartptr &ptr) : pwrapper(const_cast<wrapper*>(ptr.pwrapper))	{	if (pwrapper)	pwrapper->retain();	}
+		smartptr() : ptr(NULL)	{}
+		smartptr(T *ptr) : ptr(ptr)	{	if (ptr)	ptr->retain();	}
+		smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))	{	if (this->ptr)	this->ptr->retain();	}
+		smartptr(smartptr &ptr) : ptr(ptr.ptr)	{	if (this->ptr)	this->ptr->retain();	}
+		smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))	{	if (this->ptr)	this->ptr->retain();	}
+		template<class U>
+		smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))	{	if (this->ptr)	this->ptr->retain();	}
+		template<class U>
+		smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))	{	if (this->ptr)	this->ptr->retain();	}
 		~smartptr()
 		{
-			if (pwrapper)
+			if (ptr)
 			{
-				pwrapper->release();
-				if (pwrapper->getRefCount() == 0)
-					delete pwrapper;
+				ptr->release();
+				if (ptr->getRefCount() == 0)
+					delete ptr;
 			}
 		}
 
 		smartptr &operator=(const smartptr &ptr)
 		{
-			if (pwrapper == ptr.pwrapper)
+			if (this->ptr == ptr.ptr)
 				return *this;
-			wrapper *old = pwrapper;
-			pwrapper = const_cast<wrapper*>(ptr.pwrapper);
-			if (pwrapper)
-				pwrapper->retain();
+			T *old = this->ptr;
+			this->ptr = const_cast<T*>(ptr.ptr);
+			if (this->ptr)
+				this->ptr->retain();
 			if (old)
 			{
 				old->release();
@@ -76,11 +77,10 @@ namespace FreeOCL
 
 		smartptr &operator=(const T *ptr)
 		{
-			wrapper *old = pwrapper;
-			if (ptr)
-				pwrapper = new wrapper(const_cast<T*>(ptr));
-			else
-				pwrapper = NULL;
+			T *old = this->ptr;
+			this->ptr = const_cast<T*>(ptr);
+			if (this->ptr)
+				this->ptr->retain();
 			if (old)
 			{
 				old->release();
@@ -90,14 +90,20 @@ namespace FreeOCL
 			return *this;
 		}
 
-		T *operator->()	{	return pwrapper->getPtr();	}
-		const T *operator->() const	{	return pwrapper->getPtr();	}
-		T &operator*()	{	return *(pwrapper->getPtr());	}
-		const T &operator*() const	{	return *(pwrapper->getPtr());	}
+		T *operator->()	{	return ptr;	}
+		const T *operator->() const	{	return ptr;	}
+		T &operator*()	{	return *ptr;	}
+		const T &operator*() const	{	return *ptr;	}
 
-		operator bool() const	{	return pwrapper != NULL;	}
+		operator bool() const	{	return ptr != NULL;	}
+
+		template<class U>
+		U *as()	{	return dynamic_cast<U*>(ptr);	}
+
+		template<class U>
+		const U *as() const	{	return dynamic_cast<const U*>(ptr);	}
 	private:
-		wrapper *pwrapper;
+		T *ptr;
 	};
 }
 

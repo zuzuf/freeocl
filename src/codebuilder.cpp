@@ -21,6 +21,8 @@
 #include <fcntl.h>
 #include "freeocl.h"
 #include "parser/parser.h"
+#include "parser/chunk.h"
+#include "parser/pointer_type.h"
 #include "utils/string.h"
 
 namespace FreeOCL
@@ -59,7 +61,6 @@ namespace FreeOCL
 
 		FILE *file_in = fdopen(fd_in, "w");
 		(void)fputs("#include <FreeOCL/opencl_c.h>\n", file_in);
-		(void)fputs("#line 0\n", file_in);
 		(void)fwrite(validated_code.c_str(), 1, validated_code.size(), file_in);
 		(void)fflush(file_in);
 
@@ -99,7 +100,7 @@ namespace FreeOCL
 		close(fd_out);
 		fclose(file_in);
 		// Remove the input file which is now useless
-		remove(filename_in.c_str());
+//		remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
@@ -183,7 +184,9 @@ namespace FreeOCL
 		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
 		Parser parser(in, log);
+		const u_int64_t timer = usec_timer();
 		parser.parse();
+		std::clog << usec_timer() - timer << "µs" << std::endl;
 		if (parser.errors())
 			return std::string();
 
@@ -192,7 +195,7 @@ namespace FreeOCL
 		if (bInit)
 		{
 			bInit = false;
-			const char *base_types[] = { "char", "uchar", "short", "ushort", "int", "uint", "long", "ulong", "float", "double" };
+			const char *base_types[] = { "bool", "char", "uchar", "short", "ushort", "int", "uint", "long", "ulong", "float", "double" };
 			for(size_t i = 0 ; i < 10 ; ++i)
 				types.insert(std::string(base_types[i]));
 			int n[] = { 2, 3, 4, 8, 16 };
@@ -203,48 +206,24 @@ namespace FreeOCL
 		}
 
 		std::stringstream gen;
-		gen << parser.getAST().toString();
+		parser.getAST()->write(gen);
 
 		gen << std::endl;
-		for(std::map<std::string, Node>::const_iterator i = parser.getKernels().begin(), end = parser.getKernels().end() ; i != end ; ++i)
+		for(std::unordered_map<std::string, smartptr<Kernel> >::const_iterator i = parser.getKernels().begin(), end = parser.getKernels().end() ; i != end ; ++i)
 		{
 			kernels.insert(i->first);
 
-			std::deque<Node> params;
-			Node n = i->second;
-			while(n.size() != 0)
-			{
-				if (n.size() != 3 || n.getChilds()[1].getValue() != ",")
-				{
-					params.push_front(n);
-					break;
-				}
-				params.push_front(n.back());
-				n = n.front();
-			}
-			for(size_t j = 0 ; j < params.size() ; ++j)
-			{
-				Node *cur = &(params[j]);
-				while (cur->size() > 0)
-				{
-					if (cur->back().size() == 0)
-					{
-						if (types.count(cur->back().getValue()) == 0)
-							cur->pop_back();
-						break;
-					}
-					cur = &(cur->back());
-				}
-			}
+			smartptr<Chunk> params = i->second->getArguments();
 			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx, int *type)" << std::endl
 				<< "{" << std::endl
 				<< "\tswitch(idx)" << std::endl
 				<< "\t{" << std::endl;
-			for(size_t j = 0 ; j < params.size() ; ++j)
+			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
-				const std::string str = params[j].toString();
-				const bool bPointer = !str.empty() && *str.rbegin() == '*';
-				const bool bLocal = bPointer && (FreeOCL::containsWord(str, "local") || FreeOCL::containsWord(str, "__local"));
+				const smartptr<Chunk> cur = (*params)[j].as<Chunk>();
+				const smartptr<PointerType> ptr = cur->front().as<PointerType>();
+				const bool bPointer = ptr;
+				const bool bLocal = bPointer && ptr->getBaseType()->getAddressSpace() == Type::LOCAL;
 				int type = 0;
 				if (bPointer)
 				{
@@ -255,7 +234,10 @@ namespace FreeOCL
 				}
 				gen	<< "\tcase " << j << ":" << std::endl
 					<< "\t\t*type = " << type << ';' << std::endl
-					<< "\t\treturn sizeof(" << (bPointer ? "void*" : params[j].toString()) << ");" << std::endl;
+					<< "\t\treturn sizeof(";
+				if (bPointer)	gen << "void*";
+				else			gen << *(cur->front());
+				gen << ");" << std::endl;
 			}
 			gen	<< "\t}" << std::endl
 				<< "\treturn 0;" << std::endl
@@ -278,11 +260,12 @@ namespace FreeOCL
 			int lastShift = -1;
 			std::stringstream _cat;
 			_cat << '0';
-			for(size_t j = 0 ; j < params.size() ; ++j)
+			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
-				const std::string str = params[j].toString();
-				const bool bPointer = !str.empty() && *str.rbegin() == '*';
-				const bool bLocal = bPointer && (FreeOCL::containsWord(str, "local") || FreeOCL::containsWord(str, "__local"));
+				const smartptr<Chunk> cur = (*params)[j].as<Chunk>();
+				const smartptr<PointerType> ptr = cur->front().as<PointerType>();
+				const bool bPointer = ptr;
+				const bool bLocal = bPointer && ptr->getBaseType()->getAddressSpace() == Type::LOCAL;
 				if (bLocal)
 				{
 					gen << "\tconst size_t __shift" << j << " = ";
@@ -291,9 +274,11 @@ namespace FreeOCL
 					else
 						gen << "0x100000 - ";
 					gen << "*(const size_t*)((const char*)args + " << _cat.str() << ");" << std::endl;
-					_cat << " + sizeof(" << params[j].toString() << ")";
+					_cat << " + sizeof(size_t)";
 					lastShift = j;
 				}
+				else
+					_cat << " + sizeof(" << *(cur->front()) << ")";
 			}
 			gen	<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
 				<< "\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
@@ -308,19 +293,20 @@ namespace FreeOCL
 				<< "\t\t\t" << i->first << "(";
 			std::stringstream cat;
 			cat << '0';
-			for(size_t j = 0 ; j < params.size() ; ++j)
+			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
-				const std::string str = params[j].toString();
-				const bool bPointer = !str.empty() && *str.rbegin() == '*';
-				const bool bLocal = bPointer && (FreeOCL::containsWord(str, "local") || FreeOCL::containsWord(str, "__local"));
+				const smartptr<Chunk> cur = (*params)[j].as<Chunk>();
+				const smartptr<PointerType> ptr = cur->front().as<PointerType>();
+				const bool bPointer = ptr;
+				const bool bLocal = bPointer && ptr->getBaseType()->getAddressSpace() == Type::LOCAL;
 
 				if (j)
 					gen << ',';
 				if (bLocal)
-					gen << "(" << params[j].toString() << ")(local_memory + __shift" << j << ")";
+					gen << "(" << *(cur->front()) << ")(local_memory + __shift" << j << ")";
 				else
-					gen << "*(" << params[j].toString() << "*)((const char*)args + " << cat.str() << ')';
-				cat << " + sizeof(" << params[j].toString() << ")";
+					gen << "*(" << *(cur->front()) << "*)((const char*)args + " << cat.str() << ')';
+				cat << " + sizeof(" << *(cur->front()) << ")";
 			}
 			gen << ");" << std::endl;
 			gen << "\t\t}" << std::endl
@@ -329,6 +315,7 @@ namespace FreeOCL
 		}
 
 		log << "converted code:" << std::endl << gen.str() << std::endl;
+		std::cerr << gen.str() << std::endl;
 		return gen.str();
 	}
 }

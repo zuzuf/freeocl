@@ -15,38 +15,43 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_EVENT_H__
-#define __FREEOCL_EVENT_H__
+#ifndef __FREEOCL_PARSER_TYPE_H__
+#define __FREEOCL_PARSER_TYPE_H__
 
-#include "freeocl.h"
-#include "condition.h"
-#include <deque>
-#include <unordered_map>
+#include "node.h"
 
 namespace FreeOCL
 {
-	struct event_call_back
+	class Type : public Node
 	{
-		void (CL_CALLBACK *pfn_notify)(cl_event event,
-									   cl_int event_command_exec_status,
-									   void *user_data);
-		void *user_data;
+	public:
+		enum AddressSpace
+		{
+			GLOBAL,
+			LOCAL,
+			PRIVATE,
+			CONSTANT,
+		};
+
+	public:
+		Type(const bool b_const, const AddressSpace address_space);
+
+		virtual smartptr<Type> getType() const;
+
+		virtual bool operator==(const Type &type) const = 0;
+		bool operator!=(const Type &type) const
+		{	return !(*this == type);	}
+		virtual std::string getName() const = 0;
+
+		bool isConst() const	{	return b_const;	}
+		AddressSpace getAddressSpace() const	{	return address_space;	}
+
+		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const = 0;
+
+	private:
+		const bool b_const;
+		const AddressSpace address_space;
 	};
 }
-
-struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag
-{
-	_cl_event();
-	~_cl_event();
-
-	cl_context context;
-	cl_command_queue command_queue;
-	cl_command_type command_type;
-	volatile cl_int status;
-
-	std::unordered_map<cl_int, std::deque<FreeOCL::event_call_back> > call_backs;
-
-	void change_status(cl_int new_status);
-};
 
 #endif

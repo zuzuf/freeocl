@@ -222,7 +222,7 @@ extern "C"
 			{
 				if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
 				{
-					memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
+					memset(&(kernel->args_buffer[kernel->args_offset[arg_index]]), 0, sizeof(size_t));
 				}
 				else
 				{
@@ -239,6 +239,7 @@ extern "C"
 		case CL_LOCAL:
 			if (arg_value != NULL || arg_size == 0)
 				return CL_INVALID_ARG_VALUE;
+			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
 			break;
 		default:
 			if (kernel->args_size[arg_index] != arg_size)
@@ -422,15 +423,15 @@ extern "C"
 		MSG(clEnqueueTaskFCL);
 		const size_t global_work_size = 1;
 		const size_t local_work_size = 1;
-		return clEnqueueNDRangeKernel(command_queue,
-									  kernel,
-									  1,
-									  NULL,
-									  &global_work_size,
-									  &local_work_size,
-									  num_events_in_wait_list,
-									  event_wait_list,
-									  event);
+		return clEnqueueNDRangeKernelFCL(command_queue,
+										 kernel,
+										 1,
+										 NULL,
+										 &global_work_size,
+										 &local_work_size,
+										 num_events_in_wait_list,
+										 event_wait_list,
+										 event);
 	}
 }
 

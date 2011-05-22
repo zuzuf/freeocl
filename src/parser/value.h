@@ -15,38 +15,34 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_EVENT_H__
-#define __FREEOCL_EVENT_H__
+#ifndef __FREEOCL_PARSER_VALUE_H__
+#define __FREEOCL_PARSER_VALUE_H__
 
-#include "freeocl.h"
-#include "condition.h"
-#include <deque>
-#include <unordered_map>
+#include "node.h"
+#include "native_type.h"
+#include "pointer_type.h"
+#include <cstdint>
 
 namespace FreeOCL
 {
-	struct event_call_back
+	template<class T>
+	class Value : public Node
 	{
-		void (CL_CALLBACK *pfn_notify)(cl_event event,
-									   cl_int event_command_exec_status,
-									   void *user_data);
-		void *user_data;
+	public:
+		Value(const T &v) : v(v)	{}
+		virtual ~Value()	{}
+
+		const T &getValue() const	{	return v;	}
+
+		virtual smartptr<Type> getType() const;
+
+		virtual void write(std::ostream& out) const
+		{
+			out << v << ' ';
+		}
+	private:
+		const T v;
 	};
 }
-
-struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag
-{
-	_cl_event();
-	~_cl_event();
-
-	cl_context context;
-	cl_command_queue command_queue;
-	cl_command_type command_type;
-	volatile cl_int status;
-
-	std::unordered_map<cl_int, std::deque<FreeOCL::event_call_back> > call_backs;
-
-	void change_status(cl_int new_status);
-};
 
 #endif

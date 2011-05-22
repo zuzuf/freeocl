@@ -71,6 +71,8 @@ namespace FreeOCL
 	std::deque<std::string> split(const std::string &s, const std::string &sep);
 	bool containsWord(const std::string &s, const std::string &w);
 
+	u_int64_t usec_timer();
+
 	struct icd_table
 	{
 		struct _cl_icd_dispatch *dispatch;

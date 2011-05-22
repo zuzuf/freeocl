@@ -18,59 +18,28 @@
 #ifndef __FREEOCL_PARSER_NODE_H__
 #define __FREEOCL_PARSER_NODE_H__
 
-#include <deque>
-#include <string>
-#include <stdint.h>
+#include <ostream>
 #include "../utils/smartptr.h"
 
 namespace FreeOCL
 {
-	class Node
+	class Type;
+
+	class Node : public ref_count
 	{
 	public:
-		Node(const std::string &value = std::string());
-		Node(const int64_t i);
-		Node(const uint64_t ui);
-		Node(const int32_t i);
-		Node(const uint32_t ui);
-		Node(const float f);
-		Node(const double d);
-		Node(const Node &n0);
-		Node(const Node &n0, const Node &n1);
-		Node(const Node &n0, const Node &n1, const Node &n2);
-		Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3);
-		Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4);
-		Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5);
-		Node(const Node &n0, const Node &n1, const Node &n2, const Node &n3, const Node &n4, const Node &n5, const Node &n6);
-		~Node();
+		virtual ~Node()	{}
 
-		Node &operator=(const Node &n);
+		virtual void write(std::ostream& out) const = 0;
 
-		void push_back(const Node &n);
-		void push_front(const Node &n);
-		void pop_back();
-		void pop_front();
-
-		const std::deque<Node> &getChilds() const	{	return *childs;	}
-		const std::string &getValue() const	{	return value;	}
-		const Node &operator[](size_t idx) const	{	return (*childs)[idx];	}
-		Node &operator[](size_t idx)	{	return (*childs)[idx];	}
-
-		const Node &front() const	{	return childs->front();	}
-		Node &front()	{	return childs->front();	}
-
-		const Node &back() const	{	return childs->back();	}
-		Node &back()	{	return childs->back();	}
-
-		size_t size() const	{	return childs ? childs->size() : 0;	}
-
-		Node clone() const;
-
-		std::string toString() const;
-	private:
-		std::string	value;
-		smartptr<std::deque<Node> >	childs;
+		virtual smartptr<Type> getType() const = 0;
 	};
+
+	inline std::ostream &operator<<(std::ostream &out, const Node &n)
+	{
+		n.write(out);
+		return out;
+	}
 }
 
 #endif

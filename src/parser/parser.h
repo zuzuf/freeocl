@@ -20,16 +20,18 @@
 
 #include <istream>
 #include <ostream>
-#include <map>
+#include <unordered_map>
 #include <deque>
+#include <vector>
 #include "node.h"
+#include "kernel.h"
 
 namespace FreeOCL
 {
 	class Parser
 	{
 		enum { _EOF = 256 };
-		enum Token
+		enum TokenID
 		{
 			IDENTIFIER = 257, CONSTANT, STRING_LITERAL, SIZEOF,
 			PTR_OP, INC_OP, DEC_OP, LEFT_OP, RIGHT_OP, LE_OP, GE_OP, EQ_OP, NE_OP,
@@ -38,7 +40,7 @@ namespace FreeOCL
 			XOR_ASSIGN, OR_ASSIGN,
 			TYPE_NAME,
 
-			TYPEDEF, BOOL,
+			TYPEDEF, BOOL, HALF,
 			CHAR, SHORT, INT, LONG, UCHAR, USHORT, UINT, ULONG, FLOAT, DOUBLE,
 			CHAR2, SHORT2, INT2, LONG2, UCHAR2, USHORT2, UINT2, ULONG2, FLOAT2, DOUBLE2,
 			CHAR3, SHORT3, INT3, LONG3, UCHAR3, USHORT3, UINT3, ULONG3, FLOAT3, DOUBLE3,
@@ -57,11 +59,12 @@ namespace FreeOCL
 
 		int parse();
 		inline bool errors() const {	return bErrors; }
-		inline const Node &getAST() const	{	return root;	}
-		const std::map<std::string, Node>	&getKernels() const	{	return kernels;	}
+		inline const smartptr<Node> &getAST() const	{	return root;	}
+		const std::unordered_map<std::string, smartptr<Kernel> >	&getKernels() const	{	return kernels;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
+		void warning(const std::string &msg);	// called on warnings
 		int lex();							// returns the next token from the
 
 		// support functions for parse()
@@ -83,13 +86,13 @@ namespace FreeOCL
 		std::string current_line;
 		std::string current_file;
 		bool bErrors;
-		Node root;
+		smartptr<Node> root;
 
-		Node d_val__;
+		smartptr<Node> d_val__;
 
-		std::map<std::string, Node>	kernels;
-		std::deque<std::pair<int, Node> > tokens;
-		std::deque<std::pair<int, Node> > processed;
+		std::unordered_map<std::string, smartptr<Kernel> >	kernels;
+		std::vector<std::pair<int, smartptr<Node> > > tokens;
+		std::vector<std::pair<int, smartptr<Node> > > processed;
 
 	private:
 		// Parser grammar rules

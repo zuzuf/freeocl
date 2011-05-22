@@ -30,6 +30,7 @@
 #include "prototypes.h"
 #include <stdexcept>
 #include <algorithm>
+#include <sys/time.h>
 
 namespace FreeOCL
 {
@@ -194,6 +195,13 @@ namespace FreeOCL
 	{
 		std::deque<std::string> words = split(s, " \t\n\r");
 		return std::find(words.begin(), words.end(), w) != words.end();
+	}
+
+	u_int64_t usec_timer()
+	{
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		return tv.tv_sec * 1000000UL + tv.tv_usec;
 	}
 
 	cl_int empty_slot(void*)

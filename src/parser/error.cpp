@@ -47,4 +47,29 @@ namespace FreeOCL
 		bErrors = true;
 	}
 
+	void Parser::warning(const std::string &msg)
+	{
+		const std::string old_line = current_line;
+		const size_t pos = current_line.size();
+		std::deque<char> chars;
+		char c;
+		while(get(c) && c != '\n')
+			chars.push_back(c);
+		putback(c);
+		while(!chars.empty())
+		{
+			putback(chars.back());
+			chars.pop_back();
+		}
+		if (!current_line.empty() && *current_line.rbegin() != '\n')
+			current_line += '\n';
+		stringstream tmp;
+		tmp << line;
+		const string shift = std::string(10 + tmp.tellp() + current_file.size(), ' ');
+		err << std::endl
+				<< BLUE << "warning " << NORMAL << WHITE << current_file << ":" << line << ": " << NORMAL << current_line
+				<< shift << std::string(pos, ' ') << YELLOW << '^' << NORMAL << std::endl
+				<< shift << ' ' << BLUE << msg << NORMAL << std::endl;
+		current_line = old_line;
+	}
 }

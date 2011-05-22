@@ -67,7 +67,17 @@ SET(SOURCES
 	src/parser/macros.h
 	src/parser/lex.cpp
 	src/parser/error.cpp
-	src/parser/node.cpp	src/parser/node.h
+	src/parser/node.cpp		src/parser/node.h
+	src/parser/chunk.cpp	src/parser/chunk.h
+	src/parser/value.h		src/parser/value.cpp
+	src/parser/token.h		src/parser/token.cpp
+	src/parser/type.h			src/parser/type.cpp
+	src/parser/native_type.h	src/parser/native_type.cpp
+	src/parser/struct_type.h	src/parser/struct_type.cpp
+	src/parser/union_type.h		src/parser/union_type.cpp
+	src/parser/pointer_type.h	src/parser/pointer_type.cpp
+	src/parser/function.h		src/parser/function.cpp
+	src/parser/kernel.h			src/parser/kernel.cpp
 
 	src/utils/smartptr.h
 	src/utils/string.h
@@ -82,7 +92,8 @@ SET(DEMO_SOURCES
 	samples/demo.cpp
 	samples/errors.cpp samples/errors.h)
 
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
+SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -std=c++0x")
+SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ffast-math -std=c++0x")
 
 configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 
