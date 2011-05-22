@@ -15,18 +15,18 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_BUILTIN_H__
-#define __FREEOCL_PARSER_BUILTIN_H__
+#ifndef __FREEOCL_PARSER_OVERLOADED_BUILTIN_H__
+#define __FREEOCL_PARSER_OVERLOADED_BUILTIN_H__
 
 #include "callable.h"
 
 namespace FreeOCL
 {
-	class Builtin : public Callable
+	class OverloadedBuiltin : public Callable
 	{
 	public:
-		Builtin(const smartptr<Type> &return_type, const std::string &name, const size_t num_params);
-		virtual ~Builtin();
+		OverloadedBuiltin(const std::string &signature, const std::deque<int> &gentype);
+		virtual ~OverloadedBuiltin();
 
 		virtual smartptr<Type> getReturnType(const std::deque<smartptr<Type> > &arg_types) const;
 		virtual const std::string &getName() const;
@@ -34,9 +34,9 @@ namespace FreeOCL
 
 		virtual void write(std::ostream& out) const;
 	private:
-		const smartptr<Type> return_type;
-		const std::string name;
-		const size_t num_params;
+		std::deque<std::deque<smartptr<Type> > > possible_types;
+		std::string name;
+		size_t num_params;
 	};
 }
 

@@ -87,6 +87,7 @@ SET(SOURCES
 	src/parser/callable.h
 	src/parser/symbol_table.h	src/parser/symbol_table.cpp
 	src/parser/builtin.h		src/parser/builtin.cpp
+	src/parser/overloaded_builtin.h		src/parser/overloaded_builtin.cpp
 
 	src/utils/smartptr.h
 	src/utils/string.h

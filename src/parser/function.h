@@ -34,7 +34,7 @@ namespace FreeOCL
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getReturnType() const;
+		virtual smartptr<Type> getReturnType(const std::deque<smartptr<Type> > &arg_types) const;
 		virtual const std::string &getName() const;
 		virtual size_t getNumParams() const;
 

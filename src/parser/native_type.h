@@ -117,6 +117,8 @@ namespace FreeOCL
 		static smartptr<Type> t_float16;
 		static smartptr<Type> t_double16;
 		static smartptr<Type> getIntForDim(int dim);
+
+		static int getDimFor(int type_id);
 	};
 }
 

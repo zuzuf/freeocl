@@ -31,7 +31,11 @@ namespace FreeOCL
 
 	smartptr<Type> Call::getType() const
 	{
-		return fn->getReturnType();
+		std::deque<smartptr<Type> > arg_types;
+		if (args)
+			for(size_t i = 0 ; i < args->size() ; ++i)
+				arg_types.push_back((*args)[i].as<Expression>()->getType());
+		return fn->getReturnType(arg_types);
 	}
 
 	void Call::write(std::ostream& out) const

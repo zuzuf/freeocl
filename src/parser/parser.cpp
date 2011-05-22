@@ -1261,6 +1261,11 @@ namespace FreeOCL
 				case '.':
 					break;
 				case PTR_OP:
+					if (!exp.as<Expression>())
+						ERROR("syntax error: expression expected!");
+					if (!exp.as<Expression>()->getType().as<PointerType>())
+						ERROR("base operand of '->' is not a pointer!");
+
 					break;
 				}
 			}

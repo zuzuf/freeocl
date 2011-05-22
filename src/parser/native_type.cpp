@@ -121,6 +121,11 @@ namespace FreeOCL
 
 	int NativeType::getDim() const
 	{
+		return getDimFor(type_id);
+	}
+
+	int NativeType::getDimFor(int type_id)
+	{
 		static int type_dim[] = {
 			0, 1, 1, 1,
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1,

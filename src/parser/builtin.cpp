@@ -17,7 +17,7 @@ namespace FreeOCL
 	{
 	}
 
-	smartptr<Type> Builtin::getReturnType() const
+	smartptr<Type> Builtin::getReturnType(const std::deque<smartptr<Type> > &/*arg_types*/) const
 	{
 		return return_type;
 	}
@@ -56,6 +56,11 @@ namespace FreeOCL
 		REGISTER_VAR(int, CLK_LOCAL_MEM_FENCE);
 		REGISTER_VAR(int, CLK_GLOBAL_MEM_FENCE);
 		REGISTER(void, barrier, 1);
+
+		// Memory fence function
+		REGISTER(void, mem_fence, 1);
+		REGISTER(void, read_mem_fence, 1);
+		REGISTER(void, write_mem_fence, 1);
 #undef REGISTER
 #undef REGISTER_VAR
 	}

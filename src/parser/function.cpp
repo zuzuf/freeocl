@@ -56,7 +56,7 @@ namespace FreeOCL
 			<< '}' << std::endl;
 	}
 
-	smartptr<Type> Function::getReturnType() const
+	smartptr<Type> Function::getReturnType(const std::deque<smartptr<Type> > &/*arg_types*/) const
 	{
 		return return_type;
 	}
