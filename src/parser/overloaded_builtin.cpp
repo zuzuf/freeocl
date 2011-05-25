@@ -133,7 +133,7 @@ namespace FreeOCL
 			bool b_const = false;
 			Type::AddressSpace address_space = Type::PRIVATE;
 			int typeID = 0;
-			while(pos < str.size() && str[pos] != ')' && str[pos] != '(')
+			while(pos < str.size() && str[pos] != ')' && str[pos] != '(' && str[pos] != ',')
 			{
 				while (pos < str.size() && str[pos] == ' ')
 					++pos;
@@ -185,6 +185,12 @@ namespace FreeOCL
 		if (gentypes.empty())
 			gentypes.push_back(NativeType::INT);
 		const deque<string> patterns = FreeOCL::split(signature, "|");
+		const size_t e = patterns.front().find_first_of('(');
+		const size_t b = patterns.front().rfind(' ', e);
+		if (b == string::npos)
+			name = patterns.front().substr(0, e);
+		else
+			name = patterns.front().substr(b + 1, e - b - 1);
 		for(deque<int>::const_iterator gtype = gentypes.begin(), end = gentypes.end() ; gtype != end ; ++gtype)
 		{
 			for(deque<string>::const_iterator p = patterns.begin(), end = patterns.end() ; p != end ; ++p)
