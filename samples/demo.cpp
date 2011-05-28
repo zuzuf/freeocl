@@ -34,7 +34,7 @@ inline std::string memSuffix(const size_t s)
 {
 	std::stringstream buf;
 	buf.precision(3);
-	if (s >= 0x10000000000LU)
+	if (s >= 0x10000000000LLU)
 		buf << (double)(s >> 30) / 1024.0 << "TB";
 	else if (s >= 0x40000000LU)
 		buf << (double)(s >> 20) / 1024.0 << "GB";

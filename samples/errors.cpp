@@ -95,6 +95,6 @@ void signal_handler(int)
 	pid_t mypid = getpid();
 	std::stringstream cmd;
 	cmd << "gdb --pid " << mypid << " -ex \"bt\"";
-	system(cmd.str().c_str());
+	(void)system(cmd.str().c_str());
 	exit(-1);
 }
