@@ -36,13 +36,13 @@ namespace FreeOCL
 {
 	_cl_icd_dispatch init_dispatch();
 
-	std::set<cl_context> valid_contexts;
-	std::set<cl_command_queue> valid_command_queues;
-	std::set<cl_mem> valid_mems;
-	std::set<cl_event> valid_events;
-	std::set<cl_kernel> valid_kernels;
-	std::set<cl_program> valid_programs;
-	std::set<cl_sampler> valid_samplers;
+	std::unordered_set<cl_context> valid_contexts;
+	std::unordered_set<cl_command_queue> valid_command_queues;
+	std::unordered_set<cl_mem> valid_mems;
+	std::unordered_set<cl_event> valid_events;
+	std::unordered_set<cl_kernel> valid_kernels;
+	std::unordered_set<cl_program> valid_programs;
+	std::unordered_set<cl_sampler> valid_samplers;
 	mutex global_mutex;
 	_cl_icd_dispatch dispatch = init_dispatch();
 
@@ -305,6 +305,16 @@ namespace FreeOCL
 		for(size_t i = 0 ; i < sizeof(table.empty_after_1_1_API) / sizeof(size_t) ; ++i)
 			table.empty_after_1_1_API[i] = (_stub)empty_slot;
 		return table;
+	}
+
+	context_resource::~context_resource()
+	{
+		if (context)
+		{
+			context->lock();
+			context->resources.erase(this);
+			context->unlock();
+		}
 	}
 }
 

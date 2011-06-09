@@ -33,6 +33,12 @@ namespace FreeOCL
 		virtual size_t getNumParams() const;
 
 		virtual void write(std::ostream& out) const;
+
+		void printDebugInfo() const;
+
+	private:
+		static bool allTypesMatch(const std::deque<smartptr<Type> > &args, const std::deque<smartptr<Type> > &sig);
+		static bool weakMatch(const smartptr<Type> &a, const smartptr<Type> &b);
 	private:
 		std::deque<std::deque<smartptr<Type> > > possible_types;
 		std::string name;

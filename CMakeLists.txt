@@ -76,6 +76,7 @@ SET(SOURCES
 	src/parser/struct_type.h	src/parser/struct_type.cpp
 	src/parser/union_type.h		src/parser/union_type.cpp
 	src/parser/pointer_type.h	src/parser/pointer_type.cpp
+	src/parser/typedef.h		src/parser/typedef.cpp
 	src/parser/function.h		src/parser/function.cpp
 	src/parser/kernel.h			src/parser/kernel.cpp
 	src/parser/binary.h			src/parser/binary.cpp
@@ -88,6 +89,7 @@ SET(SOURCES
 	src/parser/symbol_table.h	src/parser/symbol_table.cpp
 	src/parser/builtin.h		src/parser/builtin.cpp
 	src/parser/overloaded_builtin.h		src/parser/overloaded_builtin.cpp
+	src/parser/member.h			src/parser/member.cpp
 
 	src/utils/smartptr.h
 	src/utils/string.h
@@ -112,6 +114,7 @@ LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT})
 LINK_LIBRARIES(-ldl)
 add_library(FreeOCL SHARED ${SOURCES})
 add_library(OpenCL SHARED ${API_SOURCES})
+set_target_properties(OpenCL PROPERTIES VERSION	1.1 SOVERSION 1.1)
 
 IF(BUILD_DEMO)
 	LINK_LIBRARIES(OpenCL)

@@ -33,6 +33,10 @@
 #include "index.h"
 #include "call.h"
 #include "callable.h"
+#include "member.h"
+#include "struct_type.h"
+#include "union_type.h"
+#include "typedef.h"
 #include "../utils/smartptr.h"
 
 namespace FreeOCL
@@ -139,6 +143,8 @@ namespace FreeOCL
 			// Push a new scope
 			symbols->push();
 			smartptr<Chunk> args = chunk->back();
+			if (!args)
+				END();
 			if (args->size() == 3)
 			{
 				// Register all function parameters
@@ -195,6 +201,11 @@ namespace FreeOCL
 				return 1;
 			}
 
+			const bool decl = type.as<Typedecl>();
+			smartptr<Type> fully_qualified_type = type;
+			if (decl)
+				type = type.as<Typedef>()->getType();
+
 			MATCH2(init_declarator_list, token<';'>)
 			{
 				// register variables
@@ -217,9 +228,17 @@ namespace FreeOCL
 						l_type = type;
 						name = declarator->front().as<Token>()->getString();
 					}
-					symbols->insert(name, new Var(name, l_type));
+					if (decl)
+						symbols->insert(name, new Typedef(name, l_type));
+					else
+					{
+						smartptr<Typedef> def = l_type.as<Typedef>();
+						if (def)
+							l_type = def->getType();
+						symbols->insert(name, new Var(name, l_type));
+					}
 				}
-				d_val__ = new Chunk(type, N[0], N[1]);
+				d_val__ = new Chunk(fully_qualified_type, N[0], N[1]);
 				return 1;
 			}
 			ERROR("syntax error, ';' expected");
@@ -245,6 +264,7 @@ namespace FreeOCL
 			Type::AddressSpace address_space = Type::PRIVATE;
 			bool b_address_space_set = false;
 			bool b_const = false;
+			bool b_typedef = false;
 			do
 			{
 				if (d_val__.as<Type>())
@@ -283,6 +303,11 @@ namespace FreeOCL
 						b_address_space_set = true;
 						address_space = Type::CONSTANT;
 						break;
+					case TYPEDEF:
+						if (b_typedef)
+							ERROR("typedef duplicated");
+						b_typedef = true;
+						break;
 					}
 				}
 			}
@@ -291,7 +316,10 @@ namespace FreeOCL
 				ERROR("syntax error: missing type");
 			if (b_const && address_space == Type::CONSTANT)
 				warning("const used with __constant address space");
-			d_val__ = type->clone(b_const, address_space);
+			type = type->clone(b_const, address_space);
+			if (b_typedef)
+				type = new Typedecl(type);
+			d_val__ = type;
 			return 1;
 		}
 		return 0;
@@ -703,6 +731,39 @@ namespace FreeOCL
 	int Parser::__struct_or_union_specifier()
 	{
 		BEGIN();
+		if (__struct_or_union())
+		{
+			smartptr<Token> tok = d_val__.as<Token>();
+			std::string name;
+			if (__token<IDENTIFIER>())
+				name = d_val__.as<Token>()->getString();
+			if (__token<'{'>())
+			{
+				if (__struct_declaration_list())
+				{
+					smartptr<StructType> type = (tok->getID() == STRUCT) ? new StructType(name) : new UnionType(name);
+
+					smartptr<Chunk> members = d_val__.as<Chunk>();
+					for(size_t i = 0 ; i < members->size() ; ++i)
+					{
+						smartptr<Chunk> member_list = (*members)[i].as<Chunk>();
+						for(size_t j = 0 ; j < member_list->size() ; ++j)
+						{
+							smartptr<Chunk> member = (*member_list)[j].as<Chunk>();
+							*type << std::make_pair(member->back().as<Token>()->getString(), member->front().as<Type>());
+						}
+					}
+
+					if (!__token<'}'>())
+						ERROR("syntax error : '}' expected");
+
+					d_val__ = type;
+					return 1;
+				}
+				ERROR("syntax error, structure declaration expected");
+			}
+			ERROR("syntax error, '{' or identifier expected");
+		}
 		RULE5(struct_or_union, token<IDENTIFIER>, token<'{'>, struct_declaration_list, token<'}'>);
 		RULE4(struct_or_union, token<'{'>, struct_declaration_list, token<'}'>);
 		RULE2(struct_or_union, token<IDENTIFIER>);
@@ -722,31 +783,78 @@ namespace FreeOCL
 	int Parser::__struct_declaration_list()
 	{
 		BEGIN();
-		LISTOF_LEFT(struct_declaration);
+		if (__struct_declaration())
+		{
+			smartptr<Chunk> chunk = new Chunk;
+			chunk->push_back(d_val__);
+			while (__struct_declaration())
+				chunk->push_back(d_val__);
+			d_val__ = chunk;
+			return 1;
+		}
 		END();
 	}
 
 	int Parser::__struct_declaration()
 	{
 		BEGIN();
-		RULE3(specifier_qualifier_list, struct_declarator_list, token<';'>);
+		MATCH3(specifier_qualifier_list, struct_declarator_list, token<';'>)
+		{
+			smartptr<Chunk> members = new Chunk;
+			smartptr<Type> type = N[0].as<Type>();
+			const smartptr<Chunk> var_list = N[1].as<Chunk>();
+			for(size_t i = 0 ; i < var_list->size() ; ++i)
+			{
+				const smartptr<Chunk> declarator = (*var_list)[i].as<Chunk>();
+				smartptr<Type> l_type;
+				smartptr<Token> name;
+				if (declarator->front().as<PointerType>())
+				{
+					smartptr<PointerType> ptr = declarator->front().as<PointerType>()->clone();
+					ptr->setRootType(type);
+					l_type = ptr;
+
+					name = declarator->back().as<Chunk>()->front().as<Token>();
+				}
+				else
+				{
+					l_type = type;
+					name = declarator->front().as<Token>();
+				}
+				members->push_back(new Chunk(l_type, name));
+			}
+			d_val__ = members;
+			return 1;
+		}
 		END();
 	}
 
 	int Parser::__struct_declarator_list()
 	{
 		BEGIN();
-		LISTOF_LEFT_SEP(struct_declarator, token<','>);
+		if (__struct_declarator())
+		{
+			smartptr<Chunk> chunk = new Chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				if (!__struct_declarator())
+				{
+					rollBackTo(l);
+					break;
+				}
+				chunk->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = chunk;
+			return 1;
+		}
 		END();
 	}
 
 	int Parser::__struct_declarator()
 	{
-		BEGIN();
-		RULE1(declarator);
-		RULE2(token<':'>, constant_expression);
-		RULE3(declarator, token<':'>, constant_expression);
-		END();
+		return __declarator();
 	}
 
 	int Parser::__specifier_qualifier()
@@ -759,9 +867,62 @@ namespace FreeOCL
 
 	int Parser::__specifier_qualifier_list()
 	{
-		BEGIN();
-		LISTOF_RIGHT(specifier_qualifier);
-		END();
+		if (__specifier_qualifier())
+		{
+			smartptr<Type> type;
+			Type::AddressSpace address_space = Type::PRIVATE;
+			bool b_address_space_set = false;
+			bool b_const = false;
+			do
+			{
+				if (d_val__.as<Type>())
+					type = d_val__;
+				else if (d_val__.as<Token>())
+				{
+					Token *token = d_val__.as<Token>();
+					switch(token->getID())
+					{
+					case CONST:
+						if (b_const)
+							ERROR("duplicate const");
+						b_const = true;
+						break;
+					case __GLOBAL:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::GLOBAL;
+						break;
+					case __LOCAL:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::LOCAL;
+						break;
+					case __PRIVATE:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::PRIVATE;
+						break;
+					case __CONSTANT:
+						if (b_address_space_set)
+							ERROR("2 address space qualifiers");
+						b_address_space_set = true;
+						address_space = Type::CONSTANT;
+						break;
+					}
+				}
+			}
+			while (__specifier_qualifier());
+			if (!type)
+				ERROR("syntax error: missing type");
+			if (b_const && address_space == Type::CONSTANT)
+				warning("const used with __constant address space");
+			d_val__ = type->clone(b_const, address_space);
+			return 1;
+		}
+		return 0;
 	}
 
 	int Parser::__compound_statement()
@@ -1259,13 +1420,35 @@ namespace FreeOCL
 					}
 					break;
 				case '.':
+					{
+						const Expression *pexp = exp.as<Expression>();
+						if (!pexp)
+							ERROR("syntax error: expression expected!");
+						const smartptr<StructType> type = pexp->getType().as<StructType>();
+						if (!type)
+							ERROR("struct or union type expected!");
+						const std::string &memberName = d_val__.as<Chunk>()->back().as<Token>()->getString();
+						if (!type->hasMember(memberName))
+							ERROR("member not found!");
+						exp = new Member(exp, memberName);
+					}
 					break;
 				case PTR_OP:
-					if (!exp.as<Expression>())
-						ERROR("syntax error: expression expected!");
-					if (!exp.as<Expression>()->getType().as<PointerType>())
-						ERROR("base operand of '->' is not a pointer!");
-
+					{
+						const Expression *pexp = exp.as<Expression>();
+						if (!pexp)
+							ERROR("syntax error: expression expected!");
+						const smartptr<PointerType> type = pexp->getType().as<PointerType>();
+						if (!type)
+							ERROR("base operand of '->' is not a pointer!");
+						const smartptr<StructType> base = type->getBaseType().as<StructType>();
+						if (!base)
+							ERROR("pointer to struct or union type expected!");
+						const std::string &memberName = d_val__.as<Chunk>()->back().as<Token>()->getString();
+						if (!base->hasMember(memberName))
+							ERROR("member not found!");
+						exp = new Member(exp, memberName);
+					}
 					break;
 				}
 			}

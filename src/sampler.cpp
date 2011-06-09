@@ -39,8 +39,7 @@ extern "C"
 		}
 		unlock.handle(context);
 
-		cl_sampler sampler = new _cl_sampler;
-		sampler->context = context;
+		cl_sampler sampler = new _cl_sampler(context);
 		sampler->normalized_coords = normalized_coords;
 		sampler->filter_mode = filter_mode;
 		sampler->addressing_mode = addressing_mode;
@@ -109,7 +108,7 @@ extern "C"
 	}
 }
 
-_cl_sampler::_cl_sampler()
+_cl_sampler::_cl_sampler(cl_context context) : context_resource(context)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_samplers.insert(this);

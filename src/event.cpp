@@ -35,8 +35,7 @@ extern "C"
 
 		SET_RET(CL_SUCCESS);
 
-		cl_event e = new _cl_event;
-		e->context = context;
+		cl_event e = new _cl_event(context);
 		e->command_queue = 0;
 		e->command_type = CL_COMMAND_USER;
 		e->status = CL_SUBMITTED;
@@ -189,9 +188,8 @@ extern "C"
 		cmd.type = CL_COMMAND_MARKER;
 		cmd.common.num_events_in_wait_list = 0;
 		cmd.common.event_wait_list = NULL;
-		cmd.common.event = *event = new _cl_event;
+		cmd.common.event = *event = new _cl_event(command_queue->context);
 		cmd.common.event->command_queue = command_queue;
-		cmd.common.event->context = command_queue->context;
 		cmd.common.event->command_type = CL_COMMAND_MARKER;
 		cmd.common.event->status = CL_SUBMITTED;
 
@@ -288,7 +286,7 @@ void _cl_event::change_status(cl_int new_status)
 	lock();
 }
 
-_cl_event::_cl_event()
+_cl_event::_cl_event(cl_context context) : context_resource(context)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_events.insert(this);

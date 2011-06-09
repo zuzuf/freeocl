@@ -21,6 +21,7 @@
 #include "../freeocl.h"
 #include <unordered_map>
 #include <sstream>
+#include <stdexcept>
 
 using namespace std;
 
@@ -153,7 +154,9 @@ namespace FreeOCL
 					if (it != m_types_pattern.end())
 					{
 						stringstream buf;
-						buf << word.substr(0, word.size() - 1) << n;
+						buf << word.substr(0, word.size() - 1);
+						if (n > 1)
+							buf << n;
 						typeID = m_types[buf.str()];
 					}
 					else
@@ -216,7 +219,18 @@ namespace FreeOCL
 		if (arg_types.size() != num_params)
 			return (Type*)NULL;
 
-		return (Type*)NULL;
+		smartptr<Type> match;
+		for(size_t i = 0 ; i < possible_types.size() ; ++i)
+		{
+			if (allTypesMatch(arg_types, possible_types[i]))
+			{
+				if (match)
+					throw std::runtime_error("type matching is ambiguous");
+				match = possible_types[i].front();
+			}
+		}
+
+		return match;
 	}
 
 	const string &OverloadedBuiltin::getName() const
@@ -232,5 +246,53 @@ namespace FreeOCL
 	void OverloadedBuiltin::write(ostream& out) const
 	{
 		out << name << ' ';
+	}
+
+	bool OverloadedBuiltin::allTypesMatch(const std::deque<smartptr<Type> > &args, const std::deque<smartptr<Type> > &sig)
+	{
+		if (args.size() + 1 != sig.size())
+			return false;
+		for(size_t i = 0 ; i < args.size() ; ++i)
+		{
+			if (!weakMatch(args[i], sig[i + 1]))
+				return false;
+		}
+		return true;
+	}
+
+	bool OverloadedBuiltin::weakMatch(const smartptr<Type> &a, const smartptr<Type> &b)
+	{
+		if (*a == *b)
+			return true;
+
+		const PointerType *ptrA = a.as<PointerType>();
+		const PointerType *ptrB = b.as<PointerType>();
+		if (ptrA && ptrB)
+			return ptrA->isCompatibleWith(*ptrB);
+
+		const NativeType *natA = a.as<NativeType>();
+		const NativeType *natB = b.as<NativeType>();
+		if (natA && natB)
+		{
+			return natA->getTypeID() == natB->getTypeID()
+					|| (natA->isScalar() && natB->isScalar());
+		}
+		return false;
+	}
+
+	void OverloadedBuiltin::printDebugInfo() const
+	{
+		std::cout << possible_types.size() << " signatures:" << std::endl;
+		for(size_t i = 0 ; i < possible_types.size() ; ++i)
+		{
+			std::cout << possible_types[i].front()->getName() << ' ' << name << '(';
+			for(size_t j = 1 ; j < possible_types[i].size() ; ++j)
+			{
+				if (j > 1)
+					std::cout << ',';
+				std::cout << possible_types[i][j]->getName();
+			}
+			std::cout << ')' << std::endl;
+		}
 	}
 }

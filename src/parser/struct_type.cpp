@@ -25,6 +25,10 @@ namespace FreeOCL
 		const StructType *pType = dynamic_cast<const StructType*>(&type);
 		if (pType == NULL)
 			return false;
+		if (root)
+			return *root == type;
+		if (pType->root)
+			return *this == *(pType->root);
 		return getAggregateType() == pType->getAggregateType()
 				&& name == pType->name
 				&& members.size() == pType->members.size()
@@ -33,6 +37,11 @@ namespace FreeOCL
 
 	void StructType::define(std::ostream &out) const
 	{
+		if (root)
+		{
+			root->define(out);
+			return;
+		}
 		switch(getAggregateType())
 		{
 		case STRUCT:
@@ -44,14 +53,14 @@ namespace FreeOCL
 		}
 
 		out << name << std::endl
-			<< "{" << std::endl;
+			<< '{' << std::endl;
 
 		for(std::vector<std::pair<std::string, smartptr<Type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
 			out << "    " << it->second->getName() << ' ' << it->first << ';' << std::endl;
 
-		out << "};" << std::endl;
+		out << '}';
 	}
 
 	void StructType::write(std::ostream &out) const
@@ -69,11 +78,15 @@ namespace FreeOCL
 
 	std::string StructType::getName() const
 	{
+		if (root)
+			return root->name;
 		return name;
 	}
 
 	bool StructType::hasMember(const std::string &name) const
 	{
+		if (root)
+			return root->hasMember(name);
 		for(std::vector<std::pair<std::string, smartptr<Type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
@@ -84,6 +97,8 @@ namespace FreeOCL
 
 	smartptr<Type> StructType::getTypeOfMember(const std::string &name) const
 	{
+		if (root)
+			return root->getTypeOfMember(name);
 		for(std::vector<std::pair<std::string, smartptr<Type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
@@ -99,6 +114,11 @@ namespace FreeOCL
 
 	StructType &StructType::operator<<(const std::pair<std::string, smartptr<Type> > &member)
 	{
+		if (root)
+		{
+			*root << member;
+			return *this;
+		}
 		members.push_back(member);
 		return *this;
 	}

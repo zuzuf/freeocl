@@ -25,7 +25,7 @@
 #include <CL/cl.hpp>
 #endif
 #include <string>
-#include <set>
+#include <unordered_set>
 #include "mutex.h"
 #include "dispatch.h"
 #include <iostream>
@@ -43,13 +43,13 @@ namespace FreeOCL
 {
 	extern cl_platform_id platform;
 	extern cl_device_id device;
-	extern std::set<cl_context> valid_contexts;
-	extern std::set<cl_command_queue> valid_command_queues;
-	extern std::set<cl_mem> valid_mems;
-	extern std::set<cl_event> valid_events;
-	extern std::set<cl_kernel> valid_kernels;
-	extern std::set<cl_program> valid_programs;
-	extern std::set<cl_sampler> valid_samplers;
+	extern std::unordered_set<cl_context> valid_contexts;
+	extern std::unordered_set<cl_command_queue> valid_command_queues;
+	extern std::unordered_set<cl_mem> valid_mems;
+	extern std::unordered_set<cl_event> valid_events;
+	extern std::unordered_set<cl_kernel> valid_kernels;
+	extern std::unordered_set<cl_program> valid_programs;
+	extern std::unordered_set<cl_sampler> valid_samplers;
 	extern mutex global_mutex;
 	extern _cl_icd_dispatch dispatch;
 
@@ -99,6 +99,17 @@ namespace FreeOCL
 		inline void invalidate()	{	bValid = false;	}
 	private:
 		volatile bool bValid;
+	};
+
+	struct context_resource
+	{
+		context_resource(cl_context context)
+			: context(context)
+		{}
+
+		~context_resource();
+
+		const cl_context context;
 	};
 }
 

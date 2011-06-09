@@ -15,36 +15,23 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_MEM_H__
-#define __FREEOCL_MEM_H__
+#ifndef __FREEOCL_PARSER_MEMBER_H__
+#define __FREEOCL_PARSER_MEMBER_H__
 
-#include "freeocl.h"
-#include <deque>
-#include <set>
+#include "expression.h"
 
 namespace FreeOCL
 {
-	struct mem_call_back
+	class Member : public Expression
 	{
-		void (CL_CALLBACK *pfn_notify)(cl_mem memobj,
-									   void *user_data);
-		void *user_data;
+	public:
+		Member(const smartptr<Expression> &base, const std::string &memberName);
+		void write(std::ostream& out) const;
+		smartptr<Type> getType() const;
+	private:
+		smartptr<Expression> base;
+		const std::string memberName;
 	};
 }
-
-struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag, public FreeOCL::context_resource
-{
-	_cl_mem(cl_context);
-	~_cl_mem();
-
-	void *ptr;
-	size_t size;
-	cl_mem_flags flags;
-	cl_mem_object_type mem_type;
-	cl_mem parent;
-	void *host_ptr;
-	std::deque<FreeOCL::mem_call_back> call_backs;
-	std::multiset<void*> mapped;
-};
 
 #endif

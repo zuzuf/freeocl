@@ -59,8 +59,7 @@ extern "C"
 		}
 		unlock.handle(context);
 
-		cl_program program = new _cl_program;
-		program->context = context;
+		cl_program program = new _cl_program(context);
 		program->source_code.swap(source_code);
 		program->build_status = CL_BUILD_NONE;
 		program->handle = NULL;
@@ -263,7 +262,7 @@ extern "C"
 	}
 }
 
-_cl_program::_cl_program() : handle(NULL), build_status(CL_BUILD_NONE)
+_cl_program::_cl_program(cl_context context) : context_resource(context), handle(NULL), build_status(CL_BUILD_NONE)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_programs.insert(this);

@@ -50,6 +50,12 @@ inline std::string memSuffix(const size_t s)
 #define STRINGIFY(X)	#X
 
 const char *source_code =
+"typedef struct\n"
+"{\n"
+"	int a;\n"
+"	int b;\n"
+"} truc;\n"
+"\n"
 "__kernel void hello(__global char *out, __local char *test)\n"
 "{\n"
 "	int;\n"

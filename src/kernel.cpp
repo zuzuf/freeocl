@@ -88,12 +88,11 @@ extern "C"
 			mem_list[i]->unlock();
 		}
 
-		cmd.common.event = (event != NULL) ? new _cl_event : NULL;
+		cmd.common.event = (event != NULL) ? new _cl_event(command_queue->context) : NULL;
 		if (cmd.common.event)
 		{
 			*event = cmd.common.event;
 			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->context = command_queue->context;
 			cmd.common.event->command_type = CL_COMMAND_NATIVE_KERNEL;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
@@ -399,10 +398,9 @@ extern "C"
 
 		if (event)
 		{
-			cmd.common.event = *event = new _cl_event;
+			cmd.common.event = *event = new _cl_event(command_queue->context);
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_NDRANGE_KERNEL;
-			cmd.common.event->context = command_queue->context;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
 

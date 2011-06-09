@@ -21,12 +21,11 @@
 #include "freeocl.h"
 #include <string>
 
-struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
+struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag, public FreeOCL::context_resource
 {
-	_cl_program();
+	_cl_program(cl_context);
 	~_cl_program();
 
-	cl_context context;
 	std::string source_code;
 
 	std::vector<cl_device_id> devices;

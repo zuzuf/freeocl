@@ -15,36 +15,42 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_MEM_H__
-#define __FREEOCL_MEM_H__
+#ifndef __FREEOCL_PARSER_TYPEDEF_H__
+#define __FREEOCL_PARSER_TYPEDEF_H__
 
-#include "freeocl.h"
-#include <deque>
-#include <set>
+#include "type.h"
 
 namespace FreeOCL
 {
-	struct mem_call_back
+	class Typedef : public Type
 	{
-		void (CL_CALLBACK *pfn_notify)(cl_mem memobj,
-									   void *user_data);
-		void *user_data;
+	public:
+		Typedef(const std::string &name, const smartptr<Type> &type);
+
+		virtual void write(std::ostream& out) const;
+
+		virtual bool operator==(const Type &type) const;
+		virtual std::string getName() const;
+		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
+
+		inline const smartptr<Type> &getType() const
+		{
+			return type;
+		}
+
+	protected:
+		const std::string name;
+		const smartptr<Type> type;
+	};
+
+	class Typedecl : public Typedef
+	{
+	public:
+		inline Typedecl(const smartptr<Type> &type)
+			: Typedef(std::string(), type)
+		{}
+		virtual void write(std::ostream& out) const;
 	};
 }
-
-struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag, public FreeOCL::context_resource
-{
-	_cl_mem(cl_context);
-	~_cl_mem();
-
-	void *ptr;
-	size_t size;
-	cl_mem_flags flags;
-	cl_mem_object_type mem_type;
-	cl_mem parent;
-	void *host_ptr;
-	std::deque<FreeOCL::mem_call_back> call_backs;
-	std::multiset<void*> mapped;
-};
 
 #endif

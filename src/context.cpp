@@ -19,6 +19,12 @@
 #include "device.h"
 #include "prototypes.h"
 
+// Required by _cl_context::~_cl_context
+#include "event.h"
+#include "mem.h"
+#include "program.h"
+#include "sampler.h"
+
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
@@ -245,4 +251,23 @@ _cl_context::~_cl_context()
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_contexts.erase(this);
 	FreeOCL::global_mutex.unlock();
+
+	lock();
+	std::unordered_set<FreeOCL::context_resource*> resources = this->resources;
+	unlock();
+	for(std::unordered_set<FreeOCL::context_resource*>::iterator it = resources.begin(), end = resources.end() ; it != end ; ++it)
+	{
+		FreeOCL::context_resource *ptr = *it;
+#define IMPLEMENT_FOR_TYPE(type)\
+		if (FreeOCL::isValid(static_cast<type>(ptr)))\
+		{\
+			delete static_cast<type>(ptr);\
+			continue;\
+		}
+		IMPLEMENT_FOR_TYPE(cl_event);
+		IMPLEMENT_FOR_TYPE(cl_mem);
+		IMPLEMENT_FOR_TYPE(cl_program);
+		IMPLEMENT_FOR_TYPE(cl_sampler);
+#undef IMPLEMENT_FOR_TYPE
+	}
 }

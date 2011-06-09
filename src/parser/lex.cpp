@@ -8,6 +8,7 @@
 #include <sstream>
 #include "value.h"
 #include "token.h"
+#include "symbol_table.h"
 #include <cstdint>
 
 using namespace std;
@@ -255,6 +256,9 @@ namespace FreeOCL
 				d_val__ = new Value<int>(name == "true" ? 1 : 0);
 				return CONSTANT;
 			}
+
+			if ((d_val__ = symbols->get<Type>(name)))
+				return TYPE_NAME;
 
 			d_val__ = new Token(name, IDENTIFIER);
 			return IDENTIFIER;

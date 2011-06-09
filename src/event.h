@@ -34,12 +34,11 @@ namespace FreeOCL
 	};
 }
 
-struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag
+struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag, public FreeOCL::context_resource
 {
-	_cl_event();
+	_cl_event(cl_context);
 	~_cl_event();
 
-	cl_context context;
 	cl_command_queue command_queue;
 	cl_command_type command_type;
 	volatile cl_int status;

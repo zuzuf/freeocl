@@ -23,8 +23,12 @@
 
 namespace FreeOCL
 {
+	class GenericValue : public Expression
+	{
+	};
+
 	template<class T>
-	class Value : public Expression
+	class Value : public GenericValue
 	{
 	public:
 		Value(const T &v) : v(v)	{}

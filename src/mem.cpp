@@ -62,8 +62,7 @@ extern "C"
 		}
 		unlock.handle(context);
 
-		cl_mem mem = new _cl_mem;
-		mem->context = context;
+		cl_mem mem = new _cl_mem(context);
 		mem->flags = flags;
 		mem->size = size;
 		mem->mem_type = CL_MEM_OBJECT_BUFFER;
@@ -226,7 +225,7 @@ extern "C"
 		cmd.type = CL_COMMAND_READ_BUFFER;
 		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
 		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = (blocking_read == CL_TRUE || event) ? new _cl_event : NULL;
+		cmd.common.event = (blocking_read == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
 		cmd.read_buffer.buffer = buffer;
 		cmd.read_buffer.offset = offset;
 		cmd.read_buffer.cb = cb;
@@ -236,7 +235,6 @@ extern "C"
 		{
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_READ_BUFFER;
-			cmd.common.event->context = command_queue->context;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
 
@@ -299,7 +297,7 @@ extern "C"
 		cmd.type = CL_COMMAND_WRITE_BUFFER;
 		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
 		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = (blocking_write == CL_TRUE || event) ? new _cl_event : NULL;
+		cmd.common.event = (blocking_write == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
 		cmd.write_buffer.buffer = buffer;
 		cmd.write_buffer.offset = offset;
 		cmd.write_buffer.cb = cb;
@@ -309,7 +307,6 @@ extern "C"
 		{
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_WRITE_BUFFER;
-			cmd.common.event->context = command_queue->context;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
 
@@ -374,7 +371,7 @@ extern "C"
 		cmd.type = CL_COMMAND_COPY_BUFFER;
 		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
 		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = event ? new _cl_event : NULL;
+		cmd.common.event = event ? new _cl_event(command_queue->context) : NULL;
 		cmd.copy_buffer.src_buffer = src_buffer;
 		cmd.copy_buffer.src_offset = src_offset;
 		cmd.copy_buffer.dst_buffer = dst_buffer;
@@ -385,7 +382,6 @@ extern "C"
 		{
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_COPY_BUFFER;
-			cmd.common.event->context = command_queue->context;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
 
@@ -444,10 +440,9 @@ extern "C"
 			buffer->mapped.insert(p);
 			if (event)
 			{
-				cl_event e = new _cl_event;
+				cl_event e = new _cl_event(command_queue->context);
 				*event = e;
 				e->command_queue = command_queue;
-				e->context = command_queue->context;
 				e->command_type = CL_COMMAND_MAP_BUFFER;
 				e->status = CL_COMPLETE;
 			}
@@ -458,11 +453,10 @@ extern "C"
 			cmd.type = CL_COMMAND_MAP_BUFFER;
 			cmd.common.num_events_in_wait_list = num_events_in_wait_list;
 			cmd.common.event_wait_list = event_wait_list;
-			cmd.common.event = (blocking_map == CL_TRUE || event) ? new _cl_event : NULL;
+			cmd.common.event = (blocking_map == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
 			if (cmd.common.event)
 			{
 				cmd.common.event->command_queue = command_queue;
-				cmd.common.event->context = command_queue->context;
 				cmd.common.event->command_type = CL_COMMAND_MAP_BUFFER;
 				cmd.common.event->status = CL_SUBMITTED;
 				if (event)
@@ -511,7 +505,7 @@ extern "C"
 		cmd.type = CL_COMMAND_UNMAP_MEM_OBJECT;
 		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
 		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = event ? new _cl_event : NULL;
+		cmd.common.event = event ? new _cl_event(command_queue->context) : NULL;
 		cmd.unmap_buffer.buffer = memobj;
 		cmd.unmap_buffer.ptr = mapped_ptr;
 
@@ -519,7 +513,6 @@ extern "C"
 		{
 			*event = cmd.common.event;
 			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->context = command_queue->context;
 			cmd.common.event->command_type = CL_COMMAND_UNMAP_MEM_OBJECT;
 			cmd.common.event->status = CL_SUBMITTED;
 		}
@@ -587,7 +580,7 @@ extern "C"
 	}
 }
 
-_cl_mem::_cl_mem()
+_cl_mem::_cl_mem(cl_context context) : context_resource(context)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_mems.insert(this);

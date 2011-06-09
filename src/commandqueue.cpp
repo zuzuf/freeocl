@@ -57,8 +57,7 @@ extern "C"
 			return 0;
 		}
 
-		cl_command_queue q = new _cl_command_queue;
-		q->context = context;
+		cl_command_queue q = new _cl_command_queue(context);
 		q->device = device;
 		q->properties = properties;
 
@@ -157,7 +156,7 @@ extern "C"
 	}
 }
 
-_cl_command_queue::_cl_command_queue() : q_thread(this), b_stop(false)
+_cl_command_queue::_cl_command_queue(cl_context context) : context_resource(context), q_thread(this), b_stop(false)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_command_queues.insert(this);
