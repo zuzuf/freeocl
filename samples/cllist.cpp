@@ -47,26 +47,6 @@ inline std::string memSuffix(const size_t s)
 	return buf.str();
 }
 
-#define STRINGIFY(X)	#X
-
-const char *source_code =
-"typedef struct\n"
-"{\n"
-"	int a;\n"
-"	int b;\n"
-"} truc;\n"
-"\n"
-"__kernel void hello(__global char *out, __local char *test)\n"
-"{\n"
-"	int;\n"
-"	const size_t i = get_global_id(0);\n"
-"	__constant char *msg = \"hello world\";\n"
-"	test[i] = msg[11 - i];\n"
-"	barrier(CLK_LOCAL_MEM_FENCE);\n"
-"	out[i] = test[11 - i];\n"
-""
-"}\n";
-
 int main(int argc, const char **argv)
 {
 	struct sigaction s;
@@ -78,7 +58,6 @@ int main(int argc, const char **argv)
 		cl::Platform::get(&platforms);
 
 		std::cout << platforms.size() << " platform" << (platforms.size() > 1 ? "s" : "") << " found:" << std::endl;
-		size_t id = 0;
 		for(size_t i = 0 ; i < platforms.size() ; ++i)
 		{
 			const cl::Platform &p = platforms[i];
@@ -89,8 +68,6 @@ int main(int argc, const char **argv)
 					<< "\t\tversion: " << p.getInfo<CL_PLATFORM_VERSION>() << std::endl
 					<< "\t\tvendor: " << p.getInfo<CL_PLATFORM_VENDOR>() << std::endl
 					<< "\t\textensions: " << p.getInfo<CL_PLATFORM_EXTENSIONS>() << std::endl;
-			if (p.getInfo<CL_PLATFORM_NAME>() == "FreeOCL")
-				id = i;
 
 			std::vector<cl::Device> devices;
 			p.getDevices(CL_DEVICE_TYPE_ALL, &devices);
@@ -109,58 +86,6 @@ int main(int argc, const char **argv)
 						<< "\t\t\t\textensions: " << dev.getInfo<CL_DEVICE_EXTENSIONS>() << std::endl;
 			}
 		}
-
-		if (platforms.empty())
-			return 0;
-
-		for(int i = 1 ; i < argc ; ++i)
-		{
-			if (!strcmp(argv[i], "--platform"))
-			{
-				if (i + 1 < argc)
-				{
-					++i;
-					id = strtol(argv[i], NULL, 0);
-				}
-				continue;
-			}
-		}
-
-		cl::Platform &platform = platforms[id];
-		std::cout << std::endl << "platform selected: " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl << std::endl;
-
-		std::vector<cl::Device> devices;
-		platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-
-		// Create a context
-		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(platform)(), 0};
-		cl::Context context(devices, properties);
-
-		cl_int err;
-
-		// Create a command queue
-		cl::CommandQueue queue(context, devices[0], 0, &err);
-
-		cl::Program::Sources sources;
-		sources.push_back(std::make_pair(source_code, strlen(source_code)));
-		cl::Program program(context, sources);
-		try {
-			program.build(devices);
-		} catch(...)	{}
-		std::cout << "source code: " << std::endl << source_code << std::endl;
-		std::cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << std::endl;
-		std::cout << "build log: " << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
-
-		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 32);
-		cl::Kernel k(program, "hello");
-		k.setArg(0, buffer());
-		k.setArg(1, 256, NULL);
-		queue.enqueueNDRangeKernel(k, cl::NDRange(0), cl::NDRange(12), cl::NDRange(12));
-
-		queue.finish();
-		char *p = (char*)queue.enqueueMapBuffer(buffer, true, CL_MEM_READ_ONLY, 0, 16);
-		std::cout << "p = " << p << std::endl;
-		queue.enqueueUnmapMemObject(buffer, p);
 	}
 	catch(cl::Error err)
 	{

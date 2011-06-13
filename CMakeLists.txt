@@ -1,13 +1,13 @@
-cmake_minimum_required (VERSION 2.8)
 project (FreeOCL)
+cmake_minimum_required (VERSION 2.8)
 
-SET(FREEOCL_VERSION_HI		0)
-SET(FREEOCL_VERSION_LO		0)
-SET(FREEOCL_VERSION_PATCH	0)
-SET(FREEOCL_VERSION_STRING	"${FREEOCL_VERSION_HI}.${FREEOCL_VERSION_LO}.${FREEOCL_VERSION_PATCH}")
-SET(FREEOCL_VENDOR	"Roland Brochard")
+set(FREEOCL_VERSION_HI		0)
+set(FREEOCL_VERSION_LO		0)
+set(FREEOCL_VERSION_PATCH	0)
+set(FREEOCL_VERSION_STRING	"${FREEOCL_VERSION_HI}.${FREEOCL_VERSION_LO}.${FREEOCL_VERSION_PATCH}")
+set(FREEOCL_VENDOR	"Roland Brochard")
 
-SET(CMAKE_THREAD_PREFER_PTHREAD pthread)
+set(CMAKE_THREAD_PREFER_PTHREAD pthread)
 include(FindThreads)
 if(NOT CMAKE_THREAD_LIBS_INIT)
 	message(FATAL_ERROR "thread library not found")
@@ -18,7 +18,7 @@ if(NOT OPENMP_FOUND)
 	message(FATAL_ERROR "OpenMP not found, OpenMP is required")
 endif(NOT OPENMP_FOUND)
 
-SET(SOURCES
+set(SOURCES
 	include/CL/cl_d3d10.h
 	include/CL/cl_ext.h
 	include/CL/cl_gl_ext.h
@@ -95,28 +95,37 @@ SET(SOURCES
 	src/utils/string.h
 	)
 
-SET(API_SOURCES
+set(API_SOURCES
 	src/icd_api.cpp
 	src/icd_loader.cpp src/icd_loader.h
 	)
 
-SET(DEMO_SOURCES
-	samples/demo.cpp
-	samples/errors.cpp samples/errors.h)
-
-SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -std=c++0x")
-SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ffast-math -std=c++0x")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -std=c++0x")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ffast-math -std=c++0x")
 
 configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 
 include_directories(include)
-LINK_LIBRARIES(${CMAKE_THREAD_LIBS_INIT})
-LINK_LIBRARIES(-ldl)
+link_libraries(${CMAKE_THREAD_LIBS_INIT})
+link_libraries(-ldl)
 add_library(FreeOCL SHARED ${SOURCES})
 add_library(OpenCL SHARED ${API_SOURCES})
 set_target_properties(OpenCL PROPERTIES VERSION	1.1 SOVERSION 1.1)
 
-IF(BUILD_DEMO)
-	LINK_LIBRARIES(OpenCL)
-	add_executable(demo ${DEMO_SOURCES})
-ENDIF(BUILD_DEMO)
+option(BUILD_SAMPLES "build samples")
+
+if(BUILD_SAMPLES)
+	link_libraries(OpenCL)
+	set(CLDEMO_SOURCES
+		samples/cldemo.cpp
+		samples/errors.cpp samples/errors.h)
+	add_executable(cldemo ${CLDEMO_SOURCES})
+	set(CLTEST_SOURCES
+		samples/cltest.cpp
+		samples/errors.cpp samples/errors.h)
+	add_executable(cltest ${CLTEST_SOURCES})
+	set(CLLIST_SOURCES
+		samples/cllist.cpp
+		samples/errors.cpp samples/errors.h)
+	add_executable(cllist ${CLLIST_SOURCES})
+endif(BUILD_SAMPLES)
