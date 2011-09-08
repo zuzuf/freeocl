@@ -208,6 +208,8 @@ namespace FreeOCL
 				possible_types.push_back(types);
 			}
 		}
+
+		num_params = possible_types.front().size() - 1;
 	}
 
 	OverloadedBuiltin::~OverloadedBuiltin()

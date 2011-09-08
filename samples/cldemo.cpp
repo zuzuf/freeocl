@@ -57,7 +57,13 @@ const char *source_code =
 "	__constant char *msg = \"hello world\";\n"
 "	test[i] = msg[11 - i];\n"
 "	barrier(CLK_LOCAL_MEM_FENCE);\n"
-"	out[i] = test[11 - i];\n"
+"	int4 a;\n"
+"	a.x = 1;\n"
+"	a.y = 0;\n"
+"	a.z = 1;\n"
+"	a.w = 1;\n"
+"	a.y = dot(a.xy, a.zw);\n"
+"	out[i] = test[11 - i] * a.y;\n"
 ""
 "}\n";
 

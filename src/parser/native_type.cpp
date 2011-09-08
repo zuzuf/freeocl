@@ -109,7 +109,7 @@ namespace FreeOCL
 		case LOCAL:		prefix = "__local ";	break;
 		case CONSTANT:	prefix = "__constant ";	break;
 		}
-		if (isConst())
+		if (isConst() && getAddressSpace() != CONSTANT)
 			return prefix + std::string("const ") + type_name[type_id];
 		return prefix + type_name[type_id];
 	}
@@ -273,6 +273,85 @@ namespace FreeOCL
 		}
 	}
 
+	NativeType::TypeID NativeType::getScalarType() const
+	{
+		switch(type_id)
+		{
+		case CHAR:
+		case CHAR2:
+		case CHAR3:
+		case CHAR4:
+		case CHAR8:
+		case CHAR16:
+			return CHAR;
+		case SHORT:
+		case SHORT2:
+		case SHORT3:
+		case SHORT4:
+		case SHORT8:
+		case SHORT16:
+			return SHORT;
+		case INT:
+		case INT2:
+		case INT3:
+		case INT4:
+		case INT8:
+		case INT16:
+			return INT;
+		case LONG:
+		case LONG2:
+		case LONG3:
+		case LONG4:
+		case LONG8:
+		case LONG16:
+			return LONG;
+		case UCHAR:
+		case UCHAR2:
+		case UCHAR3:
+		case UCHAR4:
+		case UCHAR8:
+		case UCHAR16:
+			return UCHAR;
+		case USHORT:
+		case USHORT2:
+		case USHORT3:
+		case USHORT4:
+		case USHORT8:
+		case USHORT16:
+			return USHORT;
+		case UINT:
+		case UINT2:
+		case UINT3:
+		case UINT4:
+		case UINT8:
+		case UINT16:
+			return UINT;
+		case ULONG:
+		case ULONG2:
+		case ULONG3:
+		case ULONG4:
+		case ULONG8:
+		case ULONG16:
+			return ULONG;
+		case FLOAT:
+		case FLOAT2:
+		case FLOAT3:
+		case FLOAT4:
+		case FLOAT8:
+		case FLOAT16:
+			return FLOAT;
+		case DOUBLE:
+		case DOUBLE2:
+		case DOUBLE3:
+		case DOUBLE4:
+		case DOUBLE8:
+		case DOUBLE16:
+			return DOUBLE;
+		default:
+			return type_id;
+		}
+	}
+
 	smartptr<Type> NativeType::getIntForDim(int dim)
 	{
 		switch(dim)
@@ -292,5 +371,38 @@ namespace FreeOCL
 		default:
 			return t_int;
 		}
+	}
+
+	smartptr<Type> NativeType::makeVectorType(int base, int dim)
+	{
+#define IMPL(t)\
+		switch(dim)\
+		{\
+		case 1:		return t;\
+		case 2:		return t##2;\
+		case 3:		return t##3;\
+		case 4:		return t##4;\
+		case 8:		return t##8;\
+		case 16:	return t##16;\
+		default:\
+			return t;\
+		}
+
+		switch(base)
+		{
+		case CHAR:		IMPL(t_char);
+		case SHORT:		IMPL(t_short);
+		case INT:		IMPL(t_int);
+		case LONG:		IMPL(t_long);
+		case UCHAR:		IMPL(t_uchar);
+		case USHORT:	IMPL(t_ushort);
+		case UINT:		IMPL(t_uint);
+		case ULONG:		IMPL(t_ulong);
+		case FLOAT:		IMPL(t_float);
+		case DOUBLE:	IMPL(t_double);
+		default:
+			return (Type*)NULL;
+		}
+#undef IMPL
 	}
 }

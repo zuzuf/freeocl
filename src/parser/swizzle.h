@@ -15,41 +15,29 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_TYPEDEF_H__
-#define __FREEOCL_PARSER_TYPEDEF_H__
+#ifndef __FREEOCL_PARSER_SWIZZLE_H__
+#define __FREEOCL_PARSER_SWIZZLE_H__
 
-#include "type.h"
+#include "expression.h"
 
 namespace FreeOCL
 {
-	class Typedef : public Type
+	class Swizzle : public Expression
 	{
 	public:
-		Typedef(const std::string &name, const smartptr<Type> &type);
+		Swizzle(const smartptr<Expression> &base, const std::string &components);
+		void write(std::ostream& out) const;
+		smartptr<Type> getType() const;
 
-		virtual void write(std::ostream& out) const;
+	private:
+		static void parseComponents(const std::string &components, int values[]);
 
-		virtual bool operator==(const Type &type) const;
-		virtual std::string getName() const;
-		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
-
-		inline const smartptr<Type> &getType() const
-		{
-			return type;
-		}
-
-	protected:
-		const std::string name;
-		const smartptr<Type> type;
-	};
-
-	class Typedecl : public Typedef
-	{
 	public:
-		inline Typedecl(const smartptr<Type> &type)
-			: Typedef(std::string(), type.as<Typedef>() ? type.as<Typedef>()->getType() : type)
-		{}
-		virtual void write(std::ostream& out) const;
+		static int getNumberOfComponents(const std::string &components);
+		static bool validateComponents(const std::string &components, int dim);
+	private:
+		smartptr<Expression> base;
+		const std::string components;
 	};
 }
 

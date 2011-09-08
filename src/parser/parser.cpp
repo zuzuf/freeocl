@@ -37,6 +37,8 @@
 #include "struct_type.h"
 #include "union_type.h"
 #include "typedef.h"
+#include "swizzle.h"
+#include "cast.h"
 #include "../utils/smartptr.h"
 
 namespace FreeOCL
@@ -203,7 +205,7 @@ namespace FreeOCL
 
 			const bool decl = type.as<Typedecl>();
 			smartptr<Type> fully_qualified_type = type;
-			if (decl)
+			if (type.as<Typedef>())
 				type = type.as<Typedef>()->getType();
 
 			MATCH2(init_declarator_list, token<';'>)
@@ -231,12 +233,7 @@ namespace FreeOCL
 					if (decl)
 						symbols->insert(name, new Typedef(name, l_type));
 					else
-					{
-						smartptr<Typedef> def = l_type.as<Typedef>();
-						if (def)
-							l_type = def->getType();
 						symbols->insert(name, new Var(name, l_type));
-					}
 				}
 				d_val__ = new Chunk(fully_qualified_type, N[0], N[1]);
 				return 1;
@@ -1187,6 +1184,8 @@ namespace FreeOCL
 			RULE1(postfix_expression);
 			MATCH2(unary_operator, cast_expression)
 			{
+				if (N[0].as<Token>()->getID() == '&' && N[1].as<Swizzle>())
+					ERROR("taking address of vector component is not allowed");
 				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
 				return 1;
 			}
@@ -1220,8 +1219,12 @@ namespace FreeOCL
 	int Parser::__cast_expression()
 	{
 		BEGIN();
+		MATCH4(token<'('>, type_name, token<')'>, cast_expression)
+		{
+			d_val__ = new Cast(N[1].as<Type>(), N[3].as<Expression>());
+			return 1;
+		}
 		RULE1(unary_expression);
-		RULE4(token<'('>, type_name, token<')'>, cast_expression);
 		END();
 	}
 
@@ -1365,11 +1368,11 @@ namespace FreeOCL
 			CHECK(1, "syntax error");
 			break;
 		case '.':
-			RULE2(token<'.'>, token<IDENTIFIER>);
+			RULE2(token<'.'>, identifier);
 			CHECK(1, "syntax error");
 			break;
 		case PTR_OP:
-			RULE2(token<PTR_OP>, token<IDENTIFIER>);
+			RULE2(token<PTR_OP>, identifier);
 			CHECK(1, "syntax error, identifier expected");
 			break;
 		case INC_OP:
@@ -1424,13 +1427,26 @@ namespace FreeOCL
 						const Expression *pexp = exp.as<Expression>();
 						if (!pexp)
 							ERROR("syntax error: expression expected!");
-						const smartptr<StructType> type = pexp->getType().as<StructType>();
-						if (!type)
-							ERROR("struct or union type expected!");
-						const std::string &memberName = d_val__.as<Chunk>()->back().as<Token>()->getString();
-						if (!type->hasMember(memberName))
-							ERROR("member not found!");
-						exp = new Member(exp, memberName);
+						const smartptr<StructType> stype = pexp->getType().as<StructType>();
+						const smartptr<NativeType> ntype = pexp->getType().as<NativeType>();
+						if (stype)
+						{
+							const std::string &memberName = d_val__.as<Chunk>()->back().as<Token>()->getString();
+							if (!stype->hasMember(memberName))
+								ERROR("member not found!");
+							exp = new Member(exp, memberName);
+						}
+						else if (ntype)
+						{
+							if (!ntype->isVector())
+								ERROR("struct, union or vector type expected!");
+							const std::string &components = d_val__.as<Chunk>()->back().as<Token>()->getString();
+							if (!Swizzle::validateComponents(components, ntype->getDim()))
+								ERROR("invalid vector components");
+							exp = new Swizzle(exp, components);
+						}
+						else
+							ERROR("struct, union or vector type expected!");
 					}
 					break;
 				case PTR_OP:
@@ -1544,5 +1560,13 @@ namespace FreeOCL
 	{
 		LISTOF_LEFT_SEP(initializer, token<','>);
 		return 0;
+	}
+
+	int Parser::__identifier()
+	{
+		BEGIN();
+		RULE1(token<IDENTIFIER>);
+		RULE1(token<TYPE_NAME>);
+		END();
 	}
 }

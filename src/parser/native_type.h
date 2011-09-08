@@ -48,6 +48,7 @@ namespace FreeOCL
 		bool isInteger() const;
 		bool isFloat() const;
 		bool isSigned() const;
+		TypeID getScalarType() const;
 	private:
 		const TypeID type_id;
 
@@ -119,6 +120,7 @@ namespace FreeOCL
 		static smartptr<Type> getIntForDim(int dim);
 
 		static int getDimFor(int type_id);
+		static smartptr<Type> makeVectorType(int base, int dim);
 	};
 }
 

@@ -179,6 +179,7 @@ namespace FreeOCL
 		int __specifier_qualifier();
 		int __declaration_statement_list();
 		int __declaration_statement();
+		int __identifier();
 
 		template<int token>
 		inline int __token()

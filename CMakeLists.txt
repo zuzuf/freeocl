@@ -90,6 +90,8 @@ set(SOURCES
 	src/parser/builtin.h		src/parser/builtin.cpp
 	src/parser/overloaded_builtin.h		src/parser/overloaded_builtin.cpp
 	src/parser/member.h			src/parser/member.cpp
+	src/parser/swizzle.h		src/parser/swizzle.cpp
+	src/parser/cast.h			src/parser/cast.cpp
 
 	src/utils/smartptr.h
 	src/utils/string.h

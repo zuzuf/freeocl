@@ -51,7 +51,16 @@ namespace FreeOCL
 							  NativeType::FLOAT,	NativeType::FLOAT2,		NativeType::FLOAT3,		NativeType::FLOAT4,		NativeType::FLOAT8,		NativeType::FLOAT16,
 							  NativeType::DOUBLE,	NativeType::DOUBLE2,	NativeType::DOUBLE3,	NativeType::DOUBLE4,	NativeType::DOUBLE8,	NativeType::DOUBLE16 };
 		std::deque<int> gentype_all;
+		std::deque<int> gentype_scalars;
+		std::deque<int> gentype_vectors;
+		std::deque<int> gentype_floats;
 		gentype_all.insert(gentype_all.end(), &(types[0]), &(types[sizeof(types)/sizeof(int)]));
+		gentype_floats.insert(gentype_floats.end(), &(types[6 * 8]), &(types[6 * 9]));
+		for(size_t i = 0 ; i < 10 ; ++i)
+		{
+			gentype_scalars.push_back(types[i * 6]);
+			gentype_vectors.insert(gentype_vectors.end(), &(types[i * 6 + 1]), &(types[i * 6 + 6]));
+		}
 
 #define REGISTER(type, name, num)					symbols->insert(#name, new Builtin(NativeType::t_##type, #name, num))
 #define REGISTER_OVERLOADED(signature, gentype)		do { OverloadedBuiltin *n = new OverloadedBuiltin(signature, gentype);	symbols->insert(n->getName(), n);	} while(false)
@@ -79,6 +88,7 @@ namespace FreeOCL
 
 		// Relational functions
 		REGISTER_OVERLOADED("intn isequal(gentype,gentype)", gentype_all);
+		REGISTER_OVERLOADED("float dot(floatn,floatn)", gentype_floats);
 #undef REGISTER
 #undef REGISTER_OVERLOADED
 #undef REGISTER_VAR
