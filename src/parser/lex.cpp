@@ -75,9 +75,9 @@ namespace FreeOCL
 		}
 
 		int i = 0;
+		int base = 10;
 		if (isdigit(c))		// integer or float
 		{
-			int base = 10;
 			if (c == '0' && peek() == 'x')		// Hexadecimal integer
 			{
 				get();
@@ -105,7 +105,7 @@ namespace FreeOCL
 				d_val__ = new Value<uint64_t>(i);
 				return CONSTANT;
 			}
-			else if (!in || c != '.' || base != 10)
+			else if (!in || c != '.')
 			{
 				if (c != '.' || base != 10)
 					putback(c);
@@ -116,10 +116,14 @@ namespace FreeOCL
 		if (c == '.' && isdigit(peek()))		// a float
 		{
 			double f = 0.0;
-			for(double p = 0.1 ; get(c) && isdigit(c) ; p *= 0.1)
-				f += (c - '0') * p;
+			const double base_div = 1.0 / base;
+			for(double p = base_div ; get(c) && ((isdigit(c) && c - '0' < base)
+											|| (((c >= 'a' && c <= 'f')
+												 || (c >= 'A' && c <= 'F'))
+												&& base == 16)) ; p *= base_div)
+				f += (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10) * p;
 			f += i;
-			if (c == 'e')
+			if ((c == 'e' && base <= 10) || (c == 'p' && base == 16))
 			{
 				int sign = 1;
 				int exponent = 0;
@@ -129,8 +133,12 @@ namespace FreeOCL
 					get();
 					sign = -1;
 				}
-				while(get(c) && isdigit(c))
-					exponent = exponent * 10 + (c - '0');
+				while (get(c)
+					&& ((isdigit(c) && c - '0' < base)
+						|| (((c >= 'a' && c <= 'f')
+							 || (c >= 'A' && c <= 'F'))
+							&& base == 16)))
+					exponent = exponent * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
 				exponent *= sign;
 				if (exponent)
 					f *= pow10(exponent);
@@ -243,6 +251,8 @@ namespace FreeOCL
 				keywords["local"] = __LOCAL;
 				keywords["private"] = __PRIVATE;
 				keywords["constant"] = __CONSTANT;
+
+				keywords["__attribute__"] = __ATTRIBUTE__;
 			}
 
 			unordered_map<string, int>::const_iterator it = keywords.find(name);

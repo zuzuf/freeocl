@@ -55,6 +55,8 @@ namespace FreeOCL
 			CASE, DEFAULT, IF, ELSE, SWITCH, WHILE, DO, FOR, GOTO, CONTINUE, BREAK, RETURN,
 
 			__KERNEL, __GLOBAL, __LOCAL, __PRIVATE, __CONSTANT,
+
+			__ATTRIBUTE__
 		};
 	public:
 		Parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), bErrors(false)	{}
@@ -180,6 +182,13 @@ namespace FreeOCL
 		int __declaration_statement_list();
 		int __declaration_statement();
 		int __identifier();
+		int __attribute_qualifier();
+		int __attribute_list();
+		int __attributeopt();
+		int __attribute_token();
+		int __attribute_argument_clauseopt();
+		int __attribute_argument_list();
+		int __attribute_argument();
 
 		template<int token>
 		inline int __token()

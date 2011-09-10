@@ -130,6 +130,7 @@ namespace FreeOCL
 	{
 		BEGIN();
 		const bool b_qualifier = __function_qualifier();
+		const bool b_attribute_qualifier = __attribute_qualifier();
 		MATCH2(declaration_specifiers, declarator)
 		{
 			smartptr<Type> type = N[0];
@@ -1582,5 +1583,106 @@ namespace FreeOCL
 		RULE1(token<IDENTIFIER>);
 		RULE1(token<TYPE_NAME>);
 		END();
+	}
+
+	int Parser::__attribute_qualifier()
+	{
+		BEGIN();
+		if (peekToken() == __ATTRIBUTE__)
+		{
+			MATCH6(token<__ATTRIBUTE__>, token<'('>, token<'('>, attribute_list, token<')'>, token<')'>)
+			{
+				d_val__ = N[3];
+				return 1;
+			}
+			CHECK(5, "')' missing");
+			CHECK(4, "'))' missing after attribute-list");
+			CHECK(3, "expected attribute-list");
+			CHECK(2, "'(' missing");
+			CHECK(1, "'((' missing after __attribute__ keyword");
+		}
+		smartptr<Chunk> chunk = new Chunk;
+		chunk->push_back(new Token("(", '('));
+		chunk->push_back(new Token(")", ')'));
+		d_val__ = new Chunk(chunk);
+		return 1;
+	}
+
+	int Parser::__attribute_list()
+	{
+		if (__attributeopt())
+		{
+			smartptr<Chunk> N = new Chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				if (!__attributeopt())
+				{
+					rollBackTo(l);
+					break;
+				}
+				N->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
+		return 0;
+	}
+
+	int Parser::__attributeopt()
+	{
+		BEGIN();
+		RULE2(attribute_token, attribute_argument_clauseopt);
+
+		smartptr<Chunk> chunk = new Chunk;
+		chunk->push_back(new Token("(", '('));
+		chunk->push_back(new Token(")", ')'));
+		d_val__ = chunk;
+		return 1;
+	}
+
+	int Parser::__attribute_token()
+	{
+		return __identifier();
+	}
+
+	int Parser::__attribute_argument_clauseopt()
+	{
+		BEGIN();
+		RULE3(token<'('>, attribute_argument_list, token<')'>);
+
+		smartptr<Chunk> chunk = new Chunk;
+		chunk->push_back(new Token("(", '('));
+		chunk->push_back(new Token(")", ')'));
+		d_val__ = chunk;
+		return 1;
+	}
+
+	int Parser::__attribute_argument_list()
+	{
+		if (__attribute_argument())
+		{
+			smartptr<Chunk> N = new Chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				if (!__attribute_argument())
+				{
+					rollBackTo(l);
+					break;
+				}
+				N->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
+		return 0;
+	}
+
+	int Parser::__attribute_argument()
+	{
+		return __assignment_expression();
 	}
 }

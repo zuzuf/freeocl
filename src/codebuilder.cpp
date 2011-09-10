@@ -182,7 +182,7 @@ namespace FreeOCL
 	std::string validate_code(const std::string &code, std::stringstream &log, std::set<std::string> &kernels)
 	{
 		log << "code validator log:" << std::endl;
-//		log << "code:" << std::endl << code << std::endl;
+		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
 		Parser parser(in, log);
 		const u_int64_t timer = usec_timer();
@@ -207,6 +207,8 @@ namespace FreeOCL
 		}
 
 		std::stringstream gen;
+		if (!parser.getAST())
+			return std::string();
 		parser.getAST()->write(gen);
 
 		gen << std::endl;
