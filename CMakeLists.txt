@@ -112,7 +112,7 @@ link_libraries(${CMAKE_THREAD_LIBS_INIT})
 link_libraries(-ldl)
 add_library(FreeOCL SHARED ${SOURCES})
 add_library(OpenCL SHARED ${API_SOURCES})
-set_target_properties(OpenCL PROPERTIES VERSION	1.1 SOVERSION 1.1)
+set_target_properties(OpenCL PROPERTIES LINK_FLAGS "-Wl,--version-script=OpenCL.map" VERSION	1.1 SOVERSION 1.1)
 
 option(BUILD_SAMPLES "build samples")
 
