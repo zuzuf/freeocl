@@ -62,7 +62,6 @@ const char *source_code =
 "	a.y = 0;\n"
 "	a.z = 1;\n"
 "	a.w = 1;\n"
-"	a.y = dot(a.xy, a.zw);\n"
 "	out[i] = test[11 - i] * a.y;\n"
 ""
 "}\n";

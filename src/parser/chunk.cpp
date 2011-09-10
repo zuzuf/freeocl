@@ -16,6 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "chunk.h"
+#include "expression.h"
 
 namespace FreeOCL
 {
@@ -75,5 +76,22 @@ namespace FreeOCL
 	{
 		for(std::deque<smartptr<Node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
 			out << **it;
+	}
+
+	std::deque<smartptr<Type> > Chunk::getAsTypes() const
+	{
+		std::deque<smartptr<Type> > types;
+		for(std::deque<smartptr<Node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
+		{
+			smartptr<Expression> exp = it->as<Expression>();
+			if (!exp)
+			{
+				types.push_back(smartptr<Type>());
+				continue;
+			}
+			types.push_back(exp->getType());
+		}
+
+		return types;
 	}
 }

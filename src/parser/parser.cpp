@@ -1413,6 +1413,19 @@ namespace FreeOCL
 						smartptr<Chunk> args = (*d_val__.as<Chunk>())[1];
 						if (exp.as<Callable>()->getNumParams() != args->size())
 							ERROR("wrong number of function parameters!");
+						if (!exp.as<Callable>()->getReturnType(args->getAsTypes()))
+						{
+							std::deque<smartptr<Type> > arg_types = args->getAsTypes();
+							std::string arg_list("(");
+							for(size_t i = 0 ; i < arg_types.size() ; ++i)
+							{
+								if (i)
+									arg_list += ',';
+								arg_list += arg_types[i]->getName();
+							}
+							arg_list += ')';
+							ERROR("no matching function for call to '" + exp.as<Callable>()->getName() + arg_list + "' !");
+						}
 						exp = new Call(exp, args);
 					}
 					else

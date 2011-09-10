@@ -20,6 +20,7 @@
 
 #include <deque>
 #include "node.h"
+#include "type.h"
 
 namespace FreeOCL
 {
@@ -58,6 +59,8 @@ namespace FreeOCL
 			childs.push_back(n);
 			return *this;
 		}
+
+		std::deque<smartptr<Type> > getAsTypes() const;
 
 	private:
 		std::deque<smartptr<Node> >	childs;
