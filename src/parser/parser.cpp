@@ -176,6 +176,7 @@ namespace FreeOCL
 				}
 				else
 					d_val__ = new Function(type, function_name, chunk->back(), statement);
+				symbols->insert(function_name, d_val__);
 				return 1;
 			}
 			symbols->pop();

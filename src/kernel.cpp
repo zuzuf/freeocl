@@ -305,15 +305,20 @@ extern "C"
 		switch(param_name)
 		{
 		case CL_KERNEL_WORK_GROUP_SIZE:
-		case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
 			{
 				const size_t val = 1024;
 				bTooSmall = SET_VAR(val);
 			}
 			break;
+		case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
+			{
+				const size_t val[3] = {0, 0, 0};
+				bTooSmall = FreeOCL::copyMemoryWithinLimits(val, sizeof(val), param_value_size, param_value, param_value_size_ret);
+			}
+			break;
 		case CL_KERNEL_LOCAL_MEM_SIZE:
 			{
-				const size_t val = 0x100000;
+				const cl_ulong val = 0x1000;
 				bTooSmall = SET_VAR(val);
 			}
 			break;
@@ -322,7 +327,7 @@ extern "C"
 			break;
 		case CL_KERNEL_PRIVATE_MEM_SIZE:
 			{
-				const size_t val = 0x10000;
+				const cl_ulong val = 0x10000;
 				bTooSmall = SET_VAR(val);
 			}
 			break;

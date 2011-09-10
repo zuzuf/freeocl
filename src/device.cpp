@@ -82,6 +82,15 @@ namespace
 	const cl_uint max_constant_args = 1024;
 	const size_t timer_resolution = std::max<size_t>(1LU, 1000000000LU / CLOCKS_PER_SEC);
 	const cl_command_queue_properties command_queue_properties = CL_QUEUE_PROFILING_ENABLE | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE;
+
+	const cl_uint max_read_image_args = 0;
+	const cl_uint max_write_image_args = 0;
+	const size_t image2d_max_width = 0;
+	const size_t image2d_max_height = 0;
+	const size_t image3d_max_width = 0;
+	const size_t image3d_max_height = 0;
+	const size_t image3d_max_depth = 0;
+	const cl_uint max_samplers = 0;
 }
 
 #define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits((X), strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
@@ -126,15 +135,14 @@ extern "C"
 		case CL_DEVICE_MAX_MEM_ALLOC_SIZE:					bTooSmall = SET_VAR(freememsize);	break;
 		case CL_DEVICE_IMAGE_SUPPORT:						bTooSmall = SET_VAR(cl_bool_false);	break;
 
-		case CL_DEVICE_MAX_READ_IMAGE_ARGS:
-		case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:
-		case CL_DEVICE_IMAGE2D_MAX_WIDTH:
-		case CL_DEVICE_IMAGE2D_MAX_HEIGHT:
-		case CL_DEVICE_IMAGE3D_MAX_WIDTH:
-		case CL_DEVICE_IMAGE3D_MAX_HEIGHT:
-		case CL_DEVICE_IMAGE3D_MAX_DEPTH:
-		case CL_DEVICE_MAX_SAMPLERS:
-			return CL_INVALID_VALUE;
+		case CL_DEVICE_MAX_READ_IMAGE_ARGS:					bTooSmall = SET_VAR(max_read_image_args);	break;
+		case CL_DEVICE_MAX_WRITE_IMAGE_ARGS:				bTooSmall = SET_VAR(max_write_image_args);	break;
+		case CL_DEVICE_IMAGE2D_MAX_WIDTH:					bTooSmall = SET_VAR(image2d_max_width);	break;
+		case CL_DEVICE_IMAGE2D_MAX_HEIGHT:					bTooSmall = SET_VAR(image2d_max_height);	break;
+		case CL_DEVICE_IMAGE3D_MAX_WIDTH:					bTooSmall = SET_VAR(image3d_max_width);	break;
+		case CL_DEVICE_IMAGE3D_MAX_HEIGHT:					bTooSmall = SET_VAR(image3d_max_height);	break;
+		case CL_DEVICE_IMAGE3D_MAX_DEPTH:					bTooSmall = SET_VAR(image3d_max_depth);	break;
+		case CL_DEVICE_MAX_SAMPLERS:						bTooSmall = SET_VAR(max_samplers);	break;
 
 		case CL_DEVICE_MAX_PARAMETER_SIZE:					bTooSmall = SET_VAR(max_parameter_size);	break;
 		case CL_DEVICE_MEM_BASE_ADDR_ALIGN:					bTooSmall = SET_VAR(mem_base_addr_align);	break;
