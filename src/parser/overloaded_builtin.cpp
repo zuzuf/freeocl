@@ -129,6 +129,12 @@ namespace FreeOCL
 				m_addr_space["constant"] = Type::CONSTANT;
 				m_addr_space["private"] = Type::PRIVATE;
 			}
+			NativeType _gentype((NativeType::TypeID)gentype, false, NativeType::PRIVATE);
+			std::string uname = _gentype.getName();
+			std::string iname = _gentype.getName();
+			if (_gentype.isSigned() && m_types.count('u' + uname))	uname = 'u' + uname;
+			if (!_gentype.isSigned() && m_types.count(uname.substr(1)))	uname = uname.substr(1);
+
 			const int n = NativeType::getDimFor(gentype);
 			bool b_pointer = false;
 			bool b_const = false;
@@ -168,6 +174,12 @@ namespace FreeOCL
 						{
 							if (word == "gentype")
 								typeID = gentype;
+							else if (word == "ugentype")
+								typeID = m_types[uname];
+							else if (word == "igentype")
+								typeID = m_types[iname];
+							else if (word == "sgentype")
+								typeID = _gentype.getScalarType();
 							else if (word == "const")
 								b_const = true;
 						}
@@ -208,6 +220,7 @@ namespace FreeOCL
 				possible_types.push_back(types);
 			}
 		}
+		removeDuplicates();
 
 		num_params = possible_types.front().size() - 1;
 	}
@@ -295,6 +308,35 @@ namespace FreeOCL
 				std::cout << possible_types[i][j]->getName();
 			}
 			std::cout << ')' << std::endl;
+		}
+	}
+
+	void OverloadedBuiltin::merge(const smartptr<OverloadedBuiltin> rhs)
+	{
+		possible_types.insert(possible_types.end(), rhs->possible_types.begin(), rhs->possible_types.end());
+		removeDuplicates();
+	}
+
+	void OverloadedBuiltin::removeDuplicates()
+	{
+		std::deque<std::deque<smartptr<Type> > > tmp;
+		tmp.swap(possible_types);
+		for(size_t i = 0 ; i < tmp.size() ; ++i)
+		{
+			bool bFound = false;
+			for(size_t j = 0 ; j < possible_types.size() && !bFound ; ++j)
+			{
+				if (possible_types[j].size() != tmp[i].size())
+					continue;
+				bool bEqual = true;
+				for(size_t k = 0 ; k < possible_types[j].size() && bEqual ; ++k)
+					bEqual = (*possible_types[j][k] == *tmp[i][k]);
+				if (bEqual)
+					bFound = true;
+			}
+			if (bFound)
+				continue;
+			possible_types.push_back(tmp[i]);
 		}
 	}
 }

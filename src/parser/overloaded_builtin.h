@@ -36,6 +36,11 @@ namespace FreeOCL
 
 		void printDebugInfo() const;
 
+		void merge(const smartptr<OverloadedBuiltin> rhs);
+
+	private:
+		void removeDuplicates();
+
 	private:
 		static bool allTypesMatch(const std::deque<smartptr<Type> > &args, const std::deque<smartptr<Type> > &sig);
 		static bool weakMatch(const smartptr<Type> &a, const smartptr<Type> &b);

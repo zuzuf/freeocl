@@ -33,6 +33,7 @@ namespace FreeOCL
 			CHAR4, SHORT4, INT4, LONG4, UCHAR4, USHORT4, UINT4, ULONG4, FLOAT4, DOUBLE4,
 			CHAR8, SHORT8, INT8, LONG8, UCHAR8, USHORT8, UINT8, ULONG8, FLOAT8, DOUBLE8,
 			CHAR16, SHORT16, INT16, LONG16, UCHAR16, USHORT16, UINT16, ULONG16, FLOAT16, DOUBLE16,
+			HALF2, HALF3, HALF4, HALF8, HALF16
 		};
 	public:
 		NativeType(const TypeID type_id, const bool b_const, const AddressSpace address_space) : Type(b_const, address_space), type_id(type_id)	{}
@@ -56,6 +57,11 @@ namespace FreeOCL
 		static smartptr<Type> t_void;
 		static smartptr<Type> t_bool;
 		static smartptr<Type> t_half;
+		static smartptr<Type> t_half2;
+		static smartptr<Type> t_half3;
+		static smartptr<Type> t_half4;
+		static smartptr<Type> t_half8;
+		static smartptr<Type> t_half16;
 		static smartptr<Type> t_size_t;
 		static smartptr<Type> t_char;
 		static smartptr<Type> t_short;

@@ -22,6 +22,11 @@ namespace FreeOCL
 	smartptr<Type> NativeType::t_void(new NativeType(NativeType::VOID, true, Type::CONSTANT));
 	smartptr<Type> NativeType::t_bool(new NativeType(NativeType::BOOL, true, Type::CONSTANT));
 	smartptr<Type> NativeType::t_half(new NativeType(NativeType::HALF, true, Type::CONSTANT));
+	smartptr<Type> NativeType::t_half2(new NativeType(NativeType::HALF2, true, Type::CONSTANT));
+	smartptr<Type> NativeType::t_half3(new NativeType(NativeType::HALF3, true, Type::CONSTANT));
+	smartptr<Type> NativeType::t_half4(new NativeType(NativeType::HALF4, true, Type::CONSTANT));
+	smartptr<Type> NativeType::t_half8(new NativeType(NativeType::HALF8, true, Type::CONSTANT));
+	smartptr<Type> NativeType::t_half16(new NativeType(NativeType::HALF16, true, Type::CONSTANT));
 	smartptr<Type> NativeType::t_size_t(new NativeType(NativeType::SIZE_T, true, Type::CONSTANT));
 	smartptr<Type> NativeType::t_char(new NativeType(NativeType::CHAR, true, Type::CONSTANT));
 	smartptr<Type> NativeType::t_short(new NativeType(NativeType::SHORT, true, Type::CONSTANT));
@@ -100,6 +105,7 @@ namespace FreeOCL
 			"char4", "short4", "int4", "long4", "uchar4", "ushort4", "uint4", "ulong4", "float4", "double4",
 			"char8", "short8", "int8", "long8", "uchar8", "ushort8", "uint8", "ulong8", "float8", "double8",
 			"char16", "short16", "int16", "long16", "uchar16", "ushort16", "uint16", "ulong16", "float16", "double16",
+			"half2", "half3", "half4", "half8", "half16"
 		};
 		std::string prefix;
 		switch(getAddressSpace())
@@ -134,6 +140,7 @@ namespace FreeOCL
 			4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
 			8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
 			16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
+			2, 3, 4, 8, 16
 		};
 		return type_dim[type_id];
 	}
@@ -210,14 +217,19 @@ namespace FreeOCL
 		case HALF:
 		case FLOAT:
 		case DOUBLE:
+		case HALF2:
 		case FLOAT2:
 		case DOUBLE2:
+		case HALF3:
 		case FLOAT3:
 		case DOUBLE3:
+		case HALF4:
 		case FLOAT4:
 		case DOUBLE4:
+		case HALF8:
 		case FLOAT8:
 		case DOUBLE8:
+		case HALF16:
 		case FLOAT16:
 		case DOUBLE16:
 			return true;
@@ -267,6 +279,11 @@ namespace FreeOCL
 		case LONG16:
 		case FLOAT16:
 		case DOUBLE16:
+		case HALF2:
+		case HALF3:
+		case HALF4:
+		case HALF8:
+		case HALF16:
 			return true;
 		default:
 			return false;
@@ -347,6 +364,13 @@ namespace FreeOCL
 		case DOUBLE8:
 		case DOUBLE16:
 			return DOUBLE;
+		case HALF:
+		case HALF2:
+		case HALF3:
+		case HALF4:
+		case HALF8:
+		case HALF16:
+			return HALF;
 		default:
 			return type_id;
 		}
@@ -398,6 +422,7 @@ namespace FreeOCL
 		case USHORT:	IMPL(t_ushort);
 		case UINT:		IMPL(t_uint);
 		case ULONG:		IMPL(t_ulong);
+		case HALF:		IMPL(t_half);
 		case FLOAT:		IMPL(t_float);
 		case DOUBLE:	IMPL(t_double);
 		default:

@@ -40,6 +40,7 @@
 #include "swizzle.h"
 #include "cast.h"
 #include "../utils/smartptr.h"
+#include "overloaded_builtin.h"
 
 namespace FreeOCL
 {
@@ -1213,7 +1214,26 @@ namespace FreeOCL
 	int Parser::__type_name()
 	{
 		BEGIN();
-		RULE2(specifier_qualifier_list, abstract_declarator);
+		MATCH2(specifier_qualifier_list, abstract_declarator)
+		{
+			smartptr<Type> type = N[0].as<Type>();
+			if (N[1].as<PointerType>())
+			{
+				N[1].as<PointerType>()->setRootType(type);
+				type = N[1].as<Type>();
+			}
+			else
+				while(N[1].as<Chunk>() && N[1].as<Chunk>()->front().as<PointerType>())
+				{
+					smartptr<Chunk> chunk = N[1].as<Chunk>();
+					chunk->front().as<PointerType>()->setRootType(type);
+					type = chunk->front().as<Type>();
+					N[1] = chunk->back();
+				}
+			d_val__ = type;
+			return 1;
+		}
+
 		RULE1(specifier_qualifier_list);
 		END();
 	}
@@ -1417,6 +1437,8 @@ namespace FreeOCL
 							ERROR("wrong number of function parameters!");
 						if (!exp.as<Callable>()->getReturnType(args->getAsTypes()))
 						{
+							if (exp.as<OverloadedBuiltin>())
+								exp.as<OverloadedBuiltin>()->printDebugInfo();
 							std::deque<smartptr<Type> > arg_types = args->getAsTypes();
 							std::string arg_list("(");
 							for(size_t i = 0 ; i < arg_types.size() ; ++i)
@@ -1517,7 +1539,6 @@ namespace FreeOCL
 				return 1;
 			}
 			CHECK(2, "syntax error, ')' expected");
-			CHECK(1, "syntax error, expression expected");
 			break;
 		}
 		END();

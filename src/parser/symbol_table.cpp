@@ -16,6 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "symbol_table.h"
+#include "overloaded_builtin.h"
 
 namespace FreeOCL
 {
@@ -36,7 +37,12 @@ namespace FreeOCL
 			table[name].push_back(symbol);
 		}
 		else
-			table[name].back() = symbol;
+		{
+			if (symbol.as<OverloadedBuiltin>() && table[name].back().as<OverloadedBuiltin>())
+				table[name].back().as<OverloadedBuiltin>()->merge(symbol);
+			else
+				table[name].back() = symbol;
+		}
 	}
 
 	void SymbolTable::push()
