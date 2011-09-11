@@ -41,6 +41,7 @@
 #include "cast.h"
 #include "../utils/smartptr.h"
 #include "overloaded_builtin.h"
+#include "ternary.h"
 
 namespace FreeOCL
 {
@@ -227,11 +228,30 @@ namespace FreeOCL
 						l_type = ptr;
 
 						name = declarator->back().as<Chunk>()->front().as<Token>()->getString();
+
+						smartptr<Chunk> suffix_list = declarator->back().as<Chunk>();
+						for(size_t j = 1 ; j < suffix_list->size() ; ++j)
+						{
+							smartptr<Chunk> chunk = (*suffix_list)[j].as<Chunk>();
+							if (!chunk)
+								continue;
+							if (chunk->front().as<Token>()->getID() == '[')
+								l_type = new PointerType(l_type, false, PointerType::PRIVATE);
+						}
 					}
 					else
 					{
 						l_type = type;
 						name = declarator->front().as<Token>()->getString();
+
+						for(size_t j = 1 ; j < declarator->size() ; ++j)
+						{
+							smartptr<Chunk> chunk = (*declarator)[j].as<Chunk>();
+							if (!chunk)
+								continue;
+							if (chunk->front().as<Token>()->getID() == '[')
+								l_type = new PointerType(l_type, false, PointerType::PRIVATE);
+						}
 					}
 					if (decl)
 						symbols->insert(name, new Typedef(name, l_type));
@@ -1147,7 +1167,19 @@ namespace FreeOCL
 	int Parser::__conditional_expression()
 	{
 		BEGIN();
-		RULE5(logical_or_expression, token<'?'>, expression, token<':'>, conditional_expression);
+		MATCH5(logical_or_expression, token<'?'>, expression, token<':'>, conditional_expression)
+		{
+			smartptr<Type> result_type = N[0].as<Expression>()->getType();
+			if (result_type.as<NativeType>() && !result_type.as<NativeType>()->isScalar())
+			{			// select(exp3, exp2, exp1)
+				smartptr<Callable> select = symbols->get<Callable>("select");
+				d_val__ = new Call(select, new Chunk(N[4], N[2], N[0]));
+			}
+			else		// C/C++ ternary selection operator
+				d_val__ = new Ternary(N[0], N[2], N[4]);
+			return 1;
+		}
+
 		CHECK(2, "syntax error");
 		RULE1(logical_or_expression);
 		END();

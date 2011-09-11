@@ -43,6 +43,7 @@ set(SOURCES
 	include/FreeOCL/vmisc.h
 	include/FreeOCL/workitem.h
 	include/FreeOCL/vectors.h
+	include/FreeOCL/converters.h
 
 	src/freeocl.cpp		src/freeocl.h
 	src/platform.cpp	src/platform.h
@@ -79,6 +80,7 @@ set(SOURCES
 	src/parser/typedef.h		src/parser/typedef.cpp
 	src/parser/function.h		src/parser/function.cpp
 	src/parser/kernel.h			src/parser/kernel.cpp
+	src/parser/ternary.h		src/parser/ternary.cpp
 	src/parser/binary.h			src/parser/binary.cpp
 	src/parser/unary.h			src/parser/unary.cpp
 	src/parser/index.h			src/parser/index.cpp
