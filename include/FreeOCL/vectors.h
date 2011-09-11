@@ -217,6 +217,31 @@ inline typename __vector<typename W::type>::type operator op (const W &lhs, cons
 	return (typename W::type)lhs op (typename W::type)rhs;\
 }
 
+#define IMPLEMENT_BINARY_OP_LOGICAL(op)\
+template<class V>\
+inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const V &lhs, const V &rhs)\
+{\
+	typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = -(lhs.v[i] op rhs.v[i]);\
+	return ret;\
+}\
+template<class W>\
+inline typename __vector<typename W::type>::type operator op (const typename W::type &lhs, const W &rhs)\
+{\
+	return lhs op (typename W::type)rhs;\
+}\
+template<class W>\
+inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename W::type &rhs)\
+{\
+	return (typename W::type)lhs op rhs;\
+}\
+template<class W>\
+inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
+{\
+	return (typename W::type)lhs op (typename W::type)rhs;\
+}
+
 IMPLEMENT_BINARY_OP(+)
 IMPLEMENT_BINARY_OP(-)
 IMPLEMENT_BINARY_OP(*)
@@ -227,8 +252,15 @@ IMPLEMENT_BINARY_OP(>>)
 IMPLEMENT_BINARY_OP(|)
 IMPLEMENT_BINARY_OP(&)
 IMPLEMENT_BINARY_OP(^)
+IMPLEMENT_BINARY_OP_LOGICAL(<)
+IMPLEMENT_BINARY_OP_LOGICAL(>)
+IMPLEMENT_BINARY_OP_LOGICAL(<=)
+IMPLEMENT_BINARY_OP_LOGICAL(>=)
+IMPLEMENT_BINARY_OP_LOGICAL(!=)
+IMPLEMENT_BINARY_OP_LOGICAL(==)
 
 #undef IMPLEMENT_BINARY_OP
+#undef IMPLEMENT_BINARY_OP_LOGICAL
 
 // scalar op vector
 #define IMPLEMENT_BINARY_OP(op)\
@@ -238,6 +270,20 @@ inline typename __vector<V>::type operator op (const typename __vector<V>::base_
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		ret.v[i] = lhs op rhs.v[i];\
+	return ret;\
+}\
+template<class W>\
+inline typename __vector<typename W::type>::type operator op (const typename __vector<typename W::type>::base_type &lhs, const W &rhs)\
+{\
+	return lhs op (typename W::type)rhs;\
+}
+#define IMPLEMENT_BINARY_OP_LOGICAL(op)\
+template<class V>\
+inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const typename __vector<V>::base_type &lhs, const V &rhs)\
+{\
+	typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = -(lhs op rhs.v[i]);\
 	return ret;\
 }\
 template<class W>\
@@ -256,8 +302,15 @@ IMPLEMENT_BINARY_OP(>>)
 IMPLEMENT_BINARY_OP(|)
 IMPLEMENT_BINARY_OP(&)
 IMPLEMENT_BINARY_OP(^)
+IMPLEMENT_BINARY_OP_LOGICAL(<)
+IMPLEMENT_BINARY_OP_LOGICAL(>)
+IMPLEMENT_BINARY_OP_LOGICAL(<=)
+IMPLEMENT_BINARY_OP_LOGICAL(>=)
+IMPLEMENT_BINARY_OP_LOGICAL(!=)
+IMPLEMENT_BINARY_OP_LOGICAL(==)
 
 #undef IMPLEMENT_BINARY_OP
+#undef IMPLEMENT_BINARY_OP_LOGICAL
 
 // vector op scalar
 #define IMPLEMENT_BINARY_OP(op)\
@@ -274,6 +327,20 @@ inline typename __vector<typename W::type>::type operator op (const W &lhs, cons
 {\
 	return (typename W::type)lhs op rhs;\
 }
+#define IMPLEMENT_BINARY_OP_LOGICAL(op)\
+template<class V>\
+inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const V &lhs, const typename __vector<V>::base_type &rhs)\
+{\
+	typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+	ret.v[i] = -(lhs.v[i] op rhs);\
+	return ret;\
+}\
+template<class W>\
+inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename __vector<typename W::type>::base_type &rhs)\
+{\
+	return lhs op (typename W::type)rhs;\
+}
 
 IMPLEMENT_BINARY_OP(+)
 IMPLEMENT_BINARY_OP(-)
@@ -285,8 +352,15 @@ IMPLEMENT_BINARY_OP(>>)
 IMPLEMENT_BINARY_OP(|)
 IMPLEMENT_BINARY_OP(&)
 IMPLEMENT_BINARY_OP(^)
+IMPLEMENT_BINARY_OP_LOGICAL(<)
+IMPLEMENT_BINARY_OP_LOGICAL(>)
+IMPLEMENT_BINARY_OP_LOGICAL(<=)
+IMPLEMENT_BINARY_OP_LOGICAL(>=)
+IMPLEMENT_BINARY_OP_LOGICAL(!=)
+IMPLEMENT_BINARY_OP_LOGICAL(==)
 
 #undef IMPLEMENT_BINARY_OP
+#undef IMPLEMENT_BINARY_OP_LOGICAL
 
 // vector op= vector
 #define IMPLEMENT_ASSIGN_OP(op)\

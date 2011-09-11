@@ -163,6 +163,18 @@ template<>	struct __scalar<ulong>	{	typedef ulong	type;	};
 template<>	struct __scalar<float>	{	typedef float	type;	};
 template<>	struct __scalar<double>	{	typedef double	type;	};
 
+template<typename B>	struct __sint_type_of_same_size;
+template<>	struct __sint_type_of_same_size<char>	{	typedef char	type;	};
+template<>	struct __sint_type_of_same_size<uchar>	{	typedef char	type;	};
+template<>	struct __sint_type_of_same_size<short>	{	typedef short	type;	};
+template<>	struct __sint_type_of_same_size<ushort>	{	typedef short	type;	};
+template<>	struct __sint_type_of_same_size<int>		{	typedef int	type;	};
+template<>	struct __sint_type_of_same_size<uint>	{	typedef int	type;	};
+template<>	struct __sint_type_of_same_size<long>	{	typedef long	type;	};
+template<>	struct __sint_type_of_same_size<ulong>	{	typedef ulong	type;	};
+template<>	struct __sint_type_of_same_size<float>	{	typedef int		type;	};
+template<>	struct __sint_type_of_same_size<double>	{	typedef long	type;	};
+
 #include "vectors.h"
 
 template<typename S, typename V = void>	struct __igentype;
@@ -193,6 +205,8 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #include "atomic.h"
 #include "vmisc.h"
 #include "imgreadwrite.h"
+
+#include "converters.h"
 
 #undef FLOAT2
 #undef FLOAT4
