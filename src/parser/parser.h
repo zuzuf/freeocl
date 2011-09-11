@@ -56,7 +56,7 @@ namespace FreeOCL
 
 			__KERNEL, __GLOBAL, __LOCAL, __PRIVATE, __CONSTANT,
 
-			__ATTRIBUTE__
+			__ATTRIBUTE__,	SPECIAL
 		};
 	public:
 		Parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), bErrors(false)	{}

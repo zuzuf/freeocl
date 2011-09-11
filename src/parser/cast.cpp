@@ -16,6 +16,9 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "cast.h"
+#include "native_type.h"
+#include "binary.h"
+#include <sstream>
 
 namespace FreeOCL
 {
@@ -26,7 +29,24 @@ namespace FreeOCL
 
 	void Cast::write(std::ostream &out) const
 	{
-		out << '(' << *type << ")(" << *exp << ')';
+		smartptr<NativeType> native = type.as<NativeType>();
+		if (native && native->isVector())
+		{
+			out << *type << "::make(";
+			std::string post;
+			smartptr<Expression> cur = exp;
+			while(cur.as<Binary>() && cur.as<Binary>()->getOp() == ',')
+			{
+				smartptr<Binary> bin = cur.as<Binary>();
+				std::stringstream buf;
+				buf << bin->getRight();
+				post = ',' + buf.str() + post;
+				cur = bin->getLeft();
+			}
+			out << *cur << post << ')';
+		}
+		else
+			out << '(' << *type << ")(" << *exp << ')';
 	}
 
 	smartptr<Type> Cast::getType() const

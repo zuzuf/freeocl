@@ -236,6 +236,7 @@ extern "C"
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_READ_BUFFER;
 			cmd.common.event->status = CL_SUBMITTED;
+			cmd.common.event->retain();
 		}
 
 		if (event)
@@ -250,7 +251,10 @@ extern "C"
 		{
 			clWaitForEvents(1, &cmd.common.event);
 			if (event == NULL)
+			{
 				clReleaseEvent(cmd.common.event);
+				clReleaseEvent(cmd.common.event);
+			}
 		}
 
 		return CL_SUCCESS;
@@ -308,6 +312,7 @@ extern "C"
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_WRITE_BUFFER;
 			cmd.common.event->status = CL_SUBMITTED;
+			cmd.common.event->retain();
 		}
 
 		if (event)
@@ -322,7 +327,10 @@ extern "C"
 		{
 			clWaitForEvents(1, &cmd.common.event);
 			if (event == NULL)
+			{
 				clReleaseEvent(cmd.common.event);
+				clReleaseEvent(cmd.common.event);
+			}
 		}
 
 		return CL_SUCCESS;
@@ -383,6 +391,7 @@ extern "C"
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_COPY_BUFFER;
 			cmd.common.event->status = CL_SUBMITTED;
+			cmd.common.event->retain();
 		}
 
 		if (event)
@@ -459,6 +468,7 @@ extern "C"
 				cmd.common.event->command_queue = command_queue;
 				cmd.common.event->command_type = CL_COMMAND_MAP_BUFFER;
 				cmd.common.event->status = CL_SUBMITTED;
+				cmd.common.event->retain();
 				if (event)
 					*event = cmd.common.event;
 			}
@@ -473,7 +483,10 @@ extern "C"
 			{
 				clWaitForEvents(1, &cmd.common.event);
 				if (event == NULL)
+				{
 					clReleaseEvent(cmd.common.event);
+					clReleaseEvent(cmd.common.event);
+				}
 			}
 		}
 		SET_RET(CL_SUCCESS);
@@ -515,6 +528,7 @@ extern "C"
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_UNMAP_MEM_OBJECT;
 			cmd.common.event->status = CL_SUBMITTED;
+			cmd.common.event->retain();
 		}
 
 		return CL_SUCCESS;

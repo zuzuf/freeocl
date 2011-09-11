@@ -133,13 +133,12 @@ private:
 struct X##N\
 {\
 	X v[N];\
-	X##N() {}\
-	explicit X##N(X p0) {	for(size_t i = 0 ; i < N ; ++i)	v[i] = p0;	}\
-	explicit X##N(X p0, X p1) {	v[0] = p0, v[1] = p1;	}\
-	explicit X##N(X p0, X p1, X p2) {	v[0] = p0, v[1] = p1, v[2] = p2;	}\
-	explicit X##N(X p0, X p1, X p2, X p3) {	v[0] = p0, v[1] = p1, v[2] = p2, v[3] = p3;	}\
-	explicit X##N(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7) {	v[0] = p0, v[1] = p1, v[2] = p2, v[3] = p3, v[4] = p4, v[5] = p5, v[6] = p6, v[7] = p7;	}\
-	explicit X##N(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7, X p8, X p9, X pA, X pB, X pC, X pD, X pE, X pF) {	v[0] = p0, v[1] = p1, v[2] = p2, v[3] = p3, v[4] = p4, v[5] = p5, v[6] = p6, v[7] = p7, v[8] = p8, v[9] = p9, v[10] = pA, v[11] = pB, v[12] = pC, v[13] = pD, v[14] = pE, v[15] = pF;	}\
+	static inline X##N make(X p0) {	X##N v;	for(size_t i = 0 ; i < N ; ++i)	v.v[i] = p0;	return v;	}\
+	static inline X##N make(X p0, X p1) {	X##N v;	v.v[0] = p0, v.v[1] = p1;	return v;	}\
+	static inline X##N make(X p0, X p1, X p2) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2;	return v;	}\
+	static inline X##N make(X p0, X p1, X p2, X p3) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3;	return v;	}\
+	static inline X##N make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7;	return v;	}\
+	static inline X##N make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7, X p8, X p9, X pA, X pB, X pC, X pD, X pE, X pF) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7, v.v[8] = p8, v.v[9] = p9, v.v[10] = pA, v.v[11] = pB, v.v[12] = pC, v.v[13] = pD, v.v[14] = pE, v.v[15] = pF;	return v;	}\
 	template<class W,\
 			 int i0, int i1,\
 			 int i2, int i3,\

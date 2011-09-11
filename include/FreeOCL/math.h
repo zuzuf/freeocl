@@ -307,15 +307,15 @@ VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3(mad)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(maxmag)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(minmag)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2PB(modf)
-inline float2 nan(uint2 nancode)	{	return float2(nan(nancode.v[0]), nan(nancode.v[1]));	}
-inline float3 nan(uint3 nancode)	{	return float3(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]));	}
-inline float4 nan(uint4 nancode)	{	return float4(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]));	}
-inline float8 nan(uint8 nancode)	{	return float8(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
-													  nan(nancode.v[4]), nan(nancode.v[5]), nan(nancode.v[6]), nan(nancode.v[7]));	}
-inline float16 nan(uint16 nancode)	{	return float16(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
-													   nan(nancode.v[4]), nan(nancode.v[5]), nan(nancode.v[6]), nan(nancode.v[7]),
-													   nan(nancode.v[8]), nan(nancode.v[9]), nan(nancode.v[10]), nan(nancode.v[11]),
-													   nan(nancode.v[12]), nan(nancode.v[13]), nan(nancode.v[14]), nan(nancode.v[15]));	}
+inline float2 nan(uint2 nancode)	{	return float2::make(nan(nancode.v[0]), nan(nancode.v[1]));	}
+inline float3 nan(uint3 nancode)	{	return float3::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]));	}
+inline float4 nan(uint4 nancode)	{	return float4::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]));	}
+inline float8 nan(uint8 nancode)	{	return float8::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
+															nan(nancode.v[4]), nan(nancode.v[5]), nan(nancode.v[6]), nan(nancode.v[7]));	}
+inline float16 nan(uint16 nancode)	{	return float16::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
+															 nan(nancode.v[4]), nan(nancode.v[5]), nan(nancode.v[6]), nan(nancode.v[7]),
+															 nan(nancode.v[8]), nan(nancode.v[9]), nan(nancode.v[10]), nan(nancode.v[11]),
+															 nan(nancode.v[12]), nan(nancode.v[13]), nan(nancode.v[14]), nan(nancode.v[15]));	}
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(nextafter)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(pow)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2I(pown)

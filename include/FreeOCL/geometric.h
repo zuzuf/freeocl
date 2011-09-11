@@ -21,16 +21,16 @@
 
 inline float4 cross(const float4 &p0, const float4 &p1)
 {
-	return (float4)(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
-					p0.v[2] * p1.v[0] - p0.v[0] * p1.v[2],
-					p0.v[0] * p1.v[1] - p0.v[1] * p1.v[0],
-					0.0f);
+	return float4::make(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
+						p0.v[2] * p1.v[0] - p0.v[0] * p1.v[2],
+						p0.v[0] * p1.v[1] - p0.v[1] * p1.v[0],
+						0.0f);
 }
 inline float3 cross(const float3 &p0, const float3 &p1)
 {
-	return (float3)(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
-					p0.v[2] * p1.v[0] - p0.v[0] * p1.v[2],
-					p0.v[0] * p1.v[1] - p0.v[1] * p1.v[0]);
+	return float3::make(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
+						p0.v[2] * p1.v[0] - p0.v[0] * p1.v[2],
+						p0.v[0] * p1.v[1] - p0.v[1] * p1.v[0]);
 }
 
 inline float dot(const float2 &p0, const float2 &p1)

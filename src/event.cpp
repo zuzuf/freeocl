@@ -106,7 +106,7 @@ extern "C"
 		case CL_EVENT_COMMAND_TYPE:					bTooSmall = SET_VAR(event->command_type);	break;
 		case CL_EVENT_COMMAND_EXECUTION_STATUS:
 			{
-				const cl_uint status = event->status;
+				const cl_int status = event->status;
 				bTooSmall = SET_VAR(status);
 			}
 			break;
@@ -192,6 +192,7 @@ extern "C"
 		cmd.common.event->command_queue = command_queue;
 		cmd.common.event->command_type = CL_COMMAND_MARKER;
 		cmd.common.event->status = CL_SUBMITTED;
+		cmd.common.event->retain();
 
 		command_queue->enqueue(cmd);
 
@@ -268,7 +269,8 @@ extern "C"
 
 void _cl_event::change_status(cl_int new_status)
 {
-	status = new_status;
+	if (status > new_status)
+		status = new_status;
 	std::deque<FreeOCL::event_call_back> call_backs;
 	call_backs.swap(this->call_backs[new_status]);
 

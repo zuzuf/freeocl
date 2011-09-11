@@ -95,6 +95,7 @@ extern "C"
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_NATIVE_KERNEL;
 			cmd.common.event->status = CL_SUBMITTED;
+			cmd.common.event->retain();
 		}
 
 		unlock.forget(command_queue);
@@ -407,6 +408,7 @@ extern "C"
 			cmd.common.event->command_queue = command_queue;
 			cmd.common.event->command_type = CL_COMMAND_NDRANGE_KERNEL;
 			cmd.common.event->status = CL_SUBMITTED;
+			cmd.common.event->retain();
 		}
 
 		kernel->retain();

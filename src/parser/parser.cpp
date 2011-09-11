@@ -215,7 +215,7 @@ namespace FreeOCL
 			MATCH2(init_declarator_list, token<';'>)
 			{
 				// register variables
-				const smartptr<Chunk> var_list = N[0].as<Chunk>();
+				smartptr<Chunk> var_list = N[0].as<Chunk>();
 				for(size_t i = 0 ; i < var_list->size() ; i += 2)
 				{
 					const smartptr<Chunk> declarator = (*var_list)[i].as<Chunk>()->front().as<Chunk>();
@@ -257,6 +257,26 @@ namespace FreeOCL
 						symbols->insert(name, new Typedef(name, l_type));
 					else
 						symbols->insert(name, new Var(name, l_type));
+
+					if ((*var_list)[i].as<Chunk>()->size() == 3)		// Check initializer
+					{
+						// If it's not an Expression, then it's a vector/struct initializer which will be handleded by the C++ compiler
+						smartptr<Expression> init = (*var_list)[i].as<Chunk>()->back().as<Expression>();
+						if (init && init->getType().as<NativeType>() && l_type.as<NativeType>())
+						{
+							smartptr<NativeType> init_type = init->getType().as<NativeType>();
+							smartptr<NativeType> v_type = l_type.as<NativeType>();
+							const std::string v_type_name = NativeType(v_type->getTypeID(), false, NativeType::PRIVATE).getName();
+							if (v_type->isVector() && init_type->isScalar())
+								(*var_list)[i].as<Chunk>()->back() = new Chunk(new Token(v_type_name + "::make(", Parser::SPECIAL), init, new Token(")", ')'));
+							else if (v_type->isVector() && init_type->isVector())
+							{
+								if (v_type->getDim() != init_type->getDim())
+									ERROR("vector dimensions must match!");
+								(*var_list)[i].as<Chunk>()->back() = new Call(symbols->get<Callable>("convert_" + v_type_name), new Chunk(init));
+							}
+						}
+					}
 				}
 				d_val__ = new Chunk(fully_qualified_type, N[0], N[1]);
 				return 1;

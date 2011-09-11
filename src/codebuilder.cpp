@@ -89,10 +89,10 @@ namespace FreeOCL
 			<< " -m" << (sizeof(void*) * 8)
 			<< " -I./include"
 			<< " -o " << filename_out
-			<< " -g -O0 -march=native -mtune=native"
+			<< " -g -O3 -march=native -mtune=native -fomit-frame-pointer -ftree-vectorize"
 			<< " -rdynamic"
 			<< " -fno-exceptions"
-			<< " -ffast-math"
+//			<< " -ffast-math"
 			<< " -x c++ " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
