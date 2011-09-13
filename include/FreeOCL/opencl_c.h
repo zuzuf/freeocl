@@ -19,7 +19,6 @@
 #define __FREEOCL_OPENCL_C_PREINCLUDE_H__
 
 #include <cstddef>
-#include <x86intrin.h>
 #include <omp.h>
 
 #define __OPENCL_VERSION__	110

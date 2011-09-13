@@ -84,16 +84,9 @@ namespace FreeOCL
 
 		std::stringstream cmd;
 		cmd << FREEOCL_CXX_COMPILER
-			<< ' ' << FREEOCL_OMP_FLAGS
-			<< " -shared -fPIC -pipe"// -Wall"
-			<< " -m" << (sizeof(void*) * 8)
-			<< " -I./include"
+			<< FREEOCL_CXX_FLAGS
 			<< " -o " << filename_out
-			<< " -g -O3 -march=native -mtune=native -fomit-frame-pointer -ftree-vectorize"
-			<< " -rdynamic"
-			<< " -fno-exceptions"
-//			<< " -ffast-math"
-			<< " -x c++ " << filename_in
+			<< ' ' << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
 		log << runCommand(cmd.str(), &ret) << std::endl;
