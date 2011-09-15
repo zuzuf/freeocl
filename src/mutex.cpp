@@ -22,7 +22,11 @@ namespace FreeOCL
 	mutex::mutex()
 	{
 		// Create a default mutex
-		pthread_mutex_init(&pm, NULL);
+		pthread_mutexattr_t attr;
+		pthread_mutexattr_init(&attr);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+		pthread_mutex_init(&pm, &attr);
+		pthread_mutexattr_destroy(&attr);
 	}
 
 	mutex::~mutex()

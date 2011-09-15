@@ -29,9 +29,48 @@ namespace FreeOCL
 
 		void retain()	{	++counter;	}
 		void release()	{	--counter;	}
-		size_t getRefCount() const	{	return counter;	}
+		size_t get_ref_count() const	{	return counter;	}
 	private:
 		size_t counter;
+	};
+
+	template<bool, class T> struct __if;
+	template<class T> struct __if<true, T>	{	typedef T type;	};
+
+	template<class T, class V = void> struct __smartptr_trait_validation
+	{
+		static inline bool valid(const T *) {	return true;	}
+		static inline void invalidate(T *) {}
+	};
+
+	template<class T> struct __smartptr_trait_validation<T, typename __if<T::bHasValidationFlag, void>::type>
+	{
+		static inline bool valid(const T *obj) {	return obj ? obj->valid() : false;	}
+		static inline void invalidate(const T *obj)
+		{
+			if (obj)
+				obj->invalidate();
+		}
+	};
+
+	template<class T, class V = void> struct __smartptr_trait_lockable
+	{
+		static inline void lock(const T *) {}
+		static inline void unlock(const T *) {}
+	};
+
+	template<class T> struct __smartptr_trait_lockable<T, typename __if<T::bIsLockable, void>::type>
+	{
+		static inline void lock(const T *obj)
+		{
+			if (obj)
+				obj->lock();
+		}
+		static inline void unlock(const T *obj)
+		{
+			if (obj)
+				obj->unlock();
+		}
 	};
 
 	template<class T>
@@ -51,28 +90,29 @@ namespace FreeOCL
 		~smartptr()
 		{
 			if (ptr)
-			{
-				ptr->release();
-				if (ptr->getRefCount() == 0)
-					delete ptr;
-			}
+				clear(ptr);
 		}
 
 		smartptr &operator=(const smartptr &ptr)
 		{
 			if (this->ptr == ptr.ptr)
 				return *this;
+			__smartptr_trait_lockable<T>::lock(ptr.ptr);
+			if (!__smartptr_trait_validation<T>::valid(ptr.ptr))
+			{
+				__smartptr_trait_lockable<T>::unlock(ptr.ptr);
+				clear(this->ptr);
+				this->ptr = NULL;
+				return *this;
+			}
 
 			T *old = this->ptr;
 			this->ptr = const_cast<T*>(ptr.ptr);
 			if (this->ptr)
 				this->ptr->retain();
+			__smartptr_trait_lockable<T>::unlock(ptr.ptr);
 			if (old)
-			{
-				old->release();
-				if (old->getRefCount() == 0)
-					delete old;
-			}
+				clear(old);
 			return *this;
 		}
 
@@ -81,16 +121,22 @@ namespace FreeOCL
 			if (this->ptr == ptr)
 				return *this;
 
+			__smartptr_trait_lockable<T>::lock(ptr);
+			if (!__smartptr_trait_validation<T>::valid(ptr))
+			{
+				__smartptr_trait_lockable<T>::unlock(ptr);
+				clear(this->ptr);
+				this->ptr = NULL;
+				return *this;
+			}
+
 			T *old = this->ptr;
 			this->ptr = const_cast<T*>(ptr);
 			if (this->ptr)
 				this->ptr->retain();
+			__smartptr_trait_lockable<T>::unlock(ptr);
 			if (old)
-			{
-				old->release();
-				if (old->getRefCount() == 0)
-					delete old;
-			}
+				clear(old);
 			return *this;
 		}
 
@@ -112,6 +158,24 @@ namespace FreeOCL
 
 		template<class U>
 		const U *as() const	{	return dynamic_cast<const U*>(ptr);	}
+
+		T * const &weak() const	{	return ptr;	}
+		T * &weak()	{	return ptr;	}
+
+	private:
+		void clear(T *p) const
+		{
+			__smartptr_trait_lockable<T>::lock(p);
+			p->release();
+			if (p->get_ref_count() == 0)
+			{
+				__smartptr_trait_validation<T>::invalidate(p);
+				__smartptr_trait_lockable<T>::unlock(p);
+				delete p;
+			}
+			else
+				__smartptr_trait_lockable<T>::unlock(p);
+		}
 	private:
 		T *ptr;
 	};

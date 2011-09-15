@@ -21,87 +21,97 @@
 #include "freeocl.h"
 #include "condition.h"
 #include "thread.h"
+#include "utils/smartptr.h"
+#include "event.h"
 #include <vector>
 #include <deque>
 
 namespace FreeOCL
 {
-	struct command_common
+	struct command_common : public ref_counter, public valid_flag, public mutex
 	{
-		cl_command_type type;
-		cl_event		event;
-		cl_uint			num_events_in_wait_list;
-		const cl_event	*event_wait_list;
+		smartptr<_cl_event>	event;
+		cl_uint				num_events_in_wait_list;
+		const cl_event		*event_wait_list;
+
+		command_common()
+		{
+			ref_counter::release();
+		}
+
+		virtual cl_command_type getType() const = 0;
 	};
 
 	struct command_read_buffer : public command_common
 	{
-		cl_mem buffer;
+		smartptr<_cl_mem> buffer;
 		size_t offset;
 		size_t cb;
 		void *ptr;
+
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_write_buffer : public command_common
 	{
-		cl_mem buffer;
+		smartptr<_cl_mem> buffer;
 		size_t offset;
 		size_t cb;
 		const void *ptr;
+
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_copy_buffer : public command_common
 	{
-		cl_mem src_buffer;
-		cl_mem dst_buffer;
+		smartptr<_cl_mem> src_buffer;
+		smartptr<_cl_mem> dst_buffer;
 		size_t src_offset;
 		size_t dst_offset;
 		size_t cb;
+
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_map_buffer : public command_common
 	{
-		cl_mem buffer;
+		smartptr<_cl_mem> buffer;
 		void *ptr;
+
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_unmap_buffer : public command_map_buffer
 	{
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_marker : public command_common
 	{
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_native_kernel : public command_common
 	{
 		void (*user_func)(void *);
 		void *args;
+
+		virtual cl_command_type getType() const;
 	};
 
 	struct command_ndrange_kernel : public command_common
 	{
-		cl_kernel kernel;
+		smartptr<_cl_kernel> kernel;
 		void *args;
 		cl_uint dim;
 		size_t global_offset[3];
 		size_t global_size[3];
 		size_t local_size[3];
+
+		virtual cl_command_type getType() const;
 	};
 
-	union command
-	{
-		cl_command_type			type;
-		command_common			common;
-		command_read_buffer		read_buffer;
-		command_write_buffer	write_buffer;
-		command_copy_buffer		copy_buffer;
-		command_map_buffer		map_buffer;
-		command_unmap_buffer	unmap_buffer;
-		command_marker			marker;
-		command_native_kernel	native_kernel;
-		command_ndrange_kernel	ndrange_kernel;
-	};
+	typedef command_common command;
 }
 
 struct _cl_command_queue : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::condition, public FreeOCL::valid_flag, public FreeOCL::context_resource
@@ -124,14 +134,13 @@ private:
 	};
 
 private:
-	std::deque<FreeOCL::command>	queue;
-	FreeOCL::mutex	q_mutex;
+	std::deque<FreeOCL::smartptr<FreeOCL::command> >	queue;
 	thread q_thread;
 	volatile bool b_stop;
 
 public:
 	bool empty();
-	void enqueue(const FreeOCL::command &cmd);
+	void enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd);
 
 private:
 	int proc();

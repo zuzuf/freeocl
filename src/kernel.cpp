@@ -68,34 +68,32 @@ extern "C"
 			return CL_INVALID_CONTEXT;
 		unlock.handle(command_queue->context);
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_NATIVE_KERNEL;
-		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-		cmd.common.event_wait_list = event_wait_list;
+		FreeOCL::smartptr<FreeOCL::command_native_kernel> cmd = new FreeOCL::command_native_kernel;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
 
-		cmd.native_kernel.user_func = user_func;
-		cmd.native_kernel.args = malloc(cb_args);
-		memcpy(cmd.native_kernel.args, args, cb_args);
+		cmd->user_func = user_func;
+		cmd->args = malloc(cb_args);
+		memcpy(cmd->args, args, cb_args);
 		for(size_t i = 0 ; i < num_mem_objects ; ++i)
 		{
 			if (!FreeOCL::isValid(mem_list[i]))
 			{
-				free(cmd.native_kernel.args);
+				free(cmd->args);
 				return CL_INVALID_MEM_OBJECT;
 			}
 			const ptrdiff_t offset = (char*)args_mem_loc[i] - (char*)args;
-			*((void**)((char*)cmd.native_kernel.args + offset)) = mem_list[i]->ptr;
+			*((void**)((char*)cmd->args + offset)) = mem_list[i]->ptr;
 			mem_list[i]->unlock();
 		}
 
-		cmd.common.event = (event != NULL) ? new _cl_event(command_queue->context) : NULL;
-		if (cmd.common.event)
+		cmd->event = (event != NULL) ? new _cl_event(command_queue->context) : NULL;
+		if (cmd->event)
 		{
-			*event = cmd.common.event;
-			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->command_type = CL_COMMAND_NATIVE_KERNEL;
-			cmd.common.event->status = CL_SUBMITTED;
-			cmd.common.event->retain();
+			*event = cmd->event.weak();
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_NATIVE_KERNEL;
+			cmd->event->status = CL_SUBMITTED;
 		}
 
 		unlock.forget(command_queue);
@@ -375,43 +373,39 @@ extern "C"
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_NDRANGE_KERNEL;
-		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = NULL;
-		cmd.ndrange_kernel.dim = work_dim;
-		cmd.ndrange_kernel.kernel = kernel;
+		FreeOCL::smartptr<FreeOCL::command_ndrange_kernel> cmd = new FreeOCL::command_ndrange_kernel;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = NULL;
+		cmd->dim = work_dim;
+		cmd->kernel = kernel;
 		for(size_t i = work_dim ; i < 3 ; ++i)
 		{
-			cmd.ndrange_kernel.global_size[i] = 1;
-			cmd.ndrange_kernel.global_offset[i] = 0;
-			cmd.ndrange_kernel.local_size[i] = 1;
+			cmd->global_size[i] = 1;
+			cmd->global_offset[i] = 0;
+			cmd->local_size[i] = 1;
 		}
 		for(size_t i = 0 ; i < work_dim ; ++i)
 		{
-			cmd.ndrange_kernel.global_size[i] = global_work_size[i];
-			cmd.ndrange_kernel.global_offset[i] = global_work_offset ? global_work_offset[i] : 0;
-			cmd.ndrange_kernel.local_size[i] = local_work_size[i];
+			cmd->global_size[i] = global_work_size[i];
+			cmd->global_offset[i] = global_work_offset ? global_work_offset[i] : 0;
+			cmd->local_size[i] = local_work_size[i];
 		}
 		if (kernel->args_buffer.empty())
-			cmd.ndrange_kernel.args = NULL;
+			cmd->args = NULL;
 		else
 		{
-			cmd.ndrange_kernel.args = malloc(kernel->args_buffer.size());
-			memcpy(cmd.ndrange_kernel.args, &(kernel->args_buffer.front()), kernel->args_buffer.size());
+			cmd->args = malloc(kernel->args_buffer.size());
+			memcpy(cmd->args, &(kernel->args_buffer.front()), kernel->args_buffer.size());
 		}
 
 		if (event)
 		{
-			cmd.common.event = *event = new _cl_event(command_queue->context);
-			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->command_type = CL_COMMAND_NDRANGE_KERNEL;
-			cmd.common.event->status = CL_SUBMITTED;
-			cmd.common.event->retain();
+			cmd->event = *event = new _cl_event(command_queue->context);
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_NDRANGE_KERNEL;
+			cmd->event->status = CL_SUBMITTED;
 		}
-
-		kernel->retain();
 
 		unlock.forget(command_queue);
 		command_queue->enqueue(cmd);

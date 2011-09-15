@@ -184,15 +184,13 @@ extern "C"
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_MARKER;
-		cmd.common.num_events_in_wait_list = 0;
-		cmd.common.event_wait_list = NULL;
-		cmd.common.event = *event = new _cl_event(command_queue->context);
-		cmd.common.event->command_queue = command_queue;
-		cmd.common.event->command_type = CL_COMMAND_MARKER;
-		cmd.common.event->status = CL_SUBMITTED;
-		cmd.common.event->retain();
+		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
+		cmd->num_events_in_wait_list = 0;
+		cmd->event_wait_list = NULL;
+		cmd->event = *event = new _cl_event(command_queue->context);
+		cmd->event->command_queue = command_queue;
+		cmd->event->command_type = CL_COMMAND_MARKER;
+		cmd->event->status = CL_SUBMITTED;
 
 		command_queue->enqueue(cmd);
 
@@ -205,11 +203,10 @@ extern "C"
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_MARKER;
-		cmd.common.num_events_in_wait_list = 0;
-		cmd.common.event_wait_list = NULL;
-		cmd.common.event = NULL;
+		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
+		cmd->num_events_in_wait_list = 0;
+		cmd->event_wait_list = NULL;
+		cmd->event = NULL;
 
 		command_queue->enqueue(cmd);
 
@@ -227,11 +224,10 @@ extern "C"
 		if (!FreeOCL::isValid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_MARKER;
-		cmd.common.num_events_in_wait_list = num_events;
-		cmd.common.event_wait_list = event_list;
-		cmd.common.event = NULL;
+		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
+		cmd->num_events_in_wait_list = num_events;
+		cmd->event_wait_list = event_list;
+		cmd->event = NULL;
 
 		command_queue->enqueue(cmd);
 

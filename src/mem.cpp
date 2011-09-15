@@ -221,26 +221,24 @@ extern "C"
 					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
 		}
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_READ_BUFFER;
-		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = (blocking_read == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
-		cmd.read_buffer.buffer = buffer;
-		cmd.read_buffer.offset = offset;
-		cmd.read_buffer.cb = cb;
-		cmd.read_buffer.ptr = ptr;
+		FreeOCL::smartptr<FreeOCL::command_read_buffer> cmd = new FreeOCL::command_read_buffer;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = (blocking_read == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = buffer;
+		cmd->offset = offset;
+		cmd->cb = cb;
+		cmd->ptr = ptr;
 
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->command_type = CL_COMMAND_READ_BUFFER;
-			cmd.common.event->status = CL_SUBMITTED;
-			cmd.common.event->retain();
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_READ_BUFFER;
+			cmd->event->status = CL_SUBMITTED;
 		}
 
 		if (event)
-			*event = cmd.common.event;
+			*event = cmd->event.weak();
 
 		unlock.forget(command_queue);
 		command_queue->enqueue(cmd);
@@ -249,12 +247,9 @@ extern "C"
 
 		if (blocking_read == CL_TRUE)
 		{
-			clWaitForEvents(1, &cmd.common.event);
+			clWaitForEvents(1, &(cmd->event.weak()));
 			if (event == NULL)
-			{
-				clReleaseEvent(cmd.common.event);
-				clReleaseEvent(cmd.common.event);
-			}
+				clReleaseEvent(cmd->event.weak());
 		}
 
 		return CL_SUCCESS;
@@ -297,26 +292,24 @@ extern "C"
 					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
 		}
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_WRITE_BUFFER;
-		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = (blocking_write == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
-		cmd.write_buffer.buffer = buffer;
-		cmd.write_buffer.offset = offset;
-		cmd.write_buffer.cb = cb;
-		cmd.write_buffer.ptr = ptr;
+		FreeOCL::smartptr<FreeOCL::command_write_buffer> cmd = new FreeOCL::command_write_buffer;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = (blocking_write == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = buffer;
+		cmd->offset = offset;
+		cmd->cb = cb;
+		cmd->ptr = ptr;
 
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->command_type = CL_COMMAND_WRITE_BUFFER;
-			cmd.common.event->status = CL_SUBMITTED;
-			cmd.common.event->retain();
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_WRITE_BUFFER;
+			cmd->event->status = CL_SUBMITTED;
 		}
 
 		if (event)
-			*event = cmd.common.event;
+			*event = cmd->event.weak();
 
 		unlock.forget(command_queue);
 		command_queue->enqueue(cmd);
@@ -325,12 +318,9 @@ extern "C"
 
 		if (blocking_write == CL_TRUE)
 		{
-			clWaitForEvents(1, &cmd.common.event);
+			clWaitForEvents(1, &(cmd->event.weak()));
 			if (event == NULL)
-			{
-				clReleaseEvent(cmd.common.event);
-				clReleaseEvent(cmd.common.event);
-			}
+				clReleaseEvent(cmd->event.weak());
 		}
 
 		return CL_SUCCESS;
@@ -375,27 +365,25 @@ extern "C"
 			&& std::max(src_offset, dst_offset) - std::min(src_offset, dst_offset) < cb)
 			return CL_MEM_COPY_OVERLAP;
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_COPY_BUFFER;
-		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = event ? new _cl_event(command_queue->context) : NULL;
-		cmd.copy_buffer.src_buffer = src_buffer;
-		cmd.copy_buffer.src_offset = src_offset;
-		cmd.copy_buffer.dst_buffer = dst_buffer;
-		cmd.copy_buffer.dst_offset = dst_offset;
-		cmd.copy_buffer.cb = cb;
+		FreeOCL::smartptr<FreeOCL::command_copy_buffer> cmd = new FreeOCL::command_copy_buffer;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->src_buffer = src_buffer;
+		cmd->src_offset = src_offset;
+		cmd->dst_buffer = dst_buffer;
+		cmd->dst_offset = dst_offset;
+		cmd->cb = cb;
 
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->command_type = CL_COMMAND_COPY_BUFFER;
-			cmd.common.event->status = CL_SUBMITTED;
-			cmd.common.event->retain();
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_COPY_BUFFER;
+			cmd->event->status = CL_SUBMITTED;
 		}
 
 		if (event)
-			*event = cmd.common.event;
+			*event = cmd->event.weak();
 
 		unlock.forget(command_queue);
 		command_queue->enqueue(cmd);
@@ -458,22 +446,20 @@ extern "C"
 		}
 		else
 		{
-			FreeOCL::command cmd;
-			cmd.type = CL_COMMAND_MAP_BUFFER;
-			cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-			cmd.common.event_wait_list = event_wait_list;
-			cmd.common.event = (blocking_map == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
-			if (cmd.common.event)
+			FreeOCL::smartptr<FreeOCL::command_map_buffer> cmd = new FreeOCL::command_map_buffer;
+			cmd->num_events_in_wait_list = num_events_in_wait_list;
+			cmd->event_wait_list = event_wait_list;
+			cmd->event = (blocking_map == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+			if (cmd->event)
 			{
-				cmd.common.event->command_queue = command_queue;
-				cmd.common.event->command_type = CL_COMMAND_MAP_BUFFER;
-				cmd.common.event->status = CL_SUBMITTED;
-				cmd.common.event->retain();
+				cmd->event->command_queue = command_queue;
+				cmd->event->command_type = CL_COMMAND_MAP_BUFFER;
+				cmd->event->status = CL_SUBMITTED;
 				if (event)
-					*event = cmd.common.event;
+					*event = cmd->event.weak();
 			}
-			cmd.map_buffer.buffer = buffer;
-			cmd.map_buffer.ptr = p;
+			cmd->buffer = buffer;
+			cmd->ptr = p;
 
 			unlock.forget(command_queue);
 			command_queue->enqueue(cmd);
@@ -481,12 +467,9 @@ extern "C"
 
 			if (blocking_map == CL_TRUE)
 			{
-				clWaitForEvents(1, &cmd.common.event);
+				clWaitForEvents(1, &cmd->event.weak());
 				if (event == NULL)
-				{
-					clReleaseEvent(cmd.common.event);
-					clReleaseEvent(cmd.common.event);
-				}
+					clReleaseEvent(cmd->event.weak());
 			}
 		}
 		SET_RET(CL_SUCCESS);
@@ -514,21 +497,19 @@ extern "C"
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(memobj);
 
-		FreeOCL::command cmd;
-		cmd.type = CL_COMMAND_UNMAP_MEM_OBJECT;
-		cmd.common.num_events_in_wait_list = num_events_in_wait_list;
-		cmd.common.event_wait_list = event_wait_list;
-		cmd.common.event = event ? new _cl_event(command_queue->context) : NULL;
-		cmd.unmap_buffer.buffer = memobj;
-		cmd.unmap_buffer.ptr = mapped_ptr;
+		FreeOCL::smartptr<FreeOCL::command_unmap_buffer> cmd = new FreeOCL::command_unmap_buffer;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = memobj;
+		cmd->ptr = mapped_ptr;
 
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			*event = cmd.common.event;
-			cmd.common.event->command_queue = command_queue;
-			cmd.common.event->command_type = CL_COMMAND_UNMAP_MEM_OBJECT;
-			cmd.common.event->status = CL_SUBMITTED;
-			cmd.common.event->retain();
+			*event = cmd->event.weak();
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_UNMAP_MEM_OBJECT;
+			cmd->event->status = CL_SUBMITTED;
 		}
 
 		return CL_SUCCESS;

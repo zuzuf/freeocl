@@ -27,26 +27,28 @@ namespace FreeOCL
 	class mutex
 	{
 	public:
+		enum { bIsLockable = true };
+	public:
 		mutex();
 		~mutex();
 
-		inline void lock()
+		inline void lock() const
 		{
 			pthread_mutex_lock(&pm);
 		}
 
-		inline bool try_lock()
+		inline bool try_lock() const
 		{
 			return pthread_mutex_trylock(&pm) == EBUSY;
 		}
 
-		inline void unlock()
+		inline void unlock() const
 		{
 			pthread_mutex_unlock(&pm);
 		}
 
 	protected:
-		pthread_mutex_t pm;
+		mutable pthread_mutex_t pm;
 	};
 
 	class unlocker

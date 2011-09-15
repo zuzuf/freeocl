@@ -29,6 +29,18 @@
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
+namespace FreeOCL
+{
+	cl_command_type command_read_buffer::getType() const	{	return CL_COMMAND_READ_BUFFER;	}
+	cl_command_type command_write_buffer::getType() const	{	return CL_COMMAND_WRITE_BUFFER;	}
+	cl_command_type command_copy_buffer::getType() const	{	return CL_COMMAND_COPY_BUFFER;	}
+	cl_command_type command_map_buffer::getType() const		{	return CL_COMMAND_MAP_BUFFER;	}
+	cl_command_type command_unmap_buffer::getType() const	{	return CL_COMMAND_UNMAP_MEM_OBJECT;	}
+	cl_command_type command_marker::getType() const			{	return CL_COMMAND_MARKER;	}
+	cl_command_type command_native_kernel::getType() const	{	return CL_COMMAND_NATIVE_KERNEL;	}
+	cl_command_type command_ndrange_kernel::getType() const	{	return CL_COMMAND_NDRANGE_KERNEL;	}
+}
+
 extern "C"
 {
 	cl_command_queue clCreateCommandQueueFCL (cl_context context,
@@ -173,11 +185,9 @@ _cl_command_queue::~_cl_command_queue()
 	FreeOCL::global_mutex.unlock();
 }
 
-void _cl_command_queue::enqueue(const FreeOCL::command &cmd)
+void _cl_command_queue::enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 {
-	q_mutex.lock();
 	queue.push_back(cmd);
-	q_mutex.unlock();
 
 	if (!b_stop)
 	{
@@ -192,21 +202,21 @@ void _cl_command_queue::enqueue(const FreeOCL::command &cmd)
 
 bool _cl_command_queue::empty()
 {
-	q_mutex.lock();
+	lock();
 	const bool b = queue.empty();
-	q_mutex.unlock();
+	unlock();
 	return b;
 }
 
-bool isCommandReadyToProcess(const FreeOCL::command &cmd)
+bool isCommandReadyToProcess(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 {
-	if (cmd.common.event_wait_list == NULL)
+	if (cmd->event_wait_list == NULL)
 		return true;
 
-	const cl_event *events = cmd.common.event_wait_list;
+	const cl_event *events = cmd->event_wait_list;
 	bool bError = false;
 	bool bReady = true;
-	for(size_t i = 0 ; i < cmd.common.num_events_in_wait_list && !bError && bReady ; ++i)
+	for(size_t i = 0 ; i < cmd->num_events_in_wait_list && !bError && bReady ; ++i)
 	{
 		if (!FreeOCL::isValid(events[i]))
 		{
@@ -218,11 +228,11 @@ bool isCommandReadyToProcess(const FreeOCL::command &cmd)
 	}
 	if (bError)
 	{
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			cmd.common.event->lock();
-			cmd.common.event->change_status(CL_INVALID_EVENT_WAIT_LIST);
-			cmd.common.event->unlock();
+			cmd->event->lock();
+			cmd->event.weak()->change_status(CL_INVALID_EVENT_WAIT_LIST);
+			cmd->event->unlock();
 		}
 		throw 0;
 	}
@@ -233,17 +243,15 @@ int _cl_command_queue::proc()
 {
 	while(!b_stop)
 	{
-		q_mutex.lock();
+		lock();
 		if (queue.empty())
 		{
-			q_mutex.unlock();
-			wait();
-			q_mutex.lock();
+			wait_locked();
 		}
 
-		FreeOCL::command cmd = queue.front();
+		FreeOCL::smartptr<FreeOCL::command> cmd = queue.front();
 		queue.pop_front();
-		q_mutex.unlock();
+		unlock();
 
 		if (b_stop)
 			break;
@@ -253,21 +261,21 @@ int _cl_command_queue::proc()
 			if (properties & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
 			{
 				// Find something else to process
-				std::deque<FreeOCL::command> waiting_queue;
+				std::deque<FreeOCL::smartptr<FreeOCL::command> > waiting_queue;
 				waiting_queue.push_front(cmd);
 
 				bool bFound = false;
 
-				q_mutex.lock();
+				lock();
 				while(!queue.empty() && !bFound)
 				{
 					cmd = queue.front();
 					queue.pop_front();
-					q_mutex.unlock();
+					unlock();
 
-					if (cmd.type == CL_COMMAND_MARKER)
+					if (cmd->getType() == CL_COMMAND_MARKER)
 					{
-						q_mutex.lock();
+						lock();
 						queue.push_front(cmd);
 						break;
 					}
@@ -276,82 +284,81 @@ int _cl_command_queue::proc()
 					if (!bFound)
 						waiting_queue.push_front(cmd);
 
-					q_mutex.lock();
+					lock();
 				}
-				q_mutex.unlock();
 
-				q_mutex.lock();
-				for(std::deque<FreeOCL::command>::const_iterator i = waiting_queue.begin() ; i != waiting_queue.end() ; ++i)
+				for(std::deque<FreeOCL::smartptr<FreeOCL::command> >::const_iterator i = waiting_queue.begin() ; i != waiting_queue.end() ; ++i)
 					queue.push_front(*i);
-				q_mutex.unlock();
 
 				if (!bFound)		// No choice, we must try later
 				{
-					wait();
+					wait_locked();
+					unlock();
 					continue;
 				}
+				unlock();
 			}
 			else
 			{
 				// Retry later
-				q_mutex.lock();
+				lock();
 				queue.push_front(cmd);
-				q_mutex.unlock();
-				wait();
+				wait_locked();
+				unlock();
 				continue;
 			}
 		}
 
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			cmd.common.event->lock();
-			cmd.common.event->change_status(CL_RUNNING);
-			cmd.common.event->unlock();
+			cmd->event->lock();
+			cmd->event->change_status(CL_RUNNING);
+			cmd->event->unlock();
 		}
 
-		switch(cmd.type)
+		switch(cmd->getType())
 		{
 		case CL_COMMAND_READ_BUFFER:
-			memcpy(cmd.read_buffer.ptr, (char*)cmd.read_buffer.buffer->ptr + cmd.read_buffer.offset, cmd.read_buffer.cb);
+			memcpy(cmd.as<FreeOCL::command_read_buffer>()->ptr, (char*)cmd.as<FreeOCL::command_read_buffer>()->buffer->ptr + cmd.as<FreeOCL::command_read_buffer>()->offset, cmd.as<FreeOCL::command_read_buffer>()->cb);
 			break;
 		case CL_COMMAND_WRITE_BUFFER:
-			memcpy((char*)cmd.write_buffer.buffer->ptr + cmd.write_buffer.offset, cmd.write_buffer.ptr, cmd.write_buffer.cb);
+			memcpy((char*)cmd.as<FreeOCL::command_write_buffer>()->buffer->ptr + cmd.as<FreeOCL::command_write_buffer>()->offset, cmd.as<FreeOCL::command_write_buffer>()->ptr, cmd.as<FreeOCL::command_write_buffer>()->cb);
 			break;
 		case CL_COMMAND_COPY_BUFFER:
-			memcpy((char*)cmd.copy_buffer.dst_buffer->ptr + cmd.copy_buffer.dst_offset, (char*)cmd.copy_buffer.src_buffer + cmd.copy_buffer.src_offset, cmd.copy_buffer.cb);
+			memcpy((char*)cmd.as<FreeOCL::command_copy_buffer>()->dst_buffer->ptr + cmd.as<FreeOCL::command_copy_buffer>()->dst_offset,
+				   (char*)cmd.as<FreeOCL::command_copy_buffer>()->src_buffer->ptr + cmd.as<FreeOCL::command_copy_buffer>()->src_offset,
+				   cmd.as<FreeOCL::command_copy_buffer>()->cb);
 			break;
 		case CL_COMMAND_MAP_BUFFER:
-			cmd.map_buffer.buffer->lock();
-			cmd.map_buffer.buffer->mapped.insert(cmd.map_buffer.ptr);
-			cmd.map_buffer.buffer->unlock();
+			cmd.as<FreeOCL::command_map_buffer>()->buffer->lock();
+			cmd.as<FreeOCL::command_map_buffer>()->buffer->mapped.insert(cmd.as<FreeOCL::command_map_buffer>()->ptr);
+			cmd.as<FreeOCL::command_map_buffer>()->buffer->unlock();
 			break;
 		case CL_COMMAND_UNMAP_MEM_OBJECT:
-			cmd.unmap_buffer.buffer->lock();
-			cmd.unmap_buffer.buffer->mapped.erase(cmd.unmap_buffer.ptr);
-			cmd.unmap_buffer.buffer->unlock();
+			cmd.as<FreeOCL::command_unmap_buffer>()->buffer->lock();
+			cmd.as<FreeOCL::command_unmap_buffer>()->buffer->mapped.erase(cmd.as<FreeOCL::command_unmap_buffer>()->ptr);
+			cmd.as<FreeOCL::command_unmap_buffer>()->buffer->unlock();
 			break;
 		case CL_COMMAND_NATIVE_KERNEL:
-			cmd.native_kernel.user_func(cmd.native_kernel.args);
-			free(cmd.native_kernel.args);
+			cmd.as<FreeOCL::command_native_kernel>()->user_func(cmd.as<FreeOCL::command_native_kernel>()->args);
+			free(cmd.as<FreeOCL::command_native_kernel>()->args);
 			break;
 		case CL_COMMAND_NDRANGE_KERNEL:
-			cmd.ndrange_kernel.kernel->__FCL_kernel(cmd.ndrange_kernel.args,
-													cmd.ndrange_kernel.dim,
-													cmd.ndrange_kernel.global_offset,
-													cmd.ndrange_kernel.global_size,
-													cmd.ndrange_kernel.local_size);
-			if (cmd.ndrange_kernel.args)
-				free(cmd.ndrange_kernel.args);
-			clReleaseKernel(cmd.ndrange_kernel.kernel);
+			cmd.as<FreeOCL::command_ndrange_kernel>()->kernel->__FCL_kernel(cmd.as<FreeOCL::command_ndrange_kernel>()->args,
+																			cmd.as<FreeOCL::command_ndrange_kernel>()->dim,
+																			cmd.as<FreeOCL::command_ndrange_kernel>()->global_offset,
+																			cmd.as<FreeOCL::command_ndrange_kernel>()->global_size,
+																			cmd.as<FreeOCL::command_ndrange_kernel>()->local_size);
+			if (cmd.as<FreeOCL::command_ndrange_kernel>()->args)
+				free(cmd.as<FreeOCL::command_ndrange_kernel>()->args);
 			break;
 		}
 
-		if (cmd.common.event)
+		if (cmd->event)
 		{
-			cmd.common.event->lock();
-			cmd.common.event->change_status(CL_COMPLETE);
-			cmd.common.event->unlock();
-			clReleaseEvent(cmd.common.event);
+			cmd->event->lock();
+			cmd->event->change_status(CL_COMPLETE);
+			cmd->event->unlock();
 		}
 	}
 	return 0;

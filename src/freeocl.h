@@ -94,11 +94,13 @@ namespace FreeOCL
 
 	struct valid_flag
 	{
+		enum { bHasValidationFlag = true };
+
 		inline valid_flag() : bValid(true)	{}
 		inline bool valid() const	{	return bValid;	}
-		inline void invalidate()	{	bValid = false;	}
+		inline void invalidate() const	{	bValid = false;	}
 	private:
-		volatile bool bValid;
+		mutable volatile bool bValid;
 	};
 
 	struct context_resource
