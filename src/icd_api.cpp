@@ -147,7 +147,7 @@ extern "C"
 
 		if (platform == 0)		// No hint ? Ok, try them all
 		{
-			const std::vector<cl_platform_id> &platforms = FreeOCL::icd_loader.get_platforms();
+			const std::vector<cl_platform_id> &platforms = FreeOCL::icd_loader_instance.get_platforms();
 			for(std::vector<cl_platform_id>::const_iterator i = platforms.begin() ; i != platforms.end() ; ++i)
 			{
 				cl_context context = (*i)->dispatch->clCreateContextFromType(properties, device_type, pfn_notify, user_data, errcode_ret);
@@ -209,7 +209,7 @@ extern "C"
 						   cl_device_id *devices,
 						   cl_uint *num_devices)
 	{
-		if (!FreeOCL::icd_loader.isValid(platform))
+		if (!FreeOCL::icd_loader_instance.is_valid(platform))
 			return CL_INVALID_PLATFORM;
 		return platform->dispatch->clGetDeviceIDs(platform,
 												  device_type,
@@ -947,7 +947,7 @@ extern "C"
 							 void *param_value,
 							 size_t *param_value_size_ret)
 	{
-		if (!FreeOCL::icd_loader.isValid(platform))
+		if (!FreeOCL::icd_loader_instance.is_valid(platform))
 			return CL_INVALID_PLATFORM;
 		return platform->dispatch->clGetPlatformInfo(platform,
 													 param_name,
@@ -964,7 +964,7 @@ extern "C"
 			|| (platforms == NULL && num_platforms == NULL))
 			return CL_INVALID_VALUE;
 
-		const std::vector<cl_platform_id> &v_platforms = FreeOCL::icd_loader.get_platforms();
+		const std::vector<cl_platform_id> &v_platforms = FreeOCL::icd_loader_instance.get_platforms();
 		if (v_platforms.empty())
 			return CL_PLATFORM_NOT_FOUND_KHR;
 
@@ -1132,14 +1132,14 @@ extern "C"
 				return NULL;
 		}
 
-		const std::deque<FreeOCL::ICDLib> &libs = FreeOCL::icd_loader.getLibs();
-		for(std::deque<FreeOCL::ICDLib>::const_iterator i = libs.begin() ; i != libs.end() ; ++i)
+		const std::deque<FreeOCL::icd_lib> &libs = FreeOCL::icd_loader_instance.get_libs();
+		for(std::deque<FreeOCL::icd_lib>::const_iterator i = libs.begin() ; i != libs.end() ; ++i)
 		{
-			const FreeOCL::ICDLib &lib = *i;
-			const std::string &ICD_vendor_suffix = lib.platforms.front().second;
-			if (ICD_vendor_suffix.size() < l)
+			const FreeOCL::icd_lib &lib = *i;
+			const std::string &icd_vendor_suffix = lib.platforms.front().second;
+			if (icd_vendor_suffix.size() < l)
 				continue;
-			if (strcmp(funcname + l - ICD_vendor_suffix.size(), ICD_vendor_suffix.c_str()) == 0)
+			if (strcmp(funcname + l - icd_vendor_suffix.size(), icd_vendor_suffix.c_str()) == 0)
 				return lib.__clGetExtensionFunctionAddress(funcname);
 		}
 

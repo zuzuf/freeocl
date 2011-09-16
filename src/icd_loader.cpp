@@ -24,9 +24,9 @@
 
 namespace FreeOCL
 {
-	ICDLoader icd_loader;
+	icd_loader icd_loader_instance;
 
-	std::string ICDLoader::runCommand(const std::string &cmd)
+	std::string icd_loader::run_command(const std::string &cmd)
 	{
 		std::string result;
 		FILE *file = popen(cmd.c_str(), "r");
@@ -41,7 +41,7 @@ namespace FreeOCL
 		return result;
 	}
 
-	std::string ICDLoader::trim(const std::string &s)
+	std::string icd_loader::trim(const std::string &s)
 	{
 		if (s.empty())
 			return s;
@@ -52,7 +52,7 @@ namespace FreeOCL
 		return s.substr(start, end - start + 1);
 	}
 
-	std::deque<std::string> ICDLoader::split(const std::string &s, const std::string &sep)
+	std::deque<std::string> icd_loader::split(const std::string &s, const std::string &sep)
 	{
 		std::deque<std::string> result;
 
@@ -71,10 +71,10 @@ namespace FreeOCL
 		return result;
 	}
 
-	ICDLoader::ICDLoader()
+	icd_loader::icd_loader()
 	{
 		// Get the list of all *.icd files in /etc/OpenCL/vendors/
-		std::deque<std::string> files = split(trim(runCommand("ls -1 /etc/OpenCL/vendors/*.icd 2>/dev/null")), "\n");
+		std::deque<std::string> files = split(trim(run_command("ls -1 /etc/OpenCL/vendors/*.icd 2>/dev/null")), "\n");
 		// For each file
 		for(std::deque<std::string>::const_iterator i = files.begin() ; i != files.end() ; ++i)
 		{
@@ -90,12 +90,12 @@ namespace FreeOCL
 		}
 	}
 
-	ICDLoader::~ICDLoader()
+	icd_loader::~icd_loader()
 	{
 
 	}
 
-	void ICDLoader::load(const std::string &lib)
+	void icd_loader::load(const std::string &lib)
 	{
 #define FAIL()	return
 
@@ -142,7 +142,7 @@ namespace FreeOCL
 		if (err != CL_SUCCESS)
 			FAIL();
 
-		ICDLib icdlib;
+		icd_lib icdlib;
 		icdlib.handle = handle;
 		icdlib.lib = lib;
 		icdlib.__clGetExtensionFunctionAddress = __clGetExtensionFunctionAddress;

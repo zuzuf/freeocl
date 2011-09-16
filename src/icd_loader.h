@@ -32,7 +32,7 @@
 
 namespace FreeOCL
 {
-	struct ICDLib
+	struct icd_lib
 	{
 		std::string	lib;
 		void *handle;
@@ -40,41 +40,41 @@ namespace FreeOCL
 		void* (*__clGetExtensionFunctionAddress) (const char *funcname);
 	};
 
-	class ICDLoader
+	class icd_loader
 	{
 	public:
-		ICDLoader();
-		~ICDLoader();
+		icd_loader();
+		~icd_loader();
 
 		void load(const std::string &lib);
 
 		inline const std::vector<cl_platform_id> &get_platforms() const	{	return v_platforms;	}
 
-		inline const bool isValid(cl_device_id dev) const
+		inline const bool is_valid(cl_device_id dev) const
 		{
 			return valid_devices.count(dev) != 0;
 		}
 
-		inline const bool isValid(cl_platform_id platform) const
+		inline const bool is_valid(cl_platform_id platform) const
 		{
 			return valid_platforms.count(platform) != 0;
 		}
 
-		inline const std::deque<ICDLib> &getLibs() const	{	return libs;	}
+		inline const std::deque<icd_lib> &get_libs() const	{	return libs;	}
 
 	private:
-		std::deque<ICDLib> libs;
+		std::deque<icd_lib> libs;
 		std::vector<cl_platform_id> v_platforms;
 		std::set<cl_platform_id> valid_platforms;
 		std::set<cl_device_id> valid_devices;
 
 	private:
-		static std::string runCommand(const std::string &cmd);
+		static std::string run_command(const std::string &cmd);
 		static std::string trim(const std::string &s);
 		static std::deque<std::string> split(const std::string &s, const std::string &sep);
 	};
 
-	extern ICDLoader icd_loader;
+	extern icd_loader icd_loader_instance;
 }
 
 #endif
