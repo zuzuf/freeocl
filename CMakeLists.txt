@@ -5,7 +5,8 @@ set(FREEOCL_VERSION_HI		0)
 set(FREEOCL_VERSION_LO		0)
 set(FREEOCL_VERSION_PATCH	0)
 set(FREEOCL_VERSION_STRING	"${FREEOCL_VERSION_HI}.${FREEOCL_VERSION_LO}.${FREEOCL_VERSION_PATCH}")
-set(FREEOCL_VENDOR	"Roland Brochard")
+set(FREEOCL_VENDOR	"FreeOCL developers")
+set(FREEOCL_MAINTAINER_CONTACT "FreeOCL developers <zuzuf86@gmail.com>")
 
 set(CMAKE_THREAD_PREFER_PTHREAD pthread)
 include(FindThreads)
@@ -104,6 +105,9 @@ set(API_SOURCES
 	src/icd_loader.cpp src/icd_loader.h
 	)
 
+# Default is debug build
+SET(CMAKE_BUILD_TYPE Debug)
+
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -std=c++0x")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ffast-math -std=c++0x")
 
@@ -143,6 +147,8 @@ set_target_properties(OpenCL PROPERTIES LINK_FLAGS "-Wl,--version-script=OpenCL.
 
 option(BUILD_SAMPLES "build samples")
 
+set(TARGETS OpenCL FreeOCL)
+
 if(BUILD_SAMPLES)
 	link_libraries(OpenCL)
 	set(CLDEMO_SOURCES
@@ -157,4 +163,33 @@ if(BUILD_SAMPLES)
 		samples/cllist.cpp
 		samples/errors.cpp samples/errors.h)
 	add_executable(cllist ${CLLIST_SOURCES})
+
+	set(TARGETS ${TARGETS} cldemo cltest cllist)
 endif(BUILD_SAMPLES)
+
+# Installation and packaging process
+install(TARGETS ${TARGETS}
+		RUNTIME DESTINATION bin
+		LIBRARY DESTINATION lib)
+install(FILES icd/freeocl.icd DESTINATION /etc/OpenCL/vendors/)
+# OpenCL headers shouldn't be needed in the runtime package
+# install(DIRECTORY include/CL/ DESTINATION include/CL/ FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY include/FreeOCL/ DESTINATION include/FreeOCL/ FILES_MATCHING PATTERN "*.h")
+
+set(CPACK_PACKAGE_NAME "FreeOCL")
+set(CPACK_GENERATOR "DEB;NSIS;RPM;STGZ;TBZ2;TGZ;TZ;ZIP")
+set(CPACK_PACKAGE_VENDOR "${FREEOCL_VENDOR}")
+set(CPACK_PACKAGE_VERSION_MAJOR "${FREEOCL_VERSION_HI}")
+set(CPACK_PACKAGE_VERSION_MINOR "${FREEOCL_VERSION_LO}")
+set(CPACK_PACKAGE_VERSION_PATCH "${FREEOCL_VERSION_PATCH}")
+set(CPACK_PACKAGE_VERSION "${FREEOCL_VERSION_STRING}")
+set(CPACK_PACKAGE_DESCRIPTION_FILE "README")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Implémentation of the Open Computing Language 1.1 specifications targeting CPU devices.")
+set(CPACK_RESOURCE_FILE_LICENSE "COPYING")
+set(CPACK_RESOURCE_FILE_README "README")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "gcc, libatomic-ops-dev")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "${FREEOCL_MAINTAINER_CONTACT}")
+set(CPACK_PACKAGE_CONTACT "${FREEOCL_MAINTAINER_CONTACT}")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "important")
+
+include(CPack)
