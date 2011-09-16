@@ -1,4 +1,3 @@
-* find a way of implementing typen built-in types without breaking unions (currently you can't write "union { int4 i; float4 f; };" because of non-trivial constructors)
-* optimize math functions (current implementation has been made quickly and most functions are not optimaly implemented)
+* optimize math functions (current implementation has been made quickly and most functions are not optimal)
 * implement _rtz, _rtp and _rtn versions of vstore_half
-* implement OpenCL C swizzling syntax
+* fix bugs
