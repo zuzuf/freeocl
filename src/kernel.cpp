@@ -30,8 +30,8 @@ namespace
 	const size_t kernel_preferred_work_group_size_multiple = 1;
 }
 
-#define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_STRING(X)	FreeOCL::copy_memory_within_limits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -60,11 +60,11 @@ extern "C"
 			return CL_INVALID_EVENT_WAIT_LIST;
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(command_queue->context))
+		if (!FreeOCL::is_valid(command_queue->context))
 			return CL_INVALID_CONTEXT;
 		unlock.handle(command_queue->context);
 
@@ -77,7 +77,7 @@ extern "C"
 		memcpy(cmd->args, args, cb_args);
 		for(size_t i = 0 ; i < num_mem_objects ; ++i)
 		{
-			if (!FreeOCL::isValid(mem_list[i]))
+			if (!FreeOCL::is_valid(mem_list[i]))
 			{
 				free(cmd->args);
 				return CL_INVALID_MEM_OBJECT;
@@ -114,7 +114,7 @@ extern "C"
 			return 0;
 		}
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(program))
+		if (!FreeOCL::is_valid(program))
 		{
 			SET_RET(CL_INVALID_PROGRAM);
 			return 0;
@@ -176,7 +176,7 @@ extern "C"
 	cl_int clRetainKernelFCL (cl_kernel kernel)
 	{
 		MSG(clRetainKernelFCL);
-		if (!FreeOCL::isValid(kernel))
+		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 
 		kernel->retain();
@@ -187,7 +187,7 @@ extern "C"
 	cl_int clReleaseKernelFCL (cl_kernel kernel)
 	{
 		MSG(clReleaseKernelFCL);
-		if (!FreeOCL::isValid(kernel))
+		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		kernel->release();
 		if (kernel->get_ref_count() == 0)
@@ -209,7 +209,7 @@ extern "C"
 	{
 		MSG(clSetKernelArgFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(kernel))
+		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 		if (kernel->args_size.size() <= arg_index)
@@ -227,7 +227,7 @@ extern "C"
 					if (arg_size != sizeof(cl_mem))
 						return CL_INVALID_ARG_SIZE;
 					cl_mem mem_object = *(cl_mem*)arg_value;
-					if (!FreeOCL::isValid(mem_object))
+					if (!FreeOCL::is_valid(mem_object))
 						return CL_INVALID_MEM_OBJECT;
 					unlock.handle(mem_object);
 					memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &(mem_object->ptr), arg_size);
@@ -256,7 +256,7 @@ extern "C"
 	{
 		MSG(clGetKernelInfoFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(kernel))
+		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 
@@ -292,11 +292,11 @@ extern "C"
 	{
 		MSG(clGetKernelWorkGroupInfoFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(kernel))
+		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 
-		if (!FreeOCL::isValid(device))
+		if (!FreeOCL::is_valid(device))
 			return CL_INVALID_DEVICE;
 
 		bool bTooSmall = false;
@@ -312,7 +312,7 @@ extern "C"
 		case CL_KERNEL_COMPILE_WORK_GROUP_SIZE:
 			{
 				const size_t val[3] = {0, 0, 0};
-				bTooSmall = FreeOCL::copyMemoryWithinLimits(val, sizeof(val), param_value_size, param_value, param_value_size_ret);
+				bTooSmall = FreeOCL::copy_memory_within_limits(val, sizeof(val), param_value_size, param_value, param_value_size_ret);
 			}
 			break;
 		case CL_KERNEL_LOCAL_MEM_SIZE:
@@ -365,11 +365,11 @@ extern "C"
 			return CL_INVALID_EVENT_WAIT_LIST;
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(kernel))
+		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 

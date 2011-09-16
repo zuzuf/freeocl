@@ -25,7 +25,7 @@
 #include "program.h"
 #include "sampler.h"
 
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -164,7 +164,7 @@ extern "C"
 	cl_int clRetainContextFCL (cl_context context)
 	{
 		MSG(clRetainContextFCL);
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 			return CL_INVALID_CONTEXT;
 
 		context->retain();
@@ -175,7 +175,7 @@ extern "C"
 	cl_int clReleaseContextFCL (cl_context context)
 	{
 		MSG(clReleaseContextFCL);
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 			return CL_INVALID_CONTEXT;
 
 		context->release();
@@ -198,7 +198,7 @@ extern "C"
 	{
 		MSG(clGetContextInfoFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 			return CL_INVALID_CONTEXT;
 		unlock.handle(context);
 
@@ -215,11 +215,11 @@ extern "C"
 			}
 			break;
 		case CL_CONTEXT_DEVICES:
-			bTooSmall = FreeOCL::copyMemoryWithinLimits(&(context->devices.front()), sizeof(cl_device_id) * context->devices.size(), param_value_size, param_value, param_value_size_ret);
+			bTooSmall = FreeOCL::copy_memory_within_limits(&(context->devices.front()), sizeof(cl_device_id) * context->devices.size(), param_value_size, param_value, param_value_size_ret);
 			break;
 		case CL_CONTEXT_PROPERTIES:
 			if (!context->properties.empty())
-				bTooSmall = FreeOCL::copyMemoryWithinLimits(&(context->devices.front()), sizeof(cl_device_id) * context->devices.size(), param_value_size, param_value, param_value_size_ret);
+				bTooSmall = FreeOCL::copy_memory_within_limits(&(context->devices.front()), sizeof(cl_device_id) * context->devices.size(), param_value_size, param_value, param_value_size_ret);
 			else
 			{
 				if (param_value != NULL && param_value_size >= sizeof(cl_context_properties))
@@ -259,7 +259,7 @@ _cl_context::~_cl_context()
 	{
 		FreeOCL::context_resource *ptr = *it;
 #define IMPLEMENT_FOR_TYPE(type)\
-		if (FreeOCL::isValid(static_cast<type>(ptr)))\
+		if (FreeOCL::is_valid(static_cast<type>(ptr)))\
 		{\
 			delete static_cast<type>(ptr);\
 			continue;\

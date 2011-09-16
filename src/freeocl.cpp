@@ -46,7 +46,7 @@ namespace FreeOCL
 	mutex global_mutex;
 	_cl_icd_dispatch dispatch = init_dispatch();
 
-	bool isValid(cl_context c)
+	bool is_valid(cl_context c)
 	{
 		global_mutex.lock();
 		const bool r = valid_contexts.count(c) != 0 && c->valid();
@@ -56,7 +56,7 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_command_queue q)
+	bool is_valid(cl_command_queue q)
 	{
 		global_mutex.lock();
 		const bool r = valid_command_queues.count(q) != 0 && q->valid();
@@ -66,7 +66,7 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_mem m)
+	bool is_valid(cl_mem m)
 	{
 		global_mutex.lock();
 		const bool r = valid_mems.count(m) != 0 && m->valid();
@@ -76,7 +76,7 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_event e)
+	bool is_valid(cl_event e)
 	{
 		global_mutex.lock();
 		const bool r = valid_events.count(e) != 0 && e->valid();
@@ -86,7 +86,7 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_kernel k)
+	bool is_valid(cl_kernel k)
 	{
 		global_mutex.lock();
 		const bool r = valid_kernels.count(k) != 0 && k->valid();
@@ -96,7 +96,7 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_program p)
+	bool is_valid(cl_program p)
 	{
 		global_mutex.lock();
 		const bool r = valid_programs.count(p) != 0 && p->valid();
@@ -106,7 +106,7 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_sampler s)
+	bool is_valid(cl_sampler s)
 	{
 		global_mutex.lock();
 		const bool r = valid_samplers.count(s) != 0 && s->valid();
@@ -116,17 +116,17 @@ namespace FreeOCL
 		return r;
 	}
 
-	bool isValid(cl_device_id d)
+	bool is_valid(cl_device_id d)
 	{
 		return d == FreeOCL::device;
 	}
 
-	bool isValid(cl_platform_id p)
+	bool is_valid(cl_platform_id p)
 	{
 		return p == FreeOCL::platform;
 	}
 
-	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s)
+	bool copy_memory_within_limits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s)
 	{
 		if (s != NULL)
 			*s = size;
@@ -135,7 +135,7 @@ namespace FreeOCL
 		return size > maxSize;
 	}
 
-	std::string runCommand(const std::string &cmd, int *ret)
+	std::string run_command(const std::string &cmd, int *ret)
 	{
 		std::string result;
 		FILE *file = popen(cmd.c_str(), "r");
@@ -156,7 +156,7 @@ namespace FreeOCL
 		return result;
 	}
 
-	long int parseInt(const std::string &s)
+	long int parse_int(const std::string &s)
 	{
 		return strtol(s.c_str(), NULL, 10);
 	}
@@ -191,7 +191,7 @@ namespace FreeOCL
 		return result;
 	}
 
-	bool containsWord(const std::string &s, const std::string &w)
+	bool contains_word(const std::string &s, const std::string &w)
 	{
 		std::deque<std::string> words = split(s, " \t\n\r");
 		return std::find(words.begin(), words.end(), w) != words.end();

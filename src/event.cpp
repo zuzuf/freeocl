@@ -19,7 +19,7 @@
 #include "context.h"
 #include "commandqueue.h"
 
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -27,7 +27,7 @@ extern "C"
 	cl_event clCreateUserEventFCL (cl_context context, cl_int *errcode_ret)
 	{
 		MSG(clCreateUserEventFCL);
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 		{
 			SET_RET(CL_INVALID_CONTEXT);
 			return 0;
@@ -49,7 +49,7 @@ extern "C"
 		MSG(clSetUserEventStatusFCL);
 		if (execution_status != CL_COMPLETE && execution_status >= 0)
 			return CL_INVALID_VALUE;
-		if (!FreeOCL::isValid(event))
+		if (!FreeOCL::is_valid(event))
 			return CL_INVALID_EVENT;
 		if (event->status == CL_COMPLETE || event->status < 0)
 		{
@@ -69,7 +69,7 @@ extern "C"
 
 		for(size_t i = 0 ; i < num_events ; )
 		{
-			if (!FreeOCL::isValid(event_list[i]))
+			if (!FreeOCL::is_valid(event_list[i]))
 				return CL_INVALID_EVENT;
 			if (event_list[i]->status < 0)
 			{
@@ -97,7 +97,7 @@ extern "C"
 	{
 		MSG(clGetEventInfoFCL);
 		bool bTooSmall = false;
-		if (!FreeOCL::isValid(event))
+		if (!FreeOCL::is_valid(event))
 			return CL_INVALID_EVENT;
 		switch(param_name)
 		{
@@ -135,7 +135,7 @@ extern "C"
 			|| pfn_event_notify == NULL)
 			return CL_INVALID_VALUE;
 
-		if (!FreeOCL::isValid(event))
+		if (!FreeOCL::is_valid(event))
 			return CL_INVALID_EVENT;
 
 		FreeOCL::event_call_back call_back = { pfn_event_notify, user_data };
@@ -148,7 +148,7 @@ extern "C"
 	cl_int clRetainEventFCL (cl_event event)
 	{
 		MSG(clRetainEventFCL);
-		if (!FreeOCL::isValid(event))
+		if (!FreeOCL::is_valid(event))
 			return CL_INVALID_EVENT;
 
 		event->retain();
@@ -159,7 +159,7 @@ extern "C"
 	cl_int clReleaseEventFCL (cl_event event)
 	{
 		MSG(clReleaseEventFCL);
-		if (!FreeOCL::isValid(event))
+		if (!FreeOCL::is_valid(event))
 			return CL_INVALID_EVENT;
 
 		event->release();
@@ -181,7 +181,7 @@ extern "C"
 		if (event == NULL)
 			return CL_INVALID_VALUE;
 
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
 		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
@@ -200,7 +200,7 @@ extern "C"
 	cl_int clEnqueueBarrierFCL (cl_command_queue command_queue)
 	{
 		MSG(clEnqueueBarrierFCL);
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
 		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
@@ -221,7 +221,7 @@ extern "C"
 		if (num_events == 0 || event_list == NULL)
 			return CL_INVALID_VALUE;
 
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
 		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
@@ -242,7 +242,7 @@ extern "C"
 	{
 		MSG(clGetEventProfilingInfoFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(event))
+		if (!FreeOCL::is_valid(event))
 			return CL_INVALID_EVENT;
 		unlock.handle(event);
 

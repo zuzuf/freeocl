@@ -53,23 +53,23 @@ namespace FreeOCL
 	extern mutex global_mutex;
 	extern _cl_icd_dispatch dispatch;
 
-	bool isValid(cl_context);
-	bool isValid(cl_command_queue);
-	bool isValid(cl_mem);
-	bool isValid(cl_event);
-	bool isValid(cl_program);
-	bool isValid(cl_kernel);
-	bool isValid(cl_device_id);
-	bool isValid(cl_platform_id);
-	bool isValid(cl_sampler);
+	bool is_valid(cl_context);
+	bool is_valid(cl_command_queue);
+	bool is_valid(cl_mem);
+	bool is_valid(cl_event);
+	bool is_valid(cl_program);
+	bool is_valid(cl_kernel);
+	bool is_valid(cl_device_id);
+	bool is_valid(cl_platform_id);
+	bool is_valid(cl_sampler);
 
-	bool copyMemoryWithinLimits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
+	bool copy_memory_within_limits(const void *src, const size_t size, const size_t maxSize, void *dst, size_t *s);
 
-	std::string runCommand(const std::string &cmd, int *ret = NULL);
-	long int parseInt(const std::string &s);
+	std::string run_command(const std::string &cmd, int *ret = NULL);
+	long int parse_int(const std::string &s);
 	std::string trim(const std::string &s);
 	std::deque<std::string> split(const std::string &s, const std::string &sep);
-	bool containsWord(const std::string &s, const std::string &w);
+	bool contains_word(const std::string &s, const std::string &w);
 
 	u_int64_t usec_timer();
 

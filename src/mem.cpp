@@ -23,7 +23,7 @@
 #include <iostream>
 #include <algorithm>
 
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -55,7 +55,7 @@ extern "C"
 		}
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 		{
 			SET_RET(CL_INVALID_CONTEXT);
 			return 0;
@@ -100,7 +100,7 @@ extern "C"
 	cl_int clRetainMemObjectFCL (cl_mem memobj)
 	{
 		MSG(clRetainMemObjectFCL);
-		if (!FreeOCL::isValid(memobj))
+		if (!FreeOCL::is_valid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 
 		memobj->retain();
@@ -111,7 +111,7 @@ extern "C"
 	cl_int clReleaseMemObjectFCL (cl_mem memobj)
 	{
 		MSG(clReleaseMemObjectFCL);
-		if (!FreeOCL::isValid(memobj))
+		if (!FreeOCL::is_valid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 
 		memobj->release();
@@ -136,7 +136,7 @@ extern "C"
 			return CL_INVALID_VALUE;
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(memobj))
+		if (!FreeOCL::is_valid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(memobj);
 
@@ -153,7 +153,7 @@ extern "C"
 	{
 		MSG(clGetMemObjectInfoFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(memobj))
+		if (!FreeOCL::is_valid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(memobj);
 
@@ -199,15 +199,15 @@ extern "C"
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
 
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(command_queue->context))
+		if (!FreeOCL::is_valid(command_queue->context))
 			return CL_INVALID_CONTEXT;
 		command_queue->context->unlock();
 
-		if (!FreeOCL::isValid(buffer))
+		if (!FreeOCL::is_valid(buffer))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(buffer);
 
@@ -270,15 +270,15 @@ extern "C"
 		if (ptr == NULL)
 			return CL_INVALID_VALUE;
 
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(command_queue->context))
+		if (!FreeOCL::is_valid(command_queue->context))
 			return CL_INVALID_CONTEXT;
 		command_queue->context->unlock();
 
-		if (!FreeOCL::isValid(buffer))
+		if (!FreeOCL::is_valid(buffer))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(buffer);
 
@@ -338,15 +338,15 @@ extern "C"
 	{
 		MSG(clEnqueueCopyBufferFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(command_queue->context))
+		if (!FreeOCL::is_valid(command_queue->context))
 			return CL_INVALID_CONTEXT;
 		command_queue->context->unlock();
 
-		if (!FreeOCL::isValid(src_buffer))
+		if (!FreeOCL::is_valid(src_buffer))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(src_buffer);
 		if (src_buffer->size < src_offset + cb)
@@ -354,7 +354,7 @@ extern "C"
 
 		if (dst_buffer != src_buffer)		// Don't lock it twice if it's the same buffer
 		{
-			if (!FreeOCL::isValid(dst_buffer))
+			if (!FreeOCL::is_valid(dst_buffer))
 				return CL_INVALID_MEM_OBJECT;
 			unlock.handle(dst_buffer);
 			if (dst_buffer->size < dst_offset + cb)
@@ -404,21 +404,21 @@ extern "C"
 	{
 		MSG(clEnqueueMapBufferFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 		{
 			SET_RET(CL_INVALID_COMMAND_QUEUE);
 			return NULL;
 		}
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(command_queue->context))
+		if (!FreeOCL::is_valid(command_queue->context))
 		{
 			SET_RET(CL_INVALID_CONTEXT);
 			return NULL;
 		}
 		command_queue->context->unlock();
 
-		if (!FreeOCL::isValid(buffer))
+		if (!FreeOCL::is_valid(buffer))
 		{
 			SET_RET(CL_INVALID_MEM_OBJECT);
 			return NULL;
@@ -485,15 +485,15 @@ extern "C"
 	{
 		MSG(clEnqueueUnmapMemObjectFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		unlock.handle(command_queue);
 
-		if (!FreeOCL::isValid(command_queue->context))
+		if (!FreeOCL::is_valid(command_queue->context))
 			return CL_INVALID_CONTEXT;
 		command_queue->context->unlock();
 
-		if (!FreeOCL::isValid(memobj))
+		if (!FreeOCL::is_valid(memobj))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(memobj);
 

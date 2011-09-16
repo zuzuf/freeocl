@@ -26,7 +26,7 @@
 #include <iostream>
 #include <cstdlib>
 
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 namespace FreeOCL
@@ -56,14 +56,14 @@ extern "C"
 		}
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 		{
 			SET_RET(CL_INVALID_CONTEXT);
 			return 0;
 		}
 		unlock.handle(context);
 
-		if (!FreeOCL::isValid(device))
+		if (!FreeOCL::is_valid(device))
 		{
 			SET_RET(CL_INVALID_DEVICE);
 			return 0;
@@ -81,7 +81,7 @@ extern "C"
 	cl_int clRetainCommandQueueFCL (cl_command_queue command_queue)
 	{
 		MSG(clRetainCommandQueueFCL);
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
 		command_queue->retain();
@@ -92,7 +92,7 @@ extern "C"
 	cl_int clReleaseCommandQueueFCL (cl_command_queue command_queue)
 	{
 		MSG(clReleaseCommandQueueFCL);
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
 		command_queue->release();
@@ -114,7 +114,7 @@ extern "C"
 								  size_t *param_value_size_ret)
 	{
 		MSG(clGetCommandQueueInfoFCL);
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 
 		bool bTooSmall = false;
@@ -138,7 +138,7 @@ extern "C"
 	cl_int clFlushFCL (cl_command_queue command_queue)
 	{
 		MSG(clFlushFCL);
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		command_queue->unlock();
 
@@ -148,7 +148,7 @@ extern "C"
 	cl_int clFinishFCL (cl_command_queue command_queue)
 	{
 		MSG(clFinishFCL);
-		if (!FreeOCL::isValid(command_queue))
+		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
 		if (command_queue->empty())
 		{
@@ -218,7 +218,7 @@ bool isCommandReadyToProcess(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 	bool bReady = true;
 	for(size_t i = 0 ; i < cmd->num_events_in_wait_list && !bError && bReady ; ++i)
 	{
-		if (!FreeOCL::isValid(events[i]))
+		if (!FreeOCL::is_valid(events[i]))
 		{
 			bError = true;
 			break;

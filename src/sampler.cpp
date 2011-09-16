@@ -18,7 +18,7 @@
 #include "sampler.h"
 #include "context.h"
 
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -32,7 +32,7 @@ extern "C"
 		MSG(clCreateSamplerFCL);
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 		{
 			SET_RET(CL_INVALID_CONTEXT);
 			return 0;
@@ -52,7 +52,7 @@ extern "C"
 	cl_int clRetainSamplerFCL (cl_sampler sampler)
 	{
 		MSG(clRetainSamplerFCL);
-		if (!FreeOCL::isValid(sampler))
+		if (!FreeOCL::is_valid(sampler))
 			return CL_INVALID_SAMPLER;
 
 		sampler->retain();
@@ -63,7 +63,7 @@ extern "C"
 	cl_int clReleaseSamplerFCL (cl_sampler sampler)
 	{
 		MSG(clReleaseSamplerFCL);
-		if (!FreeOCL::isValid(sampler))
+		if (!FreeOCL::is_valid(sampler))
 			return CL_INVALID_SAMPLER;
 
 		sampler->release();
@@ -86,7 +86,7 @@ extern "C"
 	{
 		MSG(clGetSamplerInfoFCL);
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(sampler))
+		if (!FreeOCL::is_valid(sampler))
 			return CL_INVALID_SAMPLER;
 		unlock.handle(sampler);
 

@@ -29,12 +29,12 @@ namespace
 	const cl_device_type device_type = CL_DEVICE_TYPE_CPU;
 	const cl_uint vendor_id = 0;
 	const cl_uint addressbits = sizeof(void*) * 8;
-	const cl_ulong memsize = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/meminfo | grep MemTotal | awk '{ print $2 }'")) * 1024U;
-	const cl_ulong freememsize = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/meminfo | grep MemFree | awk '{ print $2 }'")) * 1024U;
-	const std::string name = FreeOCL::trim(FreeOCL::runCommand("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));
-	const std::string vendor = FreeOCL::trim(FreeOCL::runCommand("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""));
+	const cl_ulong memsize = FreeOCL::parse_int(FreeOCL::run_command("cat /proc/meminfo | grep MemTotal | awk '{ print $2 }'")) * 1024U;
+	const cl_ulong freememsize = FreeOCL::parse_int(FreeOCL::run_command("cat /proc/meminfo | grep MemFree | awk '{ print $2 }'")) * 1024U;
+	const std::string name = FreeOCL::trim(FreeOCL::run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));
+	const std::string vendor = FreeOCL::trim(FreeOCL::run_command("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""));
 	const std::string version = "OpenCL 1.1 FreeOCL-" FREEOCL_VERSION_STRING;
-	const cl_uint cpu_cores = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep \"cpu cores\" | head -1 | sed -e \"s/cpu cores\t: //\""));
+	const cl_uint cpu_cores = FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep \"cpu cores\" | head -1 | sed -e \"s/cpu cores\t: //\""));
 	const char *driver_version = FREEOCL_VERSION_STRING;
 	const char *device_profile = "FULL_PROFILE";
 	const char *opencl_c_version = "OpenCL C 1.1 FreeOCL-" FREEOCL_VERSION_STRING;
@@ -69,10 +69,10 @@ namespace
 	const size_t max_work_item_sizes[] = {	1024, 1024, 1024	};
 	const cl_uint max_work_item_dimensions = sizeof(max_work_item_sizes) / sizeof(size_t);
 	const size_t max_work_group_size = 1024;
-	const cl_uint max_clock_frequency = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
+	const cl_uint max_clock_frequency = FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
 	const cl_device_mem_cache_type mem_cache_type = CL_READ_WRITE_CACHE;
-	const cl_uint mem_cacheline_size = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));
-	const cl_ulong mem_cache_size = FreeOCL::parseInt(FreeOCL::runCommand("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U;
+	const cl_uint mem_cacheline_size = FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));
+	const cl_ulong mem_cache_size = FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U;
 	const cl_device_local_mem_type local_mem_type = CL_GLOBAL;
 	const cl_ulong local_mem_size = 0x100000;
 	const size_t max_parameter_size	= 8192;
@@ -93,8 +93,8 @@ namespace
 	const cl_uint max_samplers = 0;
 }
 
-#define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits((X), strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
-#define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_STRING(X)	FreeOCL::copy_memory_within_limits((X), strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 
 extern "C"
 {

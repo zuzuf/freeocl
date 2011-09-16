@@ -70,7 +70,7 @@ extern "C"
 			return CL_INVALID_VALUE;
 
 		FreeOCL::unlocker unlock;
-		if (!FreeOCL::isValid(context))
+		if (!FreeOCL::is_valid(context))
 			return CL_INVALID_CONTEXT;
 		unlock.handle(context);
 

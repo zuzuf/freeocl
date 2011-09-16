@@ -89,7 +89,7 @@ namespace FreeOCL
 			<< ' ' << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
-		log << runCommand(cmd.str(), &ret) << std::endl;
+		log << run_command(cmd.str(), &ret) << std::endl;
 
 		close(fd_out);
 		fclose(file_in);
@@ -159,14 +159,14 @@ namespace FreeOCL
 			<< " " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
-		log << runCommand(cmd.str(), &ret) << std::endl;
+		log << run_command(cmd.str(), &ret) << std::endl;
 
 		fclose(file_in);
 		// Remove the input file which is now useless
 		remove(filename_in.c_str());
 
 		if (ret == 0)
-			out = runCommand("cat " + filename_out);
+			out = run_command("cat " + filename_out);
 		close(fd_out);
 		remove(filename_out.c_str());
 		return out;

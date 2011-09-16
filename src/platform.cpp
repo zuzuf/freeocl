@@ -29,7 +29,7 @@ namespace
 	const char *vendor_suffix = "FCL";
 }
 
-#define SET_STRING(X)	FreeOCL::copyMemoryWithinLimits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
+#define SET_STRING(X)	FreeOCL::copy_memory_within_limits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
 
 extern "C"
 {
