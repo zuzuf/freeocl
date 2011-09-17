@@ -19,7 +19,11 @@ if(BUILD_SAMPLES)
 	add_executable(cllist ${CLLIST_SOURCES})
 	target_link_libraries(cllist ${SAMPLES_LIBRARIES})
 
-	install(TARGETS cldemo cltest cllist
+	set(CLBUILTINS_SOURCES clbuiltins.cpp)
+	add_executable(clbuiltins ${CLBUILTINS_SOURCES})
+	target_link_libraries(clbuiltins ${SAMPLES_LIBRARIES})
+
+	install(TARGETS cldemo cltest cllist clbuiltins
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib)
 endif(BUILD_SAMPLES)

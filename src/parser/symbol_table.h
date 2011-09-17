@@ -28,6 +28,7 @@ namespace FreeOCL
 {
 	class symbol_table
 	{
+		friend class parser;
 	public:
 		symbol_table();
 		~symbol_table();

@@ -97,6 +97,14 @@ namespace FreeOCL
 			delete symbols;
 			return ret;
 		}
+		catch(const std::exception &e)
+		{
+			std::cerr << "[FreeOCL::parser] exception caught : " << e.what() << std::endl;
+			processed.clear();
+			tokens.clear();
+			delete symbols;
+			return 0;
+		}
 		catch(...)
 		{
 			processed.clear();
@@ -1487,21 +1495,31 @@ namespace FreeOCL
 						smartptr<chunk> args = (*d_val__.as<chunk>())[1];
 						if (exp.as<callable>()->get_num_params() != args->size())
 							ERROR("wrong number of function parameters!");
-						if (!exp.as<callable>()->get_return_type(args->get_as_types()))
+						try
+						{
+							if (!exp.as<callable>()->get_return_type(args->get_as_types()))
+							{
+								if (exp.as<overloaded_builtin>())
+									exp.as<overloaded_builtin>()->print_debug_info();
+								std::deque<smartptr<type> > arg_types = args->get_as_types();
+								std::string arg_list("(");
+								for(size_t i = 0 ; i < arg_types.size() ; ++i)
+								{
+									if (i)
+										arg_list += ',';
+									arg_list += arg_types[i]->get_name();
+								}
+								arg_list += ')';
+								ERROR("no matching function for call to '" + exp.as<callable>()->get_name() + arg_list + "' !");
+							}
+						}
+						catch(const std::exception &e)
 						{
 							if (exp.as<overloaded_builtin>())
 								exp.as<overloaded_builtin>()->print_debug_info();
-							std::deque<smartptr<type> > arg_types = args->get_as_types();
-							std::string arg_list("(");
-							for(size_t i = 0 ; i < arg_types.size() ; ++i)
-							{
-								if (i)
-									arg_list += ',';
-								arg_list += arg_types[i]->get_name();
-							}
-							arg_list += ')';
-							ERROR("no matching function for call to '" + exp.as<callable>()->get_name() + arg_list + "' !");
+							ERROR(e.what());
 						}
+
 						exp = new call(exp, args);
 					}
 					else

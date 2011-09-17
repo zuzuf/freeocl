@@ -40,6 +40,15 @@ namespace FreeOCL
 
 	void parser::register_builtin()
 	{
+		static bool b_init = true;
+		static symbol_table syms;
+
+		if (!b_init)
+		{
+			*symbols = syms;
+			return;
+		}
+
 		const int types[] = { native_type::UCHAR,	native_type::UCHAR2,	native_type::UCHAR3,	native_type::UCHAR4,	native_type::UCHAR8,	native_type::UCHAR16,
 							  native_type::USHORT,	native_type::USHORT2,	native_type::USHORT3,	native_type::USHORT4,	native_type::USHORT8,	native_type::USHORT16,
 							  native_type::UINT,	native_type::UINT2,		native_type::UINT3,		native_type::UINT4,		native_type::UINT8,		native_type::UINT16,
@@ -239,14 +248,14 @@ namespace FreeOCL
 
 		// Common functions
 		REGISTER_OVERLOADED("gentype clamp(gentype,gentype,gentype)|gentype clamp(gentype,float,float)", gentype_floats);
-		REGISTER_OVERLOADED("gentype degrees(gentype)", gentype_integers);
-		REGISTER_OVERLOADED("gentype max(gentype,gentype)|gentype max(gentype,float)", gentype_integers);
-		REGISTER_OVERLOADED("gentype min(gentype,gentype)|gentype min(gentype,float)", gentype_integers);
+		REGISTER_OVERLOADED("gentype degrees(gentype)", gentype_floats);
+		REGISTER_OVERLOADED("gentype max(gentype,gentype)|gentype max(gentype,float)", gentype_floats);
+		REGISTER_OVERLOADED("gentype min(gentype,gentype)|gentype min(gentype,float)", gentype_floats);
 		REGISTER_OVERLOADED("gentype mix(gentype,gentype,gentype)|gentype mix(gentype,gentype,float)", gentype_floats);
-		REGISTER_OVERLOADED("gentype radians(gentype)", gentype_integers);
-		REGISTER_OVERLOADED("gentype step(gentype,gentype)|gentype step(float,gentype)", gentype_integers);
-		REGISTER_OVERLOADED("gentype smoothstep(gentype,gentype,gentype)|gentype step(float,float,gentype)", gentype_integers);
-		REGISTER_OVERLOADED("gentype sign(gentype)", gentype_integers);
+		REGISTER_OVERLOADED("gentype radians(gentype)", gentype_floats);
+		REGISTER_OVERLOADED("gentype step(gentype,gentype)|gentype step(float,gentype)", gentype_floats);
+		REGISTER_OVERLOADED("gentype smoothstep(gentype,gentype,gentype)|gentype step(float,float,gentype)", gentype_floats);
+		REGISTER_OVERLOADED("gentype sign(gentype)", gentype_floats);
 
 		// Geometric functions
 		REGISTER_OVERLOADED("float4 cross(float4,float4)|float3 cross(float3,float3)", gentype_single);
@@ -507,5 +516,8 @@ namespace FreeOCL
 #undef REGISTER
 #undef REGISTER_OVERLOADED
 #undef REGISTER_VAR
+
+		b_init = false;
+		syms = *symbols;
 	}
 }

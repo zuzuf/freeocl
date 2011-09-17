@@ -43,7 +43,9 @@ namespace FreeOCL
 
 	private:
 		static bool all_types_match(const std::deque<smartptr<type> > &args, const std::deque<smartptr<type> > &sig);
+		static bool all_types_weak_match(const std::deque<smartptr<type> > &args, const std::deque<smartptr<type> > &sig);
 		static bool weak_match(const smartptr<type> &a, const smartptr<type> &b);
+		static bool match(const smartptr<type> &a, const smartptr<type> &b);
 	private:
 		std::deque<std::deque<smartptr<type> > > possible_types;
 		std::string name;

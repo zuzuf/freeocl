@@ -22,6 +22,7 @@
 #include <unordered_map>
 #include <sstream>
 #include <stdexcept>
+#include <unordered_set>
 
 using namespace std;
 
@@ -38,7 +39,7 @@ namespace FreeOCL
 			return str.substr(opos, n - opos);
 		}
 
-		smartptr<type> parse_type(const string &str, size_t &pos, const int gentype)
+		inline smartptr<type> parse_type(const string &str, size_t &pos, const int gentype)
 		{
 			static unordered_map<string, int> m_types;
 			static unordered_map<string, int> m_types_pattern;
@@ -129,7 +130,7 @@ namespace FreeOCL
 				m_addr_space["constant"] = type::CONSTANT;
 				m_addr_space["private"] = type::PRIVATE;
 			}
-			native_type _gentype((native_type::type_id)gentype, false, native_type::PRIVATE);
+			const native_type _gentype((native_type::type_id)gentype, false, native_type::PRIVATE);
 			std::string uname = _gentype.get_name();
 			std::string iname = _gentype.get_name();
 			if (_gentype.is_signed() && m_types.count('u' + uname))	uname = 'u' + uname;
@@ -149,7 +150,7 @@ namespace FreeOCL
 					b_pointer = true;
 					break;
 				}
-				const string word = read_word(str, alphanum_, pos);
+				string word = read_word(str, alphanum_, pos);
 
 				unordered_map<string, int>::const_iterator it = m_types.find(word);
 				if (it != m_types.end())
@@ -159,11 +160,22 @@ namespace FreeOCL
 					it = m_types_pattern.find(word);
 					if (it != m_types_pattern.end())
 					{
-						stringstream buf;
-						buf << word.substr(0, word.size() - 1);
-						if (n > 1)
-							buf << n;
-						type_id = m_types[buf.str()];
+						if (n <= 1)
+						{
+							word.erase(word.size() - 1);
+							type_id = m_types[word];
+						}
+						else if (n < 10)
+						{
+							*word.rbegin() = '0' + n;
+							type_id = m_types[word];
+						}
+						else
+						{
+							*word.rbegin() = '1';
+							word += '0' + n - 10;
+							type_id = m_types[word];
+						}
 					}
 					else
 					{
@@ -211,13 +223,13 @@ namespace FreeOCL
 			for(deque<string>::const_iterator p = patterns.begin(), end = patterns.end() ; p != end ; ++p)
 			{
 				size_t pos = 0;
-				deque<smartptr<type> > types;
+				possible_types.push_back(deque<smartptr<type> >());
+				deque<smartptr<type> > &types = possible_types.back();
 				while((*p)[pos] != ')')
 				{
 					if (pos)	++pos;
 					types.push_back(parse_type(*p, pos, *gtype));
 				}
-				possible_types.push_back(types);
 			}
 		}
 		remove_duplicates();
@@ -238,6 +250,18 @@ namespace FreeOCL
 		for(size_t i = 0 ; i < possible_types.size() ; ++i)
 		{
 			if (all_types_match(arg_types, possible_types[i]))
+			{
+				if (match)
+					throw std::runtime_error("type matching is ambiguous");
+				match = possible_types[i].front();
+			}
+		}
+		if (match)
+			return match;
+
+		for(size_t i = 0 ; i < possible_types.size() ; ++i)
+		{
+			if (all_types_weak_match(arg_types, possible_types[i]))
 			{
 				if (match)
 					throw std::runtime_error("type matching is ambiguous");
@@ -269,6 +293,18 @@ namespace FreeOCL
 			return false;
 		for(size_t i = 0 ; i < args.size() ; ++i)
 		{
+			if (!match(args[i], sig[i + 1]))
+				return false;
+		}
+		return true;
+	}
+
+	bool overloaded_builtin::all_types_weak_match(const std::deque<smartptr<type> > &args, const std::deque<smartptr<type> > &sig)
+	{
+		if (args.size() + 1 != sig.size())
+			return false;
+		for(size_t i = 0 ; i < args.size() ; ++i)
+		{
 			if (!weak_match(args[i], sig[i + 1]))
 				return false;
 		}
@@ -292,6 +328,23 @@ namespace FreeOCL
 			return natA->get_type_id() == natB->get_type_id()
 					|| (natA->is_scalar() && natB->is_scalar());
 		}
+		return false;
+	}
+
+	bool overloaded_builtin::match(const smartptr<type> &a, const smartptr<type> &b)
+	{
+		if (*a == *b)
+			return true;
+
+		const pointer_type *ptrA = a.as<pointer_type>();
+		const pointer_type *ptrB = b.as<pointer_type>();
+		if (ptrA && ptrB)
+			return ptrA->is_compatible_with(*ptrB);
+
+		const native_type *natA = a.as<native_type>();
+		const native_type *natB = b.as<native_type>();
+		if (natA && natB)
+			return natA->get_type_id() == natB->get_type_id();
 		return false;
 	}
 
@@ -319,24 +372,26 @@ namespace FreeOCL
 
 	void overloaded_builtin::remove_duplicates()
 	{
-		std::deque<std::deque<smartptr<type> > > tmp;
-		tmp.swap(possible_types);
-		for(size_t i = 0 ; i < tmp.size() ; ++i)
+		std::unordered_set<std::string> types;
+		types.reserve(possible_types.size());
+		size_t e = 0;
+		std::string name;
+		for(size_t i = 0 ; i + e < possible_types.size() ; )
 		{
-			bool b_found = false;
-			for(size_t j = 0 ; j < possible_types.size() && !b_found ; ++j)
+			const std::deque<smartptr<type> > &cur = possible_types[i + e];
+			name.clear();
+			for(size_t k = 0 ; k < cur.size() ; ++k)
+				name += cur[k]->get_name();
+			if (types.count(name))
 			{
-				if (possible_types[j].size() != tmp[i].size())
-					continue;
-				bool b_equal = true;
-				for(size_t k = 0 ; k < possible_types[j].size() && b_equal ; ++k)
-					b_equal = (*possible_types[j][k] == *tmp[i][k]);
-				if (b_equal)
-					b_found = true;
-			}
-			if (b_found)
+				++e;
 				continue;
-			possible_types.push_back(tmp[i]);
+			}
+			types.insert(name);
+			if (e > 0)
+				possible_types[i].swap(possible_types[i + e]);
+			++i;
 		}
+		possible_types.resize(possible_types.size() - e);
 	}
 }
