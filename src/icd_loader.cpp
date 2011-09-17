@@ -21,52 +21,31 @@
 #include <fstream>
 #include <dlfcn.h>
 #include <cstdlib>
+#include <dirent.h>
 
 namespace FreeOCL
 {
 	icd_loader icd_loader_instance;
 
-	std::string icd_loader::run_command(const std::string &cmd)
-	{
-		std::string result;
-		FILE *file = popen(cmd.c_str(), "r");
-		if (!file)
-			return result;
-
-		int c;
-		while((c = fgetc(file)) != -1 && !feof(file))
-			result += (char)c;
-		pclose(file);
-
-		return result;
-	}
-
-	std::string icd_loader::trim(const std::string &s)
-	{
-		if (s.empty())
-			return s;
-		const size_t start = s.find_first_not_of(" \t\n\r");
-		const size_t end = s.find_last_not_of(" \t\n\r");
-		if (start == end)
-			return std::string();
-		return s.substr(start, end - start + 1);
-	}
-
-	std::deque<std::string> icd_loader::split(const std::string &s, const std::string &sep)
+	std::deque<std::string> icd_loader::list_files(const std::string &path, const std::string &ext)
 	{
 		std::deque<std::string> result;
 
-		size_t pos = s.find_first_not_of(sep, 0);
-		if (pos != -1)
-			do
-			{
-				const size_t next = s.find_first_of(sep, pos);
-				result.push_back(s.substr(pos, next - pos));
-				if (next != std::string::npos)
-					pos = s.find_first_not_of(sep, next);
-				else
-					pos = std::string::npos;
-			} while(pos != std::string::npos);
+		DIR *dir = opendir(path.c_str());
+		if (!dir)
+			return result;
+
+		struct dirent *ent;
+
+		while ((ent = readdir(dir)) != NULL)
+		{
+			const std::string filename = ent->d_name;
+			if (filename.find('.') == std::string::npos || filename.size() < 4)
+				continue;
+
+			if (filename.substr(filename.size() - 4) == ext)
+				result.push_back(path + filename);
+		}
 
 		return result;
 	}
@@ -74,7 +53,7 @@ namespace FreeOCL
 	icd_loader::icd_loader()
 	{
 		// Get the list of all *.icd files in /etc/OpenCL/vendors/
-		std::deque<std::string> files = split(trim(run_command("ls -1 /etc/OpenCL/vendors/*.icd 2>/dev/null")), "\n");
+		const std::deque<std::string> files = list_files("/etc/OpenCL/vendors/", ".icd");
 		// For each file
 		for(std::deque<std::string>::const_iterator i = files.begin() ; i != files.end() ; ++i)
 		{
@@ -161,10 +140,10 @@ namespace FreeOCL
 			err = __clGetPlatformInfo(platforms[i], CL_PLATFORM_EXTENSIONS, size, s, NULL);
 			if (err != CL_SUCCESS)
 				continue;
-			const bool bICDsupported = strstr(s, "cl_khr_icd") != NULL;
+			const bool b_icd_supported = strstr(s, "cl_khr_icd") != NULL;
 			free(s);
 
-			if (!bICDsupported)
+			if (!b_icd_supported)
 				continue;
 
 			err = __clGetPlatformInfo(platforms[i], CL_PLATFORM_ICD_SUFFIX_KHR, 0, NULL, &size);

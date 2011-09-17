@@ -69,9 +69,7 @@ namespace FreeOCL
 		std::set<cl_device_id> valid_devices;
 
 	private:
-		static std::string run_command(const std::string &cmd);
-		static std::string trim(const std::string &s);
-		static std::deque<std::string> split(const std::string &s, const std::string &sep);
+		std::deque<std::string> list_files(const std::string &path, const std::string &ext);
 	};
 
 	extern icd_loader icd_loader_instance;
