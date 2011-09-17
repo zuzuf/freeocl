@@ -297,7 +297,7 @@ namespace FreeOCL
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 
 				if (j)
-					gen << ',';
+					gen << ',' << '\n';
 				if (b_local)
 					gen << "(" << *(cur->front()) << ")(local_memory + __shift" << j << ")";
 				else

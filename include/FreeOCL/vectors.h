@@ -85,26 +85,53 @@ public:
 		if (iF != -1)	v.v[15] = ref.v[iF];
 		return v;
 	}
-	inline __swizzle_wrapper &operator=(const W &v)
-	{
-		if (i0 != -1)	ref.v[i0] =	v.v[0];
-		if (i1 != -1)	ref.v[i1] =	v.v[1];
-		if (i2 != -1)	ref.v[i2] =	v.v[2];
-		if (i3 != -1)	ref.v[i3] =	v.v[3];
-		if (i4 != -1)	ref.v[i4] =	v.v[4];
-		if (i5 != -1)	ref.v[i5] =	v.v[5];
-		if (i6 != -1)	ref.v[i6] =	v.v[6];
-		if (i7 != -1)	ref.v[i7] =	v.v[7];
-		if (i8 != -1)	ref.v[i8] =	v.v[8];
-		if (i9 != -1)	ref.v[i9] =	v.v[9];
-		if (iA != -1)	ref.v[iA] =	v.v[10];
-		if (iB != -1)	ref.v[iB] =	v.v[11];
-		if (iC != -1)	ref.v[iC] =	v.v[12];
-		if (iD != -1)	ref.v[iD] =	v.v[13];
-		if (iE != -1)	ref.v[iE] =	v.v[14];
-		if (iF != -1)	ref.v[iF] =	v.v[15];
-		return *this;
+#define IMPLEMENT_OPERATOR(op)\
+	inline __swizzle_wrapper &operator op(const W &v)\
+	{\
+		if (i0 != -1)	ref.v[i0] op v.v[0];\
+		if (i1 != -1)	ref.v[i1] op v.v[1];\
+		if (i2 != -1)	ref.v[i2] op v.v[2];\
+		if (i3 != -1)	ref.v[i3] op v.v[3];\
+		if (i4 != -1)	ref.v[i4] op v.v[4];\
+		if (i5 != -1)	ref.v[i5] op v.v[5];\
+		if (i6 != -1)	ref.v[i6] op v.v[6];\
+		if (i7 != -1)	ref.v[i7] op v.v[7];\
+		if (i8 != -1)	ref.v[i8] op v.v[8];\
+		if (i9 != -1)	ref.v[i9] op v.v[9];\
+		if (iA != -1)	ref.v[iA] op v.v[10];\
+		if (iB != -1)	ref.v[iB] op v.v[11];\
+		if (iC != -1)	ref.v[iC] op v.v[12];\
+		if (iD != -1)	ref.v[iD] op v.v[13];\
+		if (iE != -1)	ref.v[iE] op v.v[14];\
+		if (iF != -1)	ref.v[iF] op v.v[15];\
+		return *this;\
+	}\
+	inline __swizzle_wrapper &operator op(const typename __vector<W>::base_type &v)\
+	{\
+		if (i0 != -1)	ref.v[i0] op v;\
+		if (i1 != -1)	ref.v[i1] op v;\
+		if (i2 != -1)	ref.v[i2] op v;\
+		if (i3 != -1)	ref.v[i3] op v;\
+		if (i4 != -1)	ref.v[i4] op v;\
+		if (i5 != -1)	ref.v[i5] op v;\
+		if (i6 != -1)	ref.v[i6] op v;\
+		if (i7 != -1)	ref.v[i7] op v;\
+		if (i8 != -1)	ref.v[i8] op v;\
+		if (i9 != -1)	ref.v[i9] op v;\
+		if (iA != -1)	ref.v[iA] op v;\
+		if (iB != -1)	ref.v[iB] op v;\
+		if (iC != -1)	ref.v[iC] op v;\
+		if (iD != -1)	ref.v[iD] op v;\
+		if (iE != -1)	ref.v[iE] op v;\
+		if (iF != -1)	ref.v[iF] op v;\
+		return *this;\
 	}
+	IMPLEMENT_OPERATOR(=)
+	IMPLEMENT_OPERATOR(+=)
+	IMPLEMENT_OPERATOR(-=)
+	IMPLEMENT_OPERATOR(*=)
+	IMPLEMENT_OPERATOR(/=)
+#undef IMPLEMENT_OPERATOR
 	template<class X,
 			 int j0, int j1,
 			 int j2, int j3,
@@ -128,6 +155,18 @@ public:
 private:
 	V &ref;
 };
+
+#define IMPLEMENT_OPERATOR(op, X, N)\
+inline X##N &operator op(const X##N &w)\
+{\
+	for(size_t i = 0 ; i < N ; ++i)	v[i] op w.v[i];\
+	return *this;\
+}\
+inline X##N &operator op(const X &w)\
+{\
+	for(size_t i = 0 ; i < N ; ++i)	v[i] op w;\
+	return *this;\
+}
 
 #define DEFINE_VECTOR_TYPE(X, N)\
 struct X##N\
@@ -157,6 +196,11 @@ struct X##N\
 	inline X &get()	{	return v[i];	}\
 	template<int i>\
 	inline const X &get() const	{	return v[i];	}\
+	IMPLEMENT_OPERATOR(=,X,N)\
+	IMPLEMENT_OPERATOR(+=,X,N)\
+	IMPLEMENT_OPERATOR(-=,X,N)\
+	IMPLEMENT_OPERATOR(*=,X,N)\
+	IMPLEMENT_OPERATOR(/=,X,N)\
 };\
 template<>	struct __vector<X##N>\
 {\
@@ -189,6 +233,7 @@ DEFINE_VECTORS(double);
 
 #undef DEFINE_VECTORS
 #undef DEFINE_VECTOR_TYPE
+#undef IMPLEMENT_OPERATOR
 
 // vector op vector
 #define IMPLEMENT_BINARY_OP(op)\
