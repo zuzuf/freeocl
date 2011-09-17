@@ -28,12 +28,12 @@
 
 namespace FreeOCL
 {
-	class SymbolTable;
-	class Parser
+	class symbol_table;
+	class parser
 	{
 	public:
 		enum { _EOF = 256 };
-		enum TokenID
+		enum token_id
 		{
 			IDENTIFIER = 257, CONSTANT, STRING_LITERAL, SIZEOF,
 			PTR_OP, INC_OP, DEC_OP, LEFT_OP, RIGHT_OP, LE_OP, GE_OP, EQ_OP, NE_OP,
@@ -59,12 +59,12 @@ namespace FreeOCL
 			__ATTRIBUTE__,	SPECIAL
 		};
 	public:
-		Parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), bErrors(false)	{}
+		parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), b_errors(false)	{}
 
 		int parse();
-		inline bool errors() const {	return bErrors; }
-		inline const smartptr<Node> &getAST() const	{	return root;	}
-		const std::unordered_map<std::string, smartptr<Kernel> >	&getKernels() const	{	return kernels;	}
+		inline bool errors() const {	return b_errors; }
+		inline const smartptr<node> &get_ast() const	{	return root;	}
+		const std::unordered_map<std::string, smartptr<kernel> >	&get_kernels() const	{	return kernels;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
@@ -72,10 +72,10 @@ namespace FreeOCL
 		int lex();							// returns the next token from the
 
 		// support functions for parse()
-		inline int readToken();
-		inline int peekToken();
-		inline void rollBack();
-		inline void rollBackTo(size_t size);
+		inline int read_token();
+		inline int peek_token();
+		inline void roll_back();
+		inline void roll_back_to(size_t size);
 
 		// support functions for lex()
 		int get();
@@ -91,18 +91,18 @@ namespace FreeOCL
 		size_t line;
 		std::string current_line;
 		std::string current_file;
-		bool bErrors;
-		smartptr<Node> root;
+		bool b_errors;
+		smartptr<node> root;
 
-		smartptr<Node> d_val__;
+		smartptr<node> d_val__;
 
-		std::unordered_map<std::string, smartptr<Kernel> >	kernels;
-		std::vector<std::pair<int, smartptr<Node> > > tokens;
-		std::vector<std::pair<int, smartptr<Node> > > processed;
-		SymbolTable *symbols;
+		std::unordered_map<std::string, smartptr<kernel> >	kernels;
+		std::vector<std::pair<int, smartptr<node> > > tokens;
+		std::vector<std::pair<int, smartptr<node> > > processed;
+		symbol_table *symbols;
 
 	private:
-		// Parser grammar rules
+		// parser grammar rules
 		int __translation_unit();
 		int __external_declaration();
 		int __function_definition();
@@ -193,10 +193,10 @@ namespace FreeOCL
 		template<int token>
 		inline int __token()
 		{
-			const int next = readToken();
+			const int next = read_token();
 			if (token == next)
 				return 1;
-			rollBack();
+			roll_back();
 			return 0;
 		}
 	};

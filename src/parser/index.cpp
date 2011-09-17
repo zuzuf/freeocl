@@ -20,27 +20,27 @@
 
 namespace FreeOCL
 {
-	Index::Index(const smartptr<Expression> &ptr, const smartptr<Expression> &idx)
+	index::index(const smartptr<expression> &ptr, const smartptr<expression> &idx)
 		: ptr(ptr),
 		idx(idx)
 	{
 
 	}
 
-	Index::~Index()
+	index::~index()
 	{
 
 	}
 
-	smartptr<Type> Index::getType() const
+	smartptr<type> index::get_type() const
 	{
-		const smartptr<PointerType> p_type = ptr->getType().as<PointerType>();
+		const smartptr<pointer_type> p_type = ptr->get_type().as<pointer_type>();
 		if (!p_type)		// This should never happen
-			return (Type*)NULL;
-		return p_type->getBaseType();
+			return (type*)NULL;
+		return p_type->get_base_type();
 	}
 
-	void Index::write(std::ostream& out) const
+	void index::write(std::ostream& out) const
 	{
 		out << *ptr << '[' << *idx << ']';
 	}

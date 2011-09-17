@@ -21,35 +21,35 @@
 
 namespace FreeOCL
 {
-	Type::Type(const bool b_const, const AddressSpace address_space) : b_const(b_const), address_space(address_space)
+	type::type(const bool b_const, const address_space addr_space) : b_const(b_const), addr_space(addr_space)
 	{
 	}
 
-	smartptr<Type> Type::computeResultingType(const smartptr<Type> &t0, const smartptr<Type> &t1)
+	smartptr<type> type::compute_resulting_type(const smartptr<type> &t0, const smartptr<type> &t1)
 	{
-		const NativeType *n0 = t0.as<NativeType>();
-		const NativeType *n1 = t1.as<NativeType>();
+		const native_type *n0 = t0.as<native_type>();
+		const native_type *n1 = t1.as<native_type>();
 		if (n0 && n1)
 		{
-			if (n0->isScalar() && n1->isScalar())
+			if (n0->is_scalar() && n1->is_scalar())
 			{
-				if (n0->isFloat() || n1->isFloat())
-					return NativeType::t_double;
-				return NativeType::t_long;
+				if (n0->is_float() || n1->is_float())
+					return native_type::t_double;
+				return native_type::t_long;
 			}
-			if (n0->isVector())
+			if (n0->is_vector())
 				return t0;
-			if (n1->isVector())
+			if (n1->is_vector())
 				return t1;
 			// Normally this should not happen
-			return NativeType::t_void;
+			return native_type::t_void;
 		}
 		// Pointer arithmetics
-		if (t0.as<PointerType>() && n1)
+		if (t0.as<pointer_type>() && n1)
 			return t0;
-		if (t1.as<PointerType>() && n0)
+		if (t1.as<pointer_type>() && n0)
 			return t1;
 		// If you get there, someone is doing something ugly
-		return NativeType::t_void;
+		return native_type::t_void;
 	}
 }

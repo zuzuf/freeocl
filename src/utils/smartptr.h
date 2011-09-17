@@ -43,7 +43,7 @@ namespace FreeOCL
 		static inline void invalidate(T *) {}
 	};
 
-	template<class T> struct __smartptr_trait_validation<T, typename __if<T::bHasValidationFlag, void>::type>
+	template<class T> struct __smartptr_trait_validation<T, typename __if<T::b_has_validation_flag, void>::type>
 	{
 		static inline bool valid(const T *obj) {	return obj ? obj->valid() : false;	}
 		static inline void invalidate(const T *obj)
@@ -59,7 +59,7 @@ namespace FreeOCL
 		static inline void unlock(const T *) {}
 	};
 
-	template<class T> struct __smartptr_trait_lockable<T, typename __if<T::bIsLockable, void>::type>
+	template<class T> struct __smartptr_trait_lockable<T, typename __if<T::b_is_lockable, void>::type>
 	{
 		static inline void lock(const T *obj)
 		{

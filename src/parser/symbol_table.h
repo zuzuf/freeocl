@@ -26,17 +26,17 @@
 
 namespace FreeOCL
 {
-	class SymbolTable
+	class symbol_table
 	{
 	public:
-		SymbolTable();
-		~SymbolTable();
+		symbol_table();
+		~symbol_table();
 
-		void insert(const std::string &name, const smartptr<Node> &symbol);
+		void insert(const std::string &name, const smartptr<node> &symbol);
 		template<class T>
 		smartptr<T> get(const std::string &name) const
 		{
-			std::unordered_map<std::string, std::deque<smartptr<Node> > >::const_iterator it = table.find(name);
+			std::unordered_map<std::string, std::deque<smartptr<node> > >::const_iterator it = table.find(name);
 			if (it == table.end() || it->second.empty())
 				return (T*)NULL;
 			return it->second.back();
@@ -46,7 +46,7 @@ namespace FreeOCL
 		void pop();
 
 	private:
-		std::unordered_map<std::string, std::deque<smartptr<Node> > >	table;
+		std::unordered_map<std::string, std::deque<smartptr<node> > >	table;
 		std::deque<std::unordered_set<std::string> >	scope_stack;
 	};
 }

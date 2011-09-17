@@ -20,29 +20,29 @@
 
 namespace FreeOCL
 {
-	bool StructType::operator==(const Type &type) const
+	bool struct_type::operator==(const type &type) const
 	{
-		const StructType *pType = dynamic_cast<const StructType*>(&type);
-		if (pType == NULL)
+		const struct_type *p_type = dynamic_cast<const struct_type*>(&type);
+		if (p_type == NULL)
 			return false;
 		if (root)
 			return *root == type;
-		if (pType->root)
-			return *this == *(pType->root);
-		return getAggregateType() == pType->getAggregateType()
-				&& name == pType->name
-				&& members.size() == pType->members.size()
-				&& std::equal(members.begin(), members.end(), pType->members.begin());
+		if (p_type->root)
+			return *this == *(p_type->root);
+		return get_aggregate_type() == p_type->get_aggregate_type()
+				&& name == p_type->name
+				&& members.size() == p_type->members.size()
+				&& std::equal(members.begin(), members.end(), p_type->members.begin());
 	}
 
-	void StructType::define(std::ostream &out) const
+	void struct_type::define(std::ostream &out) const
 	{
 		if (root)
 		{
 			root->define(out);
 			return;
 		}
-		switch(getAggregateType())
+		switch(get_aggregate_type())
 		{
 		case STRUCT:
 			out << "struct ";
@@ -55,17 +55,17 @@ namespace FreeOCL
 		out << name << std::endl
 			<< '{' << std::endl;
 
-		for(std::vector<std::pair<std::string, smartptr<Type> > >::const_iterator it = members.begin(), end = members.end()
+		for(std::vector<std::pair<std::string, smartptr<type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
-			out << "    " << it->second->getName() << ' ' << it->first << ';' << std::endl;
+			out << "    " << it->second->get_name() << ' ' << it->first << ';' << std::endl;
 
 		out << '}';
 	}
 
-	void StructType::write(std::ostream &out) const
+	void struct_type::write(std::ostream &out) const
 	{
-		switch(getAddressSpace())
+		switch(get_address_space())
 		{
 		case PRIVATE:	break;
 		case GLOBAL:	out << "__global";	break;
@@ -73,21 +73,21 @@ namespace FreeOCL
 		case CONSTANT:	out << "__constant";	break;
 		}
 
-		out << getName() << ' ' << std::endl;
+		out << get_name() << ' ' << std::endl;
 	}
 
-	std::string StructType::getName() const
+	std::string struct_type::get_name() const
 	{
 		if (root)
 			return root->name;
 		return name;
 	}
 
-	bool StructType::hasMember(const std::string &name) const
+	bool struct_type::has_member(const std::string &name) const
 	{
 		if (root)
-			return root->hasMember(name);
-		for(std::vector<std::pair<std::string, smartptr<Type> > >::const_iterator it = members.begin(), end = members.end()
+			return root->has_member(name);
+		for(std::vector<std::pair<std::string, smartptr<type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
 			if (it->first == name)
@@ -95,24 +95,24 @@ namespace FreeOCL
 		return false;
 	}
 
-	smartptr<Type> StructType::getTypeOfMember(const std::string &name) const
+	smartptr<type> struct_type::get_type_of_member(const std::string &name) const
 	{
 		if (root)
-			return root->getTypeOfMember(name);
-		for(std::vector<std::pair<std::string, smartptr<Type> > >::const_iterator it = members.begin(), end = members.end()
+			return root->get_type_of_member(name);
+		for(std::vector<std::pair<std::string, smartptr<type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
 			if (it->first == name)
 				return it->second;
-		return (Type*)NULL;
+		return (type*)NULL;
 	}
 
-	smartptr<Type> StructType::clone(const bool b_const, const AddressSpace address_space) const
+	smartptr<type> struct_type::clone(const bool b_const, const address_space addr_space) const
 	{
-		return root ? new StructType(root, b_const, address_space) : new StructType(this, b_const, address_space);
+		return root ? new struct_type(root, b_const, addr_space) : new struct_type(this, b_const, addr_space);
 	}
 
-	StructType &StructType::operator<<(const std::pair<std::string, smartptr<Type> > &member)
+	struct_type &struct_type::operator<<(const std::pair<std::string, smartptr<type> > &member)
 	{
 		if (root)
 		{
@@ -123,10 +123,10 @@ namespace FreeOCL
 		return *this;
 	}
 
-	StructType::AggregateType StructType::getAggregateType() const
+	struct_type::aggregate_type struct_type::get_aggregate_type() const
 	{
 		if (root)
-			return root->getAggregateType();
+			return root->get_aggregate_type();
 		return STRUCT;
 	}
 }

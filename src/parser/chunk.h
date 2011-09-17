@@ -24,46 +24,46 @@
 
 namespace FreeOCL
 {
-	class Chunk : public Node
+	class chunk : public node
 	{
 	public:
-		Chunk();
-		Chunk(const smartptr<Node> &n0);
-		Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1);
-		Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2);
-		Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3);
-		Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3, const smartptr<Node> &n4);
-		Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3, const smartptr<Node> &n4, const smartptr<Node> &n5);
-		Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3, const smartptr<Node> &n4, const smartptr<Node> &n5, const smartptr<Node> &n6);
-		virtual ~Chunk();
+		chunk();
+		chunk(const smartptr<node> &n0);
+		chunk(const smartptr<node> &n0, const smartptr<node> &n1);
+		chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2);
+		chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3);
+		chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3, const smartptr<node> &n4);
+		chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3, const smartptr<node> &n4, const smartptr<node> &n5);
+		chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3, const smartptr<node> &n4, const smartptr<node> &n5, const smartptr<node> &n6);
+		virtual ~chunk();
 
 		virtual void write(std::ostream &out) const;
 
-		smartptr<Node> &operator[](size_t idx)	{	return childs[idx];	}
-		const smartptr<Node> &operator[](size_t idx) const	{	return childs[idx];	}
+		smartptr<node> &operator[](size_t idx)	{	return childs[idx];	}
+		const smartptr<node> &operator[](size_t idx) const	{	return childs[idx];	}
 
 		size_t size() const	{	return childs.size();	}
 
-		void push_back(const smartptr<Node> &n)	{	childs.push_back(n);	}
-		void push_front(const smartptr<Node> &n)	{	childs.push_front(n);	}
+		void push_back(const smartptr<node> &n)	{	childs.push_back(n);	}
+		void push_front(const smartptr<node> &n)	{	childs.push_front(n);	}
 		void pop_back()	{	childs.pop_back();	}
 		void pop_front()	{	childs.pop_front();	}
 
-		smartptr<Node> &front()	{	return childs.front();	}
-		const smartptr<Node> &front() const	{	return childs.front();	}
-		smartptr<Node> &back()	{	return childs.back();	}
-		const smartptr<Node> &back() const	{	return childs.back();	}
+		smartptr<node> &front()	{	return childs.front();	}
+		const smartptr<node> &front() const	{	return childs.front();	}
+		smartptr<node> &back()	{	return childs.back();	}
+		const smartptr<node> &back() const	{	return childs.back();	}
 
-		Chunk &operator<<(const smartptr<Node> &n)
+		chunk &operator<<(const smartptr<node> &n)
 		{
 			childs.push_back(n);
 			return *this;
 		}
 
-		std::deque<smartptr<Type> > getAsTypes() const;
+		std::deque<smartptr<type> > get_as_types() const;
 
 	private:
-		std::deque<smartptr<Node> >	childs;
+		std::deque<smartptr<node> >	childs;
 	};
 }
 

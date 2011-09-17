@@ -117,7 +117,7 @@ int main(int argc, const char **argv)
 	}
 	catch(cl::Error err)
 	{
-		cerr << "error: " << err.what() << '(' << getErrorAsString(err.err()) << ')' << endl;
+		cerr << "error: " << err.what() << '(' << get_error_as_string(err.err()) << ')' << endl;
 		return -1;
 	}
 

@@ -22,15 +22,15 @@
 
 namespace FreeOCL
 {
-	class Member : public Expression
+	class member : public expression
 	{
 	public:
-		Member(const smartptr<Expression> &base, const std::string &memberName);
+		member(const smartptr<expression> &base, const std::string &member_name);
 		void write(std::ostream& out) const;
-		smartptr<Type> getType() const;
+		smartptr<type> get_type() const;
 	private:
-		smartptr<Expression> base;
-		const std::string memberName;
+		smartptr<expression> base;
+		const std::string member_name;
 	};
 }
 

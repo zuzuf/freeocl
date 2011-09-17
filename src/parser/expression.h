@@ -22,10 +22,10 @@
 
 namespace FreeOCL
 {
-	class Expression : public Node
+	class expression : public node
 	{
 	public:
-		virtual smartptr<Type> getType() const = 0;
+		virtual smartptr<type> get_type() const = 0;
 	};
 }
 

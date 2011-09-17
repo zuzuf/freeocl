@@ -30,66 +30,66 @@ namespace FreeOCL
 		}
 	}
 
-	Chunk::Chunk()
+	chunk::chunk()
 	{}
 
-	Chunk::Chunk(const smartptr<Node> &n0)
+	chunk::chunk(const smartptr<node> &n0)
 	{
 		childs << n0;
 	}
 
-	Chunk::Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1)
+	chunk::chunk(const smartptr<node> &n0, const smartptr<node> &n1)
 	{
 		childs << n0 << n1;
 	}
 
-	Chunk::Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2)
+	chunk::chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2)
 	{
 		childs << n0 << n1 << n2;
 	}
 
-	Chunk::Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3)
+	chunk::chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3)
 	{
 		childs << n0 << n1 << n2 << n3;
 	}
 
-	Chunk::Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3, const smartptr<Node> &n4)
+	chunk::chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3, const smartptr<node> &n4)
 	{
 		childs << n0 << n1 << n2 << n3 << n4;
 	}
 
-	Chunk::Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3, const smartptr<Node> &n4, const smartptr<Node> &n5)
+	chunk::chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3, const smartptr<node> &n4, const smartptr<node> &n5)
 	{
 		childs << n0 << n1 << n2 << n3 << n4 << n5;
 	}
 
-	Chunk::Chunk(const smartptr<Node> &n0, const smartptr<Node> &n1, const smartptr<Node> &n2, const smartptr<Node> &n3, const smartptr<Node> &n4, const smartptr<Node> &n5, const smartptr<Node> &n6)
+	chunk::chunk(const smartptr<node> &n0, const smartptr<node> &n1, const smartptr<node> &n2, const smartptr<node> &n3, const smartptr<node> &n4, const smartptr<node> &n5, const smartptr<node> &n6)
 	{
 		childs << n0 << n1 << n2 << n3 << n4 << n5 << n6;
 	}
 
-	Chunk::~Chunk()
+	chunk::~chunk()
 	{
 	}
 
-	void Chunk::write(std::ostream &out) const
+	void chunk::write(std::ostream &out) const
 	{
-		for(std::deque<smartptr<Node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
+		for(std::deque<smartptr<node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
 			out << **it;
 	}
 
-	std::deque<smartptr<Type> > Chunk::getAsTypes() const
+	std::deque<smartptr<type> > chunk::get_as_types() const
 	{
-		std::deque<smartptr<Type> > types;
-		for(std::deque<smartptr<Node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
+		std::deque<smartptr<type> > types;
+		for(std::deque<smartptr<node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
 		{
-			smartptr<Expression> exp = it->as<Expression>();
+			smartptr<expression> exp = it->as<expression>();
 			if (!exp)
 			{
-				types.push_back(smartptr<Type>());
+				types.push_back(smartptr<type>());
 				continue;
 			}
-			types.push_back(exp->getType());
+			types.push_back(exp->get_type());
 		}
 
 		return types;

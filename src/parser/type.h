@@ -22,10 +22,10 @@
 
 namespace FreeOCL
 {
-	class Type : public Node
+	class type : public node
 	{
 	public:
-		enum AddressSpace
+		enum address_space
 		{
 			GLOBAL,
 			LOCAL,
@@ -34,24 +34,24 @@ namespace FreeOCL
 		};
 
 	public:
-		Type(const bool b_const, const AddressSpace address_space);
+		type(const bool b_const, const address_space addr_space);
 
-		virtual bool operator==(const Type &type) const = 0;
-		bool operator!=(const Type &type) const
-		{	return !(*this == type);	}
-		virtual std::string getName() const = 0;
+		virtual bool operator==(const type &t) const = 0;
+		bool operator!=(const type &t) const
+		{	return !(*this == t);	}
+		virtual std::string get_name() const = 0;
 
-		bool isConst() const	{	return b_const;	}
-		AddressSpace getAddressSpace() const	{	return address_space;	}
+		bool is_const() const	{	return b_const;	}
+		address_space get_address_space() const	{	return addr_space;	}
 
-		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const = 0;
+		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const = 0;
 
 	private:
 		const bool b_const;
-		const AddressSpace address_space;
+		const address_space addr_space;
 
 	public:
-		static smartptr<Type> computeResultingType(const smartptr<Type> &t0, const smartptr<Type> &t1);
+		static smartptr<type> compute_resulting_type(const smartptr<type> &t0, const smartptr<type> &t1);
 	};
 }
 

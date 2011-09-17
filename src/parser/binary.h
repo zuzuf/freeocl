@@ -22,23 +22,23 @@
 
 namespace FreeOCL
 {
-	class Binary : public Expression
+	class binary : public expression
 	{
 	public:
-		Binary(int op, const smartptr<Expression> &left, const smartptr<Expression> &right);
-		virtual ~Binary();
+		binary(int op, const smartptr<expression> &left, const smartptr<expression> &right);
+		virtual ~binary();
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 
-		const smartptr<Expression> &getLeft() const		{	return left;	}
-		const smartptr<Expression> &getRight() const	{	return right;	}
-		int getOp() const	{	return op;	}
+		const smartptr<expression> &get_left() const		{	return left;	}
+		const smartptr<expression> &get_right() const	{	return right;	}
+		int get_op() const	{	return op;	}
 	private:
-		const smartptr<Expression> left;
-		const smartptr<Expression> right;
-		smartptr<Type> type;
+		const smartptr<expression> left;
+		const smartptr<expression> right;
+		smartptr<type> p_type;
 		const int op;
 	};
 }

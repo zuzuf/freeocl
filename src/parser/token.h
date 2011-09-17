@@ -22,18 +22,18 @@
 
 namespace FreeOCL
 {
-	class Token : public Node
+	class token : public node
 	{
 	public:
-		Token(const std::string &str, const int tokenID);
-		virtual ~Token();
+		token(const std::string &str, const int token_id);
+		virtual ~token();
 
-		int getID() const	{	return tokenID;	}
-		const std::string &getString() const	{	return str;	}
+		int get_id() const	{	return token_id;	}
+		const std::string &get_string() const	{	return str;	}
 
 		virtual void write(std::ostream& out) const;
 	private:
-		const int tokenID;
+		const int token_id;
 		const std::string str;
 	};
 }

@@ -19,28 +19,28 @@
 
 namespace FreeOCL
 {
-	Call::Call(const smartptr<Callable> &fn, const smartptr<Chunk> &args)
+	call::call(const smartptr<callable> &fn, const smartptr<chunk> &args)
 		: fn(fn),
 		args(args)
 	{
 	}
 
-	Call::~Call()
+	call::~call()
 	{
 	}
 
-	smartptr<Type> Call::getType() const
+	smartptr<type> call::get_type() const
 	{
-		std::deque<smartptr<Type> > arg_types;
+		std::deque<smartptr<type> > arg_types;
 		if (args)
 			for(size_t i = 0 ; i < args->size() ; ++i)
-				arg_types.push_back((*args)[i].as<Expression>()->getType());
-		return fn->getReturnType(arg_types);
+				arg_types.push_back((*args)[i].as<expression>()->get_type());
+		return fn->get_return_type(arg_types);
 	}
 
-	void Call::write(std::ostream& out) const
+	void call::write(std::ostream& out) const
 	{
-		out << fn->getName() << '(';
+		out << fn->get_name() << '(';
 		if (args)
 		{
 			for(size_t i = 0 ; i < args->size() ; ++i)

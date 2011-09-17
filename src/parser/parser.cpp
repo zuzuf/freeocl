@@ -45,7 +45,7 @@
 
 namespace FreeOCL
 {
-	inline int Parser::readToken()
+	inline int parser::read_token()
 	{
 		if (tokens.empty())
 		{
@@ -53,14 +53,14 @@ namespace FreeOCL
 			processed.push_back(std::make_pair(token, d_val__));
 			return token;
 		}
-		const std::pair<int, smartptr<Node> > token = tokens.back();
+		const std::pair<int, smartptr<node> > token = tokens.back();
 		tokens.pop_back();
 		processed.push_back(token);
 		d_val__ = token.second;
 		return token.first;
 	}
 
-	inline int Parser::peekToken()
+	inline int parser::peek_token()
 	{
 		if (tokens.empty())
 		{
@@ -70,24 +70,24 @@ namespace FreeOCL
 		return tokens.back().first;
 	}
 
-	inline void Parser::rollBack()
+	inline void parser::roll_back()
 	{
 		tokens.push_back(processed.back());
 		processed.pop_back();
 	}
 
-	inline void Parser::rollBackTo(size_t size)
+	inline void parser::roll_back_to(size_t size)
 	{
 		while(processed.size() > size)
-			rollBack();
+			roll_back();
 	}
 
-	int Parser::parse()
+	int parser::parse()
 	{
 		processed.clear();
 		tokens.clear();
-		bErrors = false;
-		symbols = new SymbolTable;
+		b_errors = false;
+		symbols = new symbol_table;
 		register_builtin();
 		try
 		{
@@ -106,21 +106,21 @@ namespace FreeOCL
 		}
 	}
 
-	int Parser::__translation_unit()
+	int parser::__translation_unit()
 	{
 		if (__external_declaration())
 		{
-			Chunk *chunk = new Chunk(d_val__);
-			root = chunk;
+			chunk *p_chunk = new chunk(d_val__);
+			root = p_chunk;
 			while(__external_declaration())
-				chunk->push_back(d_val__);
+				p_chunk->push_back(d_val__);
 		}
 		else
 			root = NULL;
 		return 1;
 	}
 
-	int Parser::__external_declaration()
+	int parser::__external_declaration()
 	{
 		BEGIN();
 		RULE1(function_definition);
@@ -128,26 +128,26 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__function_definition()
+	int parser::__function_definition()
 	{
 		BEGIN();
 		const bool b_qualifier = __function_qualifier();
 		const bool b_attribute_qualifier = __attribute_qualifier();
 		MATCH2(declaration_specifiers, declarator)
 		{
-			smartptr<Type> type = N[0];
-			smartptr<Chunk> chunk = N[1];
-			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			smartptr<type> p_type = N[0];
+			smartptr<chunk> p_chunk = N[1];
+			smartptr<pointer_type> ptr = p_chunk->front().as<pointer_type>();
 			if (ptr)
 			{
-				ptr->setRootType(type);
-				type = ptr;
-				chunk = chunk->back();
+				ptr->set_root_type(p_type);
+				p_type = ptr;
+				p_chunk = p_chunk->back();
 			}
 
 			// Push a new scope
 			symbols->push();
-			smartptr<Chunk> args = chunk->back();
+			smartptr<chunk> args = p_chunk->back();
 			if (!args)
 				END();
 			if (args->size() == 3)
@@ -156,12 +156,12 @@ namespace FreeOCL
 				args = (*args)[1];
 				for(size_t i = 0 ; i < args->size() ; ++i)
 				{
-					const smartptr<Chunk> cur = (*args)[i].as<Chunk>();
-					const smartptr<Type> type = cur->front().as<Type>();
-					std::string name = cur->back().as<Token>()
-									   ? cur->back().as<Token>()->getString()
-									   : cur->back().as<Chunk>()->front().as<Token>()->getString();
-					symbols->insert(name, new Var(name, type));
+					const smartptr<chunk> cur = (*args)[i].as<chunk>();
+					const smartptr<type> p_type = cur->front().as<type>();
+					std::string name = cur->back().as<token>()
+									   ? cur->back().as<token>()->get_string()
+									   : cur->back().as<chunk>()->front().as<token>()->get_string();
+					symbols->insert(name, new var(name, p_type));
 				}
 			}
 
@@ -169,16 +169,16 @@ namespace FreeOCL
 			if (__compound_statement())
 			{
 				symbols->pop();
-				smartptr<Node> statement = d_val__;
-				const std::string function_name = chunk->front().as<Token>()->getString();
+				smartptr<node> statement = d_val__;
+				const std::string function_name = p_chunk->front().as<token>()->get_string();
 				if (b_qualifier)
 				{
-					if (*type != NativeType(NativeType::VOID, false, Type::PRIVATE))
+					if (*p_type != native_type(native_type::VOID, false, type::PRIVATE))
 						error("return type for kernels must be void");
-					d_val__ = kernels[function_name] = new Kernel(type, function_name, chunk->back(), statement);
+					d_val__ = kernels[function_name] = new kernel(p_type, function_name, p_chunk->back(), statement);
 				}
 				else
-					d_val__ = new Function(type, function_name, chunk->back(), statement);
+					d_val__ = new function(p_type, function_name, p_chunk->back(), statement);
 				symbols->insert(function_name, d_val__);
 				return 1;
 			}
@@ -193,92 +193,92 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__declaration()
+	int parser::__declaration()
 	{
 		BEGIN();
 
 		if (__declaration_specifiers())
 		{
-			smartptr<Type> type = d_val__;
+			smartptr<type> p_type = d_val__;
 			if(__token<';'>())
 			{
 				warning("declaration doesn't declare anything!");
-				d_val__ = new Token("", 0);
+				d_val__ = new token("", 0);
 				return 1;
 			}
 
-			const bool decl = type.as<Typedecl>();
-			smartptr<Type> fully_qualified_type = type;
-			if (type.as<Typedef>())
-				type = type.as<Typedef>()->getType();
+			const bool decl = p_type.as<type_decl>();
+			smartptr<type> fully_qualified_type = p_type;
+			if (p_type.as<type_def>())
+				p_type = p_type.as<type_def>()->get_type();
 
 			MATCH2(init_declarator_list, token<';'>)
 			{
 				// register variables
-				smartptr<Chunk> var_list = N[0].as<Chunk>();
+				smartptr<chunk> var_list = N[0].as<chunk>();
 				for(size_t i = 0 ; i < var_list->size() ; i += 2)
 				{
-					const smartptr<Chunk> declarator = (*var_list)[i].as<Chunk>()->front().as<Chunk>();
-					smartptr<Type> l_type;
+					const smartptr<chunk> declarator = (*var_list)[i].as<chunk>()->front().as<chunk>();
+					smartptr<type> l_type;
 					std::string name;
-					if (declarator->front().as<PointerType>())
+					if (declarator->front().as<pointer_type>())
 					{
-						smartptr<PointerType> ptr = declarator->front().as<PointerType>()->clone();
-						ptr->setRootType(type);
+						smartptr<pointer_type> ptr = declarator->front().as<pointer_type>()->clone();
+						ptr->set_root_type(p_type);
 						l_type = ptr;
 
-						name = declarator->back().as<Chunk>()->front().as<Token>()->getString();
+						name = declarator->back().as<chunk>()->front().as<token>()->get_string();
 
-						smartptr<Chunk> suffix_list = declarator->back().as<Chunk>();
+						smartptr<chunk> suffix_list = declarator->back().as<chunk>();
 						for(size_t j = 1 ; j < suffix_list->size() ; ++j)
 						{
-							smartptr<Chunk> chunk = (*suffix_list)[j].as<Chunk>();
-							if (!chunk)
+							smartptr<chunk> p_chunk = (*suffix_list)[j].as<chunk>();
+							if (!p_chunk)
 								continue;
-							if (chunk->front().as<Token>()->getID() == '[')
-								l_type = new PointerType(l_type, false, PointerType::PRIVATE);
+							if (p_chunk->front().as<token>()->get_id() == '[')
+								l_type = new pointer_type(l_type, false, pointer_type::PRIVATE);
 						}
 					}
 					else
 					{
-						l_type = type;
-						name = declarator->front().as<Token>()->getString();
+						l_type = p_type;
+						name = declarator->front().as<token>()->get_string();
 
 						for(size_t j = 1 ; j < declarator->size() ; ++j)
 						{
-							smartptr<Chunk> chunk = (*declarator)[j].as<Chunk>();
-							if (!chunk)
+							smartptr<chunk> p_chunk = (*declarator)[j].as<chunk>();
+							if (!p_chunk)
 								continue;
-							if (chunk->front().as<Token>()->getID() == '[')
-								l_type = new PointerType(l_type, false, PointerType::PRIVATE);
+							if (p_chunk->front().as<token>()->get_id() == '[')
+								l_type = new pointer_type(l_type, false, pointer_type::PRIVATE);
 						}
 					}
 					if (decl)
-						symbols->insert(name, new Typedef(name, l_type));
+						symbols->insert(name, new type_def(name, l_type));
 					else
-						symbols->insert(name, new Var(name, l_type));
+						symbols->insert(name, new var(name, l_type));
 
-					if ((*var_list)[i].as<Chunk>()->size() == 3)		// Check initializer
+					if ((*var_list)[i].as<chunk>()->size() == 3)		// Check initializer
 					{
-						// If it's not an Expression, then it's a vector/struct initializer which will be handleded by the C++ compiler
-						smartptr<Expression> init = (*var_list)[i].as<Chunk>()->back().as<Expression>();
-						if (init && init->getType().as<NativeType>() && l_type.as<NativeType>())
+						// If it's not an expression, then it's a vector/struct initializer which will be handleded by the C++ compiler
+						smartptr<expression> init = (*var_list)[i].as<chunk>()->back().as<expression>();
+						if (init && init->get_type().as<native_type>() && l_type.as<native_type>())
 						{
-							smartptr<NativeType> init_type = init->getType().as<NativeType>();
-							smartptr<NativeType> v_type = l_type.as<NativeType>();
-							const std::string v_type_name = NativeType(v_type->getTypeID(), false, NativeType::PRIVATE).getName();
-							if (v_type->isVector() && init_type->isScalar())
-								(*var_list)[i].as<Chunk>()->back() = new Chunk(new Token(v_type_name + "::make(", Parser::SPECIAL), init, new Token(")", ')'));
-							else if (v_type->isVector() && init_type->isVector())
+							smartptr<native_type> init_type = init->get_type().as<native_type>();
+							smartptr<native_type> v_type = l_type.as<native_type>();
+							const std::string v_type_name = native_type(v_type->get_type_id(), false, native_type::PRIVATE).get_name();
+							if (v_type->is_vector() && init_type->is_scalar())
+								(*var_list)[i].as<chunk>()->back() = new chunk(new token(v_type_name + "::make(", parser::SPECIAL), init, new token(")", ')'));
+							else if (v_type->is_vector() && init_type->is_vector())
 							{
-								if (v_type->getDim() != init_type->getDim())
+								if (v_type->get_dim() != init_type->get_dim())
 									ERROR("vector dimensions must match!");
-								(*var_list)[i].as<Chunk>()->back() = new Call(symbols->get<Callable>("convert_" + v_type_name), new Chunk(init));
+								(*var_list)[i].as<chunk>()->back() = new call(symbols->get<callable>("convert_" + v_type_name), new chunk(init));
 							}
 						}
 					}
 				}
-				d_val__ = new Chunk(fully_qualified_type, N[0], N[1]);
+				d_val__ = new chunk(fully_qualified_type, N[0], N[1]);
 				return 1;
 			}
 			ERROR("syntax error, ';' expected");
@@ -287,7 +287,7 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__declaration_specifier()
+	int parser::__declaration_specifier()
 	{
 		BEGIN();
 		RULE1(storage_class_specifier);
@@ -296,23 +296,23 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__declaration_specifiers()
+	int parser::__declaration_specifiers()
 	{
 		if (__declaration_specifier())
 		{
-			smartptr<Type> type;
-			Type::AddressSpace address_space = Type::PRIVATE;
+			smartptr<type> p_type;
+			type::address_space addr_space = type::PRIVATE;
 			bool b_address_space_set = false;
 			bool b_const = false;
 			bool b_typedef = false;
 			do
 			{
-				if (d_val__.as<Type>())
-					type = d_val__;
-				else if (d_val__.as<Token>())
+				if (d_val__.as<type>())
+					p_type = d_val__;
+				else if (d_val__.as<token>())
 				{
-					Token *token = d_val__.as<Token>();
-					switch(token->getID())
+					token *p_token = d_val__.as<token>();
+					switch(p_token->get_id())
 					{
 					case CONST:
 						if (b_const)
@@ -323,25 +323,25 @@ namespace FreeOCL
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::GLOBAL;
+						addr_space = type::GLOBAL;
 						break;
 					case __LOCAL:
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::LOCAL;
+						addr_space = type::LOCAL;
 						break;
 					case __PRIVATE:
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::PRIVATE;
+						addr_space = type::PRIVATE;
 						break;
 					case __CONSTANT:
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::CONSTANT;
+						addr_space = type::CONSTANT;
 						break;
 					case TYPEDEF:
 						if (b_typedef)
@@ -352,31 +352,31 @@ namespace FreeOCL
 				}
 			}
 			while (__declaration_specifier());
-			if (!type)
+			if (!p_type)
 				ERROR("syntax error: missing type");
-			if (b_const && address_space == Type::CONSTANT)
+			if (b_const && addr_space == type::CONSTANT)
 				warning("const used with __constant address space");
-			type = type->clone(b_const, address_space);
+			p_type = p_type->clone(b_const, addr_space);
 			if (b_typedef)
-				type = new Typedecl(type);
-			d_val__ = type;
+				p_type = new type_decl(p_type);
+			d_val__ = p_type;
 			return 1;
 		}
 		return 0;
 	}
 
-	int Parser::__init_declarator_list()
+	int parser::__init_declarator_list()
 	{
 		if (__init_declarator())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				N->push_back(d_val__);
 				if (!__init_declarator())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
 				N->push_back(d_val__);
@@ -388,7 +388,7 @@ namespace FreeOCL
 		return 0;
 	}
 
-	int Parser::__declarator()
+	int parser::__declarator()
 	{
 		BEGIN();
 		RULE2(pointer, direct_declarator);
@@ -396,29 +396,29 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__declaration_list()
+	int parser::__declaration_list()
 	{
 		LISTOF_LEFT(declaration);
 		return 0;
 	}
 
-	int Parser::__pointer()
+	int parser::__pointer()
 	{
 		BEGIN();
-		if (peekToken() == '*')
+		if (peek_token() == '*')
 		{
-			smartptr<Type> ptr;
+			smartptr<type> ptr;
 			while(__token<'*'>())
 			{
 				bool b_const = false;
 				bool b_address_space_set = false;
-				Type::AddressSpace address_space = Type::PRIVATE;
+				type::address_space addr_space = type::PRIVATE;
 				if (__type_qualifier_list())
 				{
-					Chunk *chunk = d_val__.as<Chunk>();
-					for(size_t i = 0 ; i < chunk->size() ; ++i)
+					chunk *p_chunk = d_val__.as<chunk>();
+					for(size_t i = 0 ; i < p_chunk->size() ; ++i)
 					{
-						switch((*chunk)[i].as<Token>()->getID())
+						switch((*p_chunk)[i].as<token>()->get_id())
 						{
 						case CONST:
 							if (b_const)
@@ -429,30 +429,30 @@ namespace FreeOCL
 							if (b_address_space_set)
 								ERROR("2 address space qualifiers");
 							b_address_space_set = true;
-							address_space = Type::GLOBAL;
+							addr_space = type::GLOBAL;
 							break;
 						case __LOCAL:
 							if (b_address_space_set)
 								ERROR("2 address space qualifiers");
 							b_address_space_set = true;
-							address_space = Type::LOCAL;
+							addr_space = type::LOCAL;
 							break;
 						case __CONSTANT:
 							if (b_address_space_set)
 								ERROR("2 address space qualifiers");
 							b_address_space_set = true;
-							address_space = Type::CONSTANT;
+							addr_space = type::CONSTANT;
 							break;
 						case __PRIVATE:
 							if (b_address_space_set)
 								ERROR("2 address space qualifiers");
 							b_address_space_set = true;
-							address_space = Type::PRIVATE;
+							addr_space = type::PRIVATE;
 							break;
 						}
 					}
 				}
-				ptr = new PointerType(ptr, b_const, address_space);
+				ptr = new pointer_type(ptr, b_const, addr_space);
 			}
 			d_val__ = ptr;
 			return 1;
@@ -460,101 +460,101 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__function_qualifier()
+	int parser::__function_qualifier()
 	{
 		return __token<__KERNEL>();
 	}
 
-	int Parser::__storage_class_specifier()
+	int parser::__storage_class_specifier()
 	{
 		return __token<TYPEDEF>();
 	}
 
-	int Parser::__type_specifier()
+	int parser::__type_specifier()
 	{
 		BEGIN();
-		switch(readToken())
+		switch(read_token())
 		{
-		case BOOL:		d_val__ = new NativeType(NativeType::BOOL, false, Type::PRIVATE);		return 1;
-		case HALF:		d_val__ = new NativeType(NativeType::HALF, false, Type::PRIVATE);		return 1;
-		case VOID:		d_val__ = new NativeType(NativeType::VOID, false, Type::PRIVATE);		return 1;
-		case CHAR:		d_val__ = new NativeType(NativeType::CHAR, false, Type::PRIVATE);		return 1;
-		case SHORT:		d_val__ = new NativeType(NativeType::SHORT, false, Type::PRIVATE);		return 1;
-		case INT:		d_val__ = new NativeType(NativeType::INT, false, Type::PRIVATE);		return 1;
-		case LONG:		d_val__ = new NativeType(NativeType::LONG, false, Type::PRIVATE);		return 1;
-		case UCHAR:		d_val__ = new NativeType(NativeType::UCHAR, false, Type::PRIVATE);		return 1;
-		case USHORT:	d_val__ = new NativeType(NativeType::USHORT, false, Type::PRIVATE);		return 1;
-		case UINT:		d_val__ = new NativeType(NativeType::UINT, false, Type::PRIVATE);		return 1;
-		case ULONG:		d_val__ = new NativeType(NativeType::ULONG, false, Type::PRIVATE);		return 1;
-		case FLOAT:		d_val__ = new NativeType(NativeType::FLOAT, false, Type::PRIVATE);		return 1;
-		case DOUBLE:	d_val__ = new NativeType(NativeType::DOUBLE, false, Type::PRIVATE);		return 1;
-		case CHAR2:		d_val__ = new NativeType(NativeType::CHAR2, false, Type::PRIVATE);		return 1;
-		case SHORT2:	d_val__ = new NativeType(NativeType::SHORT2, false, Type::PRIVATE);		return 1;
-		case INT2:		d_val__ = new NativeType(NativeType::INT2, false, Type::PRIVATE);		return 1;
-		case LONG2:		d_val__ = new NativeType(NativeType::LONG2, false, Type::PRIVATE);		return 1;
-		case UCHAR2:	d_val__ = new NativeType(NativeType::UCHAR2, false, Type::PRIVATE);		return 1;
-		case USHORT2:	d_val__ = new NativeType(NativeType::USHORT2, false, Type::PRIVATE);	return 1;
-		case UINT2:		d_val__ = new NativeType(NativeType::UINT2, false, Type::PRIVATE);		return 1;
-		case ULONG2:	d_val__ = new NativeType(NativeType::ULONG2, false, Type::PRIVATE);		return 1;
-		case FLOAT2:	d_val__ = new NativeType(NativeType::FLOAT2, false, Type::PRIVATE);		return 1;
-		case DOUBLE2:	d_val__ = new NativeType(NativeType::DOUBLE2, false, Type::PRIVATE);	return 1;
-		case CHAR3:		d_val__ = new NativeType(NativeType::CHAR3, false, Type::PRIVATE);		return 1;
-		case SHORT3:	d_val__ = new NativeType(NativeType::SHORT3, false, Type::PRIVATE);		return 1;
-		case INT3:		d_val__ = new NativeType(NativeType::INT3, false, Type::PRIVATE);		return 1;
-		case LONG3:		d_val__ = new NativeType(NativeType::LONG3, false, Type::PRIVATE);		return 1;
-		case UCHAR3:	d_val__ = new NativeType(NativeType::UCHAR3, false, Type::PRIVATE);		return 1;
-		case USHORT3:	d_val__ = new NativeType(NativeType::USHORT3, false, Type::PRIVATE);	return 1;
-		case UINT3:		d_val__ = new NativeType(NativeType::UINT3, false, Type::PRIVATE);		return 1;
-		case ULONG3:	d_val__ = new NativeType(NativeType::ULONG3, false, Type::PRIVATE);		return 1;
-		case FLOAT3:	d_val__ = new NativeType(NativeType::FLOAT3, false, Type::PRIVATE);		return 1;
-		case DOUBLE3:	d_val__ = new NativeType(NativeType::DOUBLE3, false, Type::PRIVATE);	return 1;
-		case CHAR4:		d_val__ = new NativeType(NativeType::CHAR4, false, Type::PRIVATE);		return 1;
-		case SHORT4:	d_val__ = new NativeType(NativeType::SHORT4, false, Type::PRIVATE);		return 1;
-		case INT4:		d_val__ = new NativeType(NativeType::INT4, false, Type::PRIVATE);		return 1;
-		case LONG4:		d_val__ = new NativeType(NativeType::LONG4, false, Type::PRIVATE);		return 1;
-		case UCHAR4:	d_val__ = new NativeType(NativeType::UCHAR4, false, Type::PRIVATE);		return 1;
-		case USHORT4:	d_val__ = new NativeType(NativeType::USHORT4, false, Type::PRIVATE);	return 1;
-		case UINT4:		d_val__ = new NativeType(NativeType::UINT4, false, Type::PRIVATE);		return 1;
-		case ULONG4:	d_val__ = new NativeType(NativeType::ULONG4, false, Type::PRIVATE);		return 1;
-		case FLOAT4:	d_val__ = new NativeType(NativeType::FLOAT4, false, Type::PRIVATE);		return 1;
-		case DOUBLE4:	d_val__ = new NativeType(NativeType::DOUBLE4, false, Type::PRIVATE);	return 1;
-		case CHAR8:		d_val__ = new NativeType(NativeType::CHAR8, false, Type::PRIVATE);		return 1;
-		case SHORT8:	d_val__ = new NativeType(NativeType::SHORT8, false, Type::PRIVATE);		return 1;
-		case INT8:		d_val__ = new NativeType(NativeType::INT8, false, Type::PRIVATE);		return 1;
-		case LONG8:		d_val__ = new NativeType(NativeType::LONG8, false, Type::PRIVATE);		return 1;
-		case UCHAR8:	d_val__ = new NativeType(NativeType::UCHAR8, false, Type::PRIVATE);		return 1;
-		case USHORT8:	d_val__ = new NativeType(NativeType::USHORT8, false, Type::PRIVATE);	return 1;
-		case UINT8:		d_val__ = new NativeType(NativeType::UINT8, false, Type::PRIVATE);		return 1;
-		case ULONG8:	d_val__ = new NativeType(NativeType::ULONG8, false, Type::PRIVATE);		return 1;
-		case FLOAT8:	d_val__ = new NativeType(NativeType::FLOAT8, false, Type::PRIVATE);		return 1;
-		case DOUBLE8:	d_val__ = new NativeType(NativeType::DOUBLE8, false, Type::PRIVATE);	return 1;
-		case CHAR16:	d_val__ = new NativeType(NativeType::CHAR16, false, Type::PRIVATE);		return 1;
-		case SHORT16:	d_val__ = new NativeType(NativeType::SHORT16, false, Type::PRIVATE);	return 1;
-		case INT16:		d_val__ = new NativeType(NativeType::INT16, false, Type::PRIVATE);		return 1;
-		case LONG16:	d_val__ = new NativeType(NativeType::LONG16, false, Type::PRIVATE);		return 1;
-		case UCHAR16:	d_val__ = new NativeType(NativeType::UCHAR16, false, Type::PRIVATE);	return 1;
-		case USHORT16:	d_val__ = new NativeType(NativeType::USHORT16, false, Type::PRIVATE);	return 1;
-		case UINT16:	d_val__ = new NativeType(NativeType::UINT16, false, Type::PRIVATE);		return 1;
-		case ULONG16:	d_val__ = new NativeType(NativeType::ULONG16, false, Type::PRIVATE);	return 1;
-		case FLOAT16:	d_val__ = new NativeType(NativeType::FLOAT16, false, Type::PRIVATE);	return 1;
-		case DOUBLE16:	d_val__ = new NativeType(NativeType::DOUBLE16, false, Type::PRIVATE);	return 1;
-		case SIZE_T:	d_val__ = new NativeType(NativeType::SIZE_T, false, Type::PRIVATE);		return 1;
+		case BOOL:		d_val__ = new native_type(native_type::BOOL, false, type::PRIVATE);		return 1;
+		case HALF:		d_val__ = new native_type(native_type::HALF, false, type::PRIVATE);		return 1;
+		case VOID:		d_val__ = new native_type(native_type::VOID, false, type::PRIVATE);		return 1;
+		case CHAR:		d_val__ = new native_type(native_type::CHAR, false, type::PRIVATE);		return 1;
+		case SHORT:		d_val__ = new native_type(native_type::SHORT, false, type::PRIVATE);		return 1;
+		case INT:		d_val__ = new native_type(native_type::INT, false, type::PRIVATE);		return 1;
+		case LONG:		d_val__ = new native_type(native_type::LONG, false, type::PRIVATE);		return 1;
+		case UCHAR:		d_val__ = new native_type(native_type::UCHAR, false, type::PRIVATE);		return 1;
+		case USHORT:	d_val__ = new native_type(native_type::USHORT, false, type::PRIVATE);		return 1;
+		case UINT:		d_val__ = new native_type(native_type::UINT, false, type::PRIVATE);		return 1;
+		case ULONG:		d_val__ = new native_type(native_type::ULONG, false, type::PRIVATE);		return 1;
+		case FLOAT:		d_val__ = new native_type(native_type::FLOAT, false, type::PRIVATE);		return 1;
+		case DOUBLE:	d_val__ = new native_type(native_type::DOUBLE, false, type::PRIVATE);		return 1;
+		case CHAR2:		d_val__ = new native_type(native_type::CHAR2, false, type::PRIVATE);		return 1;
+		case SHORT2:	d_val__ = new native_type(native_type::SHORT2, false, type::PRIVATE);		return 1;
+		case INT2:		d_val__ = new native_type(native_type::INT2, false, type::PRIVATE);		return 1;
+		case LONG2:		d_val__ = new native_type(native_type::LONG2, false, type::PRIVATE);		return 1;
+		case UCHAR2:	d_val__ = new native_type(native_type::UCHAR2, false, type::PRIVATE);		return 1;
+		case USHORT2:	d_val__ = new native_type(native_type::USHORT2, false, type::PRIVATE);	return 1;
+		case UINT2:		d_val__ = new native_type(native_type::UINT2, false, type::PRIVATE);		return 1;
+		case ULONG2:	d_val__ = new native_type(native_type::ULONG2, false, type::PRIVATE);		return 1;
+		case FLOAT2:	d_val__ = new native_type(native_type::FLOAT2, false, type::PRIVATE);		return 1;
+		case DOUBLE2:	d_val__ = new native_type(native_type::DOUBLE2, false, type::PRIVATE);	return 1;
+		case CHAR3:		d_val__ = new native_type(native_type::CHAR3, false, type::PRIVATE);		return 1;
+		case SHORT3:	d_val__ = new native_type(native_type::SHORT3, false, type::PRIVATE);		return 1;
+		case INT3:		d_val__ = new native_type(native_type::INT3, false, type::PRIVATE);		return 1;
+		case LONG3:		d_val__ = new native_type(native_type::LONG3, false, type::PRIVATE);		return 1;
+		case UCHAR3:	d_val__ = new native_type(native_type::UCHAR3, false, type::PRIVATE);		return 1;
+		case USHORT3:	d_val__ = new native_type(native_type::USHORT3, false, type::PRIVATE);	return 1;
+		case UINT3:		d_val__ = new native_type(native_type::UINT3, false, type::PRIVATE);		return 1;
+		case ULONG3:	d_val__ = new native_type(native_type::ULONG3, false, type::PRIVATE);		return 1;
+		case FLOAT3:	d_val__ = new native_type(native_type::FLOAT3, false, type::PRIVATE);		return 1;
+		case DOUBLE3:	d_val__ = new native_type(native_type::DOUBLE3, false, type::PRIVATE);	return 1;
+		case CHAR4:		d_val__ = new native_type(native_type::CHAR4, false, type::PRIVATE);		return 1;
+		case SHORT4:	d_val__ = new native_type(native_type::SHORT4, false, type::PRIVATE);		return 1;
+		case INT4:		d_val__ = new native_type(native_type::INT4, false, type::PRIVATE);		return 1;
+		case LONG4:		d_val__ = new native_type(native_type::LONG4, false, type::PRIVATE);		return 1;
+		case UCHAR4:	d_val__ = new native_type(native_type::UCHAR4, false, type::PRIVATE);		return 1;
+		case USHORT4:	d_val__ = new native_type(native_type::USHORT4, false, type::PRIVATE);	return 1;
+		case UINT4:		d_val__ = new native_type(native_type::UINT4, false, type::PRIVATE);		return 1;
+		case ULONG4:	d_val__ = new native_type(native_type::ULONG4, false, type::PRIVATE);		return 1;
+		case FLOAT4:	d_val__ = new native_type(native_type::FLOAT4, false, type::PRIVATE);		return 1;
+		case DOUBLE4:	d_val__ = new native_type(native_type::DOUBLE4, false, type::PRIVATE);	return 1;
+		case CHAR8:		d_val__ = new native_type(native_type::CHAR8, false, type::PRIVATE);		return 1;
+		case SHORT8:	d_val__ = new native_type(native_type::SHORT8, false, type::PRIVATE);		return 1;
+		case INT8:		d_val__ = new native_type(native_type::INT8, false, type::PRIVATE);		return 1;
+		case LONG8:		d_val__ = new native_type(native_type::LONG8, false, type::PRIVATE);		return 1;
+		case UCHAR8:	d_val__ = new native_type(native_type::UCHAR8, false, type::PRIVATE);		return 1;
+		case USHORT8:	d_val__ = new native_type(native_type::USHORT8, false, type::PRIVATE);	return 1;
+		case UINT8:		d_val__ = new native_type(native_type::UINT8, false, type::PRIVATE);		return 1;
+		case ULONG8:	d_val__ = new native_type(native_type::ULONG8, false, type::PRIVATE);		return 1;
+		case FLOAT8:	d_val__ = new native_type(native_type::FLOAT8, false, type::PRIVATE);		return 1;
+		case DOUBLE8:	d_val__ = new native_type(native_type::DOUBLE8, false, type::PRIVATE);	return 1;
+		case CHAR16:	d_val__ = new native_type(native_type::CHAR16, false, type::PRIVATE);		return 1;
+		case SHORT16:	d_val__ = new native_type(native_type::SHORT16, false, type::PRIVATE);	return 1;
+		case INT16:		d_val__ = new native_type(native_type::INT16, false, type::PRIVATE);		return 1;
+		case LONG16:	d_val__ = new native_type(native_type::LONG16, false, type::PRIVATE);		return 1;
+		case UCHAR16:	d_val__ = new native_type(native_type::UCHAR16, false, type::PRIVATE);	return 1;
+		case USHORT16:	d_val__ = new native_type(native_type::USHORT16, false, type::PRIVATE);	return 1;
+		case UINT16:	d_val__ = new native_type(native_type::UINT16, false, type::PRIVATE);		return 1;
+		case ULONG16:	d_val__ = new native_type(native_type::ULONG16, false, type::PRIVATE);	return 1;
+		case FLOAT16:	d_val__ = new native_type(native_type::FLOAT16, false, type::PRIVATE);	return 1;
+		case DOUBLE16:	d_val__ = new native_type(native_type::DOUBLE16, false, type::PRIVATE);	return 1;
+		case SIZE_T:	d_val__ = new native_type(native_type::SIZE_T, false, type::PRIVATE);		return 1;
 
 		case SIGNED:	return 1;
 		case UNSIGNED:	return 1;
 		case TYPE_NAME:	return 1;
 		default:
-			rollBack();
+			roll_back();
 			RULE1(struct_or_union_specifier);
 			RULE1(enum_specifier);
 		}
 		END();
 	}
 
-	int Parser::__type_qualifier()
+	int parser::__type_qualifier()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case CONST:			RULE1(token<CONST>);		break;
 		case VOLATILE:		RULE1(token<VOLATILE>);		break;
@@ -566,12 +566,12 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__type_qualifier_list()
+	int parser::__type_qualifier_list()
 	{
 		BEGIN();
 		if (__type_qualifier())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			while (__type_qualifier())
 				N->push_back(d_val__);
 			d_val__ = N;
@@ -580,10 +580,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__enum_specifier()
+	int parser::__enum_specifier()
 	{
 		BEGIN();
-		if (peekToken() != ENUM)
+		if (peek_token() != ENUM)
 			END();
 		RULE4(token<ENUM>, token<'{'>, enumerator_list, token<'}'>);
 		RULE5(token<ENUM>, token<IDENTIFIER>, token<'{'>, enumerator_list, token<'}'>);
@@ -592,17 +592,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__enumerator_list()
+	int parser::__enumerator_list()
 	{
 		BEGIN();
 		LISTOF_LEFT_SEP(enumerator, token<','>);
 		END();
 	}
 
-	int Parser::__enumerator()
+	int parser::__enumerator()
 	{
 		BEGIN();
-		if (peekToken() == IDENTIFIER)
+		if (peek_token() == IDENTIFIER)
 		{
 			RULE3(token<IDENTIFIER>, token<'='>, constant_expression);
 			RULE1(token<IDENTIFIER>);
@@ -610,10 +610,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__direct_declarator_suffix()
+	int parser::__direct_declarator_suffix()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '[':
 			RULE3(token<'['>, constant_expression, token<']'>);
@@ -628,7 +628,7 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__direct_declarator_base()
+	int parser::__direct_declarator_base()
 	{
 		BEGIN();
 		RULE1(token<IDENTIFIER>);
@@ -636,12 +636,12 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__direct_declarator()
+	int parser::__direct_declarator()
 	{
 		BEGIN();
 		if (__direct_declarator_base())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			while(__direct_declarator_suffix())
 				N->push_back(d_val__);
 			d_val__ = N;
@@ -650,29 +650,29 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__identifier_list()
+	int parser::__identifier_list()
 	{
 		BEGIN();
 		LISTOF_LEFT_SEP(token<IDENTIFIER>, token<','>);
 		END();
 	}
 
-	int Parser::__parameter_type_list()
+	int parser::__parameter_type_list()
 	{
 		return __parameter_list();
 	}
 
-	int Parser::__parameter_list()
+	int parser::__parameter_list()
 	{
 		if (__parameter_declaration())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				if (!__parameter_declaration())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
 				N->push_back(d_val__);
@@ -684,20 +684,20 @@ namespace FreeOCL
 		return 0;
 	}
 
-	int Parser::__parameter_declaration()
+	int parser::__parameter_declaration()
 	{
 		BEGIN();
 		MATCH2(declaration_specifiers, declarator)
 		{
-			smartptr<Chunk> chunk = N[1].as<Chunk>();
-			smartptr<PointerType> ptr = chunk->front().as<PointerType>();
+			smartptr<chunk> p_chunk = N[1].as<chunk>();
+			smartptr<pointer_type> ptr = p_chunk->front().as<pointer_type>();
 			if (ptr)
 			{
-				ptr->setRootType(N[0].as<Type>());
+				ptr->set_root_type(N[0].as<type>());
 				N[0] = ptr;
-				N[1] = chunk->back();
+				N[1] = p_chunk->back();
 			}
-			d_val__ = new Chunk(N[0], N[1]);
+			d_val__ = new chunk(N[0], N[1]);
 			return 1;
 		}
 		RULE2(declaration_specifiers, abstract_declarator);
@@ -705,7 +705,7 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__abstract_declarator()
+	int parser::__abstract_declarator()
 	{
 		BEGIN();
 		RULE2(pointer, direct_abstract_declarator);
@@ -714,10 +714,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__direct_abstract_declarator_base()
+	int parser::__direct_abstract_declarator_base()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '(':
 			RULE3(token<'('>, abstract_declarator, token<')'>);
@@ -732,10 +732,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__direct_abstract_declarator_suffix()
+	int parser::__direct_abstract_declarator_suffix()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '[':
 			RULE2(token<'['>, token<']'>);
@@ -749,55 +749,55 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__direct_abstract_declarator()
+	int parser::__direct_abstract_declarator()
 	{
 		BEGIN();
 		if (__direct_abstract_declarator_base())
 		{
-			smartptr<Node> N = d_val__;
+			smartptr<node> N = d_val__;
 			while(__direct_abstract_declarator_suffix())
-				N = new Chunk(N, d_val__);
+				N = new chunk(N, d_val__);
 			d_val__ = N;
 			return 1;
 		}
 		END();
 	}
 
-	int Parser::__constant_expression()
+	int parser::__constant_expression()
 	{
 		return __conditional_expression();
 	}
 
-	int Parser::__struct_or_union_specifier()
+	int parser::__struct_or_union_specifier()
 	{
 		BEGIN();
 		if (__struct_or_union())
 		{
-			smartptr<Token> tok = d_val__.as<Token>();
+			smartptr<token> tok = d_val__.as<token>();
 			std::string name;
 			if (__token<IDENTIFIER>())
-				name = d_val__.as<Token>()->getString();
+				name = d_val__.as<token>()->get_string();
 			if (__token<'{'>())
 			{
 				if (__struct_declaration_list())
 				{
-					smartptr<StructType> type = (tok->getID() == STRUCT) ? new StructType(name) : new UnionType(name);
+					smartptr<struct_type> p_type = (tok->get_id() == STRUCT) ? new struct_type(name) : new union_type(name);
 
-					smartptr<Chunk> members = d_val__.as<Chunk>();
+					smartptr<chunk> members = d_val__.as<chunk>();
 					for(size_t i = 0 ; i < members->size() ; ++i)
 					{
-						smartptr<Chunk> member_list = (*members)[i].as<Chunk>();
+						smartptr<chunk> member_list = (*members)[i].as<chunk>();
 						for(size_t j = 0 ; j < member_list->size() ; ++j)
 						{
-							smartptr<Chunk> member = (*member_list)[j].as<Chunk>();
-							*type << std::make_pair(member->back().as<Token>()->getString(), member->front().as<Type>());
+							smartptr<chunk> member = (*member_list)[j].as<chunk>();
+							*p_type << std::make_pair(member->back().as<token>()->get_string(), member->front().as<type>());
 						}
 					}
 
 					if (!__token<'}'>())
 						ERROR("syntax error : '}' expected");
 
-					d_val__ = type;
+					d_val__ = p_type;
 					return 1;
 				}
 				ERROR("syntax error, structure declaration expected");
@@ -812,7 +812,7 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__struct_or_union()
+	int parser::__struct_or_union()
 	{
 		BEGIN();
 		RULE1(token<STRUCT>);
@@ -820,48 +820,48 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__struct_declaration_list()
+	int parser::__struct_declaration_list()
 	{
 		BEGIN();
 		if (__struct_declaration())
 		{
-			smartptr<Chunk> chunk = new Chunk;
-			chunk->push_back(d_val__);
+			smartptr<chunk> p_chunk = new chunk;
+			p_chunk->push_back(d_val__);
 			while (__struct_declaration())
-				chunk->push_back(d_val__);
-			d_val__ = chunk;
+				p_chunk->push_back(d_val__);
+			d_val__ = p_chunk;
 			return 1;
 		}
 		END();
 	}
 
-	int Parser::__struct_declaration()
+	int parser::__struct_declaration()
 	{
 		BEGIN();
 		MATCH3(specifier_qualifier_list, struct_declarator_list, token<';'>)
 		{
-			smartptr<Chunk> members = new Chunk;
-			smartptr<Type> type = N[0].as<Type>();
-			const smartptr<Chunk> var_list = N[1].as<Chunk>();
+			smartptr<chunk> members = new chunk;
+			smartptr<type> p_type = N[0].as<type>();
+			const smartptr<chunk> var_list = N[1].as<chunk>();
 			for(size_t i = 0 ; i < var_list->size() ; ++i)
 			{
-				const smartptr<Chunk> declarator = (*var_list)[i].as<Chunk>();
-				smartptr<Type> l_type;
-				smartptr<Token> name;
-				if (declarator->front().as<PointerType>())
+				const smartptr<chunk> declarator = (*var_list)[i].as<chunk>();
+				smartptr<type> l_type;
+				smartptr<token> name;
+				if (declarator->front().as<pointer_type>())
 				{
-					smartptr<PointerType> ptr = declarator->front().as<PointerType>()->clone();
-					ptr->setRootType(type);
+					smartptr<pointer_type> ptr = declarator->front().as<pointer_type>()->clone();
+					ptr->set_root_type(p_type);
 					l_type = ptr;
 
-					name = declarator->back().as<Chunk>()->front().as<Token>();
+					name = declarator->back().as<chunk>()->front().as<token>();
 				}
 				else
 				{
-					l_type = type;
-					name = declarator->front().as<Token>();
+					l_type = p_type;
+					name = declarator->front().as<token>();
 				}
-				members->push_back(new Chunk(l_type, name));
+				members->push_back(new chunk(l_type, name));
 			}
 			d_val__ = members;
 			return 1;
@@ -869,35 +869,35 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__struct_declarator_list()
+	int parser::__struct_declarator_list()
 	{
 		BEGIN();
 		if (__struct_declarator())
 		{
-			smartptr<Chunk> chunk = new Chunk(d_val__);
+			smartptr<chunk> p_chunk = new chunk(d_val__);
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				if (!__struct_declarator())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
-				chunk->push_back(d_val__);
+				p_chunk->push_back(d_val__);
 				l = processed.size();
 			}
-			d_val__ = chunk;
+			d_val__ = p_chunk;
 			return 1;
 		}
 		END();
 	}
 
-	int Parser::__struct_declarator()
+	int parser::__struct_declarator()
 	{
 		return __declarator();
 	}
 
-	int Parser::__specifier_qualifier()
+	int parser::__specifier_qualifier()
 	{
 		BEGIN();
 		RULE1(type_specifier);
@@ -905,22 +905,22 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__specifier_qualifier_list()
+	int parser::__specifier_qualifier_list()
 	{
 		if (__specifier_qualifier())
 		{
-			smartptr<Type> type;
-			Type::AddressSpace address_space = Type::PRIVATE;
+			smartptr<type> p_type;
+			type::address_space addr_space = type::PRIVATE;
 			bool b_address_space_set = false;
 			bool b_const = false;
 			do
 			{
-				if (d_val__.as<Type>())
-					type = d_val__;
-				else if (d_val__.as<Token>())
+				if (d_val__.as<type>())
+					p_type = d_val__;
+				else if (d_val__.as<token>())
 				{
-					Token *token = d_val__.as<Token>();
-					switch(token->getID())
+					token *p_token = d_val__.as<token>();
+					switch(p_token->get_id())
 					{
 					case CONST:
 						if (b_const)
@@ -931,44 +931,44 @@ namespace FreeOCL
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::GLOBAL;
+						addr_space = type::GLOBAL;
 						break;
 					case __LOCAL:
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::LOCAL;
+						addr_space = type::LOCAL;
 						break;
 					case __PRIVATE:
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::PRIVATE;
+						addr_space = type::PRIVATE;
 						break;
 					case __CONSTANT:
 						if (b_address_space_set)
 							ERROR("2 address space qualifiers");
 						b_address_space_set = true;
-						address_space = Type::CONSTANT;
+						addr_space = type::CONSTANT;
 						break;
 					}
 				}
 			}
 			while (__specifier_qualifier());
-			if (!type)
+			if (!p_type)
 				ERROR("syntax error: missing type");
-			if (b_const && address_space == Type::CONSTANT)
+			if (b_const && addr_space == type::CONSTANT)
 				warning("const used with __constant address space");
-			d_val__ = type->clone(b_const, address_space);
+			d_val__ = p_type->clone(b_const, addr_space);
 			return 1;
 		}
 		return 0;
 	}
 
-	int Parser::__compound_statement()
+	int parser::__compound_statement()
 	{
 		BEGIN();
-		if (peekToken() == '{')
+		if (peek_token() == '{')
 		{
 			RULE2(token<'{'>, token<'}'>);
 			RULE3(token<'{'>, declaration_statement_list, token<'}'>);
@@ -977,14 +977,14 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__declaration_statement_list()
+	int parser::__declaration_statement_list()
 	{
 		BEGIN();
 		LISTOF_LEFT(declaration_statement);
 		END();
 	}
 
-	int Parser::__declaration_statement()
+	int parser::__declaration_statement()
 	{
 		BEGIN();
 		RULE1(declaration);
@@ -992,14 +992,14 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__statement_list()
+	int parser::__statement_list()
 	{
 		BEGIN();
 		LISTOF_LEFT(statement);
 		END();
 	}
 
-	int Parser::__statement()
+	int parser::__statement()
 	{
 		BEGIN();
 		RULE1(labeled_statement);
@@ -1011,10 +1011,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__labeled_statement()
+	int parser::__labeled_statement()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case IDENTIFIER:
 			RULE3(token<IDENTIFIER>, token<':'>, statement);
@@ -1035,10 +1035,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__jump_statement()
+	int parser::__jump_statement()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case GOTO:
 			RULE3(token<GOTO>, token<IDENTIFIER>, token<';'>);
@@ -1062,10 +1062,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__iteration_statement()
+	int parser::__iteration_statement()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case WHILE:
 			RULE5(token<WHILE>, token<'('>, expression, token<')'>, statement);
@@ -1095,10 +1095,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__selection_statement()
+	int parser::__selection_statement()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case IF:
 			RULE7(token<IF>, token<'('>, expression, token<')'>, statement, token<ELSE>, statement);
@@ -1120,7 +1120,7 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__expression_statement()
+	int parser::__expression_statement()
 	{
 		BEGIN();
 		RULE1(token<';'>);
@@ -1129,20 +1129,20 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__expression()
+	int parser::__expression()
 	{
 		if (__assignment_expression())
 		{
-			smartptr<Expression> N = d_val__;
+			smartptr<expression> N = d_val__;
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				if (!__assignment_expression())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
-				N = new Binary(',', N, d_val__);
+				N = new binary(',', N, d_val__);
 				l = processed.size();
 			}
 			d_val__ = N;
@@ -1151,12 +1151,12 @@ namespace FreeOCL
 		return 0;
 	}
 
-	int Parser::__assignment_expression()
+	int parser::__assignment_expression()
 	{
 		BEGIN();
 		MATCH3(unary_expression, assignment_operator, assignment_expression)
 		{
-			d_val__ = new Binary(N[1].as<Token>()->getID(), N[0], N[2]);
+			d_val__ = new binary(N[1].as<token>()->get_id(), N[0], N[2]);
 			return 1;
 		}
 
@@ -1164,10 +1164,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__assignment_operator()
+	int parser::__assignment_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '=':			RULE1(token<'='>);	break;
 		case MUL_ASSIGN:	RULE1(token<MUL_ASSIGN>);	break;
@@ -1184,19 +1184,19 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__conditional_expression()
+	int parser::__conditional_expression()
 	{
 		BEGIN();
 		MATCH5(logical_or_expression, token<'?'>, expression, token<':'>, conditional_expression)
 		{
-			smartptr<Type> result_type = N[0].as<Expression>()->getType();
-			if (result_type.as<NativeType>() && !result_type.as<NativeType>()->isScalar())
+			smartptr<type> result_type = N[0].as<expression>()->get_type();
+			if (result_type.as<native_type>() && !result_type.as<native_type>()->is_scalar())
 			{			// select(exp3, exp2, exp1)
-				smartptr<Callable> select = symbols->get<Callable>("select");
-				d_val__ = new Call(select, new Chunk(N[4], N[2], N[0]));
+				smartptr<callable> select = symbols->get<callable>("select");
+				d_val__ = new call(select, new chunk(N[4], N[2], N[0]));
 			}
 			else		// C/C++ ternary selection operator
-				d_val__ = new Ternary(N[0], N[2], N[4]);
+				d_val__ = new ternary(N[0], N[2], N[4]);
 			return 1;
 		}
 
@@ -1205,15 +1205,15 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__unary_expression()
+	int parser::__unary_expression()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case INC_OP:
 			MATCH2(token<INC_OP>, unary_expression)
 			{
-				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				d_val__ = new unary(N[0].as<token>()->get_id(), N[1]);
 				return 1;
 			}
 			CHECK(1, "syntax error, unary expression expected");
@@ -1221,7 +1221,7 @@ namespace FreeOCL
 		case DEC_OP:
 			MATCH2(token<DEC_OP>, unary_expression)
 			{
-				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				d_val__ = new unary(N[0].as<token>()->get_id(), N[1]);
 				return 1;
 			}
 			CHECK(1, "syntax error, unary expression expected");
@@ -1229,7 +1229,7 @@ namespace FreeOCL
 		case SIZEOF:
 			MATCH2(token<SIZEOF>, unary_expression)
 			{
-				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				d_val__ = new unary(N[0].as<token>()->get_id(), N[1]);
 				return 1;
 			}
 			RULE4(token<SIZEOF>, token<'('>, type_name, token<')'>);
@@ -1239,19 +1239,19 @@ namespace FreeOCL
 			RULE1(postfix_expression);
 			MATCH2(unary_operator, cast_expression)
 			{
-				if (N[0].as<Token>()->getID() == '&' && N[1].as<Swizzle>())
+				if (N[0].as<token>()->get_id() == '&' && N[1].as<swizzle>())
 					ERROR("taking address of vector component is not allowed");
-				d_val__ = new Unary(N[0].as<Token>()->getID(), N[1]);
+				d_val__ = new unary(N[0].as<token>()->get_id(), N[1]);
 				return 1;
 			}
 		}
 		END();
 	}
 
-	int Parser::__unary_operator()
+	int parser::__unary_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '&':	RULE1(token<'&'>);	break;
 		case '*':	RULE1(token<'*'>);	break;
@@ -1263,26 +1263,26 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__type_name()
+	int parser::__type_name()
 	{
 		BEGIN();
 		MATCH2(specifier_qualifier_list, abstract_declarator)
 		{
-			smartptr<Type> type = N[0].as<Type>();
-			if (N[1].as<PointerType>())
+			smartptr<type> p_type = N[0].as<type>();
+			if (N[1].as<pointer_type>())
 			{
-				N[1].as<PointerType>()->setRootType(type);
-				type = N[1].as<Type>();
+				N[1].as<pointer_type>()->set_root_type(p_type);
+				p_type = N[1].as<type>();
 			}
 			else
-				while(N[1].as<Chunk>() && N[1].as<Chunk>()->front().as<PointerType>())
+				while(N[1].as<chunk>() && N[1].as<chunk>()->front().as<pointer_type>())
 				{
-					smartptr<Chunk> chunk = N[1].as<Chunk>();
-					chunk->front().as<PointerType>()->setRootType(type);
-					type = chunk->front().as<Type>();
-					N[1] = chunk->back();
+					smartptr<chunk> p_chunk = N[1].as<chunk>();
+					p_chunk->front().as<pointer_type>()->set_root_type(p_type);
+					p_type = p_chunk->front().as<type>();
+					N[1] = p_chunk->back();
 				}
-			d_val__ = type;
+			d_val__ = p_type;
 			return 1;
 		}
 
@@ -1290,52 +1290,52 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__cast_expression()
+	int parser::__cast_expression()
 	{
 		BEGIN();
 		MATCH4(token<'('>, type_name, token<')'>, cast_expression)
 		{
-			d_val__ = new Cast(N[1].as<Type>(), N[3].as<Expression>());
+			d_val__ = new cast(N[1].as<type>(), N[3].as<expression>());
 			return 1;
 		}
 		RULE1(unary_expression);
 		END();
 	}
 
-	int Parser::__logical_or_expression()
+	int parser::__logical_or_expression()
 	{
 		LISTOF_LEFT_OP(logical_and_expression, token<OR_OP>);
 		return 0;
 	}
 
-	int Parser::__logical_and_expression()
+	int parser::__logical_and_expression()
 	{
 		LISTOF_LEFT_OP(inclusive_or_expression, token<AND_OP>);
 		return 0;
 	}
 
-	int Parser::__inclusive_or_expression()
+	int parser::__inclusive_or_expression()
 	{
 		LISTOF_LEFT_OP(exclusive_or_expression, token<'|'>);
 		return 0;
 	}
 
-	int Parser::__exclusive_or_expression()
+	int parser::__exclusive_or_expression()
 	{
 		LISTOF_LEFT_OP(and_expression, token<'^'>);
 		return 0;
 	}
 
-	int Parser::__and_expression()
+	int parser::__and_expression()
 	{
 		LISTOF_LEFT_OP(equality_expression, token<'&'>);
 		return 0;
 	}
 
-	int Parser::__equality_operator()
+	int parser::__equality_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case EQ_OP:	RULE1(token<EQ_OP>);	break;
 		case NE_OP:	RULE1(token<NE_OP>);	break;
@@ -1343,17 +1343,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__equality_expression()
+	int parser::__equality_expression()
 	{
 		BEGIN();
 		LISTOF_LEFT_OP(relational_expression, equality_operator);
 		END();
 	}
 
-	int Parser::__relational_operator()
+	int parser::__relational_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '<':	RULE1(token<'<'>);	break;
 		case '>':	RULE1(token<'>'>);	break;
@@ -1363,17 +1363,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__relational_expression()
+	int parser::__relational_expression()
 	{
 		BEGIN();
 		LISTOF_LEFT_OP(shift_expression, relational_operator);
 		END();
 	}
 
-	int Parser::__shift_operator()
+	int parser::__shift_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case LEFT_OP:	RULE1(token<LEFT_OP>);	break;
 		case RIGHT_OP:	RULE1(token<RIGHT_OP>);	break;
@@ -1381,17 +1381,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__shift_expression()
+	int parser::__shift_expression()
 	{
 		BEGIN();
 		LISTOF_LEFT_OP(additive_expression, shift_operator);
 		END();
 	}
 
-	int Parser::__additive_operator()
+	int parser::__additive_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '+':	RULE1(token<'+'>);	break;
 		case '-':	RULE1(token<'-'>);	break;
@@ -1399,17 +1399,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__additive_expression()
+	int parser::__additive_expression()
 	{
 		BEGIN();
 		LISTOF_LEFT_OP(multiplicative_expression, additive_operator);
 		END();
 	}
 
-	int Parser::__multiplicative_operator()
+	int parser::__multiplicative_operator()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '*':	RULE1(token<'*'>);	break;
 		case '/':	RULE1(token<'/'>);	break;
@@ -1418,17 +1418,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__multiplicative_expression()
+	int parser::__multiplicative_expression()
 	{
 		BEGIN();
 		LISTOF_LEFT_OP(cast_expression, multiplicative_operator);
 		END();
 	}
 
-	int Parser::__postfix_expression_suffix()
+	int parser::__postfix_expression_suffix()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case '[':
 			RULE3(token<'['>, expression, token<']'>);
@@ -1459,80 +1459,80 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__postfix_expression()
+	int parser::__postfix_expression()
 	{
 		BEGIN();
 		if (__primary_expression())
 		{
-			smartptr<Node> exp = d_val__;
+			smartptr<node> exp = d_val__;
 			while (__postfix_expression_suffix())
 			{
-				const int token = d_val__.as<Token>()
-								  ? d_val__.as<Token>()->getID()
-								  : d_val__.as<Chunk>()->front().as<Token>()->getID();
-				switch(token)
+				const int i_token = d_val__.as<token>()
+								  ? d_val__.as<token>()->get_id()
+								  : d_val__.as<chunk>()->front().as<token>()->get_id();
+				switch(i_token)
 				{
 				case INC_OP:
 				case DEC_OP:
-					exp = new Unary(token, exp, true);
+					exp = new unary(i_token, exp, true);
 					break;
 				case '[':
-					exp = new Index(exp, (*d_val__.as<Chunk>())[1].as<Expression>());
+					exp = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
 					break;
 				case '(':
-					if (!exp.as<Callable>())
+					if (!exp.as<callable>())
 						ERROR("this is not a function!");
-					if (d_val__.as<Chunk>()->size() == 3)
+					if (d_val__.as<chunk>()->size() == 3)
 					{
-						smartptr<Chunk> args = (*d_val__.as<Chunk>())[1];
-						if (exp.as<Callable>()->getNumParams() != args->size())
+						smartptr<chunk> args = (*d_val__.as<chunk>())[1];
+						if (exp.as<callable>()->get_num_params() != args->size())
 							ERROR("wrong number of function parameters!");
-						if (!exp.as<Callable>()->getReturnType(args->getAsTypes()))
+						if (!exp.as<callable>()->get_return_type(args->get_as_types()))
 						{
-							if (exp.as<OverloadedBuiltin>())
-								exp.as<OverloadedBuiltin>()->printDebugInfo();
-							std::deque<smartptr<Type> > arg_types = args->getAsTypes();
+							if (exp.as<overloaded_builtin>())
+								exp.as<overloaded_builtin>()->print_debug_info();
+							std::deque<smartptr<type> > arg_types = args->get_as_types();
 							std::string arg_list("(");
 							for(size_t i = 0 ; i < arg_types.size() ; ++i)
 							{
 								if (i)
 									arg_list += ',';
-								arg_list += arg_types[i]->getName();
+								arg_list += arg_types[i]->get_name();
 							}
 							arg_list += ')';
-							ERROR("no matching function for call to '" + exp.as<Callable>()->getName() + arg_list + "' !");
+							ERROR("no matching function for call to '" + exp.as<callable>()->get_name() + arg_list + "' !");
 						}
-						exp = new Call(exp, args);
+						exp = new call(exp, args);
 					}
 					else
 					{
-						if (exp.as<Callable>()->getNumParams() != 0)
+						if (exp.as<callable>()->get_num_params() != 0)
 							ERROR("this function doesn't take parameters!");
-						exp = new Call(exp, (Chunk*)NULL);
+						exp = new call(exp, (chunk*)NULL);
 					}
 					break;
 				case '.':
 					{
-						const Expression *pexp = exp.as<Expression>();
+						const expression *pexp = exp.as<expression>();
 						if (!pexp)
 							ERROR("syntax error: expression expected!");
-						const smartptr<StructType> stype = pexp->getType().as<StructType>();
-						const smartptr<NativeType> ntype = pexp->getType().as<NativeType>();
+						const smartptr<struct_type> stype = pexp->get_type().as<struct_type>();
+						const smartptr<native_type> ntype = pexp->get_type().as<native_type>();
 						if (stype)
 						{
-							const std::string &memberName = d_val__.as<Chunk>()->back().as<Token>()->getString();
-							if (!stype->hasMember(memberName))
+							const std::string &member_name = d_val__.as<chunk>()->back().as<token>()->get_string();
+							if (!stype->has_member(member_name))
 								ERROR("member not found!");
-							exp = new Member(exp, memberName);
+							exp = new member(exp, member_name);
 						}
 						else if (ntype)
 						{
-							if (!ntype->isVector())
+							if (!ntype->is_vector())
 								ERROR("struct, union or vector type expected!");
-							const std::string &components = d_val__.as<Chunk>()->back().as<Token>()->getString();
-							if (!Swizzle::validateComponents(components, ntype->getDim()))
+							const std::string &components = d_val__.as<chunk>()->back().as<token>()->get_string();
+							if (!swizzle::validate_components(components, ntype->get_dim()))
 								ERROR("invalid vector components");
-							exp = new Swizzle(exp, components);
+							exp = new swizzle(exp, components);
 						}
 						else
 							ERROR("struct, union or vector type expected!");
@@ -1540,19 +1540,19 @@ namespace FreeOCL
 					break;
 				case PTR_OP:
 					{
-						const Expression *pexp = exp.as<Expression>();
+						const expression *pexp = exp.as<expression>();
 						if (!pexp)
 							ERROR("syntax error: expression expected!");
-						const smartptr<PointerType> type = pexp->getType().as<PointerType>();
+						const smartptr<pointer_type> type = pexp->get_type().as<pointer_type>();
 						if (!type)
 							ERROR("base operand of '->' is not a pointer!");
-						const smartptr<StructType> base = type->getBaseType().as<StructType>();
+						const smartptr<struct_type> base = type->get_base_type().as<struct_type>();
 						if (!base)
 							ERROR("pointer to struct or union type expected!");
-						const std::string &memberName = d_val__.as<Chunk>()->back().as<Token>()->getString();
-						if (!base->hasMember(memberName))
+						const std::string &member_name = d_val__.as<chunk>()->back().as<token>()->get_string();
+						if (!base->has_member(member_name))
 							ERROR("member not found!");
-						exp = new Member(exp, memberName);
+						exp = new member(exp, member_name);
 					}
 					break;
 				}
@@ -1563,15 +1563,15 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__primary_expression()
+	int parser::__primary_expression()
 	{
 		BEGIN();
-		switch(peekToken())
+		switch(peek_token())
 		{
 		case IDENTIFIER:
 			MATCH1(token<IDENTIFIER>)
 			{
-				d_val__ = symbols->get<Node>(N[0].as<Token>()->getString());
+				d_val__ = symbols->get<node>(N[0].as<token>()->get_string());
 				if (!d_val__)
 					ERROR("unknown symbol");
 				return 1;
@@ -1596,17 +1596,17 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__argument_expression_list()
+	int parser::__argument_expression_list()
 	{
 		if (__assignment_expression())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				if (!__assignment_expression())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
 				N->push_back(d_val__);
@@ -1618,24 +1618,24 @@ namespace FreeOCL
 		return 0;
 	}
 
-	int Parser::__init_declarator()
+	int parser::__init_declarator()
 	{
 		BEGIN();
 		RULE3(declarator, token<'='>, initializer);
 		MATCH1(declarator)
 		{
-			d_val__ = new Chunk(N[0]);
+			d_val__ = new chunk(N[0]);
 			return 1;
 		}
 
 		END();
 	}
 
-	int Parser::__initializer()
+	int parser::__initializer()
 	{
 		BEGIN();
 		RULE1(assignment_expression);
-		if (peekToken() == '{')
+		if (peek_token() == '{')
 		{
 			RULE3(token<'{'>, initializer_list, token<'}'>);
 			RULE4(token<'{'>, initializer_list, token<','>, token<'}'>);
@@ -1644,13 +1644,13 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__initializer_list()
+	int parser::__initializer_list()
 	{
 		LISTOF_LEFT_SEP(initializer, token<','>);
 		return 0;
 	}
 
-	int Parser::__identifier()
+	int parser::__identifier()
 	{
 		BEGIN();
 		RULE1(token<IDENTIFIER>);
@@ -1658,10 +1658,10 @@ namespace FreeOCL
 		END();
 	}
 
-	int Parser::__attribute_qualifier()
+	int parser::__attribute_qualifier()
 	{
 		BEGIN();
-		if (peekToken() == __ATTRIBUTE__)
+		if (peek_token() == __ATTRIBUTE__)
 		{
 			MATCH6(token<__ATTRIBUTE__>, token<'('>, token<'('>, attribute_list, token<')'>, token<')'>)
 			{
@@ -1674,24 +1674,24 @@ namespace FreeOCL
 			CHECK(2, "'(' missing");
 			CHECK(1, "'((' missing after __attribute__ keyword");
 		}
-		smartptr<Chunk> chunk = new Chunk;
-		chunk->push_back(new Token("(", '('));
-		chunk->push_back(new Token(")", ')'));
-		d_val__ = new Chunk(chunk);
+		smartptr<chunk> p_chunk = new chunk;
+		p_chunk->push_back(new token("(", '('));
+		p_chunk->push_back(new token(")", ')'));
+		d_val__ = new chunk(p_chunk);
 		return 1;
 	}
 
-	int Parser::__attribute_list()
+	int parser::__attribute_list()
 	{
 		if (__attributeopt())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				if (!__attributeopt())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
 				N->push_back(d_val__);
@@ -1703,46 +1703,46 @@ namespace FreeOCL
 		return 0;
 	}
 
-	int Parser::__attributeopt()
+	int parser::__attributeopt()
 	{
 		BEGIN();
 		RULE2(attribute_token, attribute_argument_clauseopt);
 
-		smartptr<Chunk> chunk = new Chunk;
-		chunk->push_back(new Token("(", '('));
-		chunk->push_back(new Token(")", ')'));
-		d_val__ = chunk;
+		smartptr<chunk> p_chunk = new chunk;
+		p_chunk->push_back(new token("(", '('));
+		p_chunk->push_back(new token(")", ')'));
+		d_val__ = p_chunk;
 		return 1;
 	}
 
-	int Parser::__attribute_token()
+	int parser::__attribute_token()
 	{
 		return __identifier();
 	}
 
-	int Parser::__attribute_argument_clauseopt()
+	int parser::__attribute_argument_clauseopt()
 	{
 		BEGIN();
 		RULE3(token<'('>, attribute_argument_list, token<')'>);
 
-		smartptr<Chunk> chunk = new Chunk;
-		chunk->push_back(new Token("(", '('));
-		chunk->push_back(new Token(")", ')'));
-		d_val__ = chunk;
+		smartptr<chunk> p_chunk = new chunk;
+		p_chunk->push_back(new token("(", '('));
+		p_chunk->push_back(new token(")", ')'));
+		d_val__ = p_chunk;
 		return 1;
 	}
 
-	int Parser::__attribute_argument_list()
+	int parser::__attribute_argument_list()
 	{
 		if (__attribute_argument())
 		{
-			smartptr<Chunk> N = new Chunk(d_val__);
+			smartptr<chunk> N = new chunk(d_val__);
 			size_t l = processed.size();
 			while (__token<','>())
 			{
 				if (!__attribute_argument())
 				{
-					rollBackTo(l);
+					roll_back_to(l);
 					break;
 				}
 				N->push_back(d_val__);
@@ -1754,7 +1754,7 @@ namespace FreeOCL
 		return 0;
 	}
 
-	int Parser::__attribute_argument()
+	int parser::__attribute_argument()
 	{
 		return __assignment_expression();
 	}

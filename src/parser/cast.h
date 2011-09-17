@@ -22,17 +22,17 @@
 
 namespace FreeOCL
 {
-	class Cast : public Expression
+	class cast : public expression
 	{
 	public:
-		Cast(const smartptr<Type> &type, const smartptr<Expression> &exp);
+		cast(const smartptr<type> &p_type, const smartptr<expression> &exp);
 
 		virtual void write(std::ostream &out) const;
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 
 	private:
-		const smartptr<Expression> exp;
-		const smartptr<Type> type;
+		const smartptr<expression> exp;
+		const smartptr<type> p_type;
 	};
 }
 

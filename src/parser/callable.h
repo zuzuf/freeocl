@@ -23,12 +23,12 @@
 
 namespace FreeOCL
 {
-	class Callable : public Node
+	class callable : public node
 	{
 	public:
-		virtual smartptr<Type> getReturnType(const std::deque<smartptr<Type> > &arg_types) const = 0;
-		virtual const std::string &getName() const = 0;
-		virtual size_t getNumParams() const = 0;
+		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const = 0;
+		virtual const std::string &get_name() const = 0;
+		virtual size_t get_num_params() const = 0;
 	};
 }
 

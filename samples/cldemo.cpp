@@ -30,7 +30,7 @@
 
 #include "errors.h"
 
-inline std::string memSuffix(const size_t s)
+inline std::string mem_suffix(const size_t s)
 {
 	std::stringstream buf;
 	buf.precision(3);
@@ -103,7 +103,7 @@ int main(int argc, const char **argv)
 						<< "\t\t\t\tname: " << dev.getInfo<CL_DEVICE_NAME>() << std::endl
 						<< "\t\t\t\tversion: " << dev.getInfo<CL_DEVICE_VERSION>() << std::endl
 						<< "\t\t\t\tvendor: " << dev.getInfo<CL_DEVICE_VENDOR>() << std::endl
-						<< "\t\t\t\tmemory: " << memSuffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()) << std::endl
+						<< "\t\t\t\tmemory: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()) << std::endl
 						<< "\t\t\t\tendianess: " << (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "little endian" : "big endian") << std::endl
 						<< "\t\t\t\textensions: " << dev.getInfo<CL_DEVICE_EXTENSIONS>() << std::endl;
 			}
@@ -163,7 +163,7 @@ int main(int argc, const char **argv)
 	}
 	catch(cl::Error err)
 	{
-		std::cerr << "error: " << err.what() << '(' << getErrorAsString(err.err()) << ')' << std::endl;
+		std::cerr << "error: " << err.what() << '(' << get_error_as_string(err.err()) << ')' << std::endl;
 		return -1;
 	}
 

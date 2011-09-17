@@ -28,7 +28,7 @@
 
 #define IMPLEMENT(X)	case X:	return #X
 
-const char *getErrorAsString(cl_int err)
+const char *get_error_as_string(cl_int err)
 {
 	switch(err)
 	{

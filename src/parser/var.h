@@ -22,18 +22,18 @@
 
 namespace FreeOCL
 {
-	class Var : public Expression
+	class var : public expression
 	{
 	public:
-		Var(const std::string &name, const smartptr<Type> &type);
-		virtual ~Var();
-		virtual smartptr<Type> getType() const;
+		var(const std::string &name, const smartptr<type> &p_type);
+		virtual ~var();
+		virtual smartptr<type> get_type() const;
 		virtual void write(std::ostream& out) const;
 
-		const std::string &getName() const	{	return name;	}
+		const std::string &get_name() const	{	return name;	}
 	private:
 		const std::string name;
-		const smartptr<Type> type;
+		const smartptr<type> p_type;
 	};
 }
 

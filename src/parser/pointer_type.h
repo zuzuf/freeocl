@@ -22,26 +22,26 @@
 
 namespace FreeOCL
 {
-	class PointerType : public Type
+	class pointer_type : public type
 	{
 	public:
-		PointerType(const smartptr<Type> &base_type, const bool b_const, const AddressSpace address_space) : Type(b_const, address_space), base_type(base_type)	{}
-		virtual bool operator==(const Type &type) const;
+		pointer_type(const smartptr<type> &base_type, const bool b_const, const address_space addr_space) : type(b_const, addr_space), base_type(base_type)	{}
+		virtual bool operator==(const type &type) const;
 		virtual void write(std::ostream &out) const;
-		virtual std::string getName() const;
+		virtual std::string get_name() const;
 
-		const smartptr<Type> &getBaseType() const	{	return base_type;	}
-		bool isCompatibleWith(const PointerType &type) const;
+		const smartptr<type> &get_base_type() const	{	return base_type;	}
+		bool is_compatible_with(const pointer_type &type) const;
 
-		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
-		smartptr<Type> clone() const;
+		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
+		smartptr<type> clone() const;
 
-		void setRootType(const smartptr<Type> &root_type);
+		void set_root_type(const smartptr<type> &root_type);
 	private:
-		smartptr<Type> base_type;
+		smartptr<type> base_type;
 
 	public:
-		static smartptr<Type> t_p_const_char;
+		static smartptr<type> t_p_const_char;
 	};
 }
 

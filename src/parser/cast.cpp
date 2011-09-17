@@ -22,35 +22,35 @@
 
 namespace FreeOCL
 {
-	Cast::Cast(const smartptr<Type> &type, const smartptr<Expression> &exp)
-		: exp(exp), type(type)
+	cast::cast(const smartptr<type> &p_type, const smartptr<expression> &exp)
+		: exp(exp), p_type(p_type)
 	{
 	}
 
-	void Cast::write(std::ostream &out) const
+	void cast::write(std::ostream &out) const
 	{
-		smartptr<NativeType> native = type.as<NativeType>();
-		if (native && native->isVector())
+		smartptr<native_type> native = p_type.as<native_type>();
+		if (native && native->is_vector())
 		{
-			out << *type << "::make(";
+			out << *p_type << "::make(";
 			std::string post;
-			smartptr<Expression> cur = exp;
-			while(cur.as<Binary>() && cur.as<Binary>()->getOp() == ',')
+			smartptr<expression> cur = exp;
+			while(cur.as<binary>() && cur.as<binary>()->get_op() == ',')
 			{
-				smartptr<Binary> bin = cur.as<Binary>();
+				smartptr<binary> bin = cur.as<binary>();
 				std::stringstream buf;
-				buf << bin->getRight();
+				buf << bin->get_right();
 				post = ',' + buf.str() + post;
-				cur = bin->getLeft();
+				cur = bin->get_left();
 			}
 			out << *cur << post << ')';
 		}
 		else
-			out << '(' << *type << ")(" << *exp << ')';
+			out << '(' << *p_type << ")(" << *exp << ')';
 	}
 
-	smartptr<Type> Cast::getType() const
+	smartptr<type> cast::get_type() const
 	{
-		return type;
+		return p_type;
 	}
 }

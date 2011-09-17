@@ -22,32 +22,32 @@
 
 namespace FreeOCL
 {
-	class Typedef : public Type
+	class type_def : public type
 	{
 	public:
-		Typedef(const std::string &name, const smartptr<Type> &type);
+		type_def(const std::string &name, const smartptr<type> &p_type);
 
 		virtual void write(std::ostream& out) const;
 
-		virtual bool operator==(const Type &type) const;
-		virtual std::string getName() const;
-		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
+		virtual bool operator==(const type &p_type) const;
+		virtual std::string get_name() const;
+		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 
-		inline const smartptr<Type> &getType() const
+		inline const smartptr<type> &get_type() const
 		{
-			return type;
+			return p_type;
 		}
 
 	protected:
 		const std::string name;
-		const smartptr<Type> type;
+		const smartptr<type> p_type;
 	};
 
-	class Typedecl : public Typedef
+	class type_decl : public type_def
 	{
 	public:
-		inline Typedecl(const smartptr<Type> &type)
-			: Typedef(std::string(), type.as<Typedef>() ? type.as<Typedef>()->getType() : type)
+		inline type_decl(const smartptr<type> &type)
+			: type_def(std::string(), type.as<type_def>() ? type.as<type_def>()->get_type() : type)
 		{}
 		virtual void write(std::ostream& out) const;
 	};

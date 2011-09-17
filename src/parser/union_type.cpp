@@ -19,10 +19,10 @@
 
 namespace FreeOCL
 {
-	UnionType::AggregateType UnionType::getAggregateType() const
+	union_type::aggregate_type union_type::get_aggregate_type() const
 	{
 		if (root)
-			return root->getAggregateType();
+			return root->get_aggregate_type();
 		return UNION;
 	}
 }

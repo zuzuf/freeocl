@@ -7,49 +7,49 @@
 
 namespace FreeOCL
 {
-	Builtin::Builtin(const smartptr<Type> &return_type, const std::string &name, const size_t num_params)
+	builtin::builtin(const smartptr<type> &return_type, const std::string &name, const size_t num_params)
 		: return_type(return_type),
 		name(name),
 		num_params(num_params)
 	{
 	}
 
-	Builtin::~Builtin()
+	builtin::~builtin()
 	{
 	}
 
-	smartptr<Type> Builtin::getReturnType(const std::deque<smartptr<Type> > &/*arg_types*/) const
+	smartptr<type> builtin::get_return_type(const std::deque<smartptr<type> > &/*arg_types*/) const
 	{
 		return return_type;
 	}
 
-	const std::string &Builtin::getName() const
+	const std::string &builtin::get_name() const
 	{
 		return name;
 	}
 
-	size_t Builtin::getNumParams() const
+	size_t builtin::get_num_params() const
 	{
 		return num_params;
 	}
 
-	void Builtin::write(std::ostream& out) const
+	void builtin::write(std::ostream& out) const
 	{
 		out << name << ' ';
 	}
 
-	void Parser::register_builtin()
+	void parser::register_builtin()
 	{
-		const int types[] = { NativeType::UCHAR,	NativeType::UCHAR2,		NativeType::UCHAR3,		NativeType::UCHAR4,		NativeType::UCHAR8,		NativeType::UCHAR16,
-							  NativeType::USHORT,	NativeType::USHORT2,	NativeType::USHORT3,	NativeType::USHORT4,	NativeType::USHORT8,	NativeType::USHORT16,
-							  NativeType::UINT,		NativeType::UINT2,		NativeType::UINT3,		NativeType::UINT4,		NativeType::UINT8,		NativeType::UINT16,
-							  NativeType::ULONG,	NativeType::ULONG2,		NativeType::ULONG3,		NativeType::ULONG4,		NativeType::ULONG8,		NativeType::ULONG16,
-							  NativeType::CHAR,		NativeType::CHAR2,		NativeType::CHAR3,		NativeType::CHAR4,		NativeType::CHAR8,		NativeType::CHAR16,
-							  NativeType::SHORT,	NativeType::SHORT2,		NativeType::SHORT3,		NativeType::SHORT4,		NativeType::SHORT8,		NativeType::SHORT16,
-							  NativeType::INT,		NativeType::INT2,		NativeType::INT3,		NativeType::INT4,		NativeType::INT8,		NativeType::INT16,
-							  NativeType::LONG,		NativeType::LONG2,		NativeType::LONG3,		NativeType::LONG4,		NativeType::LONG8,		NativeType::LONG16,
-							  NativeType::FLOAT,	NativeType::FLOAT2,		NativeType::FLOAT3,		NativeType::FLOAT4,		NativeType::FLOAT8,		NativeType::FLOAT16,
-							  NativeType::DOUBLE,	NativeType::DOUBLE2,	NativeType::DOUBLE3,	NativeType::DOUBLE4,	NativeType::DOUBLE8,	NativeType::DOUBLE16 };
+		const int types[] = { native_type::UCHAR,	native_type::UCHAR2,	native_type::UCHAR3,	native_type::UCHAR4,	native_type::UCHAR8,	native_type::UCHAR16,
+							  native_type::USHORT,	native_type::USHORT2,	native_type::USHORT3,	native_type::USHORT4,	native_type::USHORT8,	native_type::USHORT16,
+							  native_type::UINT,	native_type::UINT2,		native_type::UINT3,		native_type::UINT4,		native_type::UINT8,		native_type::UINT16,
+							  native_type::ULONG,	native_type::ULONG2,	native_type::ULONG3,	native_type::ULONG4,	native_type::ULONG8,	native_type::ULONG16,
+							  native_type::CHAR,	native_type::CHAR2,		native_type::CHAR3,		native_type::CHAR4,		native_type::CHAR8,		native_type::CHAR16,
+							  native_type::SHORT,	native_type::SHORT2,	native_type::SHORT3,	native_type::SHORT4,	native_type::SHORT8,	native_type::SHORT16,
+							  native_type::INT,		native_type::INT2,		native_type::INT3,		native_type::INT4,		native_type::INT8,		native_type::INT16,
+							  native_type::LONG,	native_type::LONG2,		native_type::LONG3,		native_type::LONG4,		native_type::LONG8,		native_type::LONG16,
+							  native_type::FLOAT,	native_type::FLOAT2,	native_type::FLOAT3,	native_type::FLOAT4,	native_type::FLOAT8,	native_type::FLOAT16,
+							  native_type::DOUBLE,	native_type::DOUBLE2,	native_type::DOUBLE3,	native_type::DOUBLE4,	native_type::DOUBLE8,	native_type::DOUBLE16 };
 		std::deque<int> gentype_all;
 		std::deque<int> gentype_scalars;
 		std::deque<int> gentype_vectors;
@@ -85,16 +85,16 @@ namespace FreeOCL
 		gentype_single.push_back(0);
 		gentype_integers.insert(gentype_integers.end(), gentype_signed.begin(), gentype_signed.end());
 		gentype_integers.insert(gentype_integers.end(), gentype_unsigned.begin(), gentype_unsigned.end());
-		gentype_half.push_back(NativeType::HALF);
-		gentype_half.push_back(NativeType::HALF2);
-		gentype_half.push_back(NativeType::HALF3);
-		gentype_half.push_back(NativeType::HALF4);
-		gentype_half.push_back(NativeType::HALF8);
-		gentype_half.push_back(NativeType::HALF16);
+		gentype_half.push_back(native_type::HALF);
+		gentype_half.push_back(native_type::HALF2);
+		gentype_half.push_back(native_type::HALF3);
+		gentype_half.push_back(native_type::HALF4);
+		gentype_half.push_back(native_type::HALF8);
+		gentype_half.push_back(native_type::HALF16);
 
-#define REGISTER(type, name, num)					symbols->insert(#name, new Builtin(NativeType::t_##type, #name, num))
-#define REGISTER_OVERLOADED(signature, gentype)		do { OverloadedBuiltin *n = new OverloadedBuiltin(signature, gentype);	symbols->insert(n->getName(), n);	} while(false)
-#define REGISTER_VAR(type, name)					symbols->insert(#name, new Var(#name, NativeType::t_##type))
+#define REGISTER(type, name, num)					symbols->insert(#name, new builtin(native_type::t_##type, #name, num))
+#define REGISTER_OVERLOADED(signature, gentype)		do { overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(n->get_name(), n);	} while(false)
+#define REGISTER_VAR(type, name)					symbols->insert(#name, new var(#name, native_type::t_##type))
 
 		// Workitem functions
 		REGISTER(uint, get_work_dim, 0);

@@ -177,61 +177,61 @@ namespace FreeOCL
 		log << "code validator log:" << std::endl;
 		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
-		Parser parser(in, log);
+		parser p(in, log);
 		const u_int64_t timer = usec_timer();
-		parser.parse();
+		p.parse();
 		std::clog << usec_timer() - timer << "µs" << std::endl;
-		if (parser.errors())
+		if (p.errors())
 			return std::string();
 
 		static std::set<std::string> types;
-		static bool bInit = true;
-		if (bInit)
+		static bool b_init = true;
+		if (b_init)
 		{
-			bInit = false;
+			b_init = false;
 			const char *base_types[] = { "bool", "char", "uchar", "short", "ushort", "int", "uint", "long", "ulong", "float", "double" };
 			for(size_t i = 0 ; i < 10 ; ++i)
 				types.insert(std::string(base_types[i]));
 			int n[] = { 2, 3, 4, 8, 16 };
 			for(size_t j = 0 ; j < 5 ; ++j)
 				for(size_t i = 0 ; i < 10 ; ++i)
-					types.insert(std::string(base_types[i]) + toString(n[j]));
+					types.insert(std::string(base_types[i]) + to_string(n[j]));
 			types.insert("*");
 		}
 
 		std::stringstream gen;
-		if (!parser.getAST())
+		if (!p.get_ast())
 			return std::string();
-		parser.getAST()->write(gen);
+		p.get_ast()->write(gen);
 
 		gen << std::endl;
-		for(std::unordered_map<std::string, smartptr<Kernel> >::const_iterator i = parser.getKernels().begin(), end = parser.getKernels().end() ; i != end ; ++i)
+		for(std::unordered_map<std::string, smartptr<kernel> >::const_iterator i = p.get_kernels().begin(), end = p.get_kernels().end() ; i != end ; ++i)
 		{
 			kernels.insert(i->first);
 
-			smartptr<Chunk> params = i->second->getArguments();
+			smartptr<chunk> params = i->second->get_arguments();
 			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx, int *type)" << std::endl
 				<< "{" << std::endl
 				<< "\tswitch(idx)" << std::endl
 				<< "\t{" << std::endl;
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
-				const smartptr<Chunk> cur = (*params)[j].as<Chunk>();
-				const smartptr<PointerType> ptr = cur->front().as<PointerType>();
-				const bool bPointer = ptr;
-				const bool bLocal = bPointer && ptr->getBaseType()->getAddressSpace() == Type::LOCAL;
-				int type = 0;
-				if (bPointer)
+				const smartptr<chunk> cur = (*params)[j].as<chunk>();
+				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
+				const bool b_pointer = ptr;
+				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
+				int type_id = 0;
+				if (b_pointer)
 				{
-					if (bLocal)
-						type = CL_LOCAL;
+					if (b_local)
+						type_id = CL_LOCAL;
 					else
-						type = CL_GLOBAL;
+						type_id = CL_GLOBAL;
 				}
 				gen	<< "\tcase " << j << ":" << std::endl
-					<< "\t\t*type = " << type << ';' << std::endl
+					<< "\t\t*type = " << type_id << ';' << std::endl
 					<< "\t\treturn sizeof(";
-				if (bPointer)	gen << "void*";
+				if (b_pointer)	gen << "void*";
 				else			gen << *(cur->front());
 				gen << ");" << std::endl;
 			}
@@ -253,25 +253,25 @@ namespace FreeOCL
 				<< "\t\tFreeOCL::num_groups[i] = global_size[i] / local_size[i];" << std::endl
 				<< "\t}" << std::endl
 				<< std::endl;
-			int lastShift = -1;
+			int last_shift = -1;
 			std::stringstream _cat;
 			_cat << '0';
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
-				const smartptr<Chunk> cur = (*params)[j].as<Chunk>();
-				const smartptr<PointerType> ptr = cur->front().as<PointerType>();
-				const bool bPointer = ptr;
-				const bool bLocal = bPointer && ptr->getBaseType()->getAddressSpace() == Type::LOCAL;
-				if (bLocal)
+				const smartptr<chunk> cur = (*params)[j].as<chunk>();
+				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
+				const bool b_pointer = ptr;
+				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
+				if (b_local)
 				{
 					gen << "\tconst size_t __shift" << j << " = ";
-					if (lastShift >= 0)
-						gen << "__shift" << lastShift << " - ";
+					if (last_shift >= 0)
+						gen << "__shift" << last_shift << " - ";
 					else
 						gen << "0x100000 - ";
 					gen << "*(const size_t*)((const char*)args + " << _cat.str() << ");" << std::endl;
 					_cat << " + sizeof(size_t)";
-					lastShift = j;
+					last_shift = j;
 				}
 				else
 					_cat << " + sizeof(" << *(cur->front()) << ")";
@@ -291,14 +291,14 @@ namespace FreeOCL
 			cat << '0';
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
-				const smartptr<Chunk> cur = (*params)[j].as<Chunk>();
-				const smartptr<PointerType> ptr = cur->front().as<PointerType>();
-				const bool bPointer = ptr;
-				const bool bLocal = bPointer && ptr->getBaseType()->getAddressSpace() == Type::LOCAL;
+				const smartptr<chunk> cur = (*params)[j].as<chunk>();
+				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
+				const bool b_pointer = ptr;
+				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 
 				if (j)
 					gen << ',';
-				if (bLocal)
+				if (b_local)
 					gen << "(" << *(cur->front()) << ")(local_memory + __shift" << j << ")";
 				else
 					gen << "*(" << *(cur->front()) << "*)((const char*)args + " << cat.str() << ')';

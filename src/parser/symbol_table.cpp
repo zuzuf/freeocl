@@ -20,16 +20,16 @@
 
 namespace FreeOCL
 {
-	SymbolTable::SymbolTable()
+	symbol_table::symbol_table()
 	{
 		push();
 	}
 
-	SymbolTable::~SymbolTable()
+	symbol_table::~symbol_table()
 	{
 	}
 
-	void SymbolTable::insert(const std::string &name, const smartptr<Node> &symbol)
+	void symbol_table::insert(const std::string &name, const smartptr<node> &symbol)
 	{
 		if (!scope_stack.back().count(name))
 		{
@@ -38,19 +38,19 @@ namespace FreeOCL
 		}
 		else
 		{
-			if (symbol.as<OverloadedBuiltin>() && table[name].back().as<OverloadedBuiltin>())
-				table[name].back().as<OverloadedBuiltin>()->merge(symbol);
+			if (symbol.as<overloaded_builtin>() && table[name].back().as<overloaded_builtin>())
+				table[name].back().as<overloaded_builtin>()->merge(symbol);
 			else
 				table[name].back() = symbol;
 		}
 	}
 
-	void SymbolTable::push()
+	void symbol_table::push()
 	{
 		scope_stack.push_back(std::unordered_set<std::string>());
 	}
 
-	void SymbolTable::pop()
+	void symbol_table::pop()
 	{
 		for(std::unordered_set<std::string>::const_iterator it = scope_stack.back().begin(), end = scope_stack.back().end()
 			; it != end

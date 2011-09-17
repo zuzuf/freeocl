@@ -21,67 +21,67 @@
 
 namespace FreeOCL
 {
-	Binary::Binary(int op, const smartptr<Expression> &left, const smartptr<Expression> &right)
+	binary::binary(int op, const smartptr<expression> &left, const smartptr<expression> &right)
 		: left(left),
 		right(right),
 		op(op)
 	{
-		const smartptr<Type> t0 = left->getType();
-		const smartptr<Type> t1 = right->getType();
+		const smartptr<type> t0 = left->get_type();
+		const smartptr<type> t1 = right->get_type();
 		switch(op)
 		{
 		case '+':
 		case '-':
 		case '*':
 		case '/':
-			type = Type::computeResultingType(t0, t1);
+			p_type = type::compute_resulting_type(t0, t1);
 			break;
 
 		case ',':
-			type = t1;
+			p_type = t1;
 			break;
 
 		case '%':
 		case '|':
 		case '^':
 		case '&':
-		case Parser::LEFT_OP:
-		case Parser::RIGHT_OP:
-			type = Type::computeResultingType(t0, t1);
+		case parser::LEFT_OP:
+		case parser::RIGHT_OP:
+			p_type = type::compute_resulting_type(t0, t1);
 			break;
 
 		case '<':
 		case '>':
-		case Parser::LE_OP:
-		case Parser::GE_OP:
-		case Parser::EQ_OP:
-		case Parser::NE_OP:
-		case Parser::AND_OP:
-		case Parser::OR_OP:
-			type = NativeType::getIntForDim(std::max(t0.as<NativeType>()->getDim(), t1.as<NativeType>()->getDim()));
+		case parser::LE_OP:
+		case parser::GE_OP:
+		case parser::EQ_OP:
+		case parser::NE_OP:
+		case parser::AND_OP:
+		case parser::OR_OP:
+			p_type = native_type::get_int_for_dim(std::max(t0.as<native_type>()->get_dim(), t1.as<native_type>()->get_dim()));
 			break;
 
 		case '=':
-		case Parser::MUL_ASSIGN:
-		case Parser::DIV_ASSIGN:
-		case Parser::MOD_ASSIGN:
-		case Parser::ADD_ASSIGN:
-		case Parser::SUB_ASSIGN:
-		case Parser::LEFT_ASSIGN:
-		case Parser::RIGHT_ASSIGN:
-		case Parser::AND_ASSIGN:
-		case Parser::XOR_ASSIGN:
-		case Parser::OR_ASSIGN:
-			type = t0;
+		case parser::MUL_ASSIGN:
+		case parser::DIV_ASSIGN:
+		case parser::MOD_ASSIGN:
+		case parser::ADD_ASSIGN:
+		case parser::SUB_ASSIGN:
+		case parser::LEFT_ASSIGN:
+		case parser::RIGHT_ASSIGN:
+		case parser::AND_ASSIGN:
+		case parser::XOR_ASSIGN:
+		case parser::OR_ASSIGN:
+			p_type = t0;
 			break;
 		}
 	}
 
-	Binary::~Binary()
+	binary::~binary()
 	{
 	}
 
-	void Binary::write(std::ostream &out) const
+	void binary::write(std::ostream &out) const
 	{
 		out << '(' <<  *left << ' ';
 
@@ -101,31 +101,31 @@ namespace FreeOCL
 		case ',':
 			out << (char)op;
 			break;
-		case Parser::LEFT_OP:		out << "<<";	break;
-		case Parser::RIGHT_OP:		out << ">>";	break;
-		case Parser::LE_OP:			out << "<=";	break;
-		case Parser::GE_OP:			out << ">=";	break;
-		case Parser::EQ_OP:			out << "==";	break;
-		case Parser::NE_OP:			out << "!=";	break;
-		case Parser::AND_OP:		out << "&&";	break;
-		case Parser::OR_OP:			out << "||";	break;
-		case Parser::MUL_ASSIGN:	out << "*=";	break;
-		case Parser::DIV_ASSIGN:	out << "/=";	break;
-		case Parser::MOD_ASSIGN:	out << "%=";	break;
-		case Parser::ADD_ASSIGN:	out << "+=";	break;
-		case Parser::SUB_ASSIGN:	out << "-=";	break;
-		case Parser::LEFT_ASSIGN:	out << "<<=";	break;
-		case Parser::RIGHT_ASSIGN:	out << ">>=";	break;
-		case Parser::AND_ASSIGN:	out << "&=";	break;
-		case Parser::XOR_ASSIGN:	out << "^=";	break;
-		case Parser::OR_ASSIGN:		out << "|=";	break;
+		case parser::LEFT_OP:		out << "<<";	break;
+		case parser::RIGHT_OP:		out << ">>";	break;
+		case parser::LE_OP:			out << "<=";	break;
+		case parser::GE_OP:			out << ">=";	break;
+		case parser::EQ_OP:			out << "==";	break;
+		case parser::NE_OP:			out << "!=";	break;
+		case parser::AND_OP:		out << "&&";	break;
+		case parser::OR_OP:			out << "||";	break;
+		case parser::MUL_ASSIGN:	out << "*=";	break;
+		case parser::DIV_ASSIGN:	out << "/=";	break;
+		case parser::MOD_ASSIGN:	out << "%=";	break;
+		case parser::ADD_ASSIGN:	out << "+=";	break;
+		case parser::SUB_ASSIGN:	out << "-=";	break;
+		case parser::LEFT_ASSIGN:	out << "<<=";	break;
+		case parser::RIGHT_ASSIGN:	out << ">>=";	break;
+		case parser::AND_ASSIGN:	out << "&=";	break;
+		case parser::XOR_ASSIGN:	out << "^=";	break;
+		case parser::OR_ASSIGN:		out << "|=";	break;
 		}
 
 		out << ' ' << *right << ')';
 	}
 
-	smartptr<Type> Binary::getType() const
+	smartptr<type> binary::get_type() const
 	{
-		return type;
+		return p_type;
 	}
 }

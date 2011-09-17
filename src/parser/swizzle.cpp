@@ -20,17 +20,17 @@
 
 namespace FreeOCL
 {
-	Swizzle::Swizzle(const smartptr<Expression> &base, const std::string &components)
+	swizzle::swizzle(const smartptr<expression> &base, const std::string &components)
 		: base(base), components(components)
 	{
 	}
 
-	void Swizzle::write(std::ostream& out) const
+	void swizzle::write(std::ostream& out) const
 	{
-		smartptr<Type> type = getType();
+		smartptr<type> type = get_type();
 		int values[16];
-		parseComponents(components, values);
-		if (type.as<NativeType>()->isScalar())
+		parse_components(components, values);
+		if (type.as<native_type>()->is_scalar())
 			out << '(' << *base << ").get<" << values[0] << ">() ";
 		else
 		{
@@ -43,16 +43,16 @@ namespace FreeOCL
 		}
 	}
 
-	smartptr<Type> Swizzle::getType() const
+	smartptr<type> swizzle::get_type() const
 	{
-		smartptr<NativeType> type = base->getType().as<NativeType>();
-		int dim = getNumberOfComponents(components);
+		smartptr<native_type> type = base->get_type().as<native_type>();
+		int dim = get_number_of_components(components);
 		if (dim == -1)
-			dim = (type->getDim() + 1) / 2;
-		return NativeType::makeVectorType(type->getScalarType(), dim)->clone(type->isConst(), type->getAddressSpace());
+			dim = (type->get_dim() + 1) / 2;
+		return native_type::make_vector_type(type->get_scalar_type(), dim)->clone(type->is_const(), type->get_address_space());
 	}
 
-	int Swizzle::getNumberOfComponents(const std::string &components)
+	int swizzle::get_number_of_components(const std::string &components)
 	{
 		if (components.empty())
 			return 0;
@@ -66,9 +66,9 @@ namespace FreeOCL
 		return components.size();
 	}
 
-	bool Swizzle::validateComponents(const std::string &components, int dim)
+	bool swizzle::validate_components(const std::string &components, int dim)
 	{
-		const int nc = getNumberOfComponents(components);
+		const int nc = get_number_of_components(components);
 		if (nc == -1)		// lo, hi, odd, even
 			return true;
 		if (nc == 0)		// zero components oO ?
@@ -150,7 +150,7 @@ namespace FreeOCL
 		return true;
 	}
 
-	void Swizzle::parseComponents(const std::string &components, int values[])
+	void swizzle::parse_components(const std::string &components, int values[])
 	{
 		for(size_t i = 0 ; i < 16 ; ++i)
 			values[i] = -1;

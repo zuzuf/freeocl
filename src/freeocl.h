@@ -94,7 +94,7 @@ namespace FreeOCL
 
 	struct valid_flag
 	{
-		enum { bHasValidationFlag = true };
+		enum { b_has_validation_flag = true };
 
 		inline valid_flag() : bValid(true)	{}
 		inline bool valid() const	{	return bValid;	}

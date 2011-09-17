@@ -19,83 +19,83 @@
 
 namespace FreeOCL
 {
-	smartptr<Type> NativeType::t_void(new NativeType(NativeType::VOID, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_bool(new NativeType(NativeType::BOOL, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_half(new NativeType(NativeType::HALF, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_half2(new NativeType(NativeType::HALF2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_half3(new NativeType(NativeType::HALF3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_half4(new NativeType(NativeType::HALF4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_half8(new NativeType(NativeType::HALF8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_half16(new NativeType(NativeType::HALF16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_size_t(new NativeType(NativeType::SIZE_T, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_char(new NativeType(NativeType::CHAR, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_short(new NativeType(NativeType::SHORT, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_int(new NativeType(NativeType::INT, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_long(new NativeType(NativeType::LONG, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uchar(new NativeType(NativeType::UCHAR, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ushort(new NativeType(NativeType::USHORT, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uint(new NativeType(NativeType::UINT, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ulong(new NativeType(NativeType::ULONG, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_float(new NativeType(NativeType::FLOAT, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_double(new NativeType(NativeType::DOUBLE, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_char2(new NativeType(NativeType::CHAR2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_short2(new NativeType(NativeType::SHORT2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_int2(new NativeType(NativeType::INT2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_long2(new NativeType(NativeType::LONG2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uchar2(new NativeType(NativeType::UCHAR2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ushort2(new NativeType(NativeType::USHORT2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uint2(new NativeType(NativeType::UINT2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ulong2(new NativeType(NativeType::ULONG2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_float2(new NativeType(NativeType::FLOAT2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_double2(new NativeType(NativeType::DOUBLE2, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_char3(new NativeType(NativeType::CHAR3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_short3(new NativeType(NativeType::SHORT3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_int3(new NativeType(NativeType::INT3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_long3(new NativeType(NativeType::LONG3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uchar3(new NativeType(NativeType::UCHAR3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ushort3(new NativeType(NativeType::USHORT3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uint3(new NativeType(NativeType::UINT3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ulong3(new NativeType(NativeType::ULONG3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_float3(new NativeType(NativeType::FLOAT3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_double3(new NativeType(NativeType::DOUBLE3, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_char4(new NativeType(NativeType::CHAR4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_short4(new NativeType(NativeType::SHORT4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_int4(new NativeType(NativeType::INT4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_long4(new NativeType(NativeType::LONG4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uchar4(new NativeType(NativeType::UCHAR4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ushort4(new NativeType(NativeType::USHORT4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uint4(new NativeType(NativeType::UINT4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ulong4(new NativeType(NativeType::ULONG4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_float4(new NativeType(NativeType::FLOAT4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_double4(new NativeType(NativeType::DOUBLE4, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_char8(new NativeType(NativeType::CHAR8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_short8(new NativeType(NativeType::SHORT8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_int8(new NativeType(NativeType::INT8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_long8(new NativeType(NativeType::LONG8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uchar8(new NativeType(NativeType::UCHAR8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ushort8(new NativeType(NativeType::USHORT8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uint8(new NativeType(NativeType::UINT8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ulong8(new NativeType(NativeType::ULONG8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_float8(new NativeType(NativeType::FLOAT8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_double8(new NativeType(NativeType::DOUBLE8, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_char16(new NativeType(NativeType::CHAR16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_short16(new NativeType(NativeType::SHORT16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_int16(new NativeType(NativeType::INT16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_long16(new NativeType(NativeType::LONG16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uchar16(new NativeType(NativeType::UCHAR16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ushort16(new NativeType(NativeType::USHORT16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_uint16(new NativeType(NativeType::UINT16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_ulong16(new NativeType(NativeType::ULONG16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_float16(new NativeType(NativeType::FLOAT16, true, Type::CONSTANT));
-	smartptr<Type> NativeType::t_double16(new NativeType(NativeType::DOUBLE16, true, Type::CONSTANT));
+	smartptr<type> native_type::t_void(new native_type(native_type::VOID, true, type::CONSTANT));
+	smartptr<type> native_type::t_bool(new native_type(native_type::BOOL, true, type::CONSTANT));
+	smartptr<type> native_type::t_half(new native_type(native_type::HALF, true, type::CONSTANT));
+	smartptr<type> native_type::t_half2(new native_type(native_type::HALF2, true, type::CONSTANT));
+	smartptr<type> native_type::t_half3(new native_type(native_type::HALF3, true, type::CONSTANT));
+	smartptr<type> native_type::t_half4(new native_type(native_type::HALF4, true, type::CONSTANT));
+	smartptr<type> native_type::t_half8(new native_type(native_type::HALF8, true, type::CONSTANT));
+	smartptr<type> native_type::t_half16(new native_type(native_type::HALF16, true, type::CONSTANT));
+	smartptr<type> native_type::t_size_t(new native_type(native_type::SIZE_T, true, type::CONSTANT));
+	smartptr<type> native_type::t_char(new native_type(native_type::CHAR, true, type::CONSTANT));
+	smartptr<type> native_type::t_short(new native_type(native_type::SHORT, true, type::CONSTANT));
+	smartptr<type> native_type::t_int(new native_type(native_type::INT, true, type::CONSTANT));
+	smartptr<type> native_type::t_long(new native_type(native_type::LONG, true, type::CONSTANT));
+	smartptr<type> native_type::t_uchar(new native_type(native_type::UCHAR, true, type::CONSTANT));
+	smartptr<type> native_type::t_ushort(new native_type(native_type::USHORT, true, type::CONSTANT));
+	smartptr<type> native_type::t_uint(new native_type(native_type::UINT, true, type::CONSTANT));
+	smartptr<type> native_type::t_ulong(new native_type(native_type::ULONG, true, type::CONSTANT));
+	smartptr<type> native_type::t_float(new native_type(native_type::FLOAT, true, type::CONSTANT));
+	smartptr<type> native_type::t_double(new native_type(native_type::DOUBLE, true, type::CONSTANT));
+	smartptr<type> native_type::t_char2(new native_type(native_type::CHAR2, true, type::CONSTANT));
+	smartptr<type> native_type::t_short2(new native_type(native_type::SHORT2, true, type::CONSTANT));
+	smartptr<type> native_type::t_int2(new native_type(native_type::INT2, true, type::CONSTANT));
+	smartptr<type> native_type::t_long2(new native_type(native_type::LONG2, true, type::CONSTANT));
+	smartptr<type> native_type::t_uchar2(new native_type(native_type::UCHAR2, true, type::CONSTANT));
+	smartptr<type> native_type::t_ushort2(new native_type(native_type::USHORT2, true, type::CONSTANT));
+	smartptr<type> native_type::t_uint2(new native_type(native_type::UINT2, true, type::CONSTANT));
+	smartptr<type> native_type::t_ulong2(new native_type(native_type::ULONG2, true, type::CONSTANT));
+	smartptr<type> native_type::t_float2(new native_type(native_type::FLOAT2, true, type::CONSTANT));
+	smartptr<type> native_type::t_double2(new native_type(native_type::DOUBLE2, true, type::CONSTANT));
+	smartptr<type> native_type::t_char3(new native_type(native_type::CHAR3, true, type::CONSTANT));
+	smartptr<type> native_type::t_short3(new native_type(native_type::SHORT3, true, type::CONSTANT));
+	smartptr<type> native_type::t_int3(new native_type(native_type::INT3, true, type::CONSTANT));
+	smartptr<type> native_type::t_long3(new native_type(native_type::LONG3, true, type::CONSTANT));
+	smartptr<type> native_type::t_uchar3(new native_type(native_type::UCHAR3, true, type::CONSTANT));
+	smartptr<type> native_type::t_ushort3(new native_type(native_type::USHORT3, true, type::CONSTANT));
+	smartptr<type> native_type::t_uint3(new native_type(native_type::UINT3, true, type::CONSTANT));
+	smartptr<type> native_type::t_ulong3(new native_type(native_type::ULONG3, true, type::CONSTANT));
+	smartptr<type> native_type::t_float3(new native_type(native_type::FLOAT3, true, type::CONSTANT));
+	smartptr<type> native_type::t_double3(new native_type(native_type::DOUBLE3, true, type::CONSTANT));
+	smartptr<type> native_type::t_char4(new native_type(native_type::CHAR4, true, type::CONSTANT));
+	smartptr<type> native_type::t_short4(new native_type(native_type::SHORT4, true, type::CONSTANT));
+	smartptr<type> native_type::t_int4(new native_type(native_type::INT4, true, type::CONSTANT));
+	smartptr<type> native_type::t_long4(new native_type(native_type::LONG4, true, type::CONSTANT));
+	smartptr<type> native_type::t_uchar4(new native_type(native_type::UCHAR4, true, type::CONSTANT));
+	smartptr<type> native_type::t_ushort4(new native_type(native_type::USHORT4, true, type::CONSTANT));
+	smartptr<type> native_type::t_uint4(new native_type(native_type::UINT4, true, type::CONSTANT));
+	smartptr<type> native_type::t_ulong4(new native_type(native_type::ULONG4, true, type::CONSTANT));
+	smartptr<type> native_type::t_float4(new native_type(native_type::FLOAT4, true, type::CONSTANT));
+	smartptr<type> native_type::t_double4(new native_type(native_type::DOUBLE4, true, type::CONSTANT));
+	smartptr<type> native_type::t_char8(new native_type(native_type::CHAR8, true, type::CONSTANT));
+	smartptr<type> native_type::t_short8(new native_type(native_type::SHORT8, true, type::CONSTANT));
+	smartptr<type> native_type::t_int8(new native_type(native_type::INT8, true, type::CONSTANT));
+	smartptr<type> native_type::t_long8(new native_type(native_type::LONG8, true, type::CONSTANT));
+	smartptr<type> native_type::t_uchar8(new native_type(native_type::UCHAR8, true, type::CONSTANT));
+	smartptr<type> native_type::t_ushort8(new native_type(native_type::USHORT8, true, type::CONSTANT));
+	smartptr<type> native_type::t_uint8(new native_type(native_type::UINT8, true, type::CONSTANT));
+	smartptr<type> native_type::t_ulong8(new native_type(native_type::ULONG8, true, type::CONSTANT));
+	smartptr<type> native_type::t_float8(new native_type(native_type::FLOAT8, true, type::CONSTANT));
+	smartptr<type> native_type::t_double8(new native_type(native_type::DOUBLE8, true, type::CONSTANT));
+	smartptr<type> native_type::t_char16(new native_type(native_type::CHAR16, true, type::CONSTANT));
+	smartptr<type> native_type::t_short16(new native_type(native_type::SHORT16, true, type::CONSTANT));
+	smartptr<type> native_type::t_int16(new native_type(native_type::INT16, true, type::CONSTANT));
+	smartptr<type> native_type::t_long16(new native_type(native_type::LONG16, true, type::CONSTANT));
+	smartptr<type> native_type::t_uchar16(new native_type(native_type::UCHAR16, true, type::CONSTANT));
+	smartptr<type> native_type::t_ushort16(new native_type(native_type::USHORT16, true, type::CONSTANT));
+	smartptr<type> native_type::t_uint16(new native_type(native_type::UINT16, true, type::CONSTANT));
+	smartptr<type> native_type::t_ulong16(new native_type(native_type::ULONG16, true, type::CONSTANT));
+	smartptr<type> native_type::t_float16(new native_type(native_type::FLOAT16, true, type::CONSTANT));
+	smartptr<type> native_type::t_double16(new native_type(native_type::DOUBLE16, true, type::CONSTANT));
 
-	bool NativeType::operator==(const Type &type) const
+	bool native_type::operator==(const type &type) const
 	{
-		const NativeType *pType = dynamic_cast<const NativeType*>(&type);
-		return pType != NULL && pType->type_id == type_id && isConst() == pType->isConst();
+		const native_type *p_type = dynamic_cast<const native_type*>(&type);
+		return p_type != NULL && p_type->id == id && is_const() == p_type->is_const();
 	}
 
-	std::string NativeType::getName() const
+	std::string native_type::get_name() const
 	{
 		static const char *type_name[] = {
 			"void", "bool", "half", "size_t",
@@ -108,29 +108,29 @@ namespace FreeOCL
 			"half2", "half3", "half4", "half8", "half16"
 		};
 		std::string prefix;
-		switch(getAddressSpace())
+		switch(get_address_space())
 		{
 		case PRIVATE:	break;
 		case GLOBAL:	prefix = "__global ";	break;
 		case LOCAL:		prefix = "__local ";	break;
 		case CONSTANT:	prefix = "__constant ";	break;
 		}
-		if (isConst() && getAddressSpace() != CONSTANT)
-			return prefix + std::string("const ") + type_name[type_id];
-		return prefix + type_name[type_id];
+		if (is_const() && get_address_space() != CONSTANT)
+			return prefix + std::string("const ") + type_name[id];
+		return prefix + type_name[id];
 	}
 
-	void NativeType::write(std::ostream &out) const
+	void native_type::write(std::ostream &out) const
 	{
-		out << getName() << ' ';
+		out << get_name() << ' ';
 	}
 
-	int NativeType::getDim() const
+	int native_type::get_dim() const
 	{
-		return getDimFor(type_id);
+		return get_dim_for(id);
 	}
 
-	int NativeType::getDimFor(int type_id)
+	int native_type::get_dim_for(int id)
 	{
 		static int type_dim[] = {
 			0, 1, 1, 1,
@@ -142,17 +142,17 @@ namespace FreeOCL
 			16, 16, 16, 16, 16, 16, 16, 16, 16, 16,
 			2, 3, 4, 8, 16
 		};
-		return type_dim[type_id];
+		return type_dim[id];
 	}
 
-	smartptr<Type> NativeType::clone(const bool b_const, const AddressSpace address_space) const
+	smartptr<type> native_type::clone(const bool b_const, const address_space addr_space) const
 	{
-		return new NativeType(type_id, b_const, address_space);
+		return new native_type(id, b_const, addr_space);
 	}
 
-	bool NativeType::isInteger() const
+	bool native_type::is_integer() const
 	{
-		switch(type_id)
+		switch(id)
 		{
 		case BOOL:
 		case SIZE_T:
@@ -210,9 +210,9 @@ namespace FreeOCL
 		}
 	}
 
-	bool NativeType::isFloat() const
+	bool native_type::is_float() const
 	{
-		switch(type_id)
+		switch(id)
 		{
 		case HALF:
 		case FLOAT:
@@ -238,9 +238,9 @@ namespace FreeOCL
 		}
 	}
 
-	bool NativeType::isSigned() const
+	bool native_type::is_signed() const
 	{
-		switch(type_id)
+		switch(id)
 		{
 		case HALF:
 		case CHAR:
@@ -290,9 +290,9 @@ namespace FreeOCL
 		}
 	}
 
-	NativeType::TypeID NativeType::getScalarType() const
+	native_type::type_id native_type::get_scalar_type() const
 	{
-		switch(type_id)
+		switch(id)
 		{
 		case CHAR:
 		case CHAR2:
@@ -372,11 +372,11 @@ namespace FreeOCL
 		case HALF16:
 			return HALF;
 		default:
-			return type_id;
+			return id;
 		}
 	}
 
-	smartptr<Type> NativeType::getIntForDim(int dim)
+	smartptr<type> native_type::get_int_for_dim(int dim)
 	{
 		switch(dim)
 		{
@@ -397,7 +397,7 @@ namespace FreeOCL
 		}
 	}
 
-	smartptr<Type> NativeType::makeVectorType(int base, int dim)
+	smartptr<type> native_type::make_vector_type(int base, int dim)
 	{
 #define IMPL(t)\
 		switch(dim)\
@@ -426,7 +426,7 @@ namespace FreeOCL
 		case FLOAT:		IMPL(t_float);
 		case DOUBLE:	IMPL(t_double);
 		default:
-			return (Type*)NULL;
+			return (type*)NULL;
 		}
 #undef IMPL
 	}

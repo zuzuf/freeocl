@@ -24,7 +24,7 @@
 namespace FreeOCL
 {
 	template<class T>
-	inline std::string toString(const T &v)
+	inline std::string to_string(const T &v)
 	{
 		std::stringstream tmp;
 		tmp << v;

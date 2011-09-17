@@ -22,21 +22,21 @@
 
 namespace FreeOCL
 {
-	class Swizzle : public Expression
+	class swizzle : public expression
 	{
 	public:
-		Swizzle(const smartptr<Expression> &base, const std::string &components);
+		swizzle(const smartptr<expression> &base, const std::string &components);
 		void write(std::ostream& out) const;
-		smartptr<Type> getType() const;
+		smartptr<type> get_type() const;
 
 	private:
-		static void parseComponents(const std::string &components, int values[]);
+		static void parse_components(const std::string &components, int values[]);
 
 	public:
-		static int getNumberOfComponents(const std::string &components);
-		static bool validateComponents(const std::string &components, int dim);
+		static int get_number_of_components(const std::string &components);
+		static bool validate_components(const std::string &components, int dim);
 	private:
-		smartptr<Expression> base;
+		smartptr<expression> base;
 		const std::string components;
 	};
 }

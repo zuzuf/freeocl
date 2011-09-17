@@ -23,11 +23,11 @@
 
 namespace FreeOCL
 {
-	class Kernel : public Function
+	class kernel : public function
 	{
 	public:
-		Kernel(const smartptr<Node> &return_type, const std::string &name, const smartptr<Node> &arguments, const smartptr<Node> &body);
-		virtual ~Kernel();
+		kernel(const smartptr<node> &return_type, const std::string &name, const smartptr<node> &arguments, const smartptr<node> &body);
+		virtual ~kernel();
 
 		virtual void write(std::ostream &out) const;
 	};

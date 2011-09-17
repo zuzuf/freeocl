@@ -19,22 +19,22 @@
 
 namespace FreeOCL
 {
-	Var::Var(const std::string &name, const smartptr<Type> &type)
+	var::var(const std::string &name, const smartptr<type> &p_type)
 		: name(name),
-		type(type)
+		p_type(p_type)
 	{
 	}
 
-	Var::~Var()
+	var::~var()
 	{
 	}
 
-	smartptr<Type> Var::getType() const
+	smartptr<type> var::get_type() const
 	{
-		return type;
+		return p_type;
 	}
 
-	void Var::write(std::ostream& out) const
+	void var::write(std::ostream& out) const
 	{
 		out << name << ' ';
 	}

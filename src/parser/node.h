@@ -23,15 +23,15 @@
 
 namespace FreeOCL
 {
-	class Node : public ref_count
+	class node : public ref_count
 	{
 	public:
-		virtual ~Node()	{}
+		virtual ~node()	{}
 
 		virtual void write(std::ostream& out) const = 0;
 	};
 
-	inline std::ostream &operator<<(std::ostream &out, const Node &n)
+	inline std::ostream &operator<<(std::ostream &out, const node &n)
 	{
 		n.write(out);
 		return out;

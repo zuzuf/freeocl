@@ -23,37 +23,37 @@
 
 namespace FreeOCL
 {
-	class StructType : public Type
+	class struct_type : public type
 	{
-		friend class UnionType;
+		friend class union_type;
 	protected:
-		enum AggregateType
+		enum aggregate_type
 		{
 			STRUCT,
 			UNION
 		};
 	private:
-		StructType(const smartptr<StructType> &orig, const bool b_const, const AddressSpace address_space) : Type(b_const, address_space), root(orig)	{}
+		struct_type(const smartptr<struct_type> &orig, const bool b_const, const address_space addr_space) : type(b_const, addr_space), root(orig)	{}
 	public:
-		StructType(const std::string &name) : Type(false, PRIVATE), name(name)	{}
-		virtual bool operator==(const Type &type) const;
+		struct_type(const std::string &name) : type(false, PRIVATE), name(name)	{}
+		virtual bool operator==(const type &t) const;
 		virtual void write(std::ostream &out) const;
 		virtual void define(std::ostream &out) const;
-		virtual std::string getName() const;
+		virtual std::string get_name() const;
 
-		bool hasMember(const std::string &name) const;
-		smartptr<Type> getTypeOfMember(const std::string &name) const;
-		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
+		bool has_member(const std::string &name) const;
+		smartptr<type> get_type_of_member(const std::string &name) const;
+		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 
-		StructType &operator<<(const std::pair<std::string, smartptr<Type> > &member);
+		struct_type &operator<<(const std::pair<std::string, smartptr<type> > &member);
 
 	protected:
-		virtual AggregateType getAggregateType() const;
+		virtual aggregate_type get_aggregate_type() const;
 
 	protected:
 		const std::string name;
-		std::vector<std::pair<std::string, smartptr<Type> > > members;
-		smartptr<StructType> root;
+		std::vector<std::pair<std::string, smartptr<type> > > members;
+		smartptr<struct_type> root;
 	};
 }
 

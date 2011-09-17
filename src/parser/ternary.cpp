@@ -21,27 +21,27 @@
 
 namespace FreeOCL
 {
-	Ternary::Ternary(const smartptr<Expression> &exp1, const smartptr<Expression> &exp2, const smartptr<Expression> &exp3)
+	ternary::ternary(const smartptr<expression> &exp1, const smartptr<expression> &exp2, const smartptr<expression> &exp3)
 		: exp1(exp1),
 		exp2(exp2),
 		exp3(exp3)
 	{
-		const smartptr<Type> t0 = exp2->getType();
-		const smartptr<Type> t1 = exp3->getType();
-		type = Type::computeResultingType(t0, t1);
+		const smartptr<type> t0 = exp2->get_type();
+		const smartptr<type> t1 = exp3->get_type();
+		p_type = type::compute_resulting_type(t0, t1);
 	}
 
-	Ternary::~Ternary()
+	ternary::~ternary()
 	{
 	}
 
-	void Ternary::write(std::ostream &out) const
+	void ternary::write(std::ostream &out) const
 	{
 		out << '(' <<  *exp1 << '?' << *exp2 << ':' << *exp3 << ')';
 	}
 
-	smartptr<Type> Ternary::getType() const
+	smartptr<type> ternary::get_type() const
 	{
-		return type;
+		return p_type;
 	}
 }

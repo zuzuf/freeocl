@@ -22,41 +22,41 @@
 
 namespace FreeOCL
 {
-	Unary::Unary(int op, const smartptr<Expression> &exp, const bool b_postfix)
+	unary::unary(int op, const smartptr<expression> &exp, const bool b_postfix)
 		: exp(exp),
 		op(op),
 		b_postfix(b_postfix)
 	{
-		const smartptr<Type> t0 = exp->getType();
+		const smartptr<type> t0 = exp->get_type();
 		switch(op)
 		{
-		case Parser::SIZEOF:
-			type = NativeType::t_size_t;
+		case parser::SIZEOF:
+			p_type = native_type::t_size_t;
 			break;
-		case Parser::INC_OP:
-		case Parser::DEC_OP:
+		case parser::INC_OP:
+		case parser::DEC_OP:
 		case '!':
 		case '~':
 		case '-':
 		case '+':
-			type = t0;
+			p_type = t0;
 			break;
 		case '*':
-			type = t0.as<PointerType>()->getBaseType();
+			p_type = t0.as<pointer_type>()->get_base_type();
 			break;
 		case '&':
-			type = new PointerType(t0, true, Type::PRIVATE);
+			p_type = new pointer_type(t0, true, type::PRIVATE);
 			break;
 		}
 	}
 
-	Unary::~Unary()
+	unary::~unary()
 	{
 	}
 
-	void Unary::write(std::ostream &out) const
+	void unary::write(std::ostream &out) const
 	{
-		if (op == Parser::SIZEOF)
+		if (op == parser::SIZEOF)
 		{
 			out << "sizeof(" << *exp << ')';
 			return;
@@ -67,8 +67,8 @@ namespace FreeOCL
 
 		switch(op)
 		{
-		case Parser::INC_OP:	out << "++";	break;
-		case Parser::DEC_OP:	out << "--";	break;
+		case parser::INC_OP:	out << "++";	break;
+		case parser::DEC_OP:	out << "--";	break;
 		case '!':
 		case '~':
 		case '-':
@@ -84,8 +84,8 @@ namespace FreeOCL
 		out << ')';
 	}
 
-	smartptr<Type> Unary::getType() const
+	smartptr<type> unary::get_type() const
 	{
-		return type;
+		return p_type;
 	}
 }

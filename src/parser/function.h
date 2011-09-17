@@ -26,26 +26,26 @@
 
 namespace FreeOCL
 {
-	class Function : public Callable
+	class function : public callable
 	{
 	public:
-		Function(const smartptr<Type> &return_type, const std::string &name, const smartptr<Chunk> &arguments, const smartptr<Chunk> &body);
-		virtual ~Function();
+		function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body);
+		virtual ~function();
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getReturnType(const std::deque<smartptr<Type> > &arg_types) const;
-		virtual const std::string &getName() const;
-		virtual size_t getNumParams() const;
+		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const;
+		virtual const std::string &get_name() const;
+		virtual size_t get_num_params() const;
 
-		smartptr<Chunk> getArguments() const	{	return arguments;	}
-		smartptr<Chunk> getBody() const	{	return body;	}
+		smartptr<chunk> get_arguments() const	{	return arguments;	}
+		smartptr<chunk> get_body() const	{	return body;	}
 
 	private:
 		const std::string name;
-		smartptr<Type>	return_type;
-		smartptr<Chunk>	arguments;
-		smartptr<Chunk>	body;
+		smartptr<type>	return_type;
+		smartptr<chunk>	arguments;
+		smartptr<chunk>	body;
 	};
 }
 

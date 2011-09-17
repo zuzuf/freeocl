@@ -20,54 +20,54 @@
 
 namespace FreeOCL
 {
-	smartptr<Type> PointerType::t_p_const_char(new PointerType(new NativeType(NativeType::CHAR, true, Type::CONSTANT), true, Type::CONSTANT));
+	smartptr<type> pointer_type::t_p_const_char(new pointer_type(new native_type(native_type::CHAR, true, type::CONSTANT), true, type::CONSTANT));
 
-	bool PointerType::operator==(const Type &type) const
+	bool pointer_type::operator==(const type &t) const
 	{
-		const PointerType *pType = dynamic_cast<const PointerType*>(&type);
-		return pType && pType->base_type && base_type && *(pType->base_type) == *base_type && isConst() == pType->isConst();
+		const pointer_type *p_type = dynamic_cast<const pointer_type*>(&t);
+		return p_type && p_type->base_type && base_type && *(p_type->base_type) == *base_type && is_const() == p_type->is_const();
 	}
 
-	void PointerType::write(std::ostream &out) const
+	void pointer_type::write(std::ostream &out) const
 	{
-		out << getName() << ' ';
+		out << get_name() << ' ';
 	}
 
-	std::string PointerType::getName() const
+	std::string pointer_type::get_name() const
 	{
 		if (!base_type)
-			return isConst() ? "* const" : "*";
+			return is_const() ? "* const" : "*";
 
-		if (isConst())
-			return (' ' + base_type->getName()) + "* const";
-		return (' ' + base_type->getName()) + '*';
+		if (is_const())
+			return (' ' + base_type->get_name()) + "* const";
+		return (' ' + base_type->get_name()) + '*';
 	}
 
-	bool PointerType::isCompatibleWith(const PointerType &type) const
+	bool pointer_type::is_compatible_with(const pointer_type &type) const
 	{
 		if (!base_type || !type.base_type)
 			return false;
-		return type.base_type->getAddressSpace() == getAddressSpace();
+		return type.base_type->get_address_space() == get_address_space();
 	}
 
-	smartptr<Type> PointerType::clone() const
+	smartptr<type> pointer_type::clone() const
 	{
-		const PointerType *ptr = base_type.as<PointerType>();
+		const pointer_type *ptr = base_type.as<pointer_type>();
 		if (ptr)
-			return new PointerType(ptr->clone(), isConst(), getAddressSpace());
-		return new PointerType(base_type, isConst(), getAddressSpace());
+			return new pointer_type(ptr->clone(), is_const(), get_address_space());
+		return new pointer_type(base_type, is_const(), get_address_space());
 	}
 
-	smartptr<Type> PointerType::clone(const bool b_const, const AddressSpace address_space) const
+	smartptr<type> pointer_type::clone(const bool b_const, const address_space addr_space) const
 	{
-		return new PointerType(base_type, b_const, address_space);
+		return new pointer_type(base_type, b_const, addr_space);
 	}
 
-	void PointerType::setRootType(const smartptr<Type> &root_type)
+	void pointer_type::set_root_type(const smartptr<type> &root_type)
 	{
-		PointerType *ptr = base_type.as<PointerType>();
+		pointer_type *ptr = base_type.as<pointer_type>();
 		if (ptr)
-			ptr->setRootType(root_type);
+			ptr->set_root_type(root_type);
 		else
 			base_type = root_type;
 	}

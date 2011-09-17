@@ -21,25 +21,25 @@
 
 namespace FreeOCL
 {
-	Member::Member(const smartptr<Expression> &base, const std::string &memberName)
-		: base(base), memberName(memberName)
+	member::member(const smartptr<expression> &base, const std::string &member_name)
+		: base(base), member_name(member_name)
 	{
 	}
 
-	void Member::write(std::ostream& out) const
+	void member::write(std::ostream& out) const
 	{
 		out << *base;
-		if (base->getType().as<PointerType>())
+		if (base->get_type().as<pointer_type>())
 			out << "->";
 		else
 			out << '.';
-		out << memberName;
+		out << member_name;
 	}
 
-	smartptr<Type> Member::getType() const
+	smartptr<type> member::get_type() const
 	{
-		const smartptr<PointerType> ptr = base->getType().as<PointerType>();
-		const smartptr<StructType> type = ptr ? ptr->getBaseType() : base->getType().as<StructType>();
-		return type->getTypeOfMember(memberName);
+		const smartptr<pointer_type> ptr = base->get_type().as<pointer_type>();
+		const smartptr<struct_type> type = ptr ? ptr->get_base_type() : base->get_type().as<struct_type>();
+		return type->get_type_of_member(member_name);
 	}
 }

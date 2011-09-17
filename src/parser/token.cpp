@@ -2,19 +2,19 @@
 
 namespace FreeOCL
 {
-	Token::Token(const std::string &str, const int tokenID)
-		: tokenID(tokenID),
+	token::token(const std::string &str, const int token_id)
+		: token_id(token_id),
 		str(str)
 	{
 	}
 
-	Token::~Token()
+	token::~token()
 	{
 	}
 
-	void Token::write(std::ostream& out) const
+	void token::write(std::ostream& out) const
 	{
-		switch(tokenID)
+		switch(token_id)
 		{
 		case '{':
 		case '}':

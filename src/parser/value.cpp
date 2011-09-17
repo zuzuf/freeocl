@@ -21,27 +21,27 @@
 
 namespace FreeOCL
 {
-	template<>	smartptr<Type> Value<std::string>::getType() const
-	{	return PointerType::t_p_const_char;	}
+	template<>	smartptr<type> value<std::string>::get_type() const
+	{	return pointer_type::t_p_const_char;	}
 
-	template<>	smartptr<Type> Value<double>::getType() const
-	{	return NativeType::t_double;	}
+	template<>	smartptr<type> value<double>::get_type() const
+	{	return native_type::t_double;	}
 
-	template<>	smartptr<Type> Value<float>::getType() const
-	{	return NativeType::t_float;	}
+	template<>	smartptr<type> value<float>::get_type() const
+	{	return native_type::t_float;	}
 
-	template<>	smartptr<Type> Value<char>::getType() const
-	{	return NativeType::t_char;	}
+	template<>	smartptr<type> value<char>::get_type() const
+	{	return native_type::t_char;	}
 
-	template<>	smartptr<Type> Value<uint64_t>::getType() const
-	{	return NativeType::t_ulong;	}
+	template<>	smartptr<type> value<uint64_t>::get_type() const
+	{	return native_type::t_ulong;	}
 
-	template<>	smartptr<Type> Value<int64_t>::getType() const
-	{	return NativeType::t_long;	}
+	template<>	smartptr<type> value<int64_t>::get_type() const
+	{	return native_type::t_long;	}
 
-	template<>	smartptr<Type> Value<int>::getType() const
-	{	return NativeType::t_int;	}
+	template<>	smartptr<type> value<int>::get_type() const
+	{	return native_type::t_int;	}
 
-	template<>	smartptr<Type> Value<bool>::getType() const
-	{	return NativeType::t_bool;	}
+	template<>	smartptr<type> value<bool>::get_type() const
+	{	return native_type::t_bool;	}
 }

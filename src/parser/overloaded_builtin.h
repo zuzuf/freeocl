@@ -22,30 +22,30 @@
 
 namespace FreeOCL
 {
-	class OverloadedBuiltin : public Callable
+	class overloaded_builtin : public callable
 	{
 	public:
-		OverloadedBuiltin(const std::string &signature, const std::deque<int> &gentype);
-		virtual ~OverloadedBuiltin();
+		overloaded_builtin(const std::string &signature, const std::deque<int> &gentype);
+		virtual ~overloaded_builtin();
 
-		virtual smartptr<Type> getReturnType(const std::deque<smartptr<Type> > &arg_types) const;
-		virtual const std::string &getName() const;
-		virtual size_t getNumParams() const;
+		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const;
+		virtual const std::string &get_name() const;
+		virtual size_t get_num_params() const;
 
 		virtual void write(std::ostream& out) const;
 
-		void printDebugInfo() const;
+		void print_debug_info() const;
 
-		void merge(const smartptr<OverloadedBuiltin> rhs);
-
-	private:
-		void removeDuplicates();
+		void merge(const smartptr<overloaded_builtin> rhs);
 
 	private:
-		static bool allTypesMatch(const std::deque<smartptr<Type> > &args, const std::deque<smartptr<Type> > &sig);
-		static bool weakMatch(const smartptr<Type> &a, const smartptr<Type> &b);
+		void remove_duplicates();
+
 	private:
-		std::deque<std::deque<smartptr<Type> > > possible_types;
+		static bool all_types_match(const std::deque<smartptr<type> > &args, const std::deque<smartptr<type> > &sig);
+		static bool weak_match(const smartptr<type> &a, const smartptr<type> &b);
+	private:
+		std::deque<std::deque<smartptr<type> > > possible_types;
 		std::string name;
 		size_t num_params;
 	};

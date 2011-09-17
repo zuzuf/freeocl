@@ -22,24 +22,24 @@
 
 namespace FreeOCL
 {
-	class Ternary : public Expression
+	class ternary : public expression
 	{
 	public:
-		Ternary(const smartptr<Expression> &exp1, const smartptr<Expression> &exp2, const smartptr<Expression> &exp3);
-		virtual ~Ternary();
+		ternary(const smartptr<expression> &exp1, const smartptr<expression> &exp2, const smartptr<expression> &exp3);
+		virtual ~ternary();
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 
-		const smartptr<Expression> &getExp1() const	{	return exp1;	}
-		const smartptr<Expression> &getExp2() const	{	return exp2;	}
-		const smartptr<Expression> &getExp3() const	{	return exp3;	}
+		const smartptr<expression> &get_exp1() const	{	return exp1;	}
+		const smartptr<expression> &get_exp2() const	{	return exp2;	}
+		const smartptr<expression> &get_exp3() const	{	return exp3;	}
 	private:
-		const smartptr<Expression> exp1;
-		const smartptr<Expression> exp2;
-		const smartptr<Expression> exp3;
-		smartptr<Type> type;
+		const smartptr<expression> exp1;
+		const smartptr<expression> exp2;
+		const smartptr<expression> exp3;
+		smartptr<type> p_type;
 	};
 }
 

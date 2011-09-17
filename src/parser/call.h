@@ -24,17 +24,17 @@
 
 namespace FreeOCL
 {
-	class Call : public Expression
+	class call : public expression
 	{
 	public:
-		Call(const smartptr<Callable> &fn, const smartptr<Chunk> &args);
-		virtual ~Call();
+		call(const smartptr<callable> &fn, const smartptr<chunk> &args);
+		virtual ~call();
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 		virtual void write(std::ostream& out) const;
 	private:
-		const smartptr<Callable> fn;
-		const smartptr<Chunk> args;
+		const smartptr<callable> fn;
+		const smartptr<chunk> args;
 	};
 }
 

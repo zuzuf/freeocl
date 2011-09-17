@@ -20,44 +20,44 @@
 
 namespace FreeOCL
 {
-	Typedef::Typedef(const std::string &name, const smartptr<Type> &type)
-		: Type(type->isConst(), type->getAddressSpace()),
+	type_def::type_def(const std::string &name, const smartptr<type> &p_type)
+		: type(p_type->is_const(), p_type->get_address_space()),
 		  name(name),
-		  type(type)
+		  p_type(p_type)
 	{
 	}
 
-	void Typedef::write(std::ostream& out) const
+	void type_def::write(std::ostream& out) const
 	{
 		out << name << ' ';
 	}
 
-	bool Typedef::operator==(const Type &type) const
+	bool type_def::operator==(const type &p_type) const
 	{
-		const Typedef *def = dynamic_cast<const Typedef*>(&type);
+		const type_def *def = dynamic_cast<const type_def*>(&p_type);
 		if (def)
-			return *this == *(def->type);
-		return *(this->type) == type;
+			return *this == *(def->p_type);
+		return *(this->p_type) == p_type;
 	}
 
-	std::string Typedef::getName() const
+	std::string type_def::get_name() const
 	{
 		return name;
 	}
 
-	smartptr<Type> Typedef::clone(const bool b_const, const AddressSpace address_space) const
+	smartptr<type> type_def::clone(const bool b_const, const address_space addr_space) const
 	{
-		return new Typedef(name, type->clone(b_const, address_space));
+		return new type_def(name, p_type->clone(b_const, addr_space));
 	}
 
-	void Typedecl::write(std::ostream& out) const
+	void type_decl::write(std::ostream& out) const
 	{
 		out << "typedef ";
-		smartptr<StructType> s = type.as<StructType>();
+		smartptr<struct_type> s = p_type.as<struct_type>();
 		if (s)
 			s->define(out);
 		else
-			out << *type;
+			out << *p_type;
 		out << ' ';
 	}
 }

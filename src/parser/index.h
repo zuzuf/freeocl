@@ -22,18 +22,18 @@
 
 namespace FreeOCL
 {
-	class Index : public Expression
+	class index : public expression
 	{
 	public:
-		Index(const smartptr<Expression> &ptr, const smartptr<Expression> &idx);
-		virtual ~Index();
+		index(const smartptr<expression> &ptr, const smartptr<expression> &idx);
+		virtual ~index();
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 		virtual void write(std::ostream& out) const;
 
 	private:
-		const smartptr<Expression> ptr;
-		const smartptr<Expression> idx;
+		const smartptr<expression> ptr;
+		const smartptr<expression> idx;
 	};
 }
 

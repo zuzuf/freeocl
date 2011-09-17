@@ -22,21 +22,21 @@
 
 namespace FreeOCL
 {
-	class Unary : public Expression
+	class unary : public expression
 	{
 	public:
-		Unary(int op, const smartptr<Expression> &exp, const bool b_postfix = false);
-		virtual ~Unary();
+		unary(int op, const smartptr<expression> &exp, const bool b_postfix = false);
+		virtual ~unary();
 
 		virtual void write(std::ostream &out) const;
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 
-		const smartptr<Expression> &getExp() const		{	return exp;	}
-		int getOp() const	{	return op;	}
+		const smartptr<expression> &get_exp() const		{	return exp;	}
+		int get_op() const	{	return op;	}
 	private:
-		const smartptr<Expression> exp;
-		smartptr<Type> type;
+		const smartptr<expression> exp;
+		smartptr<type> p_type;
 		const int op;
 		const bool b_postfix;
 	};

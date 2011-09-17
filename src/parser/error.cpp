@@ -30,7 +30,7 @@ using namespace std;
 
 namespace FreeOCL
 {
-	void Parser::error(const std::string &msg)
+	void parser::error(const std::string &msg)
 	{
 		const size_t pos = current_line.size();
 		char c;
@@ -44,10 +44,10 @@ namespace FreeOCL
 				<< RED << "error " << NORMAL << WHITE << current_file << ":" << line << ": " << NORMAL << current_line
 				<< shift << std::string(pos, ' ') << YELLOW << '^' << NORMAL << std::endl
 				<< shift << ' ' << BLUE << msg << NORMAL << std::endl;
-		bErrors = true;
+		b_errors = true;
 	}
 
-	void Parser::warning(const std::string &msg)
+	void parser::warning(const std::string &msg)
 	{
 		const std::string old_line = current_line;
 		const size_t pos = current_line.size();

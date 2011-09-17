@@ -22,12 +22,12 @@
 
 namespace FreeOCL
 {
-	class UnionType : public StructType
+	class union_type : public struct_type
 	{
 	public:
-		UnionType(const std::string &name) : StructType(name)	{}
+		union_type(const std::string &name) : struct_type(name)	{}
 	private:
-		virtual AggregateType getAggregateType() const;
+		virtual aggregate_type get_aggregate_type() const;
 	};
 }
 

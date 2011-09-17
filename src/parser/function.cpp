@@ -21,7 +21,7 @@
 
 namespace FreeOCL
 {
-	Function::Function(const smartptr<Type> &return_type, const std::string &name, const smartptr<Chunk> &arguments, const smartptr<Chunk> &body)
+	function::function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body)
 		: return_type(return_type),
 		name(name),
 		arguments(arguments),
@@ -34,14 +34,14 @@ namespace FreeOCL
 		if (this->arguments->size() == 1)
 			this->arguments = this->arguments->front();
 		else
-			this->arguments = new Chunk();
+			this->arguments = new chunk();
 	}
 
-	Function::~Function()
+	function::~function()
 	{
 	}
 
-	void Function::write(std::ostream &out) const
+	void function::write(std::ostream &out) const
 	{
 		out << *return_type << ' ' << name << '(';
 		for(size_t i = 0 ; i < arguments->size() ; ++i)
@@ -56,17 +56,17 @@ namespace FreeOCL
 			<< '}' << std::endl;
 	}
 
-	smartptr<Type> Function::getReturnType(const std::deque<smartptr<Type> > &/*arg_types*/) const
+	smartptr<type> function::get_return_type(const std::deque<smartptr<type> > &/*arg_types*/) const
 	{
 		return return_type;
 	}
 
-	const std::string &Function::getName() const
+	const std::string &function::get_name() const
 	{
 		return name;
 	}
 
-	size_t Function::getNumParams() const
+	size_t function::get_num_params() const
 	{
 		return arguments->size();
 	}

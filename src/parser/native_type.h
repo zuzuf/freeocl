@@ -22,10 +22,10 @@
 
 namespace FreeOCL
 {
-	class NativeType : public Type
+	class native_type : public type
 	{
 	public:
-		enum TypeID {
+		enum type_id {
 			VOID, BOOL, HALF, SIZE_T,
 			CHAR, SHORT, INT, LONG, UCHAR, USHORT, UINT, ULONG, FLOAT, DOUBLE,
 			CHAR2, SHORT2, INT2, LONG2, UCHAR2, USHORT2, UINT2, ULONG2, FLOAT2, DOUBLE2,
@@ -36,97 +36,97 @@ namespace FreeOCL
 			HALF2, HALF3, HALF4, HALF8, HALF16
 		};
 	public:
-		NativeType(const TypeID type_id, const bool b_const, const AddressSpace address_space) : Type(b_const, address_space), type_id(type_id)	{}
-		virtual bool operator==(const Type &type) const;
+		native_type(const type_id id, const bool b_const, const address_space addr_space) : type(b_const, addr_space), id(id)	{}
+		virtual bool operator==(const type &type) const;
 		virtual void write(std::ostream &out) const;
-		virtual std::string getName() const;
-		virtual smartptr<Type> clone(const bool b_const, const AddressSpace address_space) const;
+		virtual std::string get_name() const;
+		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 
-		TypeID getTypeID() const	{	return type_id;	}
-		int getDim() const;
-		bool isVector() const	{	return getDim() > 1;	}
-		bool isScalar() const	{	return getDim() == 1;	}
-		bool isInteger() const;
-		bool isFloat() const;
-		bool isSigned() const;
-		TypeID getScalarType() const;
+		type_id get_type_id() const	{	return id;	}
+		int get_dim() const;
+		bool is_vector() const	{	return get_dim() > 1;	}
+		bool is_scalar() const	{	return get_dim() == 1;	}
+		bool is_integer() const;
+		bool is_float() const;
+		bool is_signed() const;
+		type_id get_scalar_type() const;
 	private:
-		const TypeID type_id;
+		const type_id id;
 
 	public:
-		static smartptr<Type> t_void;
-		static smartptr<Type> t_bool;
-		static smartptr<Type> t_half;
-		static smartptr<Type> t_half2;
-		static smartptr<Type> t_half3;
-		static smartptr<Type> t_half4;
-		static smartptr<Type> t_half8;
-		static smartptr<Type> t_half16;
-		static smartptr<Type> t_size_t;
-		static smartptr<Type> t_char;
-		static smartptr<Type> t_short;
-		static smartptr<Type> t_int;
-		static smartptr<Type> t_long;
-		static smartptr<Type> t_uchar;
-		static smartptr<Type> t_ushort;
-		static smartptr<Type> t_uint;
-		static smartptr<Type> t_ulong;
-		static smartptr<Type> t_float;
-		static smartptr<Type> t_double;
-		static smartptr<Type> t_char2;
-		static smartptr<Type> t_short2;
-		static smartptr<Type> t_int2;
-		static smartptr<Type> t_long2;
-		static smartptr<Type> t_uchar2;
-		static smartptr<Type> t_ushort2;
-		static smartptr<Type> t_uint2;
-		static smartptr<Type> t_ulong2;
-		static smartptr<Type> t_float2;
-		static smartptr<Type> t_double2;
-		static smartptr<Type> t_char3;
-		static smartptr<Type> t_short3;
-		static smartptr<Type> t_int3;
-		static smartptr<Type> t_long3;
-		static smartptr<Type> t_uchar3;
-		static smartptr<Type> t_ushort3;
-		static smartptr<Type> t_uint3;
-		static smartptr<Type> t_ulong3;
-		static smartptr<Type> t_float3;
-		static smartptr<Type> t_double3;
-		static smartptr<Type> t_char4;
-		static smartptr<Type> t_short4;
-		static smartptr<Type> t_int4;
-		static smartptr<Type> t_long4;
-		static smartptr<Type> t_uchar4;
-		static smartptr<Type> t_ushort4;
-		static smartptr<Type> t_uint4;
-		static smartptr<Type> t_ulong4;
-		static smartptr<Type> t_float4;
-		static smartptr<Type> t_double4;
-		static smartptr<Type> t_char8;
-		static smartptr<Type> t_short8;
-		static smartptr<Type> t_int8;
-		static smartptr<Type> t_long8;
-		static smartptr<Type> t_uchar8;
-		static smartptr<Type> t_ushort8;
-		static smartptr<Type> t_uint8;
-		static smartptr<Type> t_ulong8;
-		static smartptr<Type> t_float8;
-		static smartptr<Type> t_double8;
-		static smartptr<Type> t_char16;
-		static smartptr<Type> t_short16;
-		static smartptr<Type> t_int16;
-		static smartptr<Type> t_long16;
-		static smartptr<Type> t_uchar16;
-		static smartptr<Type> t_ushort16;
-		static smartptr<Type> t_uint16;
-		static smartptr<Type> t_ulong16;
-		static smartptr<Type> t_float16;
-		static smartptr<Type> t_double16;
-		static smartptr<Type> getIntForDim(int dim);
+		static smartptr<type> t_void;
+		static smartptr<type> t_bool;
+		static smartptr<type> t_half;
+		static smartptr<type> t_half2;
+		static smartptr<type> t_half3;
+		static smartptr<type> t_half4;
+		static smartptr<type> t_half8;
+		static smartptr<type> t_half16;
+		static smartptr<type> t_size_t;
+		static smartptr<type> t_char;
+		static smartptr<type> t_short;
+		static smartptr<type> t_int;
+		static smartptr<type> t_long;
+		static smartptr<type> t_uchar;
+		static smartptr<type> t_ushort;
+		static smartptr<type> t_uint;
+		static smartptr<type> t_ulong;
+		static smartptr<type> t_float;
+		static smartptr<type> t_double;
+		static smartptr<type> t_char2;
+		static smartptr<type> t_short2;
+		static smartptr<type> t_int2;
+		static smartptr<type> t_long2;
+		static smartptr<type> t_uchar2;
+		static smartptr<type> t_ushort2;
+		static smartptr<type> t_uint2;
+		static smartptr<type> t_ulong2;
+		static smartptr<type> t_float2;
+		static smartptr<type> t_double2;
+		static smartptr<type> t_char3;
+		static smartptr<type> t_short3;
+		static smartptr<type> t_int3;
+		static smartptr<type> t_long3;
+		static smartptr<type> t_uchar3;
+		static smartptr<type> t_ushort3;
+		static smartptr<type> t_uint3;
+		static smartptr<type> t_ulong3;
+		static smartptr<type> t_float3;
+		static smartptr<type> t_double3;
+		static smartptr<type> t_char4;
+		static smartptr<type> t_short4;
+		static smartptr<type> t_int4;
+		static smartptr<type> t_long4;
+		static smartptr<type> t_uchar4;
+		static smartptr<type> t_ushort4;
+		static smartptr<type> t_uint4;
+		static smartptr<type> t_ulong4;
+		static smartptr<type> t_float4;
+		static smartptr<type> t_double4;
+		static smartptr<type> t_char8;
+		static smartptr<type> t_short8;
+		static smartptr<type> t_int8;
+		static smartptr<type> t_long8;
+		static smartptr<type> t_uchar8;
+		static smartptr<type> t_ushort8;
+		static smartptr<type> t_uint8;
+		static smartptr<type> t_ulong8;
+		static smartptr<type> t_float8;
+		static smartptr<type> t_double8;
+		static smartptr<type> t_char16;
+		static smartptr<type> t_short16;
+		static smartptr<type> t_int16;
+		static smartptr<type> t_long16;
+		static smartptr<type> t_uchar16;
+		static smartptr<type> t_ushort16;
+		static smartptr<type> t_uint16;
+		static smartptr<type> t_ulong16;
+		static smartptr<type> t_float16;
+		static smartptr<type> t_double16;
+		static smartptr<type> get_int_for_dim(int dim);
 
-		static int getDimFor(int type_id);
-		static smartptr<Type> makeVectorType(int base, int dim);
+		static int get_dim_for(int id);
+		static smartptr<type> make_vector_type(int base, int dim);
 	};
 }
 

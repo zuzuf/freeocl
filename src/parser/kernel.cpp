@@ -19,18 +19,18 @@
 
 namespace FreeOCL
 {
-	Kernel::Kernel(const smartptr<Node> &return_type, const std::string &name, const smartptr<Node> &arguments, const smartptr<Node> &body)
-		: Function(return_type, name, arguments, body)
+	kernel::kernel(const smartptr<node> &return_type, const std::string &name, const smartptr<node> &arguments, const smartptr<node> &body)
+		: function(return_type, name, arguments, body)
 	{
 	}
 
-	Kernel::~Kernel()
+	kernel::~kernel()
 	{
 	}
 
-	void Kernel::write(std::ostream &out) const
+	void kernel::write(std::ostream &out) const
 	{
 		out << "__kernel ";
-		Function::write(out);
+		function::write(out);
 	}
 }

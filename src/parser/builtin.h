@@ -22,19 +22,19 @@
 
 namespace FreeOCL
 {
-	class Builtin : public Callable
+	class builtin : public callable
 	{
 	public:
-		Builtin(const smartptr<Type> &return_type, const std::string &name, const size_t num_params);
-		virtual ~Builtin();
+		builtin(const smartptr<type> &return_type, const std::string &name, const size_t num_params);
+		virtual ~builtin();
 
-		virtual smartptr<Type> getReturnType(const std::deque<smartptr<Type> > &arg_types) const;
-		virtual const std::string &getName() const;
-		virtual size_t getNumParams() const;
+		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const;
+		virtual const std::string &get_name() const;
+		virtual size_t get_num_params() const;
 
 		virtual void write(std::ostream& out) const;
 	private:
-		const smartptr<Type> return_type;
+		const smartptr<type> return_type;
 		const std::string name;
 		const size_t num_params;
 	};

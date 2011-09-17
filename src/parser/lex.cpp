@@ -15,7 +15,7 @@ using namespace std;
 
 namespace FreeOCL
 {
-	int Parser::lex()
+	int parser::lex()
 	{
 		char c;
 		// get the next non-ws character
@@ -70,7 +70,7 @@ namespace FreeOCL
 
 			if (!in)                  // end of input
 				return 0;
-			d_val__ = new Value<string>('"' + str + '"');
+			d_val__ = new value<string>('"' + str + '"');
 			return STRING_LITERAL;
 		}
 
@@ -102,14 +102,14 @@ namespace FreeOCL
 				i = i * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
 			if (c == 'U')
 			{
-				d_val__ = new Value<uint64_t>(i);
+				d_val__ = new value<uint64_t>(i);
 				return CONSTANT;
 			}
 			else if (!in || c != '.')
 			{
 				if (c != '.' || base != 10)
 					putback(c);
-				d_val__ = new Value<int64_t>(i);
+				d_val__ = new value<int64_t>(i);
 				return CONSTANT;
 			}
 		}
@@ -144,11 +144,11 @@ namespace FreeOCL
 					f *= pow10(exponent);
 			}
 			if (c == 'f')
-				d_val__ = new Value<float>((float)f);
+				d_val__ = new value<float>((float)f);
 			else
 			{
 				putback(c);
-				d_val__ = new Value<double>(f);
+				d_val__ = new value<double>(f);
 			}
 			return CONSTANT;				// return the CONSTANT token
 		}
@@ -170,7 +170,7 @@ namespace FreeOCL
 			get(c);
 			if (c != '\'')
 				return 0;
-			d_val__ = new Value<char>(v);
+			d_val__ = new value<char>(v);
 			return CONSTANT;
 		}
 
@@ -181,11 +181,11 @@ namespace FreeOCL
 				name += c;
 			putback(c);
 
-			static bool bInitKeywords = true;
+			static bool b_init_keywords = true;
 			static unordered_map<string, int> keywords;
-			if (bInitKeywords)
+			if (b_init_keywords)
 			{
-				bInitKeywords = false;
+				b_init_keywords = false;
 				keywords["typedef"] = TYPEDEF;
 
 				keywords["bool"] = BOOL;
@@ -258,19 +258,19 @@ namespace FreeOCL
 			unordered_map<string, int>::const_iterator it = keywords.find(name);
 			if (it != keywords.end())
 			{
-				d_val__ = new Token(name, it->second);
+				d_val__ = new token(name, it->second);
 				return it->second;
 			}
 			if (name == "true" || name == "false")
 			{
-				d_val__ = new Value<int>(name == "true" ? 1 : 0);
+				d_val__ = new value<int>(name == "true" ? 1 : 0);
 				return CONSTANT;
 			}
 
-			if ((d_val__ = symbols->get<Type>(name)))
+			if ((d_val__ = symbols->get<type>(name)))
 				return TYPE_NAME;
 
-			d_val__ = new Token(name, IDENTIFIER);
+			d_val__ = new token(name, IDENTIFIER);
 			return IDENTIFIER;
 		}
 
@@ -280,7 +280,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("<=", LE_OP);
+				d_val__ = new token("<=", LE_OP);
 				return LE_OP;
 			}
 			if (peek() == '<')
@@ -289,10 +289,10 @@ namespace FreeOCL
 				if (peek() == '=')
 				{
 					get(c);
-					d_val__ = new Token("<<=", LEFT_ASSIGN);
+					d_val__ = new token("<<=", LEFT_ASSIGN);
 					return LEFT_ASSIGN;
 				}
-				d_val__ = new Token("<<", LEFT_OP);
+				d_val__ = new token("<<", LEFT_OP);
 				return LEFT_OP;
 			}
 			break;
@@ -300,7 +300,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token(">=", GE_OP);
+				d_val__ = new token(">=", GE_OP);
 				return GE_OP;
 			}
 			if (peek() == '>')
@@ -309,10 +309,10 @@ namespace FreeOCL
 				if (peek() == '=')
 				{
 					get(c);
-					d_val__ = new Token(">>=", RIGHT_ASSIGN);
+					d_val__ = new token(">>=", RIGHT_ASSIGN);
 					return RIGHT_ASSIGN;
 				}
-				d_val__ = new Token(">>", RIGHT_OP);
+				d_val__ = new token(">>", RIGHT_OP);
 				return RIGHT_OP;
 			}
 			break;
@@ -320,7 +320,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("==", EQ_OP);
+				d_val__ = new token("==", EQ_OP);
 				return EQ_OP;
 			}
 			break;
@@ -328,7 +328,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("!=", NE_OP);
+				d_val__ = new token("!=", NE_OP);
 				return NE_OP;
 			}
 			break;
@@ -336,13 +336,13 @@ namespace FreeOCL
 			if (peek() == '+')
 			{
 				get(c);
-				d_val__ = new Token("++", INC_OP);
+				d_val__ = new token("++", INC_OP);
 				return INC_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("+=", ADD_ASSIGN);
+				d_val__ = new token("+=", ADD_ASSIGN);
 				return ADD_ASSIGN;
 			}
 			break;
@@ -350,19 +350,19 @@ namespace FreeOCL
 			if (peek() == '-')
 			{
 				get(c);
-				d_val__ = new Token("--", DEC_OP);
+				d_val__ = new token("--", DEC_OP);
 				return DEC_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("-=", SUB_ASSIGN);
+				d_val__ = new token("-=", SUB_ASSIGN);
 				return SUB_ASSIGN;
 			}
 			if (peek() == '>')
 			{
 				get(c);
-				d_val__ = new Token("->", PTR_OP);
+				d_val__ = new token("->", PTR_OP);
 				return PTR_OP;
 			}
 			break;
@@ -370,7 +370,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("*=", MUL_ASSIGN);
+				d_val__ = new token("*=", MUL_ASSIGN);
 				return MUL_ASSIGN;
 			}
 			break;
@@ -378,7 +378,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("/=", DIV_ASSIGN);
+				d_val__ = new token("/=", DIV_ASSIGN);
 				return DIV_ASSIGN;
 			}
 			break;
@@ -386,7 +386,7 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("%=", MOD_ASSIGN);
+				d_val__ = new token("%=", MOD_ASSIGN);
 				return MOD_ASSIGN;
 			}
 			break;
@@ -394,13 +394,13 @@ namespace FreeOCL
 			if (peek() == '&')
 			{
 				get(c);
-				d_val__ = new Token("&&", AND_OP);
+				d_val__ = new token("&&", AND_OP);
 				return AND_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("&=", AND_ASSIGN);
+				d_val__ = new token("&=", AND_ASSIGN);
 				return AND_ASSIGN;
 			}
 			break;
@@ -408,13 +408,13 @@ namespace FreeOCL
 			if (peek() == '|')
 			{
 				get(c);
-				d_val__ = new Token("||", OR_OP);
+				d_val__ = new token("||", OR_OP);
 				return OR_OP;
 			}
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("|=", OR_ASSIGN);
+				d_val__ = new token("|=", OR_ASSIGN);
 				return OR_ASSIGN;
 			}
 			break;
@@ -422,17 +422,17 @@ namespace FreeOCL
 			if (peek() == '=')
 			{
 				get(c);
-				d_val__ = new Token("^=" , XOR_ASSIGN);
+				d_val__ = new token("^=" , XOR_ASSIGN);
 				return XOR_ASSIGN;
 			}
 			break;
 		};
 
-		d_val__ = new Token(std::string(1, c), c);
+		d_val__ = new token(std::string(1, c), c);
 		return c;                       // otherwise return the extracted char.
 	}
 
-	int Parser::get()
+	int parser::get()
 	{
 		const int c = in.get();
 		if (c == '\n')
@@ -444,7 +444,7 @@ namespace FreeOCL
 		return c;
 	}
 
-	std::istream &Parser::get(char &c)
+	std::istream &parser::get(char &c)
 	{
 		c = 0;
 		bool ok = in.get(c);
@@ -457,7 +457,7 @@ namespace FreeOCL
 		return in;
 	}
 
-	void Parser::putback(char c)
+	void parser::putback(char c)
 	{
 		in.putback(c);
 		if (c == '\n')
@@ -466,7 +466,7 @@ namespace FreeOCL
 			current_line.erase(current_line.size() - 1, 1);
 	}
 
-	int Parser::peek()
+	int parser::peek()
 	{
 		return in.peek();
 	}

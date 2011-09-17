@@ -18,7 +18,7 @@
 #ifndef __ERRORS_H__
 #define __ERRORS_H__
 
-const char *getErrorAsString(cl_int err);
+const char *get_error_as_string(cl_int err);
 
 void signal_handler(int);
 

@@ -23,20 +23,20 @@
 
 namespace FreeOCL
 {
-	class GenericValue : public Expression
+	class generic_value : public expression
 	{
 	};
 
 	template<class T>
-	class Value : public GenericValue
+	class value : public generic_value
 	{
 	public:
-		Value(const T &v) : v(v)	{}
-		virtual ~Value()	{}
+		value(const T &v) : v(v)	{}
+		virtual ~value()	{}
 
-		const T &getValue() const	{	return v;	}
+		const T &get_value() const	{	return v;	}
 
-		virtual smartptr<Type> getType() const;
+		virtual smartptr<type> get_type() const;
 
 		virtual void write(std::ostream& out) const
 		{

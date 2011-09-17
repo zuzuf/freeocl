@@ -27,7 +27,7 @@ namespace FreeOCL
 	class mutex
 	{
 	public:
-		enum { bIsLockable = true };
+		enum { b_is_lockable = true };
 	public:
 		mutex();
 		~mutex();
