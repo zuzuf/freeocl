@@ -31,14 +31,14 @@
 
 namespace FreeOCL
 {
-	cl_command_type command_read_buffer::getType() const	{	return CL_COMMAND_READ_BUFFER;	}
-	cl_command_type command_write_buffer::getType() const	{	return CL_COMMAND_WRITE_BUFFER;	}
-	cl_command_type command_copy_buffer::getType() const	{	return CL_COMMAND_COPY_BUFFER;	}
-	cl_command_type command_map_buffer::getType() const		{	return CL_COMMAND_MAP_BUFFER;	}
-	cl_command_type command_unmap_buffer::getType() const	{	return CL_COMMAND_UNMAP_MEM_OBJECT;	}
-	cl_command_type command_marker::getType() const			{	return CL_COMMAND_MARKER;	}
-	cl_command_type command_native_kernel::getType() const	{	return CL_COMMAND_NATIVE_KERNEL;	}
-	cl_command_type command_ndrange_kernel::getType() const	{	return CL_COMMAND_NDRANGE_KERNEL;	}
+	cl_command_type command_read_buffer::get_type() const	{	return CL_COMMAND_READ_BUFFER;	}
+	cl_command_type command_write_buffer::get_type() const	{	return CL_COMMAND_WRITE_BUFFER;	}
+	cl_command_type command_copy_buffer::get_type() const	{	return CL_COMMAND_COPY_BUFFER;	}
+	cl_command_type command_map_buffer::get_type() const		{	return CL_COMMAND_MAP_BUFFER;	}
+	cl_command_type command_unmap_buffer::get_type() const	{	return CL_COMMAND_UNMAP_MEM_OBJECT;	}
+	cl_command_type command_marker::get_type() const			{	return CL_COMMAND_MARKER;	}
+	cl_command_type command_native_kernel::get_type() const	{	return CL_COMMAND_NATIVE_KERNEL;	}
+	cl_command_type command_ndrange_kernel::get_type() const	{	return CL_COMMAND_NDRANGE_KERNEL;	}
 }
 
 extern "C"
@@ -208,25 +208,25 @@ bool _cl_command_queue::empty()
 	return b;
 }
 
-bool isCommandReadyToProcess(const FreeOCL::smartptr<FreeOCL::command> &cmd)
+bool is_command_ready_to_process(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 {
 	if (cmd->event_wait_list == NULL)
 		return true;
 
 	const cl_event *events = cmd->event_wait_list;
-	bool bError = false;
-	bool bReady = true;
-	for(size_t i = 0 ; i < cmd->num_events_in_wait_list && !bError && bReady ; ++i)
+	bool b_error = false;
+	bool b_ready = true;
+	for(size_t i = 0 ; i < cmd->num_events_in_wait_list && !b_error && b_ready ; ++i)
 	{
 		if (!FreeOCL::is_valid(events[i]))
 		{
-			bError = true;
+			b_error = true;
 			break;
 		}
-		bReady = (events[i]->status == CL_COMPLETE);
+		b_ready = (events[i]->status == CL_COMPLETE);
 		events[i]->unlock();
 	}
-	if (bError)
+	if (b_error)
 	{
 		if (cmd->event)
 		{
@@ -236,7 +236,7 @@ bool isCommandReadyToProcess(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 		}
 		throw 0;
 	}
-	return bReady;
+	return b_ready;
 }
 
 int _cl_command_queue::proc()
@@ -256,7 +256,7 @@ int _cl_command_queue::proc()
 		if (b_stop)
 			break;
 
-		if (!isCommandReadyToProcess(cmd))
+		if (!is_command_ready_to_process(cmd))
 		{
 			if (properties & CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE)
 			{
@@ -264,24 +264,24 @@ int _cl_command_queue::proc()
 				std::deque<FreeOCL::smartptr<FreeOCL::command> > waiting_queue;
 				waiting_queue.push_front(cmd);
 
-				bool bFound = false;
+				bool b_found = false;
 
 				lock();
-				while(!queue.empty() && !bFound)
+				while(!queue.empty() && !b_found)
 				{
 					cmd = queue.front();
 					queue.pop_front();
 					unlock();
 
-					if (cmd->getType() == CL_COMMAND_MARKER)
+					if (cmd->get_type() == CL_COMMAND_MARKER)
 					{
 						lock();
 						queue.push_front(cmd);
 						break;
 					}
 
-					bFound = isCommandReadyToProcess(cmd);
-					if (!bFound)
+					b_found = is_command_ready_to_process(cmd);
+					if (!b_found)
 						waiting_queue.push_front(cmd);
 
 					lock();
@@ -290,7 +290,7 @@ int _cl_command_queue::proc()
 				for(std::deque<FreeOCL::smartptr<FreeOCL::command> >::const_iterator i = waiting_queue.begin() ; i != waiting_queue.end() ; ++i)
 					queue.push_front(*i);
 
-				if (!bFound)		// No choice, we must try later
+				if (!b_found)		// No choice, we must try later
 				{
 					wait_locked();
 					unlock();
@@ -316,7 +316,7 @@ int _cl_command_queue::proc()
 			cmd->event->unlock();
 		}
 
-		switch(cmd->getType())
+		switch(cmd->get_type())
 		{
 		case CL_COMMAND_READ_BUFFER:
 			memcpy(cmd.as<FreeOCL::command_read_buffer>()->ptr, (char*)cmd.as<FreeOCL::command_read_buffer>()->buffer->ptr + cmd.as<FreeOCL::command_read_buffer>()->offset, cmd.as<FreeOCL::command_read_buffer>()->cb);

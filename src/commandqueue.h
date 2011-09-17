@@ -39,7 +39,7 @@ namespace FreeOCL
 			ref_counter::release();
 		}
 
-		virtual cl_command_type getType() const = 0;
+		virtual cl_command_type get_type() const = 0;
 	};
 
 	struct command_read_buffer : public command_common
@@ -49,7 +49,7 @@ namespace FreeOCL
 		size_t cb;
 		void *ptr;
 
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_write_buffer : public command_common
@@ -59,7 +59,7 @@ namespace FreeOCL
 		size_t cb;
 		const void *ptr;
 
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_copy_buffer : public command_common
@@ -70,7 +70,7 @@ namespace FreeOCL
 		size_t dst_offset;
 		size_t cb;
 
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_map_buffer : public command_common
@@ -78,17 +78,17 @@ namespace FreeOCL
 		smartptr<_cl_mem> buffer;
 		void *ptr;
 
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_unmap_buffer : public command_map_buffer
 	{
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_marker : public command_common
 	{
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_native_kernel : public command_common
@@ -96,7 +96,7 @@ namespace FreeOCL
 		void (*user_func)(void *);
 		void *args;
 
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	struct command_ndrange_kernel : public command_common
@@ -108,7 +108,7 @@ namespace FreeOCL
 		size_t global_size[3];
 		size_t local_size[3];
 
-		virtual cl_command_type getType() const;
+		virtual cl_command_type get_type() const;
 	};
 
 	typedef command_common command;
