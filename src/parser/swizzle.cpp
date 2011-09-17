@@ -27,15 +27,15 @@ namespace FreeOCL
 
 	void swizzle::write(std::ostream& out) const
 	{
-		smartptr<type> type = get_type();
+		smartptr<type> p_type = get_type();
 		int values[16];
-		parse_components(components, values);
-		if (type.as<native_type>()->is_scalar())
+		parse_components(components, values, p_type.as<native_type>()->get_dim());
+		if (p_type.as<native_type>()->is_scalar())
 			out << '(' << *base << ").get<" << values[0] << ">() ";
 		else
 		{
 			out << '(' << *base << ").swizzle<";
-			out << *type << ',';
+			out << *p_type << ',';
 			for(size_t i = 0 ; i < 15 ; ++i)
 				out << values[i] << ',';
 			out << values[15];
@@ -45,14 +45,12 @@ namespace FreeOCL
 
 	smartptr<type> swizzle::get_type() const
 	{
-		smartptr<native_type> type = base->get_type().as<native_type>();
-		int dim = get_number_of_components(components);
-		if (dim == -1)
-			dim = (type->get_dim() + 1) / 2;
-		return native_type::make_vector_type(type->get_scalar_type(), dim)->clone(type->is_const(), type->get_address_space());
+		smartptr<native_type> p_type = base->get_type().as<native_type>();
+		const int dim = get_number_of_components(components, p_type->get_dim());
+		return native_type::make_vector_type(p_type->get_scalar_type(), dim)->clone(p_type->is_const(), p_type->get_address_space());
 	}
 
-	int swizzle::get_number_of_components(const std::string &components)
+	int swizzle::get_number_of_components(const std::string &components, int dim)
 	{
 		if (components.empty())
 			return 0;
@@ -62,15 +60,18 @@ namespace FreeOCL
 			|| components == "hi"
 			|| components == "even"
 			|| components == "odd")
-			return -1;
+			return (dim + 1) >> 1;
 		return components.size();
 	}
 
 	bool swizzle::validate_components(const std::string &components, int dim)
 	{
-		const int nc = get_number_of_components(components);
-		if (nc == -1)		// lo, hi, odd, even
+		if (components == "lo"
+			|| components == "hi"
+			|| components == "even"
+			|| components == "odd")
 			return true;
+		const int nc = get_number_of_components(components, dim);
 		if (nc == 0)		// zero components oO ?
 			return false;
 		if (nc > dim)
@@ -150,10 +151,34 @@ namespace FreeOCL
 		return true;
 	}
 
-	void swizzle::parse_components(const std::string &components, int values[])
+	void swizzle::parse_components(const std::string &components, int values[], int dim)
 	{
 		for(size_t i = 0 ; i < 16 ; ++i)
 			values[i] = -1;
+		if (components == "lo")
+		{
+			for(size_t i = 0 ; i < dim ; ++i)
+				values[i] = i;
+			return;
+		}
+		else if (components == "hi")
+		{
+			for(size_t i = 0 ; i < dim ; ++i)
+				values[i] = dim + i;
+			return;
+		}
+		else if (components == "even")
+		{
+			for(size_t i = 0 ; i < dim ; ++i)
+				values[i] = i << 1;
+			return;
+		}
+		else if (components == "odd")
+		{
+			for(size_t i = 0 ; i < dim ; ++i)
+				values[i] = (i << 1) | 1;
+			return;
+		}
 		int *p = values;
 		switch(components[0])
 		{

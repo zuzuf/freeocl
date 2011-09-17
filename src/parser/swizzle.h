@@ -30,10 +30,10 @@ namespace FreeOCL
 		smartptr<type> get_type() const;
 
 	private:
-		static void parse_components(const std::string &components, int values[]);
+		static void parse_components(const std::string &components, int values[], int dim);
 
 	public:
-		static int get_number_of_components(const std::string &components);
+		static int get_number_of_components(const std::string &components, int dim);
 		static bool validate_components(const std::string &components, int dim);
 	private:
 		smartptr<expression> base;

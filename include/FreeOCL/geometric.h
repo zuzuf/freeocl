@@ -18,7 +18,7 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_GEOMETRIC_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_GEOMETRIC_H__
 // Built-in geometric functions
-
+// floats
 inline float4 cross(const float4 &p0, const float4 &p1)
 {
 	return float4::make(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
@@ -109,4 +109,78 @@ inline float3 fast_normalize(const float3 &p)	{	return half_rsqrt(dot(p,p)) * p;
 inline float4 fast_normalize(const float4 &p)	{	return half_rsqrt(dot(p,p)) * p;	}
 inline float8 fast_normalize(const float8 &p)	{	return half_rsqrt(dot(p,p)) * p;	}
 inline float16 fast_normalize(const float16 &p)	{	return half_rsqrt(dot(p,p)) * p;	}
+
+// doubles
+inline double4 cross(const double4 &p0, const double4 &p1)
+{
+	return double4::make(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
+						p0.v[2] * p1.v[0] - p0.v[0] * p1.v[2],
+						p0.v[0] * p1.v[1] - p0.v[1] * p1.v[0],
+						0.0f);
+}
+inline double3 cross(const double3 &p0, const double3 &p1)
+{
+	return double3::make(p0.v[1] * p1.v[2] - p0.v[2] * p1.v[1],
+						p0.v[2] * p1.v[0] - p0.v[0] * p1.v[2],
+						p0.v[0] * p1.v[1] - p0.v[1] * p1.v[0]);
+}
+
+inline double dot(const double2 &p0, const double2 &p1)
+{	return p0.v[0] * p1.v[0] + p0.v[1] * p1.v[1];	}
+
+inline double dot(const double3 &p0, const double3 &p1)
+{	return p0.v[0] * p1.v[0] + p0.v[1] * p1.v[1] + p0.v[2] * p1.v[2];	}
+
+inline double dot(const double4 &p0, const double4 &p1)
+{	return p0.v[0] * p1.v[0] + p0.v[1] * p1.v[1] + p0.v[2] * p1.v[2] + p0.v[3] * p1.v[3];	}
+
+inline double dot(const double8 &p0, const double8 &p1)
+{
+	return p0.v[0] * p1.v[0]
+			+ p0.v[1] * p1.v[1]
+			+ p0.v[2] * p1.v[2]
+			+ p0.v[3] * p1.v[3]
+			+ p0.v[4] * p1.v[4]
+			+ p0.v[5] * p1.v[5]
+			+ p0.v[6] * p1.v[6]
+			+ p0.v[7] * p1.v[7];
+}
+
+inline double dot(const double16 &p0, const double16 &p1)
+{
+	return p0.v[0] * p1.v[0]
+			+ p0.v[1] * p1.v[1]
+			+ p0.v[2] * p1.v[2]
+			+ p0.v[3] * p1.v[3]
+			+ p0.v[4] * p1.v[4]
+			+ p0.v[5] * p1.v[5]
+			+ p0.v[6] * p1.v[6]
+			+ p0.v[7] * p1.v[7]
+			+ p0.v[8] * p1.v[8]
+			+ p0.v[9] * p1.v[9]
+			+ p0.v[10] * p1.v[10]
+			+ p0.v[11] * p1.v[11]
+			+ p0.v[12] * p1.v[12]
+			+ p0.v[13] * p1.v[13]
+			+ p0.v[14] * p1.v[14]
+			+ p0.v[15] * p1.v[15];
+}
+
+inline double length(const double2 &p)	{	return sqrt(dot(p,p));	}
+inline double length(const double3 &p)	{	return sqrt(dot(p,p));	}
+inline double length(const double4 &p)	{	return sqrt(dot(p,p));	}
+inline double length(const double8 &p)	{	return sqrt(dot(p,p));	}
+inline double length(const double16 &p)	{	return sqrt(dot(p,p));	}
+
+inline double distance(const double2 &p0, const double2 &p1)	{	return length(p0 - p1);	}
+inline double distance(const double3 &p0, const double3 &p1)	{	return length(p0 - p1);	}
+inline double distance(const double4 &p0, const double4 &p1)	{	return length(p0 - p1);	}
+inline double distance(const double8 &p0, const double8 &p1)	{	return length(p0 - p1);	}
+inline double distance(const double16 &p0, const double16 &p1)	{	return length(p0 - p1);	}
+
+inline double2 normalize(const double2 &p)	{	return (1.0 / length(p)) * p;	}
+inline double3 normalize(const double3 &p)	{	return (1.0 / length(p)) * p;	}
+inline double4 normalize(const double4 &p)	{	return (1.0 / length(p)) * p;	}
+inline double8 normalize(const double8 &p)	{	return (1.0 / length(p)) * p;	}
+inline double16 normalize(const double16 &p)	{	return (1.0 / length(p)) * p;	}
 #endif

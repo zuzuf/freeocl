@@ -56,6 +56,7 @@ namespace FreeOCL
 		std::deque<int> gentype_half;
 		std::deque<int> gentype_floats;
 		std::deque<int> gentype_doubles;
+		std::deque<int> gentype_double_vectors;
 		std::deque<int> gentype_signed;
 		std::deque<int> gentype_unsigned;
 		std::deque<int> gentype_integers;
@@ -69,6 +70,7 @@ namespace FreeOCL
 		gentype_all.insert(gentype_all.end(), &(types[0]), &(types[sizeof(types)/sizeof(int)]));
 		gentype_floats.insert(gentype_floats.end(), &(types[6 * 8]), &(types[6 * 9]));
 		gentype_doubles.insert(gentype_doubles.end(), &(types[6 * 9]), &(types[6 * 10]));
+		gentype_double_vectors.insert(gentype_double_vectors.end(), &(types[6 * 9 + 1]), &(types[6 * 10]));
 		gentype_signed.insert(gentype_signed.end(), &(types[6 * 4]), &(types[6 * 8]));
 		gentype_unsigned.insert(gentype_unsigned.end(), &(types[0]), &(types[6 * 4]));
 		for(size_t i = 0 ; i < 10 ; ++i)
@@ -382,6 +384,125 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("ulong16 convert_ulong16(gentype)", gentype_vec16);
 		REGISTER_OVERLOADED("float16 convert_float16(gentype)", gentype_vec16);
 		REGISTER_OVERLOADED("double16 convert_double16(gentype)", gentype_vec16);
+
+		// Functions provided by the cl_khr_fp64 extension (double support)
+		// Math functions
+		REGISTER_OVERLOADED("gentype acos(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype acosh(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype acospi(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype asin(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype asinh(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype asinpi(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype atan(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype atan2(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype atanh(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype atanpi(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype atan2pi(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype cbrt(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype ceil(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype copysign(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype cos(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype cosh(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype cospi(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype erf(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype erfc(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype exp(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype exp2(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype exp10(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype expm1(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fabs(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fdim(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype floor(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fma(gentype,gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fmax(gentype,gentype)|gentype fmax(gentype,double)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fmin(gentype,gentype)|gentype fmin(gentype,double)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fmod(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype fract(gentype,__global gentype*)|gentype fract(gentype,__local gentype*)|gentype fract(gentype,__private gentype*)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype frexp(gentype,__global intn*)|gentype frexp(gentype,__local intn*)|gentype frexp(gentype,__private intn*)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype hypot(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("intn ilogb(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype ldexp(gentype,intn)|gentype ldexp(gentype,int)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype lgamma(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype lgamma_r(gentype,__global intn*)|gentype lgamma_r(gentype,__local intn*)|gentype lgamma_r(gentype,__private intn*)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype log(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype log2(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype log10(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype log1p(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype logb(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype mad(gentype,gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype maxmag(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype minmag(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype modf(gentype,__global gentype*)|gentype modf(gentype,__local gentype*)|gentype modf(gentype,__private gentype*)", gentype_doubles);
+		REGISTER_OVERLOADED("floatn nan(uintn)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype nextafter(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype pow(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype pown(gentype,intn)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype powr(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype remainder(gentype,gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype remquo(gentype,gentype,__global intn*)|gentype remquo(gentype,gentype,__local intn*)|gentype remquo(gentype,gentype,__private intn*)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype rint(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype rootn(gentype,intn)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype round(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype rsqrt(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype sin(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype sincos(gentype,__global gentype*)|gentype sincos(gentype,__local gentype*)|gentype sincos(gentype,__private gentype*)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype sinh(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype sinpi(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype sqrt(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype tan(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype tanh(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype tanpi(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype tgamma(gentype)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype trunc(gentype)", gentype_doubles);
+
+		// Common functions
+		REGISTER_OVERLOADED("gentype clamp(gentype,gentype,gentype)|gentype clamp(gentype,double,double)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype degrees(gentype)", gentype_integers);
+		REGISTER_OVERLOADED("gentype max(gentype,gentype)|gentype max(gentype,double)", gentype_integers);
+		REGISTER_OVERLOADED("gentype min(gentype,gentype)|gentype min(gentype,double)", gentype_integers);
+		REGISTER_OVERLOADED("gentype mix(gentype,gentype,gentype)|gentype mix(gentype,gentype,double)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype radians(gentype)", gentype_integers);
+		REGISTER_OVERLOADED("gentype step(gentype,gentype)|gentype step(double,gentype)", gentype_integers);
+		REGISTER_OVERLOADED("gentype smoothstep(gentype,gentype,gentype)|gentype step(double,double,gentype)", gentype_integers);
+		REGISTER_OVERLOADED("gentype sign(gentype)", gentype_integers);
+
+		// Geometric functions
+		REGISTER_OVERLOADED("double4 cross(double4,double4)|double3 cross(double3,double3)", gentype_single);
+		REGISTER_OVERLOADED("double dot(doublen,doublen)", gentype_doubles);
+		REGISTER_OVERLOADED("double distance(doublen,doublen)", gentype_doubles);
+		REGISTER_OVERLOADED("double length(doublen)", gentype_doubles);
+		REGISTER_OVERLOADED("doublen normalize(doublen)", gentype_doubles);
+
+		// Relational functions
+		REGISTER_OVERLOADED("longn isequal(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isnotequal(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isgreater(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isgreaterequal(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isless(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn islessequal(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn islessgreater(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isfinite(doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isinf(doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isnan(doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isnormal(doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isordered(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn isunordered(doublen,doublen)", gentype_double_vectors);
+		REGISTER_OVERLOADED("longn signbit(doublen)", gentype_double_vectors);
+
+		REGISTER_OVERLOADED("int isequal(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int isnotequal(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int isgreater(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int isgreaterequal(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int isless(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int islessequal(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int islessgreater(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int isfinite(double)", gentype_single);
+		REGISTER_OVERLOADED("int isinf(double)", gentype_single);
+		REGISTER_OVERLOADED("int isnan(double)", gentype_single);
+		REGISTER_OVERLOADED("int isnormal(double)", gentype_single);
+		REGISTER_OVERLOADED("int isordered(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int isunordered(double,double)", gentype_single);
+		REGISTER_OVERLOADED("int signbit(double)", gentype_single);
 
 #undef REGISTER
 #undef REGISTER_OVERLOADED

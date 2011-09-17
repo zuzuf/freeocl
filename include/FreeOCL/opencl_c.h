@@ -24,10 +24,6 @@
 #define __OPENCL_VERSION__	110
 #define CL_VERSION_1_0		100
 #define CL_VERSION_1_1		110
-// TODO: this should be passed to the compiler as a command line parameter
-#define __ENDIAN_LITTLE__	1
-#undef __IMAGE_SUPPORT__
-//#define __FAST_RELAXED_MATH__
 
 #define MAXFLOAT		0x1.fffffep127f
 //#define HUGE_VALF
