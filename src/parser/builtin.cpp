@@ -64,7 +64,9 @@ namespace FreeOCL
 		std::deque<int> gentype_vectors;
 		std::deque<int> gentype_half;
 		std::deque<int> gentype_floats;
+		std::deque<int> gentype_floats14;
 		std::deque<int> gentype_doubles;
+		std::deque<int> gentype_doubles14;
 		std::deque<int> gentype_double_vectors;
 		std::deque<int> gentype_signed;
 		std::deque<int> gentype_unsigned;
@@ -78,7 +80,9 @@ namespace FreeOCL
 		std::deque<int> gentype_vec16;
 		gentype_all.insert(gentype_all.end(), &(types[0]), &(types[sizeof(types)/sizeof(int)]));
 		gentype_floats.insert(gentype_floats.end(), &(types[6 * 8]), &(types[6 * 9]));
+		gentype_floats14.insert(gentype_floats14.end(), &(types[6 * 8]), &(types[6 * 8 + 4]));
 		gentype_doubles.insert(gentype_doubles.end(), &(types[6 * 9]), &(types[6 * 10]));
+		gentype_doubles14.insert(gentype_doubles14.end(), &(types[6 * 9]), &(types[6 * 9 + 4]));
 		gentype_double_vectors.insert(gentype_double_vectors.end(), &(types[6 * 9 + 1]), &(types[6 * 10]));
 		gentype_signed.insert(gentype_signed.end(), &(types[6 * 4]), &(types[6 * 8]));
 		gentype_unsigned.insert(gentype_unsigned.end(), &(types[0]), &(types[6 * 4]));
@@ -259,13 +263,13 @@ namespace FreeOCL
 
 		// Geometric functions
 		REGISTER_OVERLOADED("float4 cross(float4,float4)|float3 cross(float3,float3)", gentype_single);
-		REGISTER_OVERLOADED("float dot(floatn,floatn)", gentype_floats);
-		REGISTER_OVERLOADED("float distance(floatn,floatn)", gentype_floats);
-		REGISTER_OVERLOADED("float length(floatn)", gentype_floats);
-		REGISTER_OVERLOADED("floatn normalize(floatn)", gentype_floats);
-		REGISTER_OVERLOADED("float fast_distance(floatn,floatn)", gentype_floats);
-		REGISTER_OVERLOADED("float fast_length(floatn)", gentype_floats);
-		REGISTER_OVERLOADED("floatn fast_normalize(floatn)", gentype_floats);
+		REGISTER_OVERLOADED("float dot(floatn,floatn)", gentype_floats14);
+		REGISTER_OVERLOADED("float distance(floatn,floatn)", gentype_floats14);
+		REGISTER_OVERLOADED("float length(floatn)", gentype_floats14);
+		REGISTER_OVERLOADED("floatn normalize(floatn)", gentype_floats14);
+		REGISTER_OVERLOADED("float fast_distance(floatn,floatn)", gentype_floats14);
+		REGISTER_OVERLOADED("float fast_length(floatn)", gentype_floats14);
+		REGISTER_OVERLOADED("floatn fast_normalize(floatn)", gentype_floats14);
 
 		// Relational functions
 		REGISTER_OVERLOADED("intn isequal(floatn,floatn)", gentype_floats);
@@ -477,10 +481,10 @@ namespace FreeOCL
 
 		// Geometric functions
 		REGISTER_OVERLOADED("double4 cross(double4,double4)|double3 cross(double3,double3)", gentype_single);
-		REGISTER_OVERLOADED("double dot(doublen,doublen)", gentype_doubles);
-		REGISTER_OVERLOADED("double distance(doublen,doublen)", gentype_doubles);
-		REGISTER_OVERLOADED("double length(doublen)", gentype_doubles);
-		REGISTER_OVERLOADED("doublen normalize(doublen)", gentype_doubles);
+		REGISTER_OVERLOADED("double dot(doublen,doublen)", gentype_doubles14);
+		REGISTER_OVERLOADED("double distance(doublen,doublen)", gentype_doubles14);
+		REGISTER_OVERLOADED("double length(doublen)", gentype_doubles14);
+		REGISTER_OVERLOADED("doublen normalize(doublen)", gentype_doubles14);
 
 		// Relational functions
 		REGISTER_OVERLOADED("longn isequal(doublen,doublen)", gentype_double_vectors);

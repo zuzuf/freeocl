@@ -41,40 +41,103 @@ namespace
 	vector<cl::Buffer> buffers;
 }
 
-void test_function(const string &function_name)
+#define DIM1	0x01
+#define DIM2	0x02
+#define DIM3	0x04
+#define DIM4	0x08
+#define DIM8	0x10
+#define DIM16	0x20
+
+void test_function(const string &function_name, const int nb_params, const int dims)
 {
 	cout << "testing '" << function_name << '\'';
 
-	const string source_code =
-			"__kernel void test1(__global float *out, float in)\n"
-			"{\n"
-			"*out = " + function_name + "(in);\n"
-			"}"
-			"__kernel void test2(__global float2 *out, float in)\n"
-			"{\n"
-			"*out = " + function_name + "((float2)(in, in));\n"
-			"}"
-			"__kernel void test3(__global float3 *out, float in)\n"
-			"{\n"
-			"*out = " + function_name + "((float3)(in, in, in));\n"
-			"}"
-			"__kernel void test4(__global float4 *out, float in)\n"
-			"{\n"
-			"*out = " + function_name + "((float4)(in, in, in, in));\n"
-			"}"
-			"__kernel void test8(__global float8 *out, float in)\n"
-			"{\n"
-			"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in));\n"
-			"}"
-			"__kernel void test16(__global float16 *out, float in)\n"
-			"{\n"
-			"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in));\n"
-			"}";
+	string source_code;
+	switch(nb_params)
+	{
+	case 1:
+		if (dims & DIM1)
+			source_code +=
+					"__kernel void test1(__global float *out, float in)\n"
+					"{\n"
+					"*out = " + function_name + "(in);\n"
+					"}";
+		if (dims & DIM2)
+			source_code +=
+					"__kernel void test2(__global float2 *out, float in)\n"
+					"{\n"
+					"*out = " + function_name + "((float2)(in, in));\n"
+					"}";
+		if (dims & DIM3)
+			source_code +=
+					"__kernel void test3(__global float3 *out, float in)\n"
+					"{\n"
+					"*out = " + function_name + "((float3)(in, in, in));\n"
+					"}";
+		if (dims & DIM4)
+			source_code +=
+					"__kernel void test4(__global float4 *out, float in)\n"
+					"{\n"
+					"*out = " + function_name + "((float4)(in, in, in, in));\n"
+					"}";
+		if (dims & DIM8)
+			source_code +=
+					"__kernel void test8(__global float8 *out, float in)\n"
+					"{\n"
+					"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in));\n"
+					"}";
+		if (dims & DIM16)
+			source_code +=
+					"__kernel void test16(__global float16 *out, float in)\n"
+					"{\n"
+					"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in));\n"
+					"}";
+		break;
+	case 2:
+		if (dims & DIM1)
+			source_code +=
+					"__kernel void test1(__global float *out, float in, float in2)\n"
+					"{\n"
+					"*out = " + function_name + "(in, in2);\n"
+					"}";
+		if (dims & DIM2)
+			source_code +=
+					"__kernel void test2(__global float2 *out, float in, float in2)\n"
+					"{\n"
+					"*out = " + function_name + "((float2)(in, in),(float2)(in2, in2));\n"
+					"}";
+		if (dims & DIM3)
+			source_code +=
+					"__kernel void test3(__global float3 *out, float in, float in2)\n"
+					"{\n"
+					"*out = " + function_name + "((float3)(in, in, in),(float3)(in2, in2, in2));\n"
+					"}";
+		if (dims & DIM4)
+			source_code +=
+					"__kernel void test4(__global float4 *out, float in, float in2)\n"
+					"{\n"
+					"*out = " + function_name + "((float4)(in, in, in, in),(float4)(in2, in2, in2, in2));\n"
+					"}";
+		if (dims & DIM8)
+			source_code +=
+					"__kernel void test8(__global float8 *out, float in, float in2)\n"
+					"{\n"
+					"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in), (float8)(in2, in2, in2, in2, in2, in2, in2, in2));\n"
+					"}";
+		if (dims & DIM16)
+			source_code +=
+					"__kernel void test16(__global float16 *out, float in, float in2)\n"
+					"{\n"
+					"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in), (float16)(in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2));\n"
+					"}";
+		break;
+	}
 
 	static const char *fname[] = { "test1", "test2", "test3", "test4", "test8", "test16" };
 	static size_t dim[] = { 1, 2, 3, 4, 8, 16 };
 
 	const float v = float(double(rand()) / RAND_MAX);
+	const float w = float(double(rand()) / RAND_MAX);
 	vector<float> results[6];
 	vector<cl::CommandQueue>::iterator queue = queues.begin();
 	vector<cl::Buffer>::iterator buffer = buffers.begin();
@@ -101,9 +164,19 @@ void test_function(const string &function_name)
 		float data[16];
 		for(size_t i = 0 ; i < 6 ; ++i)
 		{
+			if (!(dims & (1 << i)))
+				continue;
 			cl::Kernel kernel(program, fname[i]);
 			cl::KernelFunctor f = kernel.bind(*queue, cl::NDRange(1), cl::NDRange(1));
-			f(*buffer, v);
+			switch(nb_params)
+			{
+			case 1:
+				f(*buffer, v);
+				break;
+			case 2:
+				f(*buffer, v, w);
+				break;
+			}
 			queue->finish();
 			queue->enqueueReadBuffer(*buffer, true, 0, sizeof(data), &data[0]);
 			for(size_t j = 0 ; j < dim[i] ; ++j)
@@ -115,13 +188,25 @@ void test_function(const string &function_name)
 	cout << endl;
 	for(size_t i = 0 ; i < 6 ; ++i)
 	{
+		if (!(dims & (1 << i)))
+			continue;
+
 		const vector<float> copy = results[i];
+		const double err = 0.5 * (*max_element(copy.begin(), copy.end()) - *min_element(copy.begin(), copy.end()));
+		if (err < 16.0 * CL_FLT_EPSILON)
+			continue;
 		vector<float>::iterator end = unique(results[i].begin(), results[i].end());
 		if (end - results[i].begin() > 1)
 		{
-			cerr << '[' << function_name << "(float";
-			if (i > 0)
-				cerr << dim[i];
+			cerr << '[' << function_name << '(';
+			for(size_t j = 0 ; j < nb_params ; ++j)
+			{
+				if (j > 0)
+					cerr << ',';
+				cerr << "float";
+				if (i > 0)
+					cerr << dim[i];
+			}
 			cerr << ")] outputs don't match : " << endl;
 			for(size_t i = 0 ; i < copy.size() ; ++i)
 			{
@@ -224,7 +309,33 @@ int main(int argc, const char **argv)
 								   "degrees", "sign", "radians"};
 
 		for(size_t i = 0 ; i < sizeof(functions) / sizeof(const char*) ; ++i)
-			test_function(functions[i]);
+			test_function(functions[i], 1, 0xFF);
+
+		const char *functions2[] = {"atan2", "atan2pi", "copysign", "fdim",
+									"fmax", "fmin", "fmod", "hypot",
+									"maxmag", "minmag",
+									"nextafter", "pow", "powr",
+									"remainder", "half_divide",
+									"half_powr", "native_divide", "native_powr",
+									"max", "min", "step"};
+
+		for(size_t i = 0 ; i < sizeof(functions2) / sizeof(const char*) ; ++i)
+			test_function(functions2[i], 2, 0xFF);
+
+		const char *functions3[] = {"cross"};
+
+		for(size_t i = 0 ; i < sizeof(functions3) / sizeof(const char*) ; ++i)
+			test_function(functions3[i], 2, DIM3 | DIM4);
+
+		const char *functions4[] = {"dot", "distance", "fast_distance"};
+
+		for(size_t i = 0 ; i < sizeof(functions4) / sizeof(const char*) ; ++i)
+			test_function(functions4[i], 2, DIM1 | DIM2 | DIM3 | DIM4);
+
+		const char *functions5[] = {"length", "normalize", "fast_length", "fast_normalize"};
+
+		for(size_t i = 0 ; i < sizeof(functions5) / sizeof(const char*) ; ++i)
+			test_function(functions5[i], 1, DIM1 | DIM2 | DIM3 | DIM4);
 	}
 	catch(cl::Error err)
 	{
