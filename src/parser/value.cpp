@@ -44,4 +44,20 @@ namespace FreeOCL
 
 	template<>	smartptr<type> value<bool>::get_type() const
 	{	return native_type::t_bool;	}
+
+	template<>
+	void value<float>::write(std::ostream& out) const
+	{
+		std::scientific(out);
+		out.precision(9);
+		out << v << 'f' << ' ';
+	}
+
+	template<>
+	void value<double>::write(std::ostream& out) const
+	{
+		std::scientific(out);
+		out.precision(18);
+		out << v << ' ';
+	}
 }

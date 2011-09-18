@@ -49,30 +49,33 @@ void test_function(const string &function_name)
 			"__kernel void test1(__global float *out, float in)\n"
 			"{\n"
 			"*out = " + function_name + "(in);\n"
+			"}"
+			"__kernel void test2(__global float2 *out, float in)\n"
+			"{\n"
+			"*out = " + function_name + "((float2)(in, in));\n"
+			"}"
+			"__kernel void test3(__global float3 *out, float in)\n"
+			"{\n"
+			"*out = " + function_name + "((float3)(in, in, in));\n"
+			"}"
+			"__kernel void test4(__global float4 *out, float in)\n"
+			"{\n"
+			"*out = " + function_name + "((float4)(in, in, in, in));\n"
+			"}"
+			"__kernel void test8(__global float8 *out, float in)\n"
+			"{\n"
+			"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in));\n"
+			"}"
+			"__kernel void test16(__global float16 *out, float in)\n"
+			"{\n"
+			"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in));\n"
 			"}";
-//			"__kernel void test2(__global float2 *out, float in)\n"
-//			"{\n"
-//			"*out = " + function_name + "((float2)(in, in));\n"
-//			"}"
-//			"__kernel void test3(__global float3 *out, float in)\n"
-//			"{\n"
-//			"*out = " + function_name + "((float3)(in, in, in));\n"
-//			"}"
-//			"__kernel void test4(__global float4 *out, float in)\n"
-//			"{\n"
-//			"*out = " + function_name + "((float4)(in, in, in, in));\n"
-//			"}"
-//			"__kernel void test8(__global float8 *out, float in)\n"
-//			"{\n"
-//			"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in));\n"
-//			"}"
-//			"__kernel void test16(__global float16 *out, float in)\n"
-//			"{\n"
-//			"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in));\n"
-//			"}";
+
+	static const char *fname[] = { "test1", "test2", "test3", "test4", "test8", "test16" };
+	static size_t dim[] = { 1, 2, 3, 4, 8, 16 };
 
 	const float v = float(double(rand()) / RAND_MAX);
-	vector<float> results;
+	vector<float> results[6];
 	vector<cl::CommandQueue>::iterator queue = queues.begin();
 	vector<cl::Buffer>::iterator buffer = buffers.begin();
 	for(vector<cl::Context>::iterator context = contexts.begin()
@@ -96,9 +99,7 @@ void test_function(const string &function_name)
 		}
 
 		float data[16];
-		const char *fname[] = { "test1", "test2", "test3", "test4", "test8", "test16" };
-		size_t dim[] = { 1, 2, 3, 4, 8, 16 };
-		for(size_t i = 0 ; i < 1 ; ++i)
+		for(size_t i = 0 ; i < 6 ; ++i)
 		{
 			cl::Kernel kernel(program, fname[i]);
 			cl::KernelFunctor f = kernel.bind(*queue, cl::NDRange(1), cl::NDRange(1));
@@ -106,24 +107,30 @@ void test_function(const string &function_name)
 			queue->finish();
 			queue->enqueueReadBuffer(*buffer, true, 0, sizeof(data), &data[0]);
 			for(size_t j = 0 ; j < dim[i] ; ++j)
-				results.push_back(data[j]);
+				results[i].push_back(data[j]);
 
 			cout << '.';
 		}
 	}
 	cout << endl;
-	const vector<float> copy = results;
-	vector<float>::iterator end = unique(results.begin(), results.end());
-	if (end - results.begin() > 1)
+	for(size_t i = 0 ; i < 6 ; ++i)
 	{
-		cerr << '[' << function_name << "] outputs don't match : " << endl;
-		for(size_t i = 0 ; i < copy.size() ; ++i)
+		const vector<float> copy = results[i];
+		vector<float>::iterator end = unique(results[i].begin(), results[i].end());
+		if (end - results[i].begin() > 1)
 		{
-			if (i)
-				cerr << ',';
-			cerr << copy[i];
+			cerr << '[' << function_name << "(float";
+			if (i > 0)
+				cerr << dim[i];
+			cerr << ")] outputs don't match : " << endl;
+			for(size_t i = 0 ; i < copy.size() ; ++i)
+			{
+				if (i)
+					cerr << ',';
+				cerr << copy[i];
+			}
+			cerr << endl;
 		}
-		cerr << endl;
 	}
 }
 

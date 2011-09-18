@@ -17,6 +17,8 @@
 */
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_MATH_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_MATH_H__
+#include "vectors.h"
+
 #include <math.h>
 
 // Built-in math functions
@@ -197,72 +199,7 @@ inline float native_sqrt(float x)	{	return sqrt(x);	}
 inline float native_tan(float x)	{	return tan(x);	}
 
 // Vector versions
-template<class V> struct __float_vector_predicate;
-#define DEFINE(X) template<> struct __float_vector_predicate<X>	{	typedef X type;	}
-
-DEFINE(float2);
-DEFINE(float3);
-DEFINE(float4);
-DEFINE(float8);
-DEFINE(float16);
-DEFINE(double2);
-DEFINE(double3);
-DEFINE(double4);
-DEFINE(double8);
-DEFINE(double16);
-
-#undef DEFINE
-
-#define CHECK(X)	typename __float_vector_predicate<X>::type
-
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(F)\
-template<class V> inline CHECK(V) F(const V &x)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i]);\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(F)\
-template<class V> inline CHECK(V) F(const V &x, const V &y)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], y.v[i]);\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2I(F)\
-template<class V> inline CHECK(V) F(const V &x, const typename __vector_type<int, __vector<V>::components>::type &y)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], y.v[i]);\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2PI(F)\
-template<class V> inline CHECK(V) F(const V &x, typename __vector_type<int, __vector<V>::components>::type *y)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], &(y->v[i]));\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2PB(F)\
-template<class V> inline CHECK(V) F(const V &x, V *y)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], &(y->v[i]));\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3(F)\
-template<class V> inline CHECK(V) F(const V &x, const V &y, const V &z)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], y.v[i], z.v[i]);\
-	return ret;\
-}
+VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(acos)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(acosh)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(acospi)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(asin)

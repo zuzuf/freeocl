@@ -39,7 +39,7 @@ namespace FreeOCL
 			{
 				smartptr<binary> bin = cur.as<binary>();
 				std::stringstream buf;
-				buf << bin->get_right();
+				buf << *(bin->get_right());
 				post = ',' + buf.str() + post;
 				cur = bin->get_left();
 			}

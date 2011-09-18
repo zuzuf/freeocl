@@ -78,29 +78,36 @@ namespace FreeOCL
 		int base = 10;
 		if (isdigit(c))		// integer or float
 		{
-			if (c == '0' && peek() == 'x')		// Hexadecimal integer
+			const int pf = peek();
+			if (c == '0')
 			{
-				get();
-				base = 16;
+				switch(pf)
+				{
+				case 'x':
+				case 'X':		// Hexadecimal integer
+					get();
+					base = 16;
+					break;
+				case 'b':
+				case 'B':		// Binary integer
+					get();
+					base = 2;
+					break;
+				default:
+					if (isdigit(pf))		// Octal integer
+						base = 8;
+					break;
+				}
 			}
-			else if (c == '0' && peek() == 'b')		// Binary integer
-			{
-				get();
-				base = 2;
-			}
-			else if (c == '0' && isdigit(peek()))		// Octal integer
-			{
-				base = 8;
-			}
-
-			i = c - '0';
+			else
+				i = c - '0';
 			while (get(c)
 				&& ((isdigit(c) && c - '0' < base)
 					|| (((c >= 'a' && c <= 'f')
 						 || (c >= 'A' && c <= 'F'))
 						&& base == 16)))
 				i = i * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
-			if (c == 'U')
+			if (c == 'U' || c == 'u')
 			{
 				d_val__ = new value<uint64_t>(i);
 				return CONSTANT;
@@ -123,7 +130,7 @@ namespace FreeOCL
 												&& base == 16)) ; p *= base_div)
 				f += (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10) * p;
 			f += i;
-			if ((c == 'e' && base <= 10) || (c == 'p' && base == 16))
+			if (((c == 'e' || c == 'E') && base <= 10) || ((c == 'p' || c == 'P') && base == 16))
 			{
 				int sign = 1;
 				int exponent = 0;
@@ -133,17 +140,15 @@ namespace FreeOCL
 					get();
 					sign = -1;
 				}
-				while (get(c)
-					&& ((isdigit(c) && c - '0' < base)
-						|| (((c >= 'a' && c <= 'f')
-							 || (c >= 'A' && c <= 'F'))
-							&& base == 16)))
-					exponent = exponent * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
+				while (get(c) && isdigit(c))
+					exponent = exponent * 10 + c - '0';
 				exponent *= sign;
-				if (exponent)
-					f *= pow10(exponent);
+				if (exponent && base == 16)
+					f *= exp2(exponent);
+				else
+					f *= pow(10.0, exponent);
 			}
-			if (c == 'f')
+			if (c == 'f' || c == 'F')
 				d_val__ = new value<float>((float)f);
 			else
 			{
