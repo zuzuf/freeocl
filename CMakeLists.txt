@@ -136,6 +136,7 @@ ELSEIF(CMAKE_SYSTEM_PROCESSOR MATCHES "^sh")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DFREEOCL_ARCH_sh")
 ENDIF(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$")
 
+option(FREEOCL_RUN_GDB_ON_CRASH "run gdb on crash")
 configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 
 include_directories(include)

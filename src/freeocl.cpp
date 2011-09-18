@@ -32,6 +32,24 @@
 #include <algorithm>
 #include <sys/time.h>
 
+#ifdef FREEOCL_RUN_GDB_ON_CRASH
+#include <unistd.h>
+#include <signal.h>
+#include <sstream>
+
+namespace
+{
+	void signal_handler(int)
+	{
+		pid_t mypid = getpid();
+		std::stringstream cmd;
+		cmd << "gdb --pid " << mypid << " -ex \"bt\"";
+		const int _ = system(cmd.str().c_str());
+		exit(-1);
+	}
+}
+#endif
+
 namespace FreeOCL
 {
 	_cl_icd_dispatch init_dispatch();
@@ -213,6 +231,12 @@ namespace FreeOCL
 
 	_cl_icd_dispatch init_dispatch()
 	{
+#ifdef FREEOCL_RUN_GDB_ON_CRASH
+		struct sigaction s;
+		s.sa_handler = signal_handler;
+		sigaction(SIGSEGV, &s, NULL);
+#endif
+
 		_cl_icd_dispatch table;
 		table.clGetPlatformIDs = clIcdGetPlatformIDsKHR;
 		table.clGetPlatformInfo = clGetPlatformInfoFCL;

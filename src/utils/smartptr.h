@@ -79,14 +79,62 @@ namespace FreeOCL
 		template<class U> friend class FreeOCL::smartptr;
 	public:
 		smartptr() : ptr(NULL)	{}
-		smartptr(T *ptr) : ptr(ptr)	{	if (ptr)	ptr->retain();	}
-		smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))	{	if (this->ptr)	this->ptr->retain();	}
-		smartptr(smartptr &ptr) : ptr(ptr.ptr)	{	if (this->ptr)	this->ptr->retain();	}
-		smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))	{	if (this->ptr)	this->ptr->retain();	}
+		smartptr(T *ptr) : ptr(ptr)
+		{
+			if (ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(ptr);
+				ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(ptr);
+			}
+		}
+		smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))
+		{
+			if (this->ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(this->ptr);
+				this->ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(this->ptr);
+			}
+		}
+		smartptr(smartptr &ptr) : ptr(ptr.ptr)
+		{
+			if (this->ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(this->ptr);
+				this->ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(this->ptr);
+			}
+		}
+		smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))
+		{
+			if (this->ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(this->ptr);
+				this->ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(this->ptr);
+			}
+		}
 		template<class U>
-		smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))	{	if (this->ptr)	this->ptr->retain();	}
+		smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))
+		{
+			if (this->ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(this->ptr);
+				this->ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(this->ptr);
+			}
+		}
 		template<class U>
-		smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))	{	if (this->ptr)	this->ptr->retain();	}
+		smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))
+		{
+			if (this->ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(this->ptr);
+				this->ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(this->ptr);
+			}
+		}
 		~smartptr()
 		{
 			if (ptr)
