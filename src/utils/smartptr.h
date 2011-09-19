@@ -135,7 +135,7 @@ namespace FreeOCL
 				__smartptr_trait_lockable<T>::unlock(this->ptr);
 			}
 		}
-		~smartptr()
+		virtual ~smartptr()
 		{
 			if (ptr)
 				clear(ptr);

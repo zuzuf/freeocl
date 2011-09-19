@@ -38,6 +38,7 @@ namespace FreeOCL
 		{
 			ref_counter::release();
 		}
+		virtual ~command_common() {}
 
 		virtual cl_command_type get_type() const = 0;
 	};
