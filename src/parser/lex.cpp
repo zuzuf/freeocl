@@ -9,7 +9,7 @@
 #include "value.h"
 #include "token.h"
 #include "symbol_table.h"
-#include <cstdint>
+#include <stdint.h>
 
 using namespace std;
 

@@ -19,7 +19,7 @@
 #define __FREEOCL_PARSER_VALUE_H__
 
 #include "expression.h"
-#include <cstdint>
+#include <stdint.h>
 
 namespace FreeOCL
 {
