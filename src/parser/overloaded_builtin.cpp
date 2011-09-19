@@ -18,7 +18,7 @@
 #include "overloaded_builtin.h"
 #include "native_type.h"
 #include "pointer_type.h"
-#include "../freeocl.h"
+#include "freeocl.h"
 #include <unordered_map>
 #include <sstream>
 #include <stdexcept>

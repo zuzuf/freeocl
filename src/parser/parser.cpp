@@ -39,7 +39,7 @@
 #include "typedef.h"
 #include "swizzle.h"
 #include "cast.h"
-#include "../utils/smartptr.h"
+#include "utils/smartptr.h"
 #include "overloaded_builtin.h"
 #include "ternary.h"
 

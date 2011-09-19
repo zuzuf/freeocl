@@ -1,5 +1,5 @@
 project (FreeOCL)
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.6)
 
 set(FREEOCL_VERSION_HI		0)
 set(FREEOCL_VERSION_LO		0)
@@ -139,7 +139,9 @@ ENDIF(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$")
 option(FREEOCL_RUN_GDB_ON_CRASH "run gdb on crash")
 configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
 
+include_directories(.)
 include_directories(include)
+include_directories(src)
 link_libraries(${CMAKE_THREAD_LIBS_INIT})
 link_libraries(-ldl)
 add_library(FreeOCL SHARED ${SOURCES})

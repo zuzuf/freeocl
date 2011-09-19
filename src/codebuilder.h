@@ -18,7 +18,7 @@
 #ifndef __FREEOCL_CODEBUILDER_H__
 #define __FREEOCL_CODEBUILDER_H__
 
-#include "../config.h"
+#include "config.h"
 #include <string>
 #include <cstdio>
 #include <set>

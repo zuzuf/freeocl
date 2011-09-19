@@ -19,7 +19,7 @@
 #define __FREEOCL_PARSER_NODE_H__
 
 #include <ostream>
-#include "../utils/smartptr.h"
+#include "utils/smartptr.h"
 
 namespace FreeOCL
 {

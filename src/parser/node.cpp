@@ -17,7 +17,7 @@
 */
 #include "node.h"
 #include <sstream>
-#include "../utils/string.h"
+#include "utils/string.h"
 
 namespace FreeOCL
 {
