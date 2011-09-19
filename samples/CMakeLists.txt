@@ -23,6 +23,15 @@ if(BUILD_SAMPLES)
 	add_executable(clbuiltins ${CLBUILTINS_SOURCES})
 	target_link_libraries(clbuiltins ${SAMPLES_LIBRARIES})
 
+	include(FindSDL)
+	include(FindOpenGL)
+	if(SDL_FOUND AND OPENGL_FOUND)
+		set(CLGALAXY_SOURCES clgalaxy.cpp)
+		add_executable(clgalaxy ${CLGALAXY_SOURCES})
+		include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
+		target_link_libraries(clgalaxy ${SAMPLES_LIBRARIES} ${SDL_LIBRARY} ${OPENGL_LIBRARIES})
+	endif(SDL_FOUND AND OPENGL_FOUND)
+
 	install(TARGETS cldemo cltest cllist clbuiltins
 		RUNTIME DESTINATION bin
 		LIBRARY DESTINATION lib)
