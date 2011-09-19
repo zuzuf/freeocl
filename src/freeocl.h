@@ -19,11 +19,6 @@
 #define __FREEOCL_FREEOCL_H__
 
 #include "../config.h"
-#if defined(__APPLE__) || defined(__MACOSX)
-#include <OpenCL/cl.hpp>
-#else
-#include <CL/cl.hpp>
-#endif
 #include <string>
 #include <unordered_set>
 #include "mutex.h"

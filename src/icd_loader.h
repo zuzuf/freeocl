@@ -19,11 +19,12 @@
 #define __FREEOCL_ICD_LOADER_H__
 
 #if defined(__APPLE__) || defined(__MACOSX)
-#include <OpenCL/cl.hpp>
+#include <OpenCL/cl_ext.h>
 #else
-#include <CL/cl.hpp>
+#include <CL/cl_ext.h>
 #endif
 
+#include <cstring>
 #include <string>
 #include <deque>
 #include <utility>
