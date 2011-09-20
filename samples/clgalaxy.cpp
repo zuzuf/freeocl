@@ -39,33 +39,31 @@
 
 using namespace std;
 
-#define STRINGIFY(X)	#X
-
-const char *source_code_str = STRINGIFY(
-	__kernel void gravity(__global const float4 *in_pos, __global float4 *out_pos,
-						  __global const float4 *in_vel, __global float4 *out_vel,
-						  const uint nb_particles)
-	{
-		const uint i = get_global_id(0);
-		if (i >= nb_particles)
-			return;
-		float4 pos = in_pos[i];
-		float4 a = (float4)(0.0f, 0.0f, 0.0f, 0.0f);
-		for(uint j = 0 ; j < nb_particles ; ++j)
-		{
-			float4 p = in_pos[j] - pos;
-			float d2 = dot(p, p);
-			p *= rsqrt(d2);
-			if (isnan(p.x) || isnan(p.y) || isnan(p.z) || i == j)
-				continue;
-			p.w = 0.0f;
-			a += (1e0f / d2) * p;
-		}
-		float4 v = in_vel[i] + 1e-2f * a;
-		out_vel[i] = v;
-		out_pos[i] = pos + 1e-2f * v;
-	}
-	);
+const char *source_code_str =
+	"__kernel void gravity(__global const float4 *in_pos, __global float4 *out_pos,\n"
+	"					  __global const float4 *in_vel, __global float4 *out_vel,\n"
+	"					  const uint nb_particles)\n"
+	"{\n"
+	"	const uint i = get_global_id(0);\n"
+	"	if (i >= nb_particles)\n"
+	"		return;\n"
+	"	float4 pos = in_pos[i];\n"
+	"	float4 a = (float4)(0.0f, 0.0f, 0.0f, 0.0f);\n"
+	"	for(uint j = 0 ; j < nb_particles ; ++j)\n"
+	"	{\n"
+	"		float4 p = in_pos[j] - pos;\n"
+	"		float d2 = dot(p, p);\n"
+	"		p *= rsqrt(d2);\n"
+	"		if (isnan(p.x) || isnan(p.y) || isnan(p.z) || i == j)\n"
+	"			continue;\n"
+	"		p.w = 0.0f;\n"
+	"		a += (1e0f / d2) * p;\n"
+	"	}\n"
+	"	float4 v = in_vel[i] + 1e-2f * a;\n"
+	"	out_vel[i] = v;\n"
+	"	out_pos[i] = pos + 1e-2f * v;\n"
+	"}\n"
+	;
 
 int main(int argc, const char **argv)
 {
@@ -134,7 +132,15 @@ int main(int argc, const char **argv)
 		cl::Program::Sources sources;
 		sources.push_back(make_pair(source_code_str, strlen(source_code_str)));
 		cl::Program program(context, sources);
-		program.build(devices);
+		try
+		{
+			program.build(devices);
+		}
+		catch(const cl::Error &err)
+		{
+			std::cerr << "build error :" << err.what() << '(' << get_error_as_string(err.err()) << ')' << endl;
+			std::cerr << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
+		}
 
 		cl::Kernel gravity(program, "gravity");
 

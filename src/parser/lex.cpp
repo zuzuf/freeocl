@@ -13,6 +13,22 @@
 
 using namespace std;
 
+namespace
+{
+	inline bool isdigit(int c, int base)
+	{
+		switch(base)
+		{
+		case 10:	return c >= '0' && c <= '9';
+		case 2:		return c == '0' || c == '1';
+		case 8:		return c >= '0' && c < '8';
+		case 16:	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+		default:
+			return false;
+		}
+	}
+}
+
 namespace FreeOCL
 {
 	int parser::lex()
@@ -76,6 +92,7 @@ namespace FreeOCL
 
 		int i = 0;
 		int base = 10;
+		bool b_integer_parsed = false;
 		if (isdigit(c))		// integer or float
 		{
 			const int pf = peek();
@@ -101,34 +118,29 @@ namespace FreeOCL
 			}
 			else
 				i = c - '0';
-			while (get(c)
-				&& ((isdigit(c) && c - '0' < base)
-					|| (((c >= 'a' && c <= 'f')
-						 || (c >= 'A' && c <= 'F'))
-						&& base == 16)))
+			while (get(c) && isdigit(c, base))
 				i = i * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
 			if (c == 'U' || c == 'u')
 			{
 				d_val__ = new value<uint64_t>(i);
 				return CONSTANT;
 			}
-			else if (!in || c != '.')
+			else if (!in || (c != '.' && c != 'e' && c != 'E'))
 			{
 				if (c != '.' || base != 10)
 					putback(c);
 				d_val__ = new value<int64_t>(i);
 				return CONSTANT;
 			}
+			b_integer_parsed = true;
 		}
-		if (c == '.' && isdigit(peek()))		// a float
+		if ((c == '.' && isdigit(peek(), base)) || (b_integer_parsed && (c == 'e' || c == 'E')))		// a float
 		{
 			double f = 0.0;
 			const double base_div = 1.0 / base;
-			for(double p = base_div ; get(c) && ((isdigit(c) && c - '0' < base)
-											|| (((c >= 'a' && c <= 'f')
-												 || (c >= 'A' && c <= 'F'))
-												&& base == 16)) ; p *= base_div)
-				f += (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10) * p;
+			if (c == '.')
+				for(double p = base_div ; get(c) && isdigit(c, base) ; p *= base_div)
+					f += (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10) * p;
 			f += i;
 			if (((c == 'e' || c == 'E') && base <= 10) || ((c == 'p' || c == 'P') && base == 16))
 			{
