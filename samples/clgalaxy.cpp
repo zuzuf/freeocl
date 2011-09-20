@@ -42,14 +42,15 @@ using namespace std;
 const char *source_code_str =
 	"__kernel void gravity(__global const float4 *in_pos, __global float4 *out_pos,\n"
 	"					  __global const float4 *in_vel, __global float4 *out_vel,\n"
-	"					  const uint nb_particles)\n"
+	"					  const uint nb_particles,\n"
+	"					  const uint step)\n"
 	"{\n"
 	"	const uint i = get_global_id(0);\n"
 	"	if (i >= nb_particles)\n"
 	"		return;\n"
 	"	float4 pos = in_pos[i];\n"
 	"	float4 a = (float4)(0.0f, 0.0f, 0.0f, 0.0f);\n"
-	"	for(uint j = 0 ; j < nb_particles ; ++j)\n"
+	"	for(uint j = 0 ; j < nb_particles ; j += step)\n"
 	"	{\n"
 	"		float4 p = in_pos[j] - pos;\n"
 	"		float d2 = dot(p, p);\n"
@@ -59,7 +60,7 @@ const char *source_code_str =
 	"		p.w = 0.0f;\n"
 	"		a += (1e0f / d2) * p;\n"
 	"	}\n"
-	"	float4 v = in_vel[i] + 1e-2f * a;\n"
+	"	float4 v = in_vel[i] + step * 1e-2f * a;\n"
 	"	out_vel[i] = v;\n"
 	"	out_pos[i] = pos + 1e-2f * v;\n"
 	"}\n"
@@ -119,13 +120,16 @@ int main(int argc, const char **argv)
 
 		cout << "platform selected : " << platforms[platform_id].getInfo<CL_PLATFORM_NAME>() << endl;
 
-		const cl_uint nb_particles = 2048;
+		const cl_uint step = 1024;
+		const cl_uint nb_particles = 512 * step;
 		const double r = 100.0;
 
 		vector<cl::Device> devices;
 		platforms[platform_id].getDevices(CL_DEVICE_TYPE_ALL, &devices);
 		devices.resize(1);
-		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM, (cl_context_properties)(platforms[platform_id])(), 0};
+		cl_context_properties properties[] = { CL_CONTEXT_PLATFORM,
+											   (cl_context_properties)(platforms[platform_id])(),
+											   0};
 		cl::Context context(devices, properties);
 		cl::CommandQueue queue(context, devices.front());
 
@@ -148,8 +152,16 @@ int main(int argc, const char **argv)
 		cl::Buffer pos1(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
 		cl::Buffer vel0(context, CL_MEM_READ_WRITE, sizeof(cl_float4) * nb_particles);
 		cl::Buffer vel1(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
-		cl_float4 *p_pos = (cl_float4*)queue.enqueueMapBuffer(pos0, true, CL_MEM_WRITE_ONLY, 0, sizeof(cl_float4) * nb_particles);
-		cl_float4 *p_vel = (cl_float4*)queue.enqueueMapBuffer(vel0, true, CL_MEM_WRITE_ONLY, 0, sizeof(cl_float4) * nb_particles);
+		cl_float4 *p_pos = (cl_float4*)queue.enqueueMapBuffer(pos0,
+															  true,
+															  CL_MEM_WRITE_ONLY,
+															  0,
+															  sizeof(cl_float4) * nb_particles);
+		cl_float4 *p_vel = (cl_float4*)queue.enqueueMapBuffer(vel0,
+															  true,
+															  CL_MEM_WRITE_ONLY,
+															  0,
+															  sizeof(cl_float4) * nb_particles);
 
 		for(size_t i = 0 ; i < nb_particles ; ++i)
 		{
@@ -163,8 +175,9 @@ int main(int argc, const char **argv)
 			p_pos[i].s[2] = z;
 			p_pos[i].s[3] = 1.0;
 
-			p_vel[i].s[0] = -rho * s * 2e-1;
-			p_vel[i].s[1] = rho * c * 2e-1;
+			const double a = 2.5e2 * (rho == 0.0 ? 0.0 : sqrt(1.0 / rho));
+			p_vel[i].s[0] = -a * s;
+			p_vel[i].s[1] = a * c;
 			p_vel[i].s[2] = 0.0f;
 			p_vel[i].s[3] = 0.0f;
 		}
@@ -180,7 +193,10 @@ int main(int argc, const char **argv)
 		glDisable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(0,0,0,0);
-		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		glColor4f(0.3f, 0.4f, 1.0f, 1e-1f);
+		glPointSize(2.0f);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -213,14 +229,19 @@ int main(int argc, const char **argv)
 			gravity.setArg(2, vel0);
 			gravity.setArg(3, vel1);
 			gravity.setArg(4, nb_particles);
-			queue.enqueueNDRangeKernel(gravity, cl::NDRange(), cl::NDRange(nb_particles), cl::NDRange(64));
+			gravity.setArg(5, step);
+			queue.enqueueNDRangeKernel(gravity, cl::NDRange(), cl::NDRange(nb_particles), cl::NDRange(512));
 			std::swap(pos0, pos1);
 			std::swap(vel0, vel1);
 			queue.finish();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			p_pos = (cl_float4*)queue.enqueueMapBuffer(pos0, true, CL_MEM_READ_ONLY, 0, sizeof(cl_float4) * nb_particles);
+			p_pos = (cl_float4*)queue.enqueueMapBuffer(pos0,
+													   true,
+													   CL_MEM_READ_ONLY,
+													   0,
+													   sizeof(cl_float4) * nb_particles);
 
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glVertexPointer(4, GL_FLOAT, 0, p_pos);

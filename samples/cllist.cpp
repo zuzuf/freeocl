@@ -72,7 +72,8 @@ int main(int argc, const char **argv)
 			std::vector<cl::Device> devices;
 			p.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
-			std::cout << "\t\t" << devices.size() << " device" << (devices.size() > 1 ? "s" : "") << " found:" << std::endl;
+			std::cout << "\t\t" << devices.size() << " device" << (devices.size() > 1 ? "s" : "") << " found:"
+					  << std::endl;
 			for(size_t j = 0 ; j < devices.size() ; ++j)
 			{
 				cl::Device &dev = devices[j];
@@ -82,7 +83,8 @@ int main(int argc, const char **argv)
 						<< "\t\t\t\tversion: " << dev.getInfo<CL_DEVICE_VERSION>() << std::endl
 						<< "\t\t\t\tvendor: " << dev.getInfo<CL_DEVICE_VENDOR>() << std::endl
 						<< "\t\t\t\tmemory: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()) << std::endl
-						<< "\t\t\t\tendianess: " << (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "little endian" : "big endian") << std::endl
+						<< "\t\t\t\tendianess: "
+						<< (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "little endian" : "big endian") << std::endl
 						<< "\t\t\t\textensions: " << dev.getInfo<CL_DEVICE_EXTENSIONS>() << std::endl;
 			}
 		}

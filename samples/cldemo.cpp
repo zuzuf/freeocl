@@ -94,7 +94,8 @@ int main(int argc, const char **argv)
 			std::vector<cl::Device> devices;
 			p.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
-			std::cout << "\t\t" << devices.size() << " device" << (devices.size() > 1 ? "s" : "") << " found:" << std::endl;
+			std::cout << "\t\t" << devices.size() << " device" << (devices.size() > 1 ? "s" : "") << " found:"
+					  << std::endl;
 			for(size_t j = 0 ; j < devices.size() ; ++j)
 			{
 				cl::Device &dev = devices[j];
@@ -104,7 +105,8 @@ int main(int argc, const char **argv)
 						<< "\t\t\t\tversion: " << dev.getInfo<CL_DEVICE_VERSION>() << std::endl
 						<< "\t\t\t\tvendor: " << dev.getInfo<CL_DEVICE_VENDOR>() << std::endl
 						<< "\t\t\t\tmemory: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()) << std::endl
-						<< "\t\t\t\tendianess: " << (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "little endian" : "big endian") << std::endl
+						<< "\t\t\t\tendianess: "
+						<< (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "little endian" : "big endian") << std::endl
 						<< "\t\t\t\textensions: " << dev.getInfo<CL_DEVICE_EXTENSIONS>() << std::endl;
 			}
 		}
@@ -126,7 +128,9 @@ int main(int argc, const char **argv)
 		}
 
 		cl::Platform &platform = platforms[id];
-		std::cout << std::endl << "platform selected: " << platform.getInfo<CL_PLATFORM_NAME>() << std::endl << std::endl;
+		std::cout << std::endl << "platform selected: " << platform.getInfo<CL_PLATFORM_NAME>()
+				  << std::endl
+				  << std::endl;
 
 		std::vector<cl::Device> devices;
 		platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
@@ -146,9 +150,14 @@ int main(int argc, const char **argv)
 		try {
 			program.build(devices);
 		} catch(...)	{}
-		std::cout << "source code: " << std::endl << source_code << std::endl;
-		std::cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << std::endl;
-		std::cout << "build log: " << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
+		std::cout << "source code: "
+				  << std::endl << source_code
+				  << std::endl;
+		std::cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front())
+				  << std::endl;
+		std::cout << "build log: "
+				  << std::endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front())
+				  << std::endl;
 
 		cl::Buffer buffer(context, CL_MEM_READ_WRITE, 32);
 		cl::Kernel k(program, "hello");

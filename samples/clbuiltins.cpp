@@ -90,7 +90,10 @@ void test_function(const string &function_name, const int nb_params, const int d
 			source_code +=
 					"__kernel void test16(__global float16 *out, float in)\n"
 					"{\n"
-					"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in));\n"
+					"*out = " + function_name + "((float16)(in, in, in, in,"
+															"in, in, in, in,"
+															"in, in, in, in,"
+															"in, in, in, in));\n"
 					"}";
 		break;
 	case 2:
@@ -122,13 +125,17 @@ void test_function(const string &function_name, const int nb_params, const int d
 			source_code +=
 					"__kernel void test8(__global float8 *out, float in, float in2)\n"
 					"{\n"
-					"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in), (float8)(in2, in2, in2, in2, in2, in2, in2, in2));\n"
+					"*out = " + function_name + "((float8)(in, in, in, in, in, in, in, in),"
+												"(float8)(in2, in2, in2, in2, in2, in2, in2, in2));\n"
 					"}";
 		if (dims & DIM16)
 			source_code +=
 					"__kernel void test16(__global float16 *out, float in, float in2)\n"
 					"{\n"
-					"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in, in, in, in, in, in, in, in, in), (float16)(in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2, in2));\n"
+					"*out = " + function_name + "((float16)(in, in, in, in, in, in, in, in,"
+															"in, in, in, in, in, in, in, in),"
+												"(float16)(in2, in2, in2, in2, in2, in2, in2, in2,"
+												"in2, in2, in2, in2, in2, in2, in2, in2));\n"
 					"}";
 		break;
 	}
