@@ -47,12 +47,12 @@ namespace FreeOCL
 
 	void symbol_table::push()
 	{
-		scope_stack.push_back(std::unordered_set<std::string>());
+		scope_stack.push_back(FreeOCL::set<std::string>());
 	}
 
 	void symbol_table::pop()
 	{
-		for(std::unordered_set<std::string>::const_iterator it = scope_stack.back().begin(), end = scope_stack.back().end()
+		for(FreeOCL::set<std::string>::const_iterator it = scope_stack.back().begin(), end = scope_stack.back().end()
 			; it != end
 			; ++it)
 			table[*it].pop_back();

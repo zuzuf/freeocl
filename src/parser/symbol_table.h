@@ -19,8 +19,8 @@
 #define __FREEOCL_PARSER_SYMBOL_TABLE_H__
 
 #include "node.h"
-#include <unordered_map>
-#include <unordered_set>
+#include <utils/map.h>
+#include <utils/set.h>
 #include <deque>
 #include <string>
 
@@ -37,7 +37,7 @@ namespace FreeOCL
 		template<class T>
 		smartptr<T> get(const std::string &name) const
 		{
-			std::unordered_map<std::string, std::deque<smartptr<node> > >::const_iterator it = table.find(name);
+			FreeOCL::map<std::string, std::deque<smartptr<node> > >::const_iterator it = table.find(name);
 			if (it == table.end() || it->second.empty())
 				return (T*)NULL;
 			return it->second.back();
@@ -47,8 +47,8 @@ namespace FreeOCL
 		void pop();
 
 	private:
-		std::unordered_map<std::string, std::deque<smartptr<node> > >	table;
-		std::deque<std::unordered_set<std::string> >	scope_stack;
+		FreeOCL::map<std::string, std::deque<smartptr<node> > >	table;
+		std::deque<FreeOCL::set<std::string> >	scope_stack;
 	};
 }
 

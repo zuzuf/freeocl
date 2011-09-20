@@ -3,7 +3,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "parser.h"
-#include <unordered_map>
+#include <utils/map.h>
 #include <cmath>
 #include <sstream>
 #include "value.h"
@@ -187,7 +187,7 @@ namespace FreeOCL
 			putback(c);
 
 			static bool b_init_keywords = true;
-			static unordered_map<string, int> keywords;
+			static FreeOCL::map<string, int> keywords;
 			if (b_init_keywords)
 			{
 				b_init_keywords = false;
@@ -260,7 +260,7 @@ namespace FreeOCL
 				keywords["__attribute__"] = __ATTRIBUTE__;
 			}
 
-			unordered_map<string, int>::const_iterator it = keywords.find(name);
+			FreeOCL::map<string, int>::const_iterator it = keywords.find(name);
 			if (it != keywords.end())
 			{
 				d_val__ = new token(name, it->second);

@@ -205,7 +205,7 @@ namespace FreeOCL
 		p.get_ast()->write(gen);
 
 		gen << std::endl;
-		for(std::unordered_map<std::string, smartptr<kernel> >::const_iterator i = p.get_kernels().begin(), end = p.get_kernels().end() ; i != end ; ++i)
+		for(FreeOCL::map<std::string, smartptr<kernel> >::const_iterator i = p.get_kernels().begin(), end = p.get_kernels().end() ; i != end ; ++i)
 		{
 			kernels.insert(i->first);
 

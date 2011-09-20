@@ -21,7 +21,7 @@
 #include "freeocl.h"
 #include "condition.h"
 #include <deque>
-#include <unordered_map>
+#include <utils/map.h>
 
 namespace FreeOCL
 {
@@ -43,7 +43,7 @@ struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, publi
 	cl_command_type command_type;
 	volatile cl_int status;
 
-	std::unordered_map<cl_int, std::deque<FreeOCL::event_call_back> > call_backs;
+	FreeOCL::map<cl_int, std::deque<FreeOCL::event_call_back> > call_backs;
 
 	void change_status(cl_int new_status);
 };

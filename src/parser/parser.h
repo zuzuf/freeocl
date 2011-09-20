@@ -20,7 +20,7 @@
 
 #include <istream>
 #include <ostream>
-#include <unordered_map>
+#include <utils/map.h>
 #include <deque>
 #include <vector>
 #include "node.h"
@@ -64,7 +64,7 @@ namespace FreeOCL
 		int parse();
 		inline bool errors() const {	return b_errors; }
 		inline const smartptr<node> &get_ast() const	{	return root;	}
-		const std::unordered_map<std::string, smartptr<kernel> >	&get_kernels() const	{	return kernels;	}
+		const FreeOCL::map<std::string, smartptr<kernel> >	&get_kernels() const	{	return kernels;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
@@ -96,7 +96,7 @@ namespace FreeOCL
 
 		smartptr<node> d_val__;
 
-		std::unordered_map<std::string, smartptr<kernel> >	kernels;
+		FreeOCL::map<std::string, smartptr<kernel> >	kernels;
 		std::vector<std::pair<int, smartptr<node> > > tokens;
 		std::vector<std::pair<int, smartptr<node> > > processed;
 		symbol_table *symbols;

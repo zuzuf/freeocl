@@ -19,10 +19,10 @@
 #include "native_type.h"
 #include "pointer_type.h"
 #include "freeocl.h"
-#include <unordered_map>
+#include <utils/map.h>
 #include <sstream>
 #include <stdexcept>
-#include <unordered_set>
+#include <utils/set.h>
 
 using namespace std;
 
@@ -41,9 +41,9 @@ namespace FreeOCL
 
 		inline smartptr<type> parse_type(const string &str, size_t &pos, const int gentype)
 		{
-			static unordered_map<string, int> m_types;
-			static unordered_map<string, int> m_types_pattern;
-			static unordered_map<string, int> m_addr_space;
+			static FreeOCL::map<string, int> m_types;
+			static FreeOCL::map<string, int> m_types_pattern;
+			static FreeOCL::map<string, int> m_addr_space;
 			if (m_types.empty())
 			{
 				m_types["bool"] = native_type::BOOL;
@@ -152,7 +152,7 @@ namespace FreeOCL
 				}
 				string word = read_word(str, alphanum_, pos);
 
-				unordered_map<string, int>::const_iterator it = m_types.find(word);
+				FreeOCL::map<string, int>::const_iterator it = m_types.find(word);
 				if (it != m_types.end())
 					type_id = it->second;
 				else
@@ -372,8 +372,8 @@ namespace FreeOCL
 
 	void overloaded_builtin::remove_duplicates()
 	{
-		std::unordered_set<std::string> types;
-		types.reserve(possible_types.size());
+		FreeOCL::set<std::string> types;
+
 		size_t e = 0;
 		std::string name;
 		for(size_t i = 0 ; i + e < possible_types.size() ; )

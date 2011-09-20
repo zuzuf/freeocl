@@ -20,7 +20,7 @@
 
 #include "config.h"
 #include <string>
-#include <unordered_set>
+#include "utils/set.h"
 #include "mutex.h"
 #include "dispatch.h"
 #include <iostream>
@@ -38,13 +38,13 @@ namespace FreeOCL
 {
 	extern cl_platform_id platform;
 	extern cl_device_id device;
-	extern std::unordered_set<cl_context> valid_contexts;
-	extern std::unordered_set<cl_command_queue> valid_command_queues;
-	extern std::unordered_set<cl_mem> valid_mems;
-	extern std::unordered_set<cl_event> valid_events;
-	extern std::unordered_set<cl_kernel> valid_kernels;
-	extern std::unordered_set<cl_program> valid_programs;
-	extern std::unordered_set<cl_sampler> valid_samplers;
+	extern FreeOCL::set<cl_context> valid_contexts;
+	extern FreeOCL::set<cl_command_queue> valid_command_queues;
+	extern FreeOCL::set<cl_mem> valid_mems;
+	extern FreeOCL::set<cl_event> valid_events;
+	extern FreeOCL::set<cl_kernel> valid_kernels;
+	extern FreeOCL::set<cl_program> valid_programs;
+	extern FreeOCL::set<cl_sampler> valid_samplers;
 	extern mutex global_mutex;
 	extern _cl_icd_dispatch dispatch;
 

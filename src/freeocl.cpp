@@ -54,13 +54,13 @@ namespace FreeOCL
 {
 	_cl_icd_dispatch init_dispatch();
 
-	std::unordered_set<cl_context> valid_contexts;
-	std::unordered_set<cl_command_queue> valid_command_queues;
-	std::unordered_set<cl_mem> valid_mems;
-	std::unordered_set<cl_event> valid_events;
-	std::unordered_set<cl_kernel> valid_kernels;
-	std::unordered_set<cl_program> valid_programs;
-	std::unordered_set<cl_sampler> valid_samplers;
+	FreeOCL::set<cl_context> valid_contexts;
+	FreeOCL::set<cl_command_queue> valid_command_queues;
+	FreeOCL::set<cl_mem> valid_mems;
+	FreeOCL::set<cl_event> valid_events;
+	FreeOCL::set<cl_kernel> valid_kernels;
+	FreeOCL::set<cl_program> valid_programs;
+	FreeOCL::set<cl_sampler> valid_samplers;
 	mutex global_mutex;
 	_cl_icd_dispatch dispatch = init_dispatch();
 

@@ -20,7 +20,7 @@
 
 #include "freeocl.h"
 #include <vector>
-#include <unordered_set>
+#include <utils/set.h>
 
 struct _cl_context : public FreeOCL::icd_table, public FreeOCL::ref_counter, public FreeOCL::mutex, public FreeOCL::valid_flag
 {
@@ -35,7 +35,7 @@ struct _cl_context : public FreeOCL::icd_table, public FreeOCL::ref_counter, pub
 								   void *user_data);
 	void *user_data;
 
-	std::unordered_set<FreeOCL::context_resource*> resources;
+	FreeOCL::set<FreeOCL::context_resource*> resources;
 };
 
 #endif

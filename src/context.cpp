@@ -253,9 +253,9 @@ _cl_context::~_cl_context()
 	FreeOCL::global_mutex.unlock();
 
 	lock();
-	std::unordered_set<FreeOCL::context_resource*> resources = this->resources;
+	FreeOCL::set<FreeOCL::context_resource*> resources = this->resources;
 	unlock();
-	for(std::unordered_set<FreeOCL::context_resource*>::iterator it = resources.begin(), end = resources.end() ; it != end ; ++it)
+	for(FreeOCL::set<FreeOCL::context_resource*>::iterator it = resources.begin(), end = resources.end() ; it != end ; ++it)
 	{
 		FreeOCL::context_resource *ptr = *it;
 #define IMPLEMENT_FOR_TYPE(type)\
