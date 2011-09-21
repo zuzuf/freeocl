@@ -19,94 +19,6 @@ if(NOT OPENMP_FOUND)
 	message(FATAL_ERROR "OpenMP not found, OpenMP is required")
 endif(NOT OPENMP_FOUND)
 
-set(SOURCES
-	include/CL/cl_d3d10.h
-	include/CL/cl_ext.h
-	include/CL/cl_gl_ext.h
-	include/CL/cl_gl.h
-	include/CL/cl.h
-	include/CL/cl.hpp
-	include/CL/cl_platform.h
-	include/CL/opencl.h
-
-	include/FreeOCL/opencl_c.h
-	include/FreeOCL/asyncmemop.h
-	include/FreeOCL/atomic.h
-	include/FreeOCL/common.h
-	include/FreeOCL/geometric.h
-	include/FreeOCL/imgreadwrite.h
-	include/FreeOCL/integer.h
-	include/FreeOCL/math.h
-	include/FreeOCL/memfence.h
-	include/FreeOCL/relational.h
-	include/FreeOCL/sync.h
-	include/FreeOCL/vloadstore.h
-	include/FreeOCL/vmisc.h
-	include/FreeOCL/workitem.h
-	include/FreeOCL/vectors.h
-	include/FreeOCL/converters.h
-
-	src/freeocl.cpp		src/freeocl.h
-	src/platform.cpp	src/platform.h
-	src/device.cpp		src/device.h
-	src/context.cpp		src/context.h
-	src/commandqueue.cpp	src/commandqueue.h
-	src/kernel.cpp		src/kernel.h
-	src/program.cpp		src/program.h
-	src/mem.cpp			src/mem.h
-	src/event.cpp		src/event.h
-	src/mutex.cpp		src/mutex.h
-	src/condition.cpp	src/condition.h
-	src/thread.cpp		src/thread.h
-	src/sampler.cpp		src/sampler.h
-	src/image.cpp
-	src/dispatch.h
-	src/prototypes.h
-	src/codebuilder.cpp	src/codebuilder.h
-
-	src/parser/grammar
-	src/parser/parser.cpp	src/parser/parser.h
-	src/parser/macros.h
-	src/parser/lex.cpp
-	src/parser/error.cpp
-	src/parser/node.cpp		src/parser/node.h
-	src/parser/chunk.cpp	src/parser/chunk.h
-	src/parser/value.h		src/parser/value.cpp
-	src/parser/token.h		src/parser/token.cpp
-	src/parser/type.h			src/parser/type.cpp
-	src/parser/native_type.h	src/parser/native_type.cpp
-	src/parser/struct_type.h	src/parser/struct_type.cpp
-	src/parser/union_type.h		src/parser/union_type.cpp
-	src/parser/pointer_type.h	src/parser/pointer_type.cpp
-	src/parser/typedef.h		src/parser/typedef.cpp
-	src/parser/function.h		src/parser/function.cpp
-	src/parser/kernel.h			src/parser/kernel.cpp
-	src/parser/ternary.h		src/parser/ternary.cpp
-	src/parser/binary.h			src/parser/binary.cpp
-	src/parser/unary.h			src/parser/unary.cpp
-	src/parser/index.h			src/parser/index.cpp
-	src/parser/var.h			src/parser/var.cpp
-	src/parser/call.h			src/parser/call.cpp
-	src/parser/expression.h
-	src/parser/callable.h
-	src/parser/symbol_table.h	src/parser/symbol_table.cpp
-	src/parser/builtin.h		src/parser/builtin.cpp
-	src/parser/overloaded_builtin.h		src/parser/overloaded_builtin.cpp
-	src/parser/member.h			src/parser/member.cpp
-	src/parser/swizzle.h		src/parser/swizzle.cpp
-	src/parser/cast.h			src/parser/cast.cpp
-
-	src/utils/map.h
-	src/utils/set.h
-	src/utils/smartptr.h
-	src/utils/string.h
-	)
-
-set(API_SOURCES
-	src/icd_api.cpp
-	src/icd_loader.cpp src/icd_loader.h
-	)
-
 # Default is debug build
 set(CMAKE_BUILD_TYPE Debug)
 
@@ -151,16 +63,10 @@ include_directories(include)
 include_directories(src)
 link_libraries(${CMAKE_THREAD_LIBS_INIT})
 link_libraries(-ldl)
-add_library(FreeOCL SHARED ${SOURCES})
-add_library(OpenCL SHARED ${API_SOURCES})
-set_target_properties(OpenCL PROPERTIES LINK_FLAGS "-Wl,--version-script=${FreeOCL_SOURCE_DIR}/OpenCL.map" VERSION 1.1 SOVERSION 1.1)
 
 add_subdirectory(samples)
+add_subdirectory(src)
 
-# Installation and packaging process
-install(TARGETS OpenCL FreeOCL
-		RUNTIME DESTINATION bin
-		LIBRARY DESTINATION lib)
 install(FILES icd/freeocl.icd DESTINATION /etc/OpenCL/vendors/)
 # OpenCL headers shouldn't be needed in the runtime package
 # install(DIRECTORY include/CL/ DESTINATION include/CL/ FILES_MATCHING PATTERN "*.h")
