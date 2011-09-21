@@ -17,7 +17,7 @@
 */
 #include "event.h"
 #include "context.h"
-#include "commandqueue.h"
+#include "utils/commandqueue.h"
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)

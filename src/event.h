@@ -19,7 +19,7 @@
 #define __FREEOCL_EVENT_H__
 
 #include "freeocl.h"
-#include "condition.h"
+#include "utils/condition.h"
 #include <deque>
 #include <utils/map.h>
 

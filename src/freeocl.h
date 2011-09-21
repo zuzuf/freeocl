@@ -21,7 +21,7 @@
 #include "config.h"
 #include <string>
 #include "utils/set.h"
-#include "mutex.h"
+#include "utils/mutex.h"
 #include "dispatch.h"
 #include <iostream>
 #include <deque>

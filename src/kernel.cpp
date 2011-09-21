@@ -16,7 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "kernel.h"
-#include "commandqueue.h"
+#include "utils/commandqueue.h"
 #include "context.h"
 #include "event.h"
 #include "mem.h"

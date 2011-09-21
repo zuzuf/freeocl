@@ -21,7 +21,7 @@
 #include <cstdio>
 #include <iostream>
 #include "context.h"
-#include "commandqueue.h"
+#include "utils/commandqueue.h"
 #include "mem.h"
 #include "event.h"
 #include "kernel.h"

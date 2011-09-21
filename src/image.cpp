@@ -17,7 +17,7 @@
 */
 #include "mem.h"
 #include "context.h"
-#include "commandqueue.h"
+#include "utils/commandqueue.h"
 
 #define SET_VAR(X)	FreeOCL::copyMemoryWithinLimits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)

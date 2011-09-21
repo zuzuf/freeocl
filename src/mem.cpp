@@ -17,7 +17,7 @@
 */
 #include "mem.h"
 #include "context.h"
-#include "commandqueue.h"
+#include "utils/commandqueue.h"
 #include "event.h"
 #include <cstring>
 #include <iostream>

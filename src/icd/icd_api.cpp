@@ -17,7 +17,7 @@
 */
 #include "freeocl.h"
 #include "context.h"
-#include "commandqueue.h"
+#include "utils/commandqueue.h"
 #include "sampler.h"
 #include "mem.h"
 #include "device.h"
