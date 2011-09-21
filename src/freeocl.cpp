@@ -233,6 +233,7 @@ namespace FreeOCL
 	{
 #ifdef FREEOCL_RUN_GDB_ON_CRASH
 		struct sigaction s;
+		memset(&s, 0, sizeof(struct sigaction));
 		s.sa_handler = signal_handler;
 		sigaction(SIGSEGV, &s, NULL);
 #endif

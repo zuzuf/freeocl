@@ -23,7 +23,9 @@
 
 #include "errors.h"
 #include <cstdlib>
+#include <signal.h>
 #include <sstream>
+#include <string.h>
 #include <unistd.h>
 
 #define IMPLEMENT(X)	case X:	return #X
@@ -88,6 +90,14 @@ const char *get_error_as_string(cl_int err)
 		return "unknown error";
 	}
 	return NULL;
+}
+
+void init_signal_handler()
+{
+	struct sigaction s;
+	memset(&s, 0, sizeof(struct sigaction));
+	s.sa_handler = signal_handler;
+	sigaction(SIGSEGV, &s, NULL);
 }
 
 void signal_handler(int)

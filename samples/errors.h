@@ -20,6 +20,7 @@
 
 const char *get_error_as_string(cl_int err);
 
+void init_signal_handler();
 void signal_handler(int);
 
 #endif

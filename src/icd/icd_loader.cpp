@@ -47,6 +47,7 @@ namespace FreeOCL
 				result.push_back(path + filename);
 		}
 
+		closedir(dir);
 		return result;
 	}
 

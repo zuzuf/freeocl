@@ -29,7 +29,6 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
-#include <signal.h>
 #include <stdexcept>
 #include <algorithm>
 #include <cmath>
@@ -80,9 +79,7 @@ int main(int argc, const char **argv)
 		}
 	}
 
-	struct sigaction s;
-	s.sa_handler = signal_handler;
-	sigaction(SIGSEGV, &s, NULL);
+	init_signal_handler();
 
 	try
 	{

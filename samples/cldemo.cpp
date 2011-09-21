@@ -26,7 +26,6 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <signal.h>
 
 #include "errors.h"
 
@@ -68,9 +67,7 @@ const char *source_code =
 
 int main(int argc, const char **argv)
 {
-	struct sigaction s;
-	s.sa_handler = signal_handler;
-	sigaction(SIGSEGV, &s, NULL);
+	init_signal_handler();
 	try
 	{
 		std::vector<cl::Platform> platforms;
