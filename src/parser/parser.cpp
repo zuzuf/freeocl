@@ -42,6 +42,7 @@
 #include "utils/smartptr.h"
 #include "overloaded_builtin.h"
 #include "ternary.h"
+#include "declarator.h"
 
 namespace FreeOCL
 {
@@ -226,18 +227,18 @@ namespace FreeOCL
 				smartptr<chunk> var_list = N[0].as<chunk>();
 				for(size_t i = 0 ; i < var_list->size() ; i += 2)
 				{
-					const smartptr<chunk> declarator = (*var_list)[i].as<chunk>()->front().as<chunk>();
+					const smartptr<chunk> p_declarator = (*var_list)[i].as<chunk>()->front().as<chunk>();
 					smartptr<type> l_type;
 					std::string name;
-					if (declarator->front().as<pointer_type>())
+					if (p_declarator->front().as<pointer_type>())
 					{
-						smartptr<pointer_type> ptr = declarator->front().as<pointer_type>()->clone();
+						smartptr<pointer_type> ptr = p_declarator->front().as<pointer_type>()->clone();
 						ptr->set_root_type(p_type);
 						l_type = ptr;
 
-						name = declarator->back().as<chunk>()->front().as<token>()->get_string();
+						name = p_declarator->back().as<chunk>()->front().as<token>()->get_string();
 
-						smartptr<chunk> suffix_list = declarator->back().as<chunk>();
+						smartptr<chunk> suffix_list = p_declarator->back().as<chunk>();
 						for(size_t j = 1 ; j < suffix_list->size() ; ++j)
 						{
 							smartptr<chunk> p_chunk = (*suffix_list)[j].as<chunk>();
@@ -250,11 +251,11 @@ namespace FreeOCL
 					else
 					{
 						l_type = p_type;
-						name = declarator->front().as<token>()->get_string();
+						name = p_declarator->front().as<token>()->get_string();
 
-						for(size_t j = 1 ; j < declarator->size() ; ++j)
+						for(size_t j = 1 ; j < p_declarator->size() ; ++j)
 						{
-							smartptr<chunk> p_chunk = (*declarator)[j].as<chunk>();
+							smartptr<chunk> p_chunk = (*p_declarator)[j].as<chunk>();
 							if (!p_chunk)
 								continue;
 							if (p_chunk->front().as<token>()->get_id() == '[')
@@ -286,7 +287,7 @@ namespace FreeOCL
 						}
 					}
 				}
-				d_val__ = new chunk(fully_qualified_type, N[0], N[1]);
+				d_val__ = new declarator(fully_qualified_type, N[0], N[1]);
 				return 1;
 			}
 			ERROR("syntax error, ';' expected");
