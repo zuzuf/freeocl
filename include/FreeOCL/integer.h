@@ -28,10 +28,10 @@ inline int add_sat(int x, int y)
 {	return int(clamp(long(x) + long(y), -0x80000000, 0x7FFFFFFF));	}
 
 inline int hadd(int x, int y)
-{	return int(long(x) + long(y) >> 1);	}
+{	return int((long(x) + long(y)) >> 1);	}
 
 inline int rhadd(int x, int y)
-{	return int(long(x) + long(y) + 1 >> 1);	}
+{	return int((long(x) + long(y) + 1) >> 1);	}
 
 inline int max(int, int);
 inline int min(int, int);
@@ -53,7 +53,7 @@ inline int mad_sat(int a, int b, int c)
 
 inline int max(int x, int y)	{	return x > y ? x : y;	}
 inline int min(int x, int y)	{	return x < y ? x : y;	}
-inline int mul_hi(int x, int y)	{	return int(long(x) * long(y) >> 32);	}
+inline int mul_hi(int x, int y)	{	return int(long long(x) * long long(y) >> 32);	}
 inline int rotate(int v, int i)	{	return (v << i) | (v >> (32 - i));	}
 
 inline int sub_sat(int x, int y)
@@ -72,8 +72,8 @@ inline short upsample(char hi, uchar lo)	{	return ((short)hi << 8) | lo;	}
 inline ushort upsample(uchar hi, uchar lo)	{	return ((ushort)hi << 8) | lo;	}
 inline int upsample(short hi, ushort lo)	{	return ((int)hi << 16) | lo;	}
 inline uint upsample(ushort hi, ushort lo)	{	return ((uint)hi << 16) | lo;	}
-inline long upsample(int hi, uint lo)	{	return ((long)hi << 32) | lo;	}
-inline ulong upsample(uint hi, uint lo)	{	return ((ulong)hi << 32) | lo;	}
+inline long upsample(int hi, uint lo)	{	return ((long long)hi << 32) | lo;	}
+inline ulong upsample(uint hi, uint lo)	{	return ((long long)hi << 32) | lo;	}
 
 // fast integer built-in functions
 inline int mad24(int x, int y, int z)	{	return x * y + z;	}

@@ -28,7 +28,8 @@
 		" -rdynamic" \
 		" -fno-exceptions" \
 		/*" -ffast-math"*/ \
-		" -x c++ "
+		" -x c++ " \
+		" -Wall -Wextra"
 
 #if defined (FREEOCL_ARCH_i386)
 #define FREEOCL_CXX_FLAGS FREEOCL_CXX_FLAGS_COMMON \

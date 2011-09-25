@@ -40,4 +40,4 @@ distclean:
 .PHONY : distclean
 
 %::
-	@cd ${BUILDDIR} && make $@
+	@cd ${BUILDDIR} && make $@ -j$J
