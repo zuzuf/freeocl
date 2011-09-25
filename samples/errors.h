@@ -18,6 +18,12 @@
 #ifndef __ERRORS_H__
 #define __ERRORS_H__
 
+#if defined(__APPLE__) || defined(__MACOSX)
+#include <OpenCL/cl_platform.h>
+#else
+#include <CL/cl_platform.h>
+#endif
+
 const char *get_error_as_string(cl_int err);
 
 void init_signal_handler();
