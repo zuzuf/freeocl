@@ -53,7 +53,7 @@ inline int mad_sat(int a, int b, int c)
 
 inline int max(int x, int y)	{	return x > y ? x : y;	}
 inline int min(int x, int y)	{	return x < y ? x : y;	}
-inline int mul_hi(int x, int y)	{	return int(long long(x) * long long(y) >> 32);	}
+inline int mul_hi(int x, int y)	{	return int((long long)(x) * (long long)(y) >> 32);	}
 inline int rotate(int v, int i)	{	return (v << i) | (v >> (32 - i));	}
 
 inline int sub_sat(int x, int y)
