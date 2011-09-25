@@ -202,7 +202,7 @@ void test_function(const string &function_name, const int nb_params, const int d
 		if (err < 16.0 * CL_FLT_EPSILON)
 			continue;
 		vector<float>::iterator end = unique(results[i].begin(), results[i].end());
-		if (end - results[i].begin() > 1)
+		if (*end - *results[i].begin() > 1)
 		{
 			cerr << '[' << function_name << '(';
 			for(size_t j = 0 ; j < nb_params ; ++j)
