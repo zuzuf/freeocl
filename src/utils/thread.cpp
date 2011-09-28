@@ -31,6 +31,8 @@ namespace FreeOCL
 
 	void thread::start()
 	{
+		if (b_running)
+			return;
 		lock();
 		if (!b_running)
 		{

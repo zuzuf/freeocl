@@ -24,6 +24,7 @@
 #include "mem.h"
 #include "program.h"
 #include "sampler.h"
+#include "utils/commandqueue.h"
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -261,9 +262,11 @@ _cl_context::~_cl_context()
 #define IMPLEMENT_FOR_TYPE(type)\
 		if (FreeOCL::is_valid(static_cast<type>(ptr)))\
 		{\
+			static_cast<type>(ptr)->invalidate();\
 			delete static_cast<type>(ptr);\
 			continue;\
 		}
+		IMPLEMENT_FOR_TYPE(cl_command_queue);
 		IMPLEMENT_FOR_TYPE(cl_event);
 		IMPLEMENT_FOR_TYPE(cl_mem);
 		IMPLEMENT_FOR_TYPE(cl_program);

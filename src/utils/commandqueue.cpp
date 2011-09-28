@@ -178,11 +178,12 @@ _cl_command_queue::_cl_command_queue(cl_context context) : context_resource(cont
 _cl_command_queue::~_cl_command_queue()
 {
 	b_stop = true;
-	while(q_thread.running())
-		wakeup();
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_command_queues.erase(this);
 	FreeOCL::global_mutex.unlock();
+
+	while(q_thread.running())
+		wakeup();
 }
 
 void _cl_command_queue::enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd)
@@ -191,7 +192,6 @@ void _cl_command_queue::enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 
 	if (!b_stop)
 	{
-		retain();
 		unlock();
 		q_thread.start();		// Make sure the scheduler is running
 		wakeup();
@@ -244,9 +244,14 @@ int _cl_command_queue::proc()
 	while(!b_stop)
 	{
 		lock();
-		if (queue.empty())
+		while (queue.empty())
 		{
 			wait_locked();
+			if (b_stop)
+			{
+				unlock();
+				return 0;
+			}
 		}
 
 		FreeOCL::smartptr<FreeOCL::command> cmd = queue.front();
@@ -366,7 +371,5 @@ int _cl_command_queue::proc()
 
 int _cl_command_queue::thread::proc()
 {
-	const int ret = command_queue->proc();
-	clReleaseCommandQueue(command_queue);
-	return ret;
+	return command_queue->proc();
 }

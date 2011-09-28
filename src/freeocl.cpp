@@ -332,6 +332,17 @@ namespace FreeOCL
 		return table;
 	}
 
+	context_resource::context_resource(cl_context context)
+		: context(context)
+	{
+		if (context)
+		{
+			context->lock();
+			context->resources.insert(this);
+			context->unlock();
+		}
+	}
+
 	context_resource::~context_resource()
 	{
 		if (context)

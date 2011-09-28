@@ -39,6 +39,7 @@
 using namespace std;
 
 const char *source_code_str =
+	"#define dt 1e-2f\n"
 	"__kernel void gravity(__global const float4 *in_pos, __global float4 *out_pos,\n"
 	"					  __global const float4 *in_vel, __global float4 *out_vel,\n"
 	"					  const uint nb_particles,\n"
@@ -52,16 +53,19 @@ const char *source_code_str =
 	"	for(uint j = 0 ; j < nb_particles ; j += step)\n"
 	"	{\n"
 	"		float4 p = in_pos[j] - pos;\n"
+	"		p.w = 0.0f;\n"
 	"		float d2 = dot(p, p);\n"
-	"		p *= rsqrt(d2);\n"
+	"		p /= sqrt(d2);\n"
 	"		if (isnan(p.x) || isnan(p.y) || isnan(p.z) || i == j)\n"
 	"			continue;\n"
 	"		p.w = 0.0f;\n"
-	"		a += (1e0f / d2) * p;\n"
+	"		d2 = max(d2, 1e0f);\n"
+	"		a += (1.0f / d2) * p;\n"
 	"	}\n"
-	"	float4 v = in_vel[i] + step * 1e-2f * a;\n"
+	"	a *= step;\n"
+	"	float4 v = in_vel[i] + dt * a;\n"
 	"	out_vel[i] = v;\n"
-	"	out_pos[i] = pos + 1e-2f * v;\n"
+	"	out_pos[i] = pos + dt * v;\n"
 	"}\n"
 	;
 
@@ -119,7 +123,7 @@ int main(int argc, const char **argv)
 
 		const cl_uint step = 1024;
 		const cl_uint nb_particles = 512 * step;
-		const double r = 100.0;
+		const double r = 1e2;
 
 		vector<cl::Device> devices;
 		platforms[platform_id].getDevices(CL_DEVICE_TYPE_ALL, &devices);
@@ -162,8 +166,9 @@ int main(int argc, const char **argv)
 
 		for(size_t i = 0 ; i < nb_particles ; ++i)
 		{
-			const double rho = r * (double(rand()) / RAND_MAX);
-			const double theta = (double(rand()) / RAND_MAX) * (M_PI * 2.0);
+			const double rho = r * pow((double(rand()) / RAND_MAX), 0.75);
+			double theta = (double(rand()) / RAND_MAX) * (M_PI * 2.0);
+			theta = (0.5 * cos(2.0 * theta) + theta - 1e-2 * rho);
 			const double z = 2.0 * (double(rand()) / RAND_MAX) - 1.0;
 			const double c = cos(theta);
 			const double s = sin(theta);
@@ -172,7 +177,7 @@ int main(int argc, const char **argv)
 			p_pos[i].s[2] = z;
 			p_pos[i].s[3] = 1.0;
 
-			const double a = 2.5e2 * (rho == 0.0 ? 0.0 : sqrt(1.0 / rho));
+			const double a = 1.0e0 * (rho <= 1e-1 ? 0.0 : rho);
 			p_vel[i].s[0] = -a * s;
 			p_vel[i].s[1] = a * c;
 			p_vel[i].s[2] = 0.0f;
@@ -190,7 +195,7 @@ int main(int argc, const char **argv)
 		glDisable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(0,0,0,0);
-		glColor4f(0.3f, 0.4f, 1.0f, 1e-1f);
+		glColor4f(0.3f, 0.4f, 1.0f, 5e-2f);
 		glPointSize(2.0f);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);

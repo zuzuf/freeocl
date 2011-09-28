@@ -91,18 +91,16 @@ namespace FreeOCL
 	{
 		enum { b_has_validation_flag = true };
 
-		inline valid_flag() : bValid(true)	{}
-		inline bool valid() const	{	return bValid;	}
-		inline void invalidate() const	{	bValid = false;	}
+		inline valid_flag() : b_valid(true)	{}
+		inline bool valid() const	{	return b_valid;	}
+		inline void invalidate() const	{	b_valid = false;	}
 	private:
-		mutable volatile bool bValid;
+		mutable volatile bool b_valid;
 	};
 
 	struct context_resource
 	{
-		context_resource(cl_context context)
-			: context(context)
-		{}
+		context_resource(cl_context);
 
 		~context_resource();
 
