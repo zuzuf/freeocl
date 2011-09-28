@@ -189,6 +189,13 @@ _cl_command_queue::~_cl_command_queue()
 void _cl_command_queue::enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 {
 	queue.push_back(cmd);
+	if (cmd->event)
+	{
+		cmd->event->lock();
+		const_cast<cl_event>(cmd->event.weak())->change_status(CL_QUEUED);
+		const_cast<cl_event>(cmd->event.weak())->change_status(CL_SUBMITTED);
+		cmd->event->unlock();
+	}
 
 	if (!b_stop)
 	{

@@ -43,7 +43,8 @@ set(UTILS_SOURCES
     utils/mutex.cpp        utils/mutex.h
     utils/condition.cpp    utils/condition.h
     utils/thread.cpp        utils/thread.h
-    )
+	utils/time.cpp        utils/time.h
+	)
 
 set(SOURCES
     freeocl.cpp		freeocl.h

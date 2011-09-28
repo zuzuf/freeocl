@@ -62,7 +62,7 @@ include_directories(.)
 include_directories(include)
 include_directories(src)
 link_libraries(${CMAKE_THREAD_LIBS_INIT})
-link_libraries(-ldl)
+link_libraries(-ldl -lrt)
 
 add_subdirectory(samples)
 add_subdirectory(src)

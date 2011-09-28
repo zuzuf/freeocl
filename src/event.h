@@ -42,6 +42,10 @@ struct _cl_event : public FreeOCL::icd_table, public FreeOCL::ref_counter, publi
 	cl_command_queue command_queue;
 	cl_command_type command_type;
 	volatile cl_int status;
+	cl_ulong time_queued;
+	cl_ulong time_submit;
+	cl_ulong time_start;
+	cl_ulong time_end;
 
 	FreeOCL::map<cl_int, std::deque<FreeOCL::event_call_back> > call_backs;
 

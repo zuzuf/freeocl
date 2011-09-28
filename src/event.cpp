@@ -18,6 +18,7 @@
 #include "event.h"
 #include "context.h"
 #include "utils/commandqueue.h"
+#include "utils/time.h"
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -249,10 +250,10 @@ extern "C"
 		bool bTooSmall = false;
 		switch(param_name)
 		{
-		case CL_PROFILING_COMMAND_QUEUED:
-		case CL_PROFILING_COMMAND_SUBMIT:
-		case CL_PROFILING_COMMAND_START:
-		case CL_PROFILING_COMMAND_END:
+		case CL_PROFILING_COMMAND_QUEUED:	bTooSmall = SET_VAR(event->time_queued);	break;
+		case CL_PROFILING_COMMAND_SUBMIT:	bTooSmall = SET_VAR(event->time_submit);	break;
+		case CL_PROFILING_COMMAND_START:	bTooSmall = SET_VAR(event->time_start);	break;
+		case CL_PROFILING_COMMAND_END:		bTooSmall = SET_VAR(event->time_end);	break;
 		default:
 			return CL_INVALID_VALUE;
 		}
@@ -266,7 +267,16 @@ extern "C"
 void _cl_event::change_status(cl_int new_status)
 {
 	if (status > new_status)
+	{
 		status = new_status;
+		switch(status)
+		{
+		case CL_QUEUED:		time_queued = FreeOCL::ns_timer();	break;
+		case CL_SUBMITTED:	time_submit = FreeOCL::ns_timer();	break;
+		case CL_RUNNING:	time_start = FreeOCL::ns_timer();	break;
+		case CL_COMPLETE:	time_end = FreeOCL::ns_timer();	break;
+		}
+	}
 	std::deque<FreeOCL::event_call_back> call_backs;
 	call_backs.swap(this->call_backs[new_status]);
 
