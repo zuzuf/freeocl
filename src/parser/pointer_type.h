@@ -26,12 +26,12 @@ namespace FreeOCL
 	{
 	public:
 		pointer_type(const smartptr<type> &base_type, const bool b_const, const address_space addr_space) : type(b_const, addr_space), base_type(base_type)	{}
-		virtual bool operator==(const type &type) const;
+		virtual bool operator==(const type &p_type) const;
 		virtual void write(std::ostream &out) const;
 		virtual std::string get_name() const;
 
 		const smartptr<type> &get_base_type() const	{	return base_type;	}
-		bool is_compatible_with(const pointer_type &type) const;
+		bool is_compatible_with(const pointer_type &p_type) const;
 
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 		smartptr<type> clone() const;

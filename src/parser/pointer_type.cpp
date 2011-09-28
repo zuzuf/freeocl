@@ -25,7 +25,10 @@ namespace FreeOCL
 	bool pointer_type::operator==(const type &t) const
 	{
 		const pointer_type *p_type = dynamic_cast<const pointer_type*>(&t);
-		return p_type && p_type->base_type && base_type && *(p_type->base_type) == *base_type && is_const() == p_type->is_const();
+		return p_type && p_type->base_type && base_type
+				&& p_type->base_type->get_address_space() == base_type->get_address_space()
+				&& *(p_type->base_type) == *base_type
+				&& is_const() == p_type->is_const();
 	}
 
 	void pointer_type::write(std::ostream &out) const
@@ -43,11 +46,11 @@ namespace FreeOCL
 		return (' ' + base_type->get_name()) + '*';
 	}
 
-	bool pointer_type::is_compatible_with(const pointer_type &type) const
+	bool pointer_type::is_compatible_with(const pointer_type &p_type) const
 	{
-		if (!base_type || !type.base_type)
+		if (!base_type || !p_type.base_type)
 			return false;
-		return type.base_type->get_address_space() == get_address_space();
+		return int(p_type.base_type->get_address_space()) == int(base_type->get_address_space());
 	}
 
 	smartptr<type> pointer_type::clone() const

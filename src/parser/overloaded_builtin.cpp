@@ -147,6 +147,7 @@ namespace FreeOCL
 					++pos;
 				if (str[pos] == '*')
 				{
+					++pos;
 					b_pointer = true;
 					break;
 				}
@@ -246,16 +247,33 @@ namespace FreeOCL
 		if (arg_types.size() != num_params)
 			return (type*)NULL;
 
+		std::stringstream match_info;
+		for(deque<smartptr<type> >::const_iterator i = arg_types.begin() ; i != arg_types.end() ; ++i)
+			match_info << **i << ',';
+		match_info << std::endl;
+
 		smartptr<type> match;
+		bool b_multimatch = false;
 		for(size_t i = 0 ; i < possible_types.size() ; ++i)
 		{
 			if (all_types_match(arg_types, possible_types[i]))
 			{
 				if (match)
-					throw std::runtime_error("type matching is ambiguous");
+					b_multimatch = true;
 				match = possible_types[i].front();
+
+				match_info << possible_types[i].front()->get_name() << ' ' << name << '(';
+				for(size_t j = 1 ; j < possible_types[i].size() ; ++j)
+				{
+					if (j > 1)
+						match_info << ',';
+					match_info << possible_types[i][j]->get_name();
+				}
+				match_info << ')' << std::endl;
 			}
 		}
+		if (b_multimatch)
+			throw std::runtime_error("type matching is ambiguous\n" + match_info.str());
 		if (match)
 			return match;
 
@@ -264,10 +282,21 @@ namespace FreeOCL
 			if (all_types_weak_match(arg_types, possible_types[i]))
 			{
 				if (match)
-					throw std::runtime_error("type matching is ambiguous");
+					b_multimatch = true;
 				match = possible_types[i].front();
+
+				match_info << possible_types[i].front()->get_name() << ' ' << name << '(';
+				for(size_t j = 1 ; j < possible_types[i].size() ; ++j)
+				{
+					if (j > 1)
+						match_info << ',';
+					match_info << possible_types[i][j]->get_name();
+				}
+				match_info << ')' << std::endl;
 			}
 		}
+		if (b_multimatch)
+			throw std::runtime_error("type matching is ambiguous\n" + match_info.str());
 
 		return match;
 	}
@@ -319,7 +348,7 @@ namespace FreeOCL
 		const pointer_type *ptrA = a.as<pointer_type>();
 		const pointer_type *ptrB = b.as<pointer_type>();
 		if (ptrA && ptrB)
-			return ptrA->is_compatible_with(*ptrB);
+			return ptrA->is_compatible_with(*ptrB) && *ptrA->get_base_type() == *ptrB->get_base_type();
 
 		const native_type *natA = a.as<native_type>();
 		const native_type *natB = b.as<native_type>();
@@ -339,7 +368,7 @@ namespace FreeOCL
 		const pointer_type *ptrA = a.as<pointer_type>();
 		const pointer_type *ptrB = b.as<pointer_type>();
 		if (ptrA && ptrB)
-			return ptrA->is_compatible_with(*ptrB);
+			return ptrA->is_compatible_with(*ptrB) && *ptrA->get_base_type() == *ptrB->get_base_type();
 
 		const native_type *natA = a.as<native_type>();
 		const native_type *natB = b.as<native_type>();

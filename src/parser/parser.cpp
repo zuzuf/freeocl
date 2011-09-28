@@ -1495,13 +1495,16 @@ namespace FreeOCL
 					{
 						smartptr<chunk> args = (*d_val__.as<chunk>())[1];
 						if (exp.as<callable>()->get_num_params() != args->size())
-							ERROR("wrong number of function parameters!");
+						{
+							std::stringstream buf;
+							buf << "wrong number of function parameters! (" << args->size()
+								<< " instead of " << exp.as<callable>()->get_num_params() << ')';
+							ERROR(buf.str());
+						}
 						try
 						{
 							if (!exp.as<callable>()->get_return_type(args->get_as_types()))
 							{
-								if (exp.as<overloaded_builtin>())
-									exp.as<overloaded_builtin>()->print_debug_info();
 								std::deque<smartptr<type> > arg_types = args->get_as_types();
 								std::string arg_list("(");
 								for(size_t i = 0 ; i < arg_types.size() ; ++i)

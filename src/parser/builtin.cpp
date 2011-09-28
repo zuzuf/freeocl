@@ -517,6 +517,26 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("int isunordered(double,double)", gentype_single);
 		REGISTER_OVERLOADED("int signbit(double)", gentype_single);
 
+		// Functions provided by the cl_*_int32_*_atomics extensions
+		// Atomic Functions
+		REGISTER_OVERLOADED("int atom_add(__global int*, int)|uint atom_add(__global uint*, uint)|int atom_add(__local int*, int)|uint atom_add(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_sub(__global int*, int)|uint atom_sub(__global uint*, uint)|int atom_sub(__local int*, int)|uint atom_sub(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_xchg(__global int*, int)"
+							"|uint atom_xchg(__global uint*, uint)"
+							"|int atom_xchg(__local int*, int)"
+							"|uint atom_xchg(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_inc(__global int*)|uint atom_inc(__global uint*)|int atom_inc(__local int*)|uint atom_inc(__local uint*)", gentype_single);
+		REGISTER_OVERLOADED("int atom_dec(__global int*)|uint atom_dec(__global uint*)|int atom_dec(__local int*)|uint atom_dec(__local uint*)", gentype_single);
+		REGISTER_OVERLOADED("int atom_cmpxchg(__global int*, int, int)"
+							"|uint atom_cmpxchg(__global uint*, uint, uint)"
+							"|int atom_cmpxchg(__local int*, int, int)"
+							"|uint atom_cmpxchg(__local uint*, uint, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_min(__global int*, int)|uint atom_min(__global uint*, uint)|int atom_min(__local int*, int)|uint atom_min(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_max(__global int*, int)|uint atom_max(__global uint*, uint)|int atom_max(__local int*, int)|uint atom_max(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_and(__global int*, int)|uint atom_and(__global uint*, uint)|int atom_and(__local int*, int)|uint atom_and(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_or(__global int*, int)|uint atom_or(__global uint*, uint)|int atom_or(__local int*, int)|uint atom_or(__local uint*, uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_xor(__global int*, int)|uint atom_xor(__global uint*, uint)|int atom_xor(__local int*, int)|uint atom_xor(__local uint*, uint)", gentype_single);
+
 #undef REGISTER
 #undef REGISTER_OVERLOADED
 #undef REGISTER_VAR
