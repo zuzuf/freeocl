@@ -1,5 +1,5 @@
---- make/openclsdkrules.mk.orig	2011-09-28 12:47:35.874002001 +0300
-+++ make/openclsdkrules.mk	2011-09-28 16:10:11.994001998 +0300
+--- make/openclsdkrules.mk.orig	2011-07-18 18:04:15.000000000 +0000
++++ make/openclsdkrules.mk	2011-09-29 12:23:19.148723852 +0000
 @@ -1,25 +1,13 @@
 -ifeq ($(BITS), 32)
 +OUTPUTDIR := $(BUILDDIR)/$(RELEASE_DIR)/$(CPU_ARCH)/

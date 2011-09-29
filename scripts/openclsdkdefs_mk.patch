@@ -1,5 +1,5 @@
---- make/openclsdkdefs.mk.orig	2011-09-28 12:47:18.306002002 +0300
-+++ make/openclsdkdefs.mk	2011-09-28 15:30:40.830001989 +0300
+--- make/openclsdkdefs.mk.orig	2011-07-18 18:04:15.000000000 +0000
++++ make/openclsdkdefs.mk	2011-09-29 12:41:44.116741427 +0000
 @@ -35,21 +35,40 @@ endif
  # What CPU and mode?
  ifeq ($(findstring WOW64, $(UNAME)), WOW64)
@@ -41,7 +41,20 @@
  
  # Override bitness with user specified value 
  ifdef bitness 
-@@ -270,13 +289,6 @@ endif
+@@ -200,8 +219,10 @@ else
+ ifeq ($(OS), lnx) # Linux settings 
+   ifeq ($(BITS), 64)
+   else
+-    CFLAGS += -m32 -msse2
+-    LDFLAGS += -m32
++    ifeq ($(CPU_ARCH), x86)
++      CFLAGS += -m32 -msse2
++      LDFLAGS += -m32
++    endif
+   endif
+ ifdef INTEL
+   CC                := icpc
+@@ -270,20 +291,13 @@ endif
  BUILDDIR := build
  DEBUG_DIR := debug
  RELEASE_DIR := release
@@ -55,3 +68,20 @@
  
  # Compiler and Runtime
  RUNTINE_BIN = $(DEPTH)/bin/$(CPU_ARCH)
+ INCLUDEDIRS = $(DEPTH)/samples/opencl/SDKUtil/include
+ OPENCL_INCLUDEDIRS = "$(AMDAPPSDKROOT)/include" 
+ CAL_INCLUDEDIRS = "$(AMDAPPSDKROOT)/include/CAL"
+-OPENCL_LIBDIRS = "$(AMDAPPSDKROOT)/lib/$(CPU_ARCH)"
++OPENCL_LIBDIRS = "$(FOCL_BUILD_DIR)/src/icd/"
+ CAL_LIBDIRS = "$(AMDAPPSDKROOT)/lib"
+ 
+ LIBDIRS = $(DEPTH)/lib/$(CPU_ARCH) $(DEPTH)/TempSDKUtil/lib/$(CPU_ARCH) 
+@@ -294,7 +308,7 @@ CLC				   := clc
+ PERL    := perl
+ MKDIR   := mkdir -p
+ RM	:= rm
+-MAKE	:= make
++MAKE	:= -make
+ CP	:= cp -f
+ ECHO    := @echo
+ INSTALL			   := install

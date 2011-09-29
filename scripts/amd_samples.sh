@@ -98,6 +98,7 @@ if [ ! -f ${MAKE_DONE} ]; then
 	fi
 	
 	logfile=${RESULTS_DIR}/make.log
+	export FOCL_BUILD_DIR=${BUILD_DIR}
 	echo "make ..."
 	make >${logfile} 2>&1
 	if [ $? -eq 0 ]; then
