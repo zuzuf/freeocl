@@ -1,0 +1,30 @@
+--- make/openclsdkrules.mk.orig	2011-09-28 12:47:35.874002001 +0300
++++ make/openclsdkrules.mk	2011-09-28 16:10:11.994001998 +0300
+@@ -1,25 +1,13 @@
+-ifeq ($(BITS), 32)
++OUTPUTDIR := $(BUILDDIR)/$(RELEASE_DIR)/$(CPU_ARCH)/
+ ifdef release
+-OUTPUTDIR := $(BUILDDIR)/$(RELEASE_DIR)/$(X86_DIR)/
+ CFLAGS += $(C_RELEASE_FLAG)
+-ifneq ($(OS), lnx) 
+-LDFLAGS += /INCREMENTAL:NO
+-endif 
+ else
+-OUTPUTDIR := $(BUILDDIR)/$(DEBUG_DIR)/$(X86_DIR)/
+ CFLAGS += $(C_DEBUG_FLAG)
++ifeq ($(BITS), 32)
+ ifneq ($(OS), lnx)
+ LDFLAGS += /INCREMENTAL:YES
+ endif
+ endif
+-else
+-ifdef release
+-OUTPUTDIR := $(BUILDDIR)/$(RELEASE_DIR)/$(X86_64_DIR)/
+-CFLAGS += $(C_RELEASE_FLAG)
+-else
+-OUTPUTDIR := $(BUILDDIR)/$(DEBUG_DIR)/$(X86_64_DIR)/
+-CFLAGS += $(C_DEBUG_FLAG)
+-endif
+ endif
+ 
+ ifdef SAMPLE_EXE

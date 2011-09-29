@@ -1,0 +1,57 @@
+--- make/openclsdkdefs.mk.orig	2011-09-28 12:47:18.306002002 +0300
++++ make/openclsdkdefs.mk	2011-09-28 15:30:40.830001989 +0300
+@@ -35,21 +35,40 @@ endif
+ # What CPU and mode?
+ ifeq ($(findstring WOW64, $(UNAME)), WOW64)
+   BITS = 64
++  CPU_ARCH = x86_64
+ else
+ ifeq ($(findstring i686, $(UNAME)), i686)
+   BITS = 32
++  CPU_ARCH = x86
+ else
+ ifeq ($(findstring i586, $(UNAME)), i586)
+   BITS = 32
++  CPU_ARCH = x86
+ else
+ ifeq ($(findstring x86_64, $(UNAME)), x86_64)
+   BITS = 64
++  CPU_ARCH = x86_64
++else
++ifeq ($(findstring ppc64, $(UNAME)), ppc64)
++  BITS = 64
++  CPU_ARCH = ppc64
++else
++ifeq ($(findstring ppc, $(UNAME)), ppc)
++  BITS = 32
++  CPU_ARCH = ppc
++else
++ifeq ($(findstring arm, $(UNAME)), arm)
++  BITS = 32
++  CPU_ARCH = arm
+ else
+   $(error Unknown CPU)
+ endif
+ endif
+ endif
+ endif
++endif
++endif
++endif
+ 
+ # Override bitness with user specified value 
+ ifdef bitness 
+@@ -270,13 +289,6 @@ endif
+ BUILDDIR := build
+ DEBUG_DIR := debug
+ RELEASE_DIR := release
+-X86_DIR := x86
+-X86_64_DIR := x86_64
+-ifeq ($(BITS), 64)
+-CPU_ARCH = x86_64
+-else
+-CPU_ARCH = x86
+-endif
+ 
+ # Compiler and Runtime
+ RUNTINE_BIN = $(DEPTH)/bin/$(CPU_ARCH)

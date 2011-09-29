@@ -3,13 +3,13 @@
 #set -x
 #set -e
 
-SCRIPT_DIR=`dirname $0`
 TOP_DIR=`pwd`
-CACHE_DIR=${TOP_DIR}/.cache
+SCRIPT_DIR=${TOP_DIR}/`dirname $0`
+CACHE_DIR=${HOME}/.cache/freeocl
 : ${BUILD_DIR:="${TOP_DIR}/build"}
 SDK_VER=2.5
 SDK_BIT=`getconf LONG_BIT`
-TIMEOUT="10"
+TIMEOUT="30"
 
 case "$( uname -m )" in
 	i?86) export ARCH=x86 ;;
@@ -25,6 +25,8 @@ SDK_URL=http://developer.amd.com/Downloads/${SDK_ARCHIVE}
 
 TESTS_DIR=${BUILD_DIR}/${SDK_DIR}/samples/opencl/bin/${ARCH}
 RESULTS_DIR=${BUILD_DIR}/${SDK_DIR}/_RESULTS
+MAKE_DONE=${BUILD_DIR}/make_done
+PATCH_DONE=${BUILD_DIR}/patch_done
 
 runWithTimeout()
 {
@@ -60,11 +62,15 @@ runWithTimeout()
         # for a while. But, since the subshell will be gone when it
         # exits, nothing will try to kill $cmdPid.
         kill $sleepPid
-	return 1
     fi
 
-    return 0
+    return $cmdStatus
 }
+
+if [ ! -d "${BUILD_DIR}" ]; then
+	echo "You do not have BUILD folder. Run make"
+	exit 1
+fi
 
 mkdir -p ${CACHE_DIR}
 
@@ -81,15 +87,36 @@ fi
 
 : ${TESTS:=`ls  ${TESTS_DIR} | grep -v "\." | xargs`}
 
-if [ ! -d ${TESTS_DIR} ]; then
+mkdir -p ${RESULTS_DIR}
+if [ ! -f ${MAKE_DONE} ]; then
 	cd ${BUILD_DIR}/${SDK_DIR}
-	#do patching here
-
-	make
+	
+	if [ ! -f ${PATCH_DONE} ]; then
+		patch -p0 < ${SCRIPT_DIR}/openclsdkdefs_mk.patch 
+		patch -p0 < ${SCRIPT_DIR}/openclsdkrules_mk.patch
+		touch ${PATCH_DONE}
+	fi
+	
+	logfile=${RESULTS_DIR}/make.log
+	echo "make ..."
+	make >${logfile} 2>&1
+	if [ $? -eq 0 ]; then
+		touch ${MAKE_DONE}
+		echo "done."
+	fi
 fi
 
-mkdir -p ${RESULTS_DIR}
 export LD_LIBRARY_PATH=${BUILD_DIR}/src:${BUILD_DIR}/src/icd:${LD_LIBRARY_PATH}
+
+cd "${TOPDIR}"
+
+echo "Will run tests:"
+echo "${TESTS}"
+echo "You can modify the list by running TESTS=\"test1 test2\" $0"
+
+total=0
+failed=0
+timed=0
 
 for f in ${TESTS}
 do
@@ -97,15 +124,31 @@ do
 	if [ -z "${requires_gl}" ]; then
 		logfile=${RESULTS_DIR}/$f.log
 		
+		echo "$f ..."
+		
 		runWithTimeout ${TIMEOUT} \
-		${TESTS_DIR}/$f --device cpu >${logfile} 2>&1 \
-		&& echo "$f succeeded" || echo "$f failed";
-		if [ $? -eq 1 ] ; then
-			echo "$f timed out (${TIMEOUT} seconds)"
-		fi
+		${TESTS_DIR}/$f --device cpu >${logfile} 2>&1;
+		
+		case "$?" in
+			0) 
+				echo "succeeded" 
+			;;
+			1) 
+				echo "failed" 
+				failed=`expr $failed + 1`
+			;;
+			*) 
+				echo "timed out (${TIMEOUT} seconds)" 
+				timed=`expr $timed + 1`
+			;;
+		esac
+		total=`expr $total + 1`
 	else
 		echo "$f requires GL"
 	fi
 done;
 
-echo "$0 finished successfully. Look for the results in ${RESULTS_DIR}"
+echo "$0 finished."
+echo "total/failed/timed out"
+echo "${total}/${failed}/${timed}"
+echo "Look for the results in ${RESULTS_DIR}"
