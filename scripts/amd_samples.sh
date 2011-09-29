@@ -85,8 +85,6 @@ fi
 	tar -xvf ${CACHE_DIR}/${SDK_TAR}
 fi
 
-: ${TESTS:=`ls  ${TESTS_DIR} | grep -v "\." | xargs`}
-
 mkdir -p ${RESULTS_DIR}
 if [ ! -f ${MAKE_DONE} ]; then
 	cd ${BUILD_DIR}/${SDK_DIR}
@@ -106,6 +104,8 @@ if [ ! -f ${MAKE_DONE} ]; then
 		echo "done."
 	fi
 fi
+
+: ${TESTS:=`ls  ${TESTS_DIR} | grep -v "\." | xargs`}
 
 export LD_LIBRARY_PATH=${BUILD_DIR}/src:${BUILD_DIR}/src/icd:${LD_LIBRARY_PATH}
 
