@@ -126,6 +126,13 @@ namespace FreeOCL
 		}
 		else
 			root = NULL;
+		if (!tokens.empty())
+		{
+			std::stringstream buf;
+			read_token();
+			buf << "unexpected '" << *d_val__ << "'";
+			ERROR(buf.str());
+		}
 		return 1;
 	}
 

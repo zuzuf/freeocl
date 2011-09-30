@@ -269,6 +269,7 @@ namespace FreeOCL
 				keywords["private"] = __PRIVATE;
 				keywords["constant"] = __CONSTANT;
 
+				keywords["inline"] = INLINE;
 				keywords["__attribute__"] = __ATTRIBUTE__;
 			}
 
