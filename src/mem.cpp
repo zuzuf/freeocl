@@ -234,7 +234,7 @@ extern "C"
 		{
 			cmd->event->command_queue = command_queue;
 			cmd->event->command_type = CL_COMMAND_READ_BUFFER;
-			cmd->event->status = CL_SUBMITTED;
+			cmd->event->status = CL_QUEUED;
 		}
 
 		if (event)
@@ -305,7 +305,7 @@ extern "C"
 		{
 			cmd->event->command_queue = command_queue;
 			cmd->event->command_type = CL_COMMAND_WRITE_BUFFER;
-			cmd->event->status = CL_SUBMITTED;
+			cmd->event->status = CL_QUEUED;
 		}
 
 		if (event)
@@ -379,7 +379,7 @@ extern "C"
 		{
 			cmd->event->command_queue = command_queue;
 			cmd->event->command_type = CL_COMMAND_COPY_BUFFER;
-			cmd->event->status = CL_SUBMITTED;
+			cmd->event->status = CL_QUEUED;
 		}
 
 		if (event)
@@ -441,7 +441,11 @@ extern "C"
 				*event = e;
 				e->command_queue = command_queue;
 				e->command_type = CL_COMMAND_MAP_BUFFER;
-				e->status = CL_COMPLETE;
+				e->status = CL_QUEUED;
+				e->change_status(CL_QUEUED);
+				e->change_status(CL_SUBMITTED);
+				e->change_status(CL_RUNNING);
+				e->change_status(CL_COMPLETE);
 			}
 		}
 		else
@@ -454,7 +458,7 @@ extern "C"
 			{
 				cmd->event->command_queue = command_queue;
 				cmd->event->command_type = CL_COMMAND_MAP_BUFFER;
-				cmd->event->status = CL_SUBMITTED;
+				cmd->event->status = CL_QUEUED;
 				if (event)
 					*event = cmd->event.weak();
 			}
@@ -509,8 +513,10 @@ extern "C"
 			*event = cmd->event.weak();
 			cmd->event->command_queue = command_queue;
 			cmd->event->command_type = CL_COMMAND_UNMAP_MEM_OBJECT;
-			cmd->event->status = CL_SUBMITTED;
+			cmd->event->status = CL_QUEUED;
 		}
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
 
 		return CL_SUCCESS;
 	}
