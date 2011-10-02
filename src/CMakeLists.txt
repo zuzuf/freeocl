@@ -32,6 +32,7 @@ set(PARSER_SOURCES
 	parser/swizzle.h		parser/swizzle.cpp
 	parser/cast.h			parser/cast.cpp
 	parser/declarator.h		parser/declarator.cpp
+	parser/qualifier.h		parser/qualifier.cpp
 	)
 
 set(UTILS_SOURCES

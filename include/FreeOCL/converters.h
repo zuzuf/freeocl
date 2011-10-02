@@ -36,9 +36,6 @@ CONVERTER(double)
 
 #undef CONVERTER
 
-template<bool, class T> struct __if;
-template<class T> struct __if<true, T>	{	typedef T type;	};
-
 #define CONVERTER(X, N)\
 template<class V>\
 	inline typename __if<__vector<V>::components == N, X##N>::type convert_##X##N(const V &v)\

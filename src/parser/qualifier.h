@@ -15,33 +15,41 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#include "declarator.h"
-#include "pointer_type.h"
+#ifndef __FREEOCL_PARSER_QUALIFIER_H__
+#define __FREEOCL_PARSER_QUALIFIER_H__
+
+#include <deque>
+#include "node.h"
+#include "type.h"
 
 namespace FreeOCL
 {
-	declarator::declarator(const smartptr<type> &p_type, const smartptr<node> &n0, const smartptr<node> &n1)
-		: p_type(p_type),
-		  n0(n0),
-		  n1(n1)
+	class qualifier : public node
 	{
+	public:
+		enum {
+			KERNEL = 1,
+			INLINE
+		};
+	public:
+		qualifier(const int flags = 0);
+		virtual ~qualifier();
 
-	}
+		virtual void write(std::ostream &out) const;
 
-	declarator::~declarator()
-	{
+		template<int F>
+		inline bool is_set() const	{	return (flags & F) == F;	}
 
-	}
+		template<int F>
+		inline void set()	{	flags |= F;	}
 
-	void declarator::write(std::ostream &out) const
-	{
-		if (p_type->get_address_space() == type::LOCAL)
-		{
-			if (!p_type.as<pointer_type>())
-			{
-				out << "static ";
-			}
-		}
-		out << *p_type << *n0 << *n1;
-	}
+		template<int F>
+		inline void unset() const	{	flags &= ~F;	}
+
+		inline int get_flags() const	{	return flags;	}
+	private:
+		int flags;
+	};
 }
+
+#endif

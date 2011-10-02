@@ -43,6 +43,7 @@
 #include "overloaded_builtin.h"
 #include "ternary.h"
 #include "declarator.h"
+#include "qualifier.h"
 
 namespace FreeOCL
 {
@@ -126,7 +127,7 @@ namespace FreeOCL
 		}
 		else
 			root = NULL;
-		if (!tokens.empty())
+		if (peek_token() != _EOF)
 		{
 			std::stringstream buf;
 			read_token();
@@ -148,6 +149,7 @@ namespace FreeOCL
 	{
 		BEGIN();
 		const bool b_qualifier = __function_qualifier();
+		smartptr<qualifier> qualifiers = d_val__.as<qualifier>();
 		const bool b_attribute_qualifier = __attribute_qualifier();
 		MATCH2(declaration_specifiers, declarator)
 		{
@@ -187,7 +189,7 @@ namespace FreeOCL
 				symbols->pop();
 				smartptr<node> statement = d_val__;
 				const std::string function_name = p_chunk->front().as<token>()->get_string();
-				if (b_qualifier)
+				if (b_qualifier && qualifiers->is_set<qualifier::KERNEL>())
 				{
 					if (*p_type != native_type(native_type::VOID, false, type::PRIVATE))
 						error("return type for kernels must be void");
@@ -196,6 +198,9 @@ namespace FreeOCL
 				else
 					d_val__ = new function(p_type, function_name, p_chunk->back(), statement);
 				symbols->insert(function_name, d_val__);
+				if (b_qualifier
+						&& !qualifiers->is_set<qualifier::KERNEL>())
+					d_val__ = new chunk(qualifiers, d_val__);
 				return 1;
 			}
 			symbols->pop();
@@ -478,7 +483,26 @@ namespace FreeOCL
 
 	int parser::__function_qualifier()
 	{
-		return __token<__KERNEL>();
+		smartptr<qualifier> q = new qualifier;
+		while(true)
+			switch (peek_token())
+			{
+			case __KERNEL:
+				if (q->is_set<qualifier::KERNEL>())
+					ERROR("__kernel keyword duplicated");
+				q->set<qualifier::KERNEL>();
+				read_token();
+				break;
+			case INLINE:
+				if (q->is_set<qualifier::INLINE>())
+					ERROR("inline keyword duplicated");
+				q->set<qualifier::INLINE>();
+				read_token();
+				break;
+			default:
+				d_val__ = q;
+				return q->get_flags() != 0;
+			}
 	}
 
 	int parser::__storage_class_specifier()
