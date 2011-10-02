@@ -134,7 +134,7 @@ namespace FreeOCL
 			}
 			b_integer_parsed = true;
 		}
-		if ((c == '.' && isdigit(peek(), base)) || (b_integer_parsed && (c == 'e' || c == 'E')))		// a float
+		if ((c == '.' && (isdigit(peek(), base) || peek() == 'f')) || (b_integer_parsed && (c == 'e' || c == 'E')))		// a float
 		{
 			double f = 0.0;
 			const double base_div = 1.0 / base;
@@ -240,6 +240,7 @@ namespace FreeOCL
 				keywords["unsigned"] = UNSIGNED;
 				keywords["size_t"] = SIZE_T;
 				keywords["const"] = CONST;
+				keywords["__const"] = CONST;
 				keywords["volatile"] = VOLATILE;
 				keywords["void"] = VOID;
 				keywords["struct"] = STRUCT;
