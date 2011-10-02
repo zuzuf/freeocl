@@ -213,6 +213,7 @@ public:
 		if (iF != -1)	super::ref.v[iF] op v;\
 		return *this;\
 	}
+	IMPLEMENT_OPERATOR(%=)
 	IMPLEMENT_OPERATOR(^=)
 	IMPLEMENT_OPERATOR(|=)
 	IMPLEMENT_OPERATOR(&=)
@@ -327,6 +328,7 @@ struct X##N\
 	IMPLEMENT_OPERATOR(-=,X,N)\
 	IMPLEMENT_OPERATOR(*=,X,N)\
 	IMPLEMENT_OPERATOR(/=,X,N)\
+	IMPLEMENT_OPERATOR(%=,X,N)\
 	IMPLEMENT_OPERATOR(^=,X,N)\
 	IMPLEMENT_OPERATOR(|=,X,N)\
 	IMPLEMENT_OPERATOR(&=,X,N)\
@@ -545,6 +547,44 @@ IMPLEMENT_BINARY_OP_LOGICAL(==)
 
 #undef IMPLEMENT_BINARY_OP
 #undef IMPLEMENT_BINARY_OP_LOGICAL
+
+// Unary + and -
+#define IMPLEMENT_UNARY_OP(op)\
+template<class V>\
+inline typename __vector<V>::type operator op (const V &lhs)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = op lhs.v[i];\
+	return ret;\
+}
+
+IMPLEMENT_UNARY_OP(-)
+IMPLEMENT_UNARY_OP(+)
+
+#undef IMPLEMENT_UNARY_OP
+
+// Unary ++ and --
+#define IMPLEMENT_UNARY_OP(op)\
+template<class V>\
+inline typename __vector<V>::type &operator op (V &lhs)\
+{\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		op lhs.v[i];\
+	return lhs;\
+}\
+template<class V>\
+inline typename __vector<V>::type &operator op (V &lhs, int)\
+{\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		lhs.v[i] op;\
+	return lhs;\
+}
+
+IMPLEMENT_UNARY_OP(--)
+IMPLEMENT_UNARY_OP(++)
+
+#undef IMPLEMENT_UNARY_OP
 
 // vector op= vector
 #define IMPLEMENT_ASSIGN_OP(op)\
