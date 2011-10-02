@@ -332,6 +332,7 @@ namespace FreeOCL
 //		REGISTER_OVERLOADED("int shuffle2(gentype)", gentype_half);
 
 		// Conversion functions
+		// Default versions
 		REGISTER_OVERLOADED("char convert_char(gentype)", gentype_vec1);
 		REGISTER_OVERLOADED("uchar convert_uchar(gentype)", gentype_vec1);
 		REGISTER_OVERLOADED("short convert_short(gentype)", gentype_vec1);
@@ -397,6 +398,62 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("ulong16 convert_ulong16(gentype)", gentype_vec16);
 		REGISTER_OVERLOADED("float16 convert_float16(gentype)", gentype_vec16);
 		REGISTER_OVERLOADED("double16 convert_double16(gentype)", gentype_vec16);
+
+		// Saturated versions
+		// Default versions
+		REGISTER_OVERLOADED("char convert_char_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_sat(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_sat(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_sat(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_sat(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_sat(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_sat(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_sat(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_sat(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_sat(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_sat(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_sat(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_sat(gentype)", gentype_vec16);
 
 		// Functions provided by the cl_khr_fp64 extension (double support)
 		// Math functions
