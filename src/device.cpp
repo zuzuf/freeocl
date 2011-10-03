@@ -21,6 +21,7 @@
 #include <iostream>
 #include <time.h>
 #include <algorithm>
+#include <CL/cl_ext.h>
 
 #define SEP " "
 
@@ -77,7 +78,7 @@ namespace
 	const cl_ulong local_mem_size = 0x100000;
 	const size_t max_parameter_size	= 8192;
 	const cl_uint mem_base_addr_align = 128;
-	const cl_device_fp_config fp_config = CL_FP_DENORM | CL_FP_INF_NAN | CL_FP_FMA | CL_FP_ROUND_TO_NEAREST;
+	const cl_device_fp_config fp_config = CL_FP_DENORM | CL_FP_INF_NAN | CL_FP_FMA | CL_FP_ROUND_TO_NEAREST | CL_FP_ROUND_TO_ZERO | CL_FP_ROUND_TO_INF;
 	const cl_ulong max_constant_buffer_size = 0x100000;
 	const cl_uint max_constant_args = 1024;
 	const size_t timer_resolution = std::max<size_t>(1LU, 1000000000LU / CLOCKS_PER_SEC);
@@ -148,6 +149,7 @@ extern "C"
 		case CL_DEVICE_MEM_BASE_ADDR_ALIGN:					bTooSmall = SET_VAR(mem_base_addr_align);	break;
 		case CL_DEVICE_MIN_DATA_TYPE_ALIGN_SIZE:			bTooSmall = SET_VAR(mem_base_addr_align);	break;
 		case CL_DEVICE_SINGLE_FP_CONFIG:					bTooSmall = SET_VAR(fp_config);	break;
+		case CL_DEVICE_DOUBLE_FP_CONFIG:					bTooSmall = SET_VAR(fp_config);	break;
 		case CL_DEVICE_GLOBAL_MEM_CACHE_TYPE:				bTooSmall = SET_VAR(mem_cache_type);	break;
 		case CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE:			bTooSmall = SET_VAR(mem_cacheline_size);	break;
 		case CL_DEVICE_GLOBAL_MEM_CACHE_SIZE:				bTooSmall = SET_VAR(mem_cache_size);	break;
