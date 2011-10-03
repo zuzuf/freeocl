@@ -727,7 +727,7 @@ namespace FreeOCL
 	int parser::__parameter_declaration()
 	{
 		BEGIN();
-		MATCH2(declaration_specifiers, declarator)
+		MATCH3(declaration_specifiers, declarator, attribute_qualifier)
 		{
 			smartptr<chunk> p_chunk = N[1].as<chunk>();
 			smartptr<pointer_type> ptr = p_chunk->front().as<pointer_type>();
@@ -740,8 +740,17 @@ namespace FreeOCL
 			d_val__ = new chunk(N[0], N[1]);
 			return 1;
 		}
-		RULE2(declaration_specifiers, abstract_declarator);
-		RULE1(declaration_specifiers);
+		MATCH3(declaration_specifiers, abstract_declarator, attribute_qualifier)
+		{
+			d_val__ = new chunk(N[0], N[1]);
+			return 1;
+		}
+		MATCH2(declaration_specifiers, attribute_qualifier)
+		{
+			d_val__ = N[0];
+			return 1;
+		}
+
 		END();
 	}
 
