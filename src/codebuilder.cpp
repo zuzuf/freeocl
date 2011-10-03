@@ -27,9 +27,91 @@
 
 namespace FreeOCL
 {
-	std::string build_program(const std::string &code, std::stringstream &log, std::set<std::string> &kernels)
+	std::string build_program(const std::string &options, const std::string &code, std::stringstream &log, std::set<std::string> &kernels, bool &b_valid_options)
 	{
-		const std::string preprocessed_code = preprocess_code(code, log);
+		b_valid_options = true;
+
+		std::string macros;
+
+		std::stringstream coptions(options);
+		while(coptions)
+		{
+			std::string word;
+			coptions >> word;
+
+			if (word.empty() && !coptions)
+				break;
+
+			if (word == "-D")		//	macro
+			{
+				if (!coptions)
+				{
+					b_valid_options = false;
+					return std::string();
+				}
+				coptions >> word;
+				macros += " -D " + word;
+			}
+			else if (word.size() > 2 && word.substr(0, 2) == "-D")		//	macro
+			{
+				macros += ' ' + word;
+			}
+			else if (word == "-I")		//	include path
+			{
+				if (!coptions)
+				{
+					b_valid_options = false;
+					return std::string();
+				}
+				coptions >> word;
+				macros += " -I " + word;
+			}
+			else if (word.size() > 2 && word.substr(0, 2) == "-I")		//	include path
+			{
+				macros += ' ' + word;
+			}
+			else if (word == "-cl-single-precision-constant")
+			{
+			}
+			else if (word == "-cl-denorms-are-zero")
+			{
+			}
+			else if (word == "-cl-opt-disable")
+			{
+			}
+			else if (word == "-cl-mad-enable")
+			{
+			}
+			else if (word == "-cl-no-signed-zeros")
+			{
+			}
+			else if (word == "-cl-unsafe-math-optimizations")
+			{
+			}
+			else if (word == "-cl-finite-math-only")
+			{
+			}
+			else if (word == "-cl-fast-relaxed-math")
+			{
+				macros += " -D__FAST_RELAXED_MATH__=1";
+			}
+			else if (word == "-w")
+			{
+			}
+			else if (word == "-Werror")
+			{
+			}
+			else if (word.size() > 8 && word.substr(0, 8) == "-cl-std=")
+			{
+			}
+			else
+			{
+				b_valid_options = false;
+				return std::string();
+			}
+		}
+
+		const std::string preprocessed_code = preprocess_code(code, macros, log);
 
 		if (preprocessed_code.empty())
 			return std::string();
@@ -104,7 +186,7 @@ namespace FreeOCL
 		return filename_out;
 	}
 
-	std::string preprocess_code(const std::string &code, std::stringstream &log)
+	std::string preprocess_code(const std::string &code, const std::string &options, std::stringstream &log)
 	{
 		log << "preprocessor log:" << std::endl;
 		char buf[1024];		// Buffer for tmpnam (to make it thread safe)
@@ -154,7 +236,7 @@ namespace FreeOCL
 			<< " -D__OPENCL_VERSION__=110 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110"
 			<< " -D__ENDIAN_LITTLE__=1"
 //			<< " -D__IMAGE_SUPPORT__=1"
-//			<< " -D__FAST_RELAXED_MATH__=1"
+			<< ' ' << options
 			<< " -o " << filename_out
 			<< " " << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs

@@ -28,10 +28,10 @@ namespace FreeOCL
 	// Return a string to the .so file built
 	// In case an error occurs, it returns an empty string
 	// In any case it'll write logs
-	std::string build_program(const std::string &code, std::stringstream &log, std::set<std::string> &kernels);
+	std::string build_program(const std::string &options, const std::string &code, std::stringstream &log, std::set<std::string> &kernels, bool &b_valid_options);
 
 	// Return the output of the C preprocessor on the parameter 'code'
-	std::string preprocess_code(const std::string &code, std::stringstream &log);
+	std::string preprocess_code(const std::string &code, const std::string &options, std::stringstream &log);
 
 	// Validate the code and does the OpenCL C -> C++ conversion
 	std::string validate_code(const std::string &code, std::stringstream &log, std::set<std::string> &kernels);

@@ -138,8 +138,12 @@ extern "C"
 		program->unlock();
 
 		std::stringstream build_log;
+		bool b_valid_options = true;
 		std::set<std::string> kernel_names;
-		std::string binary_file = FreeOCL::build_program(source_code, build_log, kernel_names);
+		std::string binary_file = FreeOCL::build_program(options, source_code, build_log, kernel_names, b_valid_options);
+
+		if (!b_valid_options)
+			return CL_INVALID_BUILD_OPTIONS;
 
 		if (!FreeOCL::is_valid(program))
 		{
