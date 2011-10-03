@@ -1569,8 +1569,11 @@ namespace FreeOCL
 						const expression *pexp = exp.as<expression>();
 						if (!pexp)
 							ERROR("syntax error: expression expected!");
-						const smartptr<struct_type> stype = pexp->get_type().as<struct_type>();
-						const smartptr<native_type> ntype = pexp->get_type().as<native_type>();
+						smartptr<type> p_type = pexp->get_type();
+						smartptr<type_def> tdef = p_type.as<type_def>();
+						if (tdef)	p_type = tdef->get_type();
+						const smartptr<struct_type> stype = p_type.as<struct_type>();
+						const smartptr<native_type> ntype = p_type.as<native_type>();
 						if (stype)
 						{
 							const std::string &member_name = d_val__.as<chunk>()->back().as<token>()->get_string();

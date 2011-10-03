@@ -18,6 +18,7 @@
 #include "member.h"
 #include "pointer_type.h"
 #include "struct_type.h"
+#include "typedef.h"
 
 namespace FreeOCL
 {
@@ -28,8 +29,10 @@ namespace FreeOCL
 
 	void member::write(std::ostream& out) const
 	{
+		smartptr<type> p_type = base->get_type();
+		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
 		out << *base;
-		if (base->get_type().as<pointer_type>())
+		if (p_type.as<pointer_type>())
 			out << "->";
 		else
 			out << '.';
@@ -38,8 +41,11 @@ namespace FreeOCL
 
 	smartptr<type> member::get_type() const
 	{
-		const smartptr<pointer_type> ptr = base->get_type().as<pointer_type>();
-		const smartptr<struct_type> type = ptr ? ptr->get_base_type() : base->get_type().as<struct_type>();
+		smartptr<type> p_type = base->get_type();
+		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
+
+		const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
+		const smartptr<struct_type> type = ptr ? ptr->get_base_type() : p_type.as<struct_type>();
 		return type->get_type_of_member(member_name);
 	}
 }

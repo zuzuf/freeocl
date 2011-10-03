@@ -17,6 +17,7 @@
 */
 #include "swizzle.h"
 #include "native_type.h"
+#include "typedef.h"
 
 namespace FreeOCL
 {
@@ -28,6 +29,7 @@ namespace FreeOCL
 	void swizzle::write(std::ostream& out) const
 	{
 		smartptr<type> p_type = get_type();
+		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
 		int values[16];
 		parse_components(components, values, p_type.as<native_type>()->get_dim());
 		if (p_type.as<native_type>()->is_scalar())
@@ -46,6 +48,7 @@ namespace FreeOCL
 	smartptr<type> swizzle::get_type() const
 	{
 		smartptr<native_type> p_type = base->get_type().as<native_type>();
+		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
 		const int dim = get_number_of_components(components, p_type->get_dim());
 		return native_type::make_vector_type(p_type->get_scalar_type(), dim)->clone(p_type->is_const(), p_type->get_address_space());
 	}
