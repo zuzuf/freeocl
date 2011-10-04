@@ -22,7 +22,10 @@
 #include "codebuilder.h"
 #include <sstream>
 
-#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
+#define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X),\
+														param_value_size,\
+														param_value,\
+														param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
 
 extern "C"
@@ -140,7 +143,11 @@ extern "C"
 		std::stringstream build_log;
 		bool b_valid_options = true;
 		std::set<std::string> kernel_names;
-		std::string binary_file = FreeOCL::build_program(options, source_code, build_log, kernel_names, b_valid_options);
+		const std::string binary_file = FreeOCL::build_program(options ? options : std::string(),
+															   source_code,
+															   build_log,
+															   kernel_names,
+															   b_valid_options);
 
 		if (!b_valid_options)
 			return CL_INVALID_BUILD_OPTIONS;
@@ -206,16 +213,28 @@ extern "C"
 			}
 			break;
 		case CL_PROGRAM_DEVICES:
-			bTooSmall = FreeOCL::copy_memory_within_limits(&(program->devices.front()), program->devices.size() * sizeof(cl_device_id), param_value_size, param_value, param_value_size_ret);
+			bTooSmall = FreeOCL::copy_memory_within_limits(&(program->devices.front()),
+														   program->devices.size() * sizeof(cl_device_id),
+														   param_value_size,
+														   param_value,
+														   param_value_size_ret);
 			break;
 		case CL_PROGRAM_SOURCE:
-			bTooSmall = FreeOCL::copy_memory_within_limits(program->source_code.c_str(), program->source_code.size() + 1, param_value_size, param_value, param_value_size_ret);
+			bTooSmall = FreeOCL::copy_memory_within_limits(program->source_code.c_str(),
+														   program->source_code.size() + 1,
+														   param_value_size,
+														   param_value,
+														   param_value_size_ret);
 			break;
 		case CL_PROGRAM_BINARY_SIZES:
 			{
 				std::vector<size_t> sizes;
 				sizes.resize(program->devices.size(), 0);
-				bTooSmall = FreeOCL::copy_memory_within_limits(&(sizes.front()), sizes.size() * sizeof(size_t), param_value_size, param_value, param_value_size_ret);
+				bTooSmall = FreeOCL::copy_memory_within_limits(&(sizes.front()),
+															   sizes.size() * sizeof(size_t),
+															   param_value_size,
+															   param_value,
+															   param_value_size_ret);
 			}
 			break;
 		case CL_PROGRAM_BINARIES:
@@ -251,10 +270,18 @@ extern "C"
 		{
 		case CL_PROGRAM_BUILD_STATUS:		bTooSmall = SET_VAR(program->build_status);	break;
 		case CL_PROGRAM_BUILD_OPTIONS:
-			bTooSmall = FreeOCL::copy_memory_within_limits(program->build_options.c_str(), program->build_options.size() + 1, param_value_size, param_value, param_value_size_ret);
+			bTooSmall = FreeOCL::copy_memory_within_limits(program->build_options.c_str(),
+														   program->build_options.size() + 1,
+														   param_value_size,
+														   param_value,
+														   param_value_size_ret);
 			break;
 		case CL_PROGRAM_BUILD_LOG:
-			bTooSmall = FreeOCL::copy_memory_within_limits(program->build_log.c_str(), program->build_log.size() + 1, param_value_size, param_value, param_value_size_ret);
+			bTooSmall = FreeOCL::copy_memory_within_limits(program->build_log.c_str(),
+														   program->build_log.size() + 1,
+														   param_value_size,
+														   param_value,
+														   param_value_size_ret);
 			break;
 		default:
 			return CL_INVALID_VALUE;
