@@ -22,6 +22,7 @@
 #include "freeocl.h"
 #include "parser/parser.h"
 #include "parser/chunk.h"
+#include "parser/token.h"
 #include "parser/pointer_type.h"
 #include "utils/string.h"
 
@@ -374,17 +375,36 @@ namespace FreeOCL
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
 				const smartptr<chunk> cur = (*params)[j].as<chunk>();
-				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
+				smartptr<type> p_type = cur->front().as<type>();
+				if (cur->back().as<chunk>())
+				{
+					smartptr<chunk> back = cur->back().as<chunk>()->back().as<chunk>();
+					if (back)
+					{
+						const type::address_space addr_space = p_type->get_address_space();
+						if (back->size() > 0 && !back->front().as<chunk>())
+							back = new chunk(back);
+						for(size_t i = 0 ; i < back->size() ; ++i)
+						{
+							const smartptr<chunk> ch = (*back)[i].as<chunk>();
+							if (!ch)
+								continue;
+							if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
+								p_type = new pointer_type(p_type->clone(p_type->is_const(), addr_space), false, type::PRIVATE);
+						}
+					}
+				}
+				const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
 				const bool b_pointer = ptr;
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 
 				if (j)
 					gen << ',' << '\n';
 				if (b_local)
-					gen << "(" << *(cur->front()) << ")(local_memory + __shift" << j << ")";
+					gen << "(" << *p_type << ")(local_memory + __shift" << j << ")";
 				else
-					gen << "*(" << *(cur->front()) << "*)((const char*)args + " << cat.str() << ')';
-				cat << " + sizeof(" << *(cur->front()) << ")";
+					gen << "*(" << *p_type << "*)((const char*)args + " << cat.str() << ')';
+				cat << " + sizeof(" << *p_type << ")";
 			}
 			gen << ");" << std::endl;
 			gen << "\t\t}" << std::endl

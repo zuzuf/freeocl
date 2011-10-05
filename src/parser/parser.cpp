@@ -176,7 +176,25 @@ namespace FreeOCL
 				for(size_t i = 0 ; i < args->size() ; ++i)
 				{
 					const smartptr<chunk> cur = (*args)[i].as<chunk>();
-					const smartptr<type> p_type = cur->front().as<type>();
+					smartptr<type> p_type = cur->front().as<type>();
+					if (cur->back().as<chunk>())
+					{
+						smartptr<chunk> back = cur->back().as<chunk>()->back().as<chunk>();
+						if (back)
+						{
+							const type::address_space addr_space = p_type->get_address_space();
+							if (back->size() > 0 && !back->front().as<chunk>())
+								back = new chunk(back);
+							for(size_t i = 0 ; i < back->size() ; ++i)
+							{
+								const smartptr<chunk> ch = (*back)[i].as<chunk>();
+								if (!ch)
+									continue;
+								if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
+									p_type = new pointer_type(p_type->clone(p_type->is_const(), addr_space), false, type::PRIVATE);
+							}
+						}
+					}
 					std::string name = cur->back().as<token>()
 									   ? cur->back().as<token>()->get_string()
 									   : cur->back().as<chunk>()->front().as<token>()->get_string();
