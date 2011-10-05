@@ -303,6 +303,7 @@ _cl_event::_cl_event(cl_context context) : context_resource(context)
 
 _cl_event::~_cl_event()
 {
+	wakeup();
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_events.erase(this);
 	FreeOCL::global_mutex.unlock();

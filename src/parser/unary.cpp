@@ -30,9 +30,6 @@ namespace FreeOCL
 		const smartptr<type> t0 = exp->get_type();
 		switch(op)
 		{
-		case parser::SIZEOF:
-			p_type = native_type::t_size_t;
-			break;
 		case parser::INC_OP:
 		case parser::DEC_OP:
 		case '!':
@@ -56,11 +53,6 @@ namespace FreeOCL
 
 	void unary::write(std::ostream &out) const
 	{
-		if (op == parser::SIZEOF)
-		{
-			out << "sizeof(" << *exp << ')';
-			return;
-		}
 		out << '(';
 		if (b_postfix)
 			out << *exp;

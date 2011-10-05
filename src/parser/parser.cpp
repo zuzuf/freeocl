@@ -44,6 +44,7 @@
 #include "ternary.h"
 #include "declarator.h"
 #include "qualifier.h"
+#include "sizeof.h"
 
 namespace FreeOCL
 {
@@ -1276,12 +1277,17 @@ namespace FreeOCL
 			CHECK(1, "syntax error, unary expression expected");
 			break;
 		case SIZEOF:
-			MATCH2(token<SIZEOF>, unary_expression)
+			MATCH4(token<SIZEOF>, token<'('>, unary_expression, token<')'>)
 			{
-				d_val__ = new unary(N[0].as<token>()->get_id(), N[1]);
+				d_val__ = new size_of(N[2]);
 				return 1;
 			}
-			RULE4(token<SIZEOF>, token<'('>, type_name, token<')'>);
+			MATCH4(token<SIZEOF>, token<'('>, type_name, token<')'>)
+			{
+				d_val__ = new size_of(N[2]);
+				return 1;
+			}
+
 			CHECK(1, "syntax error");
 			break;
 		default:

@@ -205,6 +205,7 @@ lex_start:
 			{
 				b_init_keywords = false;
 				keywords["typedef"] = TYPEDEF;
+				keywords["sizeof"] = SIZEOF;
 
 				keywords["bool"] = BOOL;
 				keywords["half"] = HALF;

@@ -33,6 +33,7 @@ set(PARSER_SOURCES
 	parser/cast.h			parser/cast.cpp
 	parser/declarator.h		parser/declarator.cpp
 	parser/qualifier.h		parser/qualifier.cpp
+	parser/sizeof.h			parser/sizeof.cpp
 	)
 
 set(UTILS_SOURCES
