@@ -1,0 +1,11 @@
+--- samples/opencl/SDKUtil/include/SDKCommon.hpp.orig	2011-07-18 21:09:23.000000000 +0300
++++ samples/opencl/SDKUtil/include/SDKCommon.hpp	2011-10-05 23:33:52.289136570 +0300
+@@ -301,7 +301,7 @@ private:
+ public: 
+     SDKCommon();
+     ~SDKCommon();
+-    std::string getPath();
++    static std::string getPath();
+     void error(const char* errorMsg) const;	
+     void error(std::string errorMsg) const;
+     void expectedError(const char* errorMsg) const;	

@@ -1,0 +1,12 @@
+--- samples/opencl/cpp_cl/app/GaussianNoise/GaussianNoise.cpp.orig	2011-10-05 22:09:21.152928249 +0300
++++ samples/opencl/cpp_cl/app/GaussianNoise/GaussianNoise.cpp	2011-10-05 22:28:28.280975371 +0300
+@@ -99,7 +99,8 @@ GaussianNoise::readInputImage(std::strin
+ {
+ 
+     /* load input bitmap image */
+-    std::string filePath = inputImageName;
++    std::string filePath = sampleCommon->getPath();
++    filePath.append(inputImageName);
+     inputBitmap.load(filePath.c_str());
+ 
+     /* error if image did not load */

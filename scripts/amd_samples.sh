@@ -9,7 +9,7 @@ CACHE_DIR=${HOME}/.cache/freeocl
 : ${BUILD_DIR:="${TOP_DIR}/build"}
 SDK_VER=2.5
 SDK_BIT=`getconf LONG_BIT`
-TIMEOUT="30"
+: ${TIMEOUT:="30"}
 
 case "$( uname -m )" in
 	i?86) export ARCH=x86 ;;
@@ -90,8 +90,12 @@ if [ ! -f ${MAKE_DONE} ]; then
 	cd ${BUILD_DIR}/${SDK_DIR}
 	
 	if [ ! -f ${PATCH_DONE} ]; then
-		patch -p0 < ${SCRIPT_DIR}/openclsdkdefs_mk.patch 
+		patch -p0 < ${SCRIPT_DIR}/GaussianNoise.patch 
+		patch -p0 < ${SCRIPT_DIR}/openclsdkdefs_mk.patch
 		patch -p0 < ${SCRIPT_DIR}/openclsdkrules_mk.patch
+		patch -p0 < ${SCRIPT_DIR}/SDKCommon.patch
+		patch -p0 < ${SCRIPT_DIR}/Template.patch
+		patch -p0 < ${SCRIPT_DIR}/TemplateC.patch
 		touch ${PATCH_DONE}
 	fi
 	
@@ -116,6 +120,7 @@ echo "${TESTS}"
 echo "You can modify the list by running TESTS=\"test1 test2\" $0"
 
 total=0
+succeeded=0
 failed=0
 timed=0
 
@@ -124,23 +129,28 @@ do
 	requires_gl=`ldd ${TESTS_DIR}/$f  | grep libGL`
 	if [ -z "${requires_gl}" ]; then
 		logfile=${RESULTS_DIR}/$f.log
-		
+		failedlogfile=${RESULTS_DIR}/failed$f.log
+		tologfile=${RESULTS_DIR}/to$f.log
 		echo "$f ..."
 		
+		rm -f $logfile $failedlogfile $tologfile
 		runWithTimeout ${TIMEOUT} \
 		${TESTS_DIR}/$f --device cpu >${logfile} 2>&1;
 		
 		case "$?" in
 			0) 
 				echo "succeeded" 
+				succeeded=`expr $succeeded + 1`
 			;;
 			1) 
 				echo "failed" 
 				failed=`expr $failed + 1`
+				mv $logfile $failedlogfile
 			;;
 			*) 
 				echo "timed out (${TIMEOUT} seconds)" 
 				timed=`expr $timed + 1`
+				mv $logfile $tologfile
 			;;
 		esac
 		total=`expr $total + 1`
@@ -150,6 +160,7 @@ do
 done;
 
 echo "$0 finished."
-echo "total/failed/timed out"
-echo "${total}/${failed}/${timed}"
+echo "total/succeeded/failed/timed out"
+echo "${total}/${succeeded}/${failed}/${timed}"
 echo "Look for the results in ${RESULTS_DIR}"
+

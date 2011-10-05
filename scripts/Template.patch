@@ -1,0 +1,35 @@
+diff -up samples/opencl/cl/app/Template.orig/Makefile samples/opencl/cl/app/Template/Makefile
+--- samples/opencl/cl/app/Template.orig/Makefile	2011-07-18 21:09:23.000000000 +0300
++++ samples/opencl/cl/app/Template/Makefile	2011-10-05 23:15:30.221091293 +0300
+@@ -22,5 +22,7 @@ EXE_TARGET_INSTALL   	= Template
+ FILES 	= Template
+ CLFILES	= Template_Kernels.cl
+ 
++LLIBS  += SDKUtil
++
+ include $(DEPTH)/make/openclsdkrules.mk 
+ 
+diff -up samples/opencl/cl/app/Template.orig/Template.cpp samples/opencl/cl/app/Template/Template.cpp
+--- samples/opencl/cl/app/Template.orig/Template.cpp	2011-07-18 21:09:23.000000000 +0300
++++ samples/opencl/cl/app/Template/Template.cpp	2011-10-05 23:38:59.213149173 +0300
+@@ -342,7 +342,8 @@ initializeCL(void)
+     // Load CL file, build CL program object, create CL kernel object
+     /////////////////////////////////////////////////////////////////
+     const char * filename  = "Template_Kernels.cl";
+-    std::string  sourceStr = convertToString(filename);
++    std::string  sourceStr = streamsdk::SDKCommon::getPath();
++    sourceStr.append(filename);
+     const char * source    = sourceStr.c_str();
+     size_t sourceSize[]    = { strlen(source) };
+ 
+diff -up samples/opencl/cl/app/Template.orig/Template.hpp samples/opencl/cl/app/Template/Template.hpp
+--- samples/opencl/cl/app/Template.orig/Template.hpp	2011-07-18 21:09:23.000000000 +0300
++++ samples/opencl/cl/app/Template/Template.hpp	2011-10-05 23:34:08.753137241 +0300
+@@ -102,6 +102,7 @@ jurisdiction and venue of these courts.
+ #include <iostream>
+ #include <string>
+ #include <fstream>
++#include <SDKCommon.hpp>
+ 
+ 
+ /*** GLOBALS ***/
