@@ -33,6 +33,7 @@ namespace FreeOCL
 {
 	int parser::lex()
 	{
+lex_start:
 		char c;
 		// get the next non-ws character
 		while (get(c) && (c == ' ' || c == '\t' || c == '\n'));
@@ -57,10 +58,10 @@ namespace FreeOCL
 					if (*current_file.rbegin() == '"')
 						current_file.erase(current_file.size() - 1, 1);
 				}
-				return lex();
+				goto lex_start;
 			}
 			while(get(c) && c != '\n');
-			return lex();
+			goto lex_start;
 		}
 
 		if (c == '"')

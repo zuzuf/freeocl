@@ -357,9 +357,6 @@ extern "C"
 		if (global_work_size == NULL)
 			return CL_INVALID_GLOBAL_WORK_SIZE;
 
-		if (local_work_size == NULL)
-			return CL_INVALID_WORK_DIMENSION;
-
 		if ((num_events_in_wait_list > 0 && event_wait_list == NULL)
 			|| (num_events_in_wait_list == 0 && event_wait_list != NULL))
 			return CL_INVALID_EVENT_WAIT_LIST;
@@ -372,6 +369,17 @@ extern "C"
 		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
+
+		size_t p_local_work_size[3];
+		if (local_work_size == NULL)
+		{
+			cl_uint nb_cores;
+			clGetDeviceInfo(FreeOCL::device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &nb_cores, NULL);
+			p_local_work_size[0] = nb_cores;
+			p_local_work_size[1] = 1;
+			p_local_work_size[2] = 1;
+			local_work_size = p_local_work_size;
+		}
 
 		FreeOCL::smartptr<FreeOCL::command_ndrange_kernel> cmd = new FreeOCL::command_ndrange_kernel;
 		cmd->num_events_in_wait_list = num_events_in_wait_list;
