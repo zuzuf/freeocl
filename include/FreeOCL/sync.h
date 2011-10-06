@@ -18,6 +18,8 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_SYNC_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_SYNC_H__
 
+#include "FreeOCL/config.h"
+
 typedef int	cl_mem_fence_flags;
 #define	CLK_LOCAL_MEM_FENCE		0x0
 #define CLK_GLOBAL_MEM_FENCE	0x1
@@ -25,7 +27,9 @@ typedef int	cl_mem_fence_flags;
 // Built-in synchronization functions
 inline void barrier(cl_mem_fence_flags /*flags*/)
 {
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp barrier
+#endif
 }
 
 #endif

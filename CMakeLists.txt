@@ -14,18 +14,24 @@ if(NOT CMAKE_THREAD_LIBS_INIT)
 	message(FATAL_ERROR "thread library not found")
 endif(NOT CMAKE_THREAD_LIBS_INIT)
 
+option(FREEOCL_SEARCH_OPENMP "search for OpenMP" ON)
+if(FREEOCL_SEARCH_OPENMP)
 include(FindOpenMP)
 if(NOT OPENMP_FOUND)
 	message(FATAL_ERROR "OpenMP not found, OpenMP is required")
 endif(NOT OPENMP_FOUND)
+set(FREEOCL_USE_OPENMP 1)
+else(FREEOCL_SEARCH_OPENMP)
+set(FREEOCL_USE_OPENMP 0)
+endif(FREEOCL_SEARCH_OPENMP)
 
 # Default is debug build
 set(CMAKE_BUILD_TYPE Debug)
 
-option(FREEOCL_USE_CXX0X "use c++0x" ON)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ffast-math")
 
+option(FREEOCL_USE_CXX0X "use C++0x" ON)
 if(FREEOCL_USE_CXX0X)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -DFREEOCL_USE_CXX0X")
 endif(FREEOCL_USE_CXX0X)
@@ -56,7 +62,7 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "^sh")
 endif(CMAKE_SYSTEM_PROCESSOR MATCHES "^i.86$")
 
 option(FREEOCL_RUN_GDB_ON_CRASH "run gdb on crash")
-configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/config.h)
+configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/include/FreeOCL/config.h)
 
 include_directories(.)
 include_directories(include)

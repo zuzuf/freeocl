@@ -17,7 +17,10 @@
 */
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
+#include "FreeOCL/config.h"
+#ifdef FREEOCL_USE_OPENMP
 #include <omp.h>
+#endif
 
 namespace FreeOCL
 {
@@ -27,6 +30,9 @@ namespace FreeOCL
 	static size_t local_size[3];
 	static size_t group_id[3];
 	static size_t num_groups[3];
+#ifndef FREEOCL_USE_OPENMP
+	static size_t thread_num;
+#endif
 }
 
 // Built-in work-item functions
@@ -50,17 +56,17 @@ inline size_t get_local_size(uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::local_size[dimindx] : 1;
 }
-
+inline size_t get_thread_num();
 inline size_t get_local_id(uint dimindx)
 {
 	switch(dimindx)
 	{
 	case 0:
-		return omp_get_thread_num() % FreeOCL::local_size[0];
+		return get_thread_num() % FreeOCL::local_size[0];
 	case 1:
-		return (omp_get_thread_num() / FreeOCL::local_size[0]) % FreeOCL::local_size[1];
+		return (get_thread_num() / FreeOCL::local_size[0]) % FreeOCL::local_size[1];
 	case 2:
-		return (omp_get_thread_num() / FreeOCL::local_size[0]) / FreeOCL::local_size[1];
+		return (get_thread_num() / FreeOCL::local_size[0]) / FreeOCL::local_size[1];
 	default:
 		return -1;
 	}
@@ -79,5 +85,14 @@ inline size_t get_group_id(uint dimindx)
 inline size_t get_global_offset(uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::global_offset[dimindx] : 0;
+}
+
+inline size_t get_thread_num()
+{
+#ifdef FREEOCL_USE_OPENMP
+	return omp_get_thread_num();
+#else
+	return FreeOCL::thread_num;
+#endif
 }
 #endif

@@ -325,8 +325,10 @@ namespace FreeOCL
 			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void *args, size_t dim, size_t *global_offset, size_t *global_size, size_t *local_size)" << std::endl
 				<< "{" << std::endl
 				<< "\tconst size_t num = local_size[0] * local_size[1] * local_size[2];" << std::endl
+#ifdef FREEOCL_USE_OPENMP
 				<< "\tomp_set_dynamic(0);" << std::endl
 				<< "\tomp_set_num_threads(num);" << std::endl
+#endif
 				<< "\tFreeOCL::dim = dim;" << std::endl
 				<< "\tfor(size_t i = 0 ; i < 3 ; ++i)" << std::endl
 				<< "\t{" << std::endl
@@ -367,7 +369,11 @@ namespace FreeOCL
 				<< "\t\tFreeOCL::group_id[1] = y;" << std::endl
 				<< "\t\tFreeOCL::group_id[2] = z;" << std::endl
 				<< "\t\tstatic char local_memory[0x100000];" << std::endl
+#ifdef FREEOCL_USE_OPENMP
 				<< "#pragma omp parallel" << std::endl
+#else
+				<< "for(FreeOCL::thread_num = 1 ; FreeOCL::thread_num <= num ; FreeOCL::thread_num++)" << std::endl
+#endif
 				<< "\t\t{" << std::endl
 				<< "\t\t\t" << i->first << "(";
 			std::stringstream cat;

@@ -18,7 +18,7 @@
 #ifndef __FREEOCL_FREEOCL_H__
 #define __FREEOCL_FREEOCL_H__
 
-#include "config.h"
+#include "FreeOCL/config.h"
 #include <string>
 #include "utils/set.h"
 #include "utils/mutex.h"

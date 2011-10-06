@@ -17,6 +17,9 @@
 */
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_ATOMIC_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_ATOMIC_H__
+
+#include "FreeOCL/config.h"
+
 // Built-in atomic functions
 // 32-bit atomics
 inline int atomic_add(volatile int *p, int val)
@@ -52,7 +55,9 @@ inline uint atomic_cmpxchg(volatile uint *p, uint cmp, uint val)
 inline int atomic_min(volatile int *p, int val)
 {
 	int old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -63,7 +68,9 @@ inline int atomic_min(volatile int *p, int val)
 inline uint atomic_min(volatile uint *p, uint val)
 {
 	uint old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -75,7 +82,9 @@ inline uint atomic_min(volatile uint *p, uint val)
 inline int atomic_max(volatile int *p, int val)
 {
 	int old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -86,7 +95,9 @@ inline int atomic_max(volatile int *p, int val)
 inline uint atomic_max(volatile uint *p, uint val)
 {
 	uint old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -144,7 +155,9 @@ inline ulong atomic_cmpxchg(volatile ulong *p, ulong cmp, ulong val)
 inline long atomic_min(volatile long *p, long val)
 {
 	long old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -155,7 +168,9 @@ inline long atomic_min(volatile long *p, long val)
 inline ulong atomic_min(volatile ulong *p, ulong val)
 {
 	ulong old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -167,7 +182,9 @@ inline ulong atomic_min(volatile ulong *p, ulong val)
 inline long atomic_max(volatile long *p, long val)
 {
 	long old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -178,7 +195,9 @@ inline long atomic_max(volatile long *p, long val)
 inline ulong atomic_max(volatile ulong *p, ulong val)
 {
 	ulong old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -237,7 +256,9 @@ inline uint atom_cmpxchg(uint *p, uint cmp, uint val)
 inline int atom_min(int *p, int val)
 {
 	int old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -248,7 +269,9 @@ inline int atom_min(int *p, int val)
 inline uint atom_min(uint *p, uint val)
 {
 	uint old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -260,7 +283,9 @@ inline uint atom_min(uint *p, uint val)
 inline int atom_max(int *p, int val)
 {
 	int old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -271,7 +296,9 @@ inline int atom_max(int *p, int val)
 inline uint atom_max(uint *p, uint val)
 {
 	uint old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -329,7 +356,9 @@ inline ulong atom_cmpxchg(ulong *p, ulong cmp, ulong val)
 inline long atom_min(long *p, long val)
 {
 	long old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -340,7 +369,9 @@ inline long atom_min(long *p, long val)
 inline ulong atom_min(ulong *p, ulong val)
 {
 	ulong old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old > val)
@@ -352,7 +383,9 @@ inline ulong atom_min(ulong *p, ulong val)
 inline long atom_max(long *p, long val)
 {
 	long old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
@@ -363,7 +396,9 @@ inline long atom_max(long *p, long val)
 inline ulong atom_max(ulong *p, ulong val)
 {
 	ulong old;
+#ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
+#endif
 	{
 		old = *p;
 		if (old < val)
