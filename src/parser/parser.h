@@ -191,15 +191,7 @@ namespace FreeOCL
 		int __attribute_argument_list();
 		int __attribute_argument();
 
-		template<int token>
-		inline int __token()
-		{
-			const int next = read_token();
-			if (token == next)
-				return 1;
-			roll_back();
-			return 0;
-		}
+		template<int token> inline int __token();
 	};
 }
 

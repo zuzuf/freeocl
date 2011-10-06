@@ -1847,4 +1847,13 @@ namespace FreeOCL
 	{
 		return __assignment_expression();
 	}
+	template<int token>
+	inline int parser::__token()
+	{
+		const int next = this->read_token();
+		if (token == next)
+			return 1;
+		roll_back();
+		return 0;
+	}
 }

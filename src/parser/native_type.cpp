@@ -130,9 +130,9 @@ namespace FreeOCL
 		return get_dim_for(id);
 	}
 
-	int native_type::get_dim_for(int id)
+	size_t native_type::get_dim_for(int id)
 	{
-		static int type_dim[] = {
+		static size_t type_dim[] = {
 			0, 1, 1, 1,
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 			2, 2, 2, 2, 2, 2, 2, 2, 2, 2,

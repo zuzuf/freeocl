@@ -154,7 +154,7 @@ namespace FreeOCL
 		return true;
 	}
 
-	void swizzle::parse_components(const std::string &components, int values[], int dim)
+	void swizzle::parse_components(const std::string &components, int values[], size_t dim)
 	{
 		for(size_t i = 0 ; i < 16 ; ++i)
 			values[i] = -1;

@@ -71,8 +71,8 @@ const char *source_code_str =
 
 int main(int argc, const char **argv)
 {
-	size_t platform_id = -1;
-	for(size_t i = 0 ; i < argc ; ++i)
+	int platform_id = -1;
+	for(int i = 0 ; i < argc ; ++i)
 	{
 		if (!strcmp(argv[i], "--platform")
 				|| !strcmp(argv[i], "-p"))
@@ -113,7 +113,7 @@ int main(int argc, const char **argv)
 				platform_id = p_id;
 		}
 
-		if (platform_id == -1 || platform_id >= platforms.size())
+		if (platform_id == -1 || platform_id >= (int)platforms.size())
 		{
 			cerr << "error : no platform found" << endl;
 			return 0;
@@ -219,6 +219,8 @@ int main(int argc, const char **argv)
 					{
 					case SDLK_ESCAPE:
 						done = true;
+						break;
+					default:
 						break;
 					}
 

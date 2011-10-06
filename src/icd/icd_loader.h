@@ -51,12 +51,12 @@ namespace FreeOCL
 
 		inline const std::vector<cl_platform_id> &get_platforms() const	{	return v_platforms;	}
 
-		inline const bool is_valid(cl_device_id dev) const
+		inline bool is_valid(cl_device_id dev) const
 		{
 			return valid_devices.count(dev) != 0;
 		}
 
-		inline const bool is_valid(cl_platform_id platform) const
+		inline bool is_valid(cl_platform_id platform) const
 		{
 			return valid_platforms.count(platform) != 0;
 		}

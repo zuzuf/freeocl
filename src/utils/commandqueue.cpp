@@ -248,7 +248,7 @@ bool is_command_ready_to_process(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 	return b_ready;
 }
 
-int _cl_command_queue::proc()
+unsigned long _cl_command_queue::proc()
 {
 	while(!b_stop)
 	{
@@ -416,7 +416,7 @@ int _cl_command_queue::proc()
 	return 0;
 }
 
-int _cl_command_queue::thread::proc()
+unsigned long _cl_command_queue::thread::proc()
 {
 	return command_queue->proc();
 }

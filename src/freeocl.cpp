@@ -195,7 +195,7 @@ namespace FreeOCL
 		std::deque<std::string> result;
 
 		size_t pos = s.find_first_not_of(sep, 0);
-		if (pos != -1)
+		if (pos != std::string::npos)
 			do
 			{
 				const size_t next = s.find_first_of(sep, pos);

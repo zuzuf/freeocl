@@ -22,8 +22,8 @@
 namespace FreeOCL
 {
 	function::function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body)
-		: return_type(return_type),
-		name(name),
+		: name(name),
+		return_type(return_type),
 		arguments(arguments),
 		body(body)
 	{

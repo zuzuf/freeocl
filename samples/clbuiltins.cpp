@@ -47,7 +47,7 @@ namespace
 #define DIM8	0x10
 #define DIM16	0x20
 
-void test_function(const string &function_name, const int nb_params, const int dims)
+void test_function(const string &function_name, const size_t nb_params, const int dims)
 {
 	cout << "testing '" << function_name << '\'';
 
@@ -229,7 +229,7 @@ int main(int argc, const char **argv)
 {
 	cl_device_type device_type = CL_DEVICE_TYPE_CPU;
 
-	for(size_t i = 0 ; i < argc ; ++i)
+	for(int i = 0 ; i < argc ; ++i)
 	{
 		if (!strcmp(argv[i], "--devices"))
 		{
