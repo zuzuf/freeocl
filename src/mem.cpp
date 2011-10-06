@@ -541,43 +541,197 @@ extern "C"
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL
-	clEnqueueWriteBufferRectFCL(cl_command_queue    /* command_queue */,
-							 cl_mem              /* buffer */,
-							 cl_bool             /* blocking_write */,
-							 const size_t *      /* buffer_origin */,
-							 const size_t *      /* host_origin */,
-							 const size_t *      /* region */,
-							 size_t              /* buffer_row_pitch */,
-							 size_t              /* buffer_slice_pitch */,
-							 size_t              /* host_row_pitch */,
-							 size_t              /* host_slice_pitch */,
-							 const void *        /* ptr */,
-							 cl_uint             /* num_events_in_wait_list */,
-							 const cl_event *    /* event_wait_list */,
-							 cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
+	clEnqueueWriteBufferRectFCL(cl_command_queue command_queue,
+							 cl_mem              buffer,
+							 cl_bool             blocking_write,
+							 const size_t *      buffer_origin,
+							 const size_t *      host_origin,
+							 const size_t *      region,
+							 size_t              buffer_row_pitch,
+							 size_t              buffer_slice_pitch,
+							 size_t              host_row_pitch,
+							 size_t              host_slice_pitch,
+							 const void *        ptr,
+							 cl_uint             num_events_in_wait_list,
+							 const cl_event *    event_wait_list,
+							 cl_event *          event) CL_API_SUFFIX__VERSION_1_1
 	{
 		MSG(clEnqueueWriteBufferRectFCL);
-		return CL_INVALID_VALUE;
+		FreeOCL::unlocker unlock;
+		if (buffer_row_pitch == 0)	buffer_row_pitch = region[0];
+		if (host_row_pitch == 0)	host_row_pitch = region[0];
+		if (buffer_slice_pitch == 0)	buffer_slice_pitch = region[1] * buffer_row_pitch;
+		if (host_slice_pitch == 0)		host_slice_pitch = region[1] * host_row_pitch;
+
+		if (ptr == NULL
+				|| region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0
+				|| buffer_row_pitch < region[0]
+				|| host_row_pitch < region[0]
+				|| buffer_slice_pitch < region[1] * buffer_row_pitch
+				|| host_slice_pitch < region[1] * host_row_pitch)
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(buffer))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(buffer);
+
+		if (buffer->size < buffer_origin[0] + region[0]
+							+ (buffer_origin[1] + region[1]) * buffer_row_pitch
+							+ (buffer_origin[2] + region[2]) * buffer_slice_pitch)
+			return CL_INVALID_VALUE;
+
+		if (blocking_write == CL_TRUE)
+		{
+			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+				if (event_wait_list[i]->status < 0)
+					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
+		}
+
+		FreeOCL::smartptr<FreeOCL::command_write_buffer_rect> cmd = new FreeOCL::command_write_buffer_rect;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = (blocking_write == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = buffer;
+		cmd->offset = buffer_origin[0] + buffer_origin[1] * buffer_row_pitch + buffer_origin[2] * buffer_slice_pitch;
+		cmd->cb[0] = region[0];
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->ptr = (const char*)ptr + host_origin[0] + host_origin[1] * host_row_pitch + host_origin[2] * host_slice_pitch;
+		cmd->buffer_pitch[0] = buffer_row_pitch;
+		cmd->buffer_pitch[1] = buffer_slice_pitch;
+		cmd->host_pitch[0] = host_row_pitch;
+		cmd->host_pitch[1] = host_slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_WRITE_BUFFER_RECT;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		if (blocking_write == CL_TRUE)
+		{
+			clWaitForEvents(1, &(cmd->event.weak()));
+			if (event == NULL)
+				clReleaseEvent(cmd->event.weak());
+		}
+
+		return CL_SUCCESS;
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL
-	clEnqueueReadBufferRectFCL(cl_command_queue    /* command_queue */,
-							cl_mem              /* buffer */,
-							cl_bool             /* blocking_read */,
-							const size_t *      /* buffer_origin */,
-							const size_t *      /* host_origin */,
-							const size_t *      /* region */,
-							size_t              /* buffer_row_pitch */,
-							size_t              /* buffer_slice_pitch */,
-							size_t              /* host_row_pitch */,
-							size_t              /* host_slice_pitch */,
-							void *              /* ptr */,
-							cl_uint             /* num_events_in_wait_list */,
-							const cl_event *    /* event_wait_list */,
-							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1
+	clEnqueueReadBufferRectFCL(cl_command_queue command_queue,
+							cl_mem              buffer,
+							cl_bool             blocking_read,
+							const size_t *      buffer_origin,
+							const size_t *      host_origin,
+							const size_t *      region,
+							size_t              buffer_row_pitch,
+							size_t              buffer_slice_pitch,
+							size_t              host_row_pitch,
+							size_t              host_slice_pitch,
+							void *              ptr,
+							cl_uint             num_events_in_wait_list,
+							const cl_event *    event_wait_list,
+							cl_event *          event) CL_API_SUFFIX__VERSION_1_1
 	{
 		MSG(clEnqueueReadBufferRectFCL);
-		return CL_INVALID_VALUE;
+		FreeOCL::unlocker unlock;
+		if (buffer_row_pitch == 0)	buffer_row_pitch = region[0];
+		if (host_row_pitch == 0)	host_row_pitch = region[0];
+		if (buffer_slice_pitch == 0)	buffer_slice_pitch = region[1] * buffer_row_pitch;
+		if (host_slice_pitch == 0)		host_slice_pitch = region[1] * host_row_pitch;
+
+		if (ptr == NULL
+				|| region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0
+				|| buffer_row_pitch < region[0]
+				|| host_row_pitch < region[0]
+				|| buffer_slice_pitch < region[1] * buffer_row_pitch
+				|| host_slice_pitch < region[1] * host_row_pitch)
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(buffer))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(buffer);
+
+		if (buffer->size < buffer_origin[0] + region[0]
+							+ (buffer_origin[1] + region[1]) * buffer_row_pitch
+							+ (buffer_origin[2] + region[2]) * buffer_slice_pitch)
+			return CL_INVALID_VALUE;
+
+		if (blocking_read == CL_TRUE)
+		{
+			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+				if (event_wait_list[i]->status < 0)
+					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
+		}
+
+		FreeOCL::smartptr<FreeOCL::command_read_buffer_rect> cmd = new FreeOCL::command_read_buffer_rect;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = (blocking_read == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = buffer;
+		cmd->offset = buffer_origin[0] + buffer_origin[1] * buffer_row_pitch + buffer_origin[2] * buffer_slice_pitch;
+		cmd->cb[0] = region[0];
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->ptr = (char*)ptr + host_origin[0] + host_origin[1] * host_row_pitch + host_origin[2] * host_slice_pitch;
+		cmd->buffer_pitch[0] = buffer_row_pitch;
+		cmd->buffer_pitch[1] = buffer_slice_pitch;
+		cmd->host_pitch[0] = host_row_pitch;
+		cmd->host_pitch[1] = host_slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_READ_BUFFER_RECT;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		if (blocking_read == CL_TRUE)
+		{
+			clWaitForEvents(1, &(cmd->event.weak()));
+			if (event == NULL)
+				clReleaseEvent(cmd->event.weak());
+		}
+
+		return CL_SUCCESS;
 	}
 }
 
