@@ -232,7 +232,7 @@ int main(int argc, const char **argv)
 			gravity.setArg(3, vel1);
 			gravity.setArg(4, nb_particles);
 			gravity.setArg(5, step);
-			queue.enqueueNDRangeKernel(gravity, cl::NDRange(), cl::NDRange(nb_particles), cl::NDRange(512));
+			queue.enqueueNDRangeKernel(gravity, cl::NDRange(), cl::NDRange(nb_particles), cl::NDRange());
 			std::swap(pos0, pos1);
 			std::swap(vel0, vel1);
 			queue.finish();

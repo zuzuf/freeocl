@@ -120,7 +120,7 @@ inline float mad(float a, float b, float c)	{	return a * b + c;	}
 inline float maxmag(float x, float y)	{	return fmax(fabs(x), fabs(y));	}
 inline float minmag(float x, float y)	{	return fmin(fabs(x), fabs(y));	}
 inline float modf(float x, float *iptr)	{	return modff(x, iptr);	}
-inline float nan(uint nancode)	{}
+inline float nan(uint nancode)	{	return reinterpret_cast<const float&>(nancode |= 0x7F800000U);	}
 inline float nextafter(float x, float y)	{	return nextafterf(x, y);	}
 inline float pow(float x, float y)	{	return powf(x, y);	}
 inline float pown(float x, int n)
