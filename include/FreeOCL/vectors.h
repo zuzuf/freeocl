@@ -250,16 +250,19 @@ inline X##N &operator op(const X &w)\
 	return *this;\
 }
 
+#define DEFINE_VECTOR_MAKE_1(X, N)	static inline X##N make(X p0) {	X##N v;	for(size_t i = 0 ; i < N ; ++i)	v.v[i] = p0;	return v;	}
+#define DEFINE_VECTOR_MAKE_2(X)	static inline X##2 make(X p0, X p1) {	X##2 v;	v.v[0] = p0, v.v[1] = p1;	return v;	}
+#define DEFINE_VECTOR_MAKE_3(X)	static inline X##3 make(X p0, X p1, X p2) {	X##3 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2;	return v;	}
+#define DEFINE_VECTOR_MAKE_4(X)	static inline X##4 make(X p0, X p1, X p2, X p3) {	X##4 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3; return v;	}
+#define DEFINE_VECTOR_MAKE_8(X)	static inline X##8 make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7) {	X##8 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7;	return v;	}
+#define DEFINE_VECTOR_MAKE_16(X)	static inline X##16 make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7, X p8, X p9, X pA, X pB, X pC, X pD, X pE, X pF) {	X##16 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7, v.v[8] = p8, v.v[9] = p9, v.v[10] = pA, v.v[11] = pB, v.v[12] = pC, v.v[13] = pD, v.v[14] = pE, v.v[15] = pF;	return v;	}
+
 #define DEFINE_VECTOR_TYPE(X, N)\
 struct X##N\
 {\
 	X v[N];\
-	static inline X##N make(X p0) {	X##N v;	for(size_t i = 0 ; i < N ; ++i)	v.v[i] = p0;	return v;	}\
-	static inline X##N make(X p0, X p1) {	X##N v;	v.v[0] = p0, v.v[1] = p1;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2, X p3) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7, X p8, X p9, X pA, X pB, X pC, X pD, X pE, X pF) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7, v.v[8] = p8, v.v[9] = p9, v.v[10] = pA, v.v[11] = pB, v.v[12] = pC, v.v[13] = pD, v.v[14] = pE, v.v[15] = pF;	return v;	}\
+	DEFINE_VECTOR_MAKE_1(X, N)\
+	DEFINE_VECTOR_MAKE_##N(X)\
 	template<class W,\
 			 int i0, int i1,\
 			 int i2, int i3,\
@@ -299,12 +302,8 @@ template<>	struct __vector_type<X, N>\
 struct X##N\
 {\
 	X v[N];\
-	static inline X##N make(X p0) {	X##N v;	for(size_t i = 0 ; i < N ; ++i)	v.v[i] = p0;	return v;	}\
-	static inline X##N make(X p0, X p1) {	X##N v;	v.v[0] = p0, v.v[1] = p1;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2, X p3) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7;	return v;	}\
-	static inline X##N make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7, X p8, X p9, X pA, X pB, X pC, X pD, X pE, X pF) {	X##N v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7, v.v[8] = p8, v.v[9] = p9, v.v[10] = pA, v.v[11] = pB, v.v[12] = pC, v.v[13] = pD, v.v[14] = pE, v.v[15] = pF;	return v;	}\
+	DEFINE_VECTOR_MAKE_1(X, N)\
+	DEFINE_VECTOR_MAKE_##N(X)\
 	template<class W,\
 			 int i0, int i1,\
 			 int i2, int i3,\

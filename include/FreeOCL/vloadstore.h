@@ -46,7 +46,7 @@ inline void vstore2(const typename __vector_type<S, 2>::type &v, size_t offset, 
 
 template<typename S>
 inline void vstore3(const typename __vector_type<S, 3>::type &v, size_t offset, S *p)
-{	*(typename __vector_type<S, 3>::type __attribute__((packed))*)(p + offset * 3) = reinterpret_cast<typename __vector_type<S, 3>::type __attribute__((packed))&>(v);	}
+{	*reinterpret_cast<typename __vector_type<S, 3>::type __attribute__((packed))*>(p + offset * 3) = reinterpret_cast<typename __vector_type<S, 3>::type __attribute__((packed))&>(v);	}
 
 template<typename S>
 inline void vstore4(const typename __vector_type<S, 4>::type &v, size_t offset, S *p)

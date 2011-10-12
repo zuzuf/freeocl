@@ -44,7 +44,7 @@ namespace FreeOCL
 		inline void set()	{	flags |= F;	}
 
 		template<int F>
-		inline void unset() const	{	flags &= ~F;	}
+		inline void unset() {	flags &= ~F;	}
 
 		inline int get_flags() const	{	return flags;	}
 	private:

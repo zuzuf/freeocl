@@ -26,6 +26,7 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
+#include <stdlib.h>
 
 #include "errors.h"
 

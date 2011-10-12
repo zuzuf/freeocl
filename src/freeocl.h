@@ -20,6 +20,7 @@
 
 #include "FreeOCL/config.h"
 #include <string>
+#include <stdlib.h>
 #include "utils/set.h"
 #include "utils/mutex.h"
 #include "dispatch.h"

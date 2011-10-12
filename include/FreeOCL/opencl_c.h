@@ -18,8 +18,11 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_H__
 
+#include "FreeOCL/config.h"
 #include <cstddef>
+#ifdef FREEOCL_USE_OPENMP
 #include <omp.h>
+#endif
 
 #define __OPENCL_VERSION__	110
 #define CL_VERSION_1_0		100

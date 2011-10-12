@@ -61,7 +61,7 @@ inline int isnan(float x)	{	return __isnan(x);	}
 inline int isnormal(float x)	{	return __isnormal(x);	}
 
 template<typename S>
-inline int isordered(S x, typename __scalar<S>::type y)	{	return !__isunordered(x, x);	}
+inline int isordered(S x, typename __scalar<S>::type y)	{	return !__isordered(x, y);	}
 
 template<typename S>
 inline int isunordered(S x, typename __scalar<S>::type y)	{	return __isunordered(x, y);	}

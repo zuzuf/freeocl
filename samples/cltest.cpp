@@ -27,6 +27,7 @@
 #include <fstream>
 #include <iomanip>
 #include <stdexcept>
+#include <stdlib.h>
 
 #include "errors.h"
 
