@@ -33,6 +33,7 @@ namespace FreeOCL
 {
 	cl_command_type command_read_buffer_rect::get_type() const	{	return CL_COMMAND_READ_BUFFER_RECT;	}
 	cl_command_type command_write_buffer_rect::get_type() const	{	return CL_COMMAND_WRITE_BUFFER_RECT;	}
+	cl_command_type command_copy_buffer_rect::get_type() const	{	return CL_COMMAND_COPY_BUFFER_RECT;	}
 	cl_command_type command_read_buffer::get_type() const	{	return CL_COMMAND_READ_BUFFER;	}
 	cl_command_type command_write_buffer::get_type() const	{	return CL_COMMAND_WRITE_BUFFER;	}
 	cl_command_type command_copy_buffer::get_type() const	{	return CL_COMMAND_COPY_BUFFER;	}
@@ -364,6 +365,26 @@ unsigned long _cl_command_queue::proc()
 				const size_t dst_slice_pitch = cmd.as<FreeOCL::command_write_buffer_rect>()->buffer_pitch[1]
 						- dst_row_pitch * cb[1];
 				const size_t src_slice_pitch = cmd.as<FreeOCL::command_write_buffer_rect>()->host_pitch[1]
+						- src_row_pitch * cb[1];
+				for(size_t z = 0 ; z < cb[2] ; ++z, src_ptr += src_slice_pitch, dst_ptr += dst_slice_pitch)
+					for(size_t y = 0 ; y < cb[1] ; ++y, src_ptr += src_row_pitch, dst_ptr += dst_row_pitch)
+						memcpy(dst_ptr, src_ptr, cb[0]);
+			}
+			break;
+		case CL_COMMAND_COPY_BUFFER_RECT:
+			{
+				const char *src_ptr = (const char*)cmd.as<FreeOCL::command_copy_buffer_rect>()->src_buffer->ptr
+									  + cmd.as<FreeOCL::command_copy_buffer_rect>()->src_offset;
+				char *dst_ptr = (char*)cmd.as<FreeOCL::command_copy_buffer_rect>()->dst_buffer->ptr
+								+ cmd.as<FreeOCL::command_copy_buffer_rect>()->dst_offset;
+				const size_t dst_row_pitch = cmd.as<FreeOCL::command_copy_buffer_rect>()->dst_pitch[0];
+				const size_t src_row_pitch = cmd.as<FreeOCL::command_copy_buffer_rect>()->src_pitch[0];
+				const size_t cb[3] = { cmd.as<FreeOCL::command_copy_buffer_rect>()->cb[0],
+									   cmd.as<FreeOCL::command_copy_buffer_rect>()->cb[1],
+									   cmd.as<FreeOCL::command_copy_buffer_rect>()->cb[2] };
+				const size_t dst_slice_pitch = cmd.as<FreeOCL::command_copy_buffer_rect>()->dst_pitch[1]
+						- dst_row_pitch * cb[1];
+				const size_t src_slice_pitch = cmd.as<FreeOCL::command_copy_buffer_rect>()->src_pitch[1]
 						- src_row_pitch * cb[1];
 				for(size_t z = 0 ; z < cb[2] ; ++z, src_ptr += src_slice_pitch, dst_ptr += dst_slice_pitch)
 					for(size_t y = 0 ; y < cb[1] ; ++y, src_ptr += src_row_pitch, dst_ptr += dst_row_pitch)

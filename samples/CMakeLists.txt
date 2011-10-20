@@ -32,6 +32,9 @@ if(BUILD_SAMPLES)
 		add_executable(clgalaxy ${CLGALAXY_SOURCES})
 		include_directories(${SDL_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 		target_link_libraries(clgalaxy ${SAMPLES_LIBRARIES} ${SDL_LIBRARY} ${OPENGL_LIBRARIES})
+		install(TARGETS clgalaxy
+			RUNTIME DESTINATION bin
+			LIBRARY DESTINATION lib)
 	endif(SDL_FOUND AND OPENGL_FOUND)
 
 	install(TARGETS cldemo cltest cllist clbuiltins
