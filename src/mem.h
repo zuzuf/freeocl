@@ -45,6 +45,7 @@ struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public 
 	void *host_ptr;
 	std::deque<FreeOCL::mem_call_back> call_backs;
 	std::multiset<void*> mapped;
+	size_t offset;
 };
 
 #endif

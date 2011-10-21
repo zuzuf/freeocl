@@ -68,6 +68,7 @@ extern "C"
 		mem->mem_type = CL_MEM_OBJECT_BUFFER;
 		mem->host_ptr = host_ptr;
 		mem->parent = NULL;
+		mem->offset = 0;
 		if (flags & CL_MEM_USE_HOST_PTR)
 			mem->ptr = host_ptr;
 		else if (posix_memalign(&(mem->ptr), 256, size) == ENOMEM)
@@ -92,8 +93,78 @@ extern "C"
 							  cl_int *errcode_ret)
 	{
 		MSG(clCreateSubBufferFCL);
-		if (errcode_ret)
-			*errcode_ret = CL_INVALID_VALUE;
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(buffer))
+		{
+			SET_RET(CL_INVALID_MEM_OBJECT);
+			return 0;
+		}
+		unlock.handle(buffer);
+
+		if (buffer->parent)
+		{
+			SET_RET(CL_INVALID_MEM_OBJECT);
+			return 0;
+		}
+
+		if (((buffer->flags & CL_MEM_WRITE_ONLY) && ((flags & CL_MEM_READ_WRITE) || (flags & CL_MEM_READ_ONLY)))
+				|| ((buffer->flags & CL_MEM_READ_ONLY) && ((flags & CL_MEM_READ_WRITE) || (flags & CL_MEM_WRITE_ONLY)))
+				|| (flags & CL_MEM_USE_HOST_PTR)
+				|| (flags & CL_MEM_ALLOC_HOST_PTR)
+				|| (flags & CL_MEM_COPY_HOST_PTR))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+
+		if (buffer_create_info == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+
+		switch(buffer_create_type)
+		{
+		case CL_BUFFER_CREATE_TYPE_REGION:
+			{
+				const _cl_buffer_region *p_info = (const _cl_buffer_region *)buffer_create_info;
+				if (p_info->size == 0)
+				{
+					SET_RET(CL_INVALID_BUFFER_SIZE);
+					return 0;
+				}
+				if (p_info->size + p_info->origin > buffer->size)
+				{
+					SET_RET(CL_INVALID_VALUE);
+					return 0;
+				}
+				cl_uint mem_align;
+				clGetDeviceInfo(FreeOCL::device, CL_DEVICE_MEM_BASE_ADDR_ALIGN, sizeof(mem_align), &mem_align, NULL);
+				if ((p_info->origin % mem_align) != 0)
+				{
+					SET_RET(CL_MISALIGNED_SUB_BUFFER_OFFSET);
+					return 0;
+				}
+
+				cl_mem mem = new _cl_mem(buffer->context);
+				mem->flags = flags;
+				mem->size = p_info->size;
+				mem->mem_type = CL_MEM_OBJECT_BUFFER;
+				mem->host_ptr = NULL;
+				mem->parent = buffer;
+				mem->offset = p_info->origin;
+				mem->ptr = (char*)buffer->ptr + p_info->origin;
+
+				SET_RET(CL_SUCCESS);
+				return mem;
+			}
+			break;
+		default:
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+
+		SET_RET(CL_INVALID_VALUE);
 		return 0;
 	}
 
@@ -141,7 +212,7 @@ extern "C"
 		unlock.handle(memobj);
 
 		FreeOCL::mem_call_back call_back = { pfn_notify, user_data };
-		memobj->call_backs.push_back(call_back);
+		memobj->call_backs.push_front(call_back);		// They are called in reverse order
 		return CL_SUCCESS;
 	}
 
@@ -173,7 +244,7 @@ extern "C"
 		case CL_MEM_REFERENCE_COUNT:		bTooSmall = SET_VAR(memobj->get_ref_count());	break;
 		case CL_MEM_CONTEXT:				bTooSmall = SET_VAR(memobj->context);	break;
 		case CL_MEM_ASSOCIATED_MEMOBJECT:	bTooSmall = SET_VAR(memobj->parent);	break;
-		case CL_MEM_OFFSET:
+		case CL_MEM_OFFSET:					bTooSmall = SET_VAR(memobj->offset);	break;
 		default:
 			return CL_INVALID_VALUE;
 		}
@@ -835,4 +906,10 @@ _cl_mem::~_cl_mem()
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_mems.erase(this);
 	FreeOCL::global_mutex.unlock();
+
+	if (ptr && !parent && !(flags & CL_MEM_USE_HOST_PTR))
+	{
+		free(ptr);
+		ptr = NULL;
+	}
 }
