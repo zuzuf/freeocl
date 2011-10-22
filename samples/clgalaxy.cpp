@@ -39,34 +39,88 @@
 using namespace std;
 
 const char *source_code_str =
-	"#define dt 1e-2f\n"
-	"__kernel void gravity(__global const float4 *in_pos, __global float4 *out_pos,\n"
-	"					  __global const float4 *in_vel, __global float4 *out_vel,\n"
-	"					  const uint nb_particles,\n"
-	"					  const uint step)\n"
+	"#define dt 3e-2f\n"
+	"\n"
+	"inline float4 computeAcceleration(const float4 pos, const uint n, __global const float4 *in_pos)\n"
+	"{\n"
+	"	float4 a = (float4)(0.0f, 0.0f, 0.0f, 0.0f);\n"
+	"	const uint i = get_global_id(0);\n"
+	"	for(uint j = 0 ; j < n ; ++j)\n"
+	"	{\n"
+	"		if (i == j)	++j;\n"
+	"		float4 p = in_pos[j] - pos;	p.w = 0.0f;\n"
+	"		const float d2 = dot(p, p);\n"
+	"		a += (native_recip(1e-1 + d2) - native_recip(1e-3 + d2 * d2) ) * native_rsqrt(d2 + 1e-2) * (p);\n"
+	"	}\n"
+	"	return a;\n"
+	"}\n"
+	"\n"
+	"__kernel void rk1(__global const float4 *in_pos,\n"
+	"				   __global const float4 *in_vel,\n"
+	"				   __global float4 *out_pos,\n"
+	"				   __global float4 *out_acc,\n"
+	"				   const uint nb_particles)\n"
 	"{\n"
 	"	const uint i = get_global_id(0);\n"
 	"	if (i >= nb_particles)\n"
 	"		return;\n"
-	"	float4 pos = in_pos[i];\n"
-	"	float4 a = (float4)(0.0f, 0.0f, 0.0f, 0.0f);\n"
-	"	const uint n = nb_particles / step;\n"
-	"	for(uint j = 0 ; j < n ; ++j)\n"
-	"	{\n"
-	"		float4 p = in_pos[j] - pos;\n"
-	"		p.w = 0.0f;\n"
-	"		float d2 = dot(p, p);\n"
-	"		p /= sqrt(d2);\n"
-	"		if (isnan(p.x) || isnan(p.y) || isnan(p.z) || i == j)\n"
-	"			continue;\n"
-	"		p.w = 0.0f;\n"
-	"		d2 = max(d2, 1e0f);\n"
-	"		a += (1.0f / d2) * p;\n"
-	"	}\n"
-	"	a *= step;\n"
-	"	float4 v = in_vel[i] + dt * a;\n"
+	"	const float4 pos = in_pos[i];\n"
+	"	const float4 a = computeAcceleration(pos, nb_particles, in_pos);\n"
+	"	out_acc[i] = a;\n"
+	"	const float4 v = in_vel[i] + 0.5 * dt * a;\n"
+	"	out_pos[i] = pos + 0.5 * dt * v;\n"
+	"}\n"
+	"\n"
+	"__kernel void rk2(__global const float4 *in_pos,\n"
+	"				   __global const float4 *in_pos0,\n"
+	"				   __global const float4 *in_vel,\n"
+	"				   __global float4 *out_pos,\n"
+	"				   __global float4 *out_acc,\n"
+	"				   const uint nb_particles)\n"
+	"{\n"
+	"	const uint i = get_global_id(0);\n"
+	"	if (i >= nb_particles)\n"
+	"		return;\n"
+	"	const float4 pos = in_pos[i];\n"
+	"	const float4 a = computeAcceleration(pos, nb_particles, in_pos);\n"
+	"	out_acc[i] += a * 2.0;\n"
+	"	const float4 v = in_vel[i] + 0.5 * dt * a;\n"
+	"	out_pos[i] = in_pos0[i] + 0.5 * dt * v;\n"
+	"}\n"
+	"\n"
+	"__kernel void rk3(__global const float4 *in_pos,\n"
+	"				   __global const float4 *in_pos0,\n"
+	"				   __global const float4 *in_vel,\n"
+	"				   __global float4 *out_pos,\n"
+	"				   __global float4 *out_acc,\n"
+	"				   const uint nb_particles)\n"
+	"{\n"
+	"	const uint i = get_global_id(0);\n"
+	"	if (i >= nb_particles)\n"
+	"		return;\n"
+	"	const float4 pos = in_pos[i];\n"
+	"	const float4 a = computeAcceleration(pos, nb_particles, in_pos);\n"
+	"	out_acc[i] += a * 2.0;\n"
+	"	const float4 v = in_vel[i] + dt * a;\n"
+	"	out_pos[i] = in_pos0[i] + dt * v;\n"
+	"}\n"
+	"\n"
+	"__kernel void rk4(__global const float4 *in_pos,\n"
+	"				   __global const float4 *in_pos0,\n"
+	"				   __global const float4 *in_acc,\n"
+	"				   __global float4 *out_pos,\n"
+	"				   __global float4 *out_vel,\n"
+	"				   const uint nb_particles)\n"
+	"{\n"
+	"	const uint i = get_global_id(0);\n"
+	"	if (i >= nb_particles)\n"
+	"		return;\n"
+	"	const float4 pos = in_pos[i];\n"
+	"	float4 a = computeAcceleration(pos, nb_particles, in_pos);\n"
+	"	a = (a + in_acc[i]) * (1.0f / 6.0f);\n"
+	"	const float4 v = out_vel[i] + dt * a;\n"
 	"	out_vel[i] = v;\n"
-	"	out_pos[i] = pos + dt * v;\n"
+	"	out_pos[i] = in_pos0[i] + dt * v;\n"
 	"}\n"
 	;
 
@@ -122,8 +176,7 @@ int main(int argc, const char **argv)
 
 		cout << "platform selected : " << platforms[platform_id].getInfo<CL_PLATFORM_NAME>() << endl;
 
-		const cl_uint step = 1024;
-		const cl_uint nb_particles = 512 * step;
+		const cl_uint nb_particles = 8192;
 		const double r = 1e2;
 
 		vector<cl::Device> devices;
@@ -140,7 +193,7 @@ int main(int argc, const char **argv)
 		cl::Program program(context, sources);
 		try
 		{
-			program.build(devices);
+			program.build(devices, "-cl-fast-relaxed-math");
 		}
 		catch(const cl::Error &err)
 		{
@@ -148,18 +201,27 @@ int main(int argc, const char **argv)
 			std::cerr << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << std::endl;
 		}
 
-		cl::Kernel gravity(program, "gravity");
+		cl::Kernel k_rk1(program, "rk1");
+		cl::Kernel k_rk2(program, "rk2");
+		cl::Kernel k_rk3(program, "rk3");
+		cl::Kernel k_rk4(program, "rk4");
+
+		cl::KernelFunctor rk1 = k_rk1.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
+		cl::KernelFunctor rk2 = k_rk2.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
+		cl::KernelFunctor rk3 = k_rk3.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
+		cl::KernelFunctor rk4 = k_rk4.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
 
 		cl::Buffer pos0(context, CL_MEM_READ_WRITE, sizeof(cl_float4) * nb_particles);
 		cl::Buffer pos1(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
-		cl::Buffer vel0(context, CL_MEM_READ_WRITE, sizeof(cl_float4) * nb_particles);
-		cl::Buffer vel1(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
+		cl::Buffer pos2(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
+		cl::Buffer acc(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
+		cl::Buffer vel(context, CL_MEM_READ_WRITE, sizeof(cl_float4) * nb_particles);
 		cl_float4 *p_pos = (cl_float4*)queue.enqueueMapBuffer(pos0,
 															  true,
 															  CL_MEM_WRITE_ONLY,
 															  0,
 															  sizeof(cl_float4) * nb_particles);
-		cl_float4 *p_vel = (cl_float4*)queue.enqueueMapBuffer(vel0,
+		cl_float4 *p_vel = (cl_float4*)queue.enqueueMapBuffer(vel,
 															  true,
 															  CL_MEM_WRITE_ONLY,
 															  0,
@@ -168,6 +230,7 @@ int main(int argc, const char **argv)
 		for(size_t i = 0 ; i < nb_particles ; ++i)
 		{
 			const double rho = r * pow((double(rand()) / RAND_MAX), 0.75);
+//			const double rho = r * (double(rand()) / RAND_MAX);
 			double theta = (double(rand()) / RAND_MAX) * (M_PI * 2.0);
 			theta = (0.5 * cos(2.0 * theta) + theta - 1e-2 * rho);
 			const double z = 2.0 * (double(rand()) / RAND_MAX) - 1.0;
@@ -178,7 +241,7 @@ int main(int argc, const char **argv)
 			p_pos[i].s[2] = z;
 			p_pos[i].s[3] = 1.0;
 
-			const double a = 1.0e0 * (rho <= 1e-1 ? 0.0 : rho);
+			const double a = 6.0e-2 * rho;//(rho <= 1e-1 ? 0.0 : rho);
 			p_vel[i].s[0] = -a * s;
 			p_vel[i].s[1] = a * c;
 			p_vel[i].s[2] = 0.0f;
@@ -186,7 +249,7 @@ int main(int argc, const char **argv)
 		}
 
 		queue.enqueueUnmapMemObject(pos0, p_pos);
-		queue.enqueueUnmapMemObject(vel0, p_vel);
+		queue.enqueueUnmapMemObject(vel, p_vel);
 		queue.finish();
 
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTTHREAD);
@@ -196,7 +259,7 @@ int main(int argc, const char **argv)
 		glDisable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);
 		glClearColor(0,0,0,0);
-		glColor4f(0.3f, 0.4f, 1.0f, 5e-2f);
+		glColor4f(0.06f, 0.08f, 1.0f, 5e-2f * 4.0);
 		glPointSize(2.0f);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -210,6 +273,7 @@ int main(int argc, const char **argv)
 		gluLookAt(0.0, 0.0, 450.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 		while(!done)
 		{
+
 			SDL_Event e;
 			while(SDL_PollEvent(&e))
 			{
@@ -229,15 +293,11 @@ int main(int argc, const char **argv)
 				}
 			}
 
-			gravity.setArg(0, pos0);
-			gravity.setArg(1, pos1);
-			gravity.setArg(2, vel0);
-			gravity.setArg(3, vel1);
-			gravity.setArg(4, nb_particles);
-			gravity.setArg(5, step);
-			queue.enqueueNDRangeKernel(gravity, cl::NDRange(), cl::NDRange(nb_particles), cl::NDRange());
-			std::swap(pos0, pos1);
-			std::swap(vel0, vel1);
+			rk1(pos0, vel, pos1, acc, nb_particles);
+			rk2(pos1, pos0, vel, pos2, acc, nb_particles);
+			rk3(pos2, pos0, vel, pos1, acc, nb_particles);
+			rk4(pos1, pos0, acc, pos2, vel, nb_particles);
+			std::swap(pos0, pos2);
 			queue.finish();
 
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -250,6 +310,7 @@ int main(int argc, const char **argv)
 
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glVertexPointer(4, GL_FLOAT, 0, p_pos);
+
 			glDrawArrays(GL_POINTS, 0, nb_particles);
 			glFinish();
 			SDL_GL_SwapBuffers();
