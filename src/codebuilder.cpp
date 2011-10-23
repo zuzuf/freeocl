@@ -292,7 +292,33 @@ namespace FreeOCL
 		{
 			kernels.insert(i->first);
 
-			smartptr<chunk> params = i->second->get_arguments();
+			smartptr<chunk> params = new chunk;
+			*params = *(i->second->get_arguments());
+			for(size_t j = 0 ; j < params->size() ; ++j)
+			{
+				smartptr<chunk> cur = (*params)[j].as<chunk>();
+				smartptr<type> p_type = cur->front().as<type>();
+				if (cur->back().as<chunk>())
+				{
+					smartptr<chunk> back = cur->back().as<chunk>()->back().as<chunk>();
+					if (back)
+					{
+						const type::address_space addr_space = p_type->get_address_space();
+						if (back->size() > 0 && !back->front().as<chunk>())
+							back = new chunk(back);
+						for(size_t i = 0 ; i < back->size() ; ++i)
+						{
+							const smartptr<chunk> ch = (*back)[i].as<chunk>();
+							if (!ch)
+								continue;
+							if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
+								p_type = new pointer_type(p_type->clone(p_type->is_const(), addr_space), false, type::PRIVATE);
+						}
+					}
+				}
+				cur->front() = p_type;
+			}
+
 			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx, int *type)" << std::endl
 				<< "{" << std::endl
 				<< "\tswitch(idx)" << std::endl
@@ -344,7 +370,8 @@ namespace FreeOCL
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
 				const smartptr<chunk> cur = (*params)[j].as<chunk>();
-				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
+				const smartptr<type> p_type = cur->front().as<type>();
+				const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
 				const bool b_pointer = ptr;
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 				if (b_local)
@@ -359,7 +386,7 @@ namespace FreeOCL
 					last_shift = j;
 				}
 				else
-					_cat << " + sizeof(" << *(cur->front()) << ")";
+					_cat << " + sizeof(" << *(p_type) << ")";
 			}
 			gen	<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
 				<< "\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
@@ -381,25 +408,7 @@ namespace FreeOCL
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
 				const smartptr<chunk> cur = (*params)[j].as<chunk>();
-				smartptr<type> p_type = cur->front().as<type>();
-				if (cur->back().as<chunk>())
-				{
-					smartptr<chunk> back = cur->back().as<chunk>()->back().as<chunk>();
-					if (back)
-					{
-						const type::address_space addr_space = p_type->get_address_space();
-						if (back->size() > 0 && !back->front().as<chunk>())
-							back = new chunk(back);
-						for(size_t i = 0 ; i < back->size() ; ++i)
-						{
-							const smartptr<chunk> ch = (*back)[i].as<chunk>();
-							if (!ch)
-								continue;
-							if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
-								p_type = new pointer_type(p_type->clone(p_type->is_const(), addr_space), false, type::PRIVATE);
-						}
-					}
-				}
+				const smartptr<type> p_type = cur->front().as<type>();
 				const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
 				const bool b_pointer = ptr;
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;

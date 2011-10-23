@@ -27,6 +27,8 @@ namespace FreeOCL
 	public:
 		ref_count() : counter(0)	{}
 
+		ref_count &operator=(const ref_count &)	{	return *this;	}
+
 		void retain()	{	++counter;	}
 		void release()	{	--counter;	}
 		size_t get_ref_count() const	{	return counter;	}
