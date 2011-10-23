@@ -142,7 +142,7 @@ extern "C"
 
 		std::stringstream build_log;
 		bool b_valid_options = true;
-		std::set<std::string> kernel_names;
+		FreeOCL::set<std::string> kernel_names;
 		const std::string binary_file = FreeOCL::build_program(options ? options : std::string(),
 															   source_code,
 															   build_log,

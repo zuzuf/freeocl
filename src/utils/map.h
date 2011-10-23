@@ -20,21 +20,22 @@
 
 #ifdef FREEOCL_USE_CXX0X
 #include <unordered_map>
+#include "hash.h"
 #else
 #include <map>
 #endif
 
-namespace FreeOCL {
-
-template<typename _Key, typename _Tp>
-class map: public
-#ifdef FREEOCL_USE_CXX0X
-		std::unordered_map<_Key, _Tp>
-#else
-		std::map<_Key, _Tp>
-#endif
+namespace FreeOCL
 {
-};
+	template<typename _Key, typename _Tp>
+	class map: public
+#ifdef FREEOCL_USE_CXX0X
+			std::unordered_map<_Key, _Tp, FreeOCL::hash<_Key> >
+#else
+			std::map<_Key, _Tp>
+#endif
+	{
+	};
 
 }
 

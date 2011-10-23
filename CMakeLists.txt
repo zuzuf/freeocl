@@ -24,7 +24,9 @@ else(OPENMP_FOUND)
 endif(OPENMP_FOUND)
 
 # Default is debug build
-set(CMAKE_BUILD_TYPE Debug)
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Debug)
+endif(NOT CMAKE_BUILD_TYPE)
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math")
 set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -ffast-math")

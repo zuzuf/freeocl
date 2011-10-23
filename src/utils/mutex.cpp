@@ -52,7 +52,7 @@ namespace FreeOCL
 
 	void unlocker::unlockall()
 	{
-		for(std::set<mutex*>::const_iterator i = objects.begin() ; i != objects.end() ; ++i)
+		for(set<mutex*>::const_iterator i = objects.begin() ; i != objects.end() ; ++i)
 			(*i)->unlock();
 		objects.clear();
 	}

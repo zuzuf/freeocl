@@ -28,7 +28,7 @@
 
 namespace FreeOCL
 {
-	std::string build_program(const std::string &options, const std::string &code, std::stringstream &log, std::set<std::string> &kernels, bool &b_valid_options)
+	std::string build_program(const std::string &options, const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels, bool &b_valid_options)
 	{
 		b_valid_options = true;
 
@@ -255,7 +255,7 @@ namespace FreeOCL
 		return out;
 	}
 
-	std::string validate_code(const std::string &code, std::stringstream &log, std::set<std::string> &kernels)
+	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels)
 	{
 		log << "code validator log:" << std::endl;
 		log << "code:" << std::endl << code << std::endl;
@@ -267,7 +267,7 @@ namespace FreeOCL
 		if (p.errors())
 			return std::string();
 
-		static std::set<std::string> types;
+		static FreeOCL::set<std::string> types;
 		static bool b_init = true;
 		if (b_init)
 		{

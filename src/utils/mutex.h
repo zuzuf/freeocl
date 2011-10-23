@@ -20,7 +20,7 @@
 
 #include <pthread.h>
 #include <errno.h>
-#include <set>
+#include "set.h"
 
 namespace FreeOCL
 {
@@ -65,7 +65,7 @@ namespace FreeOCL
 		void unlockall();
 
 	private:
-		std::set<mutex*> objects;
+		set<mutex*> objects;
 	};
 }
 

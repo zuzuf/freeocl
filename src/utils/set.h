@@ -20,22 +20,22 @@
 
 #ifdef FREEOCL_USE_CXX0X
 #include <unordered_set>
+#include "hash.h"
 #else
 #include <set>
 #endif
 
-namespace FreeOCL {
-
-template<typename _Key>
-class set: public
-#ifdef FREEOCL_USE_CXX0X
-		std::unordered_set<_Key>
-#else
-		std::set<_Key>
-#endif
+namespace FreeOCL
 {
-};
-
+	template<typename _Key>
+	class set: public
+#ifdef FREEOCL_USE_CXX0X
+			std::unordered_set<_Key, hash<_Key> >
+#else
+			std::set<_Key>
+#endif
+	{
+	};
 }
 
 #endif /* __FREEOCL_UTILS_SET_H__ */

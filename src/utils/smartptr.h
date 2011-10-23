@@ -25,13 +25,13 @@ namespace FreeOCL
 	class ref_count
 	{
 	public:
-		ref_count() : counter(0)	{}
+		inline ref_count() : counter(0)	{}
 
-		ref_count &operator=(const ref_count &)	{	return *this;	}
+		inline ref_count &operator=(const ref_count &)	{	return *this;	}
 
-		void retain()	{	++counter;	}
-		void release()	{	--counter;	}
-		size_t get_ref_count() const	{	return counter;	}
+		inline void retain()	{	++counter;	}
+		inline void release()	{	--counter;	}
+		inline size_t get_ref_count() const	{	return counter;	}
 	private:
 		size_t counter;
 	};
@@ -80,8 +80,8 @@ namespace FreeOCL
 	{
 		template<class U> friend class FreeOCL::smartptr;
 	public:
-		smartptr() : ptr(NULL)	{}
-		smartptr(T *ptr) : ptr(ptr)
+		inline smartptr() : ptr(NULL)	{}
+		inline smartptr(T *ptr) : ptr(ptr)
 		{
 			if (ptr)
 			{
@@ -90,7 +90,7 @@ namespace FreeOCL
 				__smartptr_trait_lockable<T>::unlock(ptr);
 			}
 		}
-		smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))
+		inline smartptr(const T *ptr) : ptr(const_cast<T*>(ptr))
 		{
 			if (this->ptr)
 			{
@@ -99,7 +99,7 @@ namespace FreeOCL
 				__smartptr_trait_lockable<T>::unlock(this->ptr);
 			}
 		}
-		smartptr(smartptr &ptr) : ptr(ptr.ptr)
+		inline smartptr(smartptr &ptr) : ptr(ptr.ptr)
 		{
 			if (this->ptr)
 			{
@@ -108,17 +108,7 @@ namespace FreeOCL
 				__smartptr_trait_lockable<T>::unlock(this->ptr);
 			}
 		}
-		smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))
-		{
-			if (this->ptr)
-			{
-				__smartptr_trait_lockable<T>::lock(this->ptr);
-				this->ptr->retain();
-				__smartptr_trait_lockable<T>::unlock(this->ptr);
-			}
-		}
-		template<class U>
-		smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))
+		inline smartptr(const smartptr &ptr) : ptr(const_cast<T*>(ptr.ptr))
 		{
 			if (this->ptr)
 			{
@@ -128,7 +118,7 @@ namespace FreeOCL
 			}
 		}
 		template<class U>
-		smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))
+		inline smartptr(const smartptr<U> &ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr.ptr)))
 		{
 			if (this->ptr)
 			{
@@ -137,13 +127,23 @@ namespace FreeOCL
 				__smartptr_trait_lockable<T>::unlock(this->ptr);
 			}
 		}
-		virtual ~smartptr()
+		template<class U>
+		inline smartptr(const U *ptr) : ptr(dynamic_cast<T*>(const_cast<U*>(ptr)))
+		{
+			if (this->ptr)
+			{
+				__smartptr_trait_lockable<T>::lock(this->ptr);
+				this->ptr->retain();
+				__smartptr_trait_lockable<T>::unlock(this->ptr);
+			}
+		}
+		inline ~smartptr()
 		{
 			if (ptr)
 				clear(ptr);
 		}
 
-		smartptr &operator=(const smartptr &ptr)
+		inline smartptr &operator=(const smartptr &ptr)
 		{
 			if (this->ptr == ptr.ptr)
 				return *this;
@@ -166,7 +166,7 @@ namespace FreeOCL
 			return *this;
 		}
 
-		smartptr &operator=(const T *ptr)
+		inline smartptr &operator=(const T *ptr)
 		{
 			if (this->ptr == ptr)
 				return *this;
@@ -191,29 +191,29 @@ namespace FreeOCL
 		}
 
 		template<class U>
-		smartptr &operator=(const U *ptr)
+		inline smartptr &operator=(const U *ptr)
 		{
 			return operator=(dynamic_cast<const T*>(ptr));
 		}
 
-		T *operator->()	{	return ptr;	}
-		const T *operator->() const	{	return ptr;	}
-		T &operator*()	{	return *ptr;	}
-		const T &operator*() const	{	return *ptr;	}
+		inline T *operator->()	{	return ptr;	}
+		inline const T *operator->() const	{	return ptr;	}
+		inline T &operator*()	{	return *ptr;	}
+		inline const T &operator*() const	{	return *ptr;	}
 
-		operator bool() const	{	return ptr != NULL;	}
-
-		template<class U>
-		U *as()	{	return dynamic_cast<U*>(ptr);	}
+		inline operator bool() const	{	return ptr != NULL;	}
 
 		template<class U>
-		const U *as() const	{	return dynamic_cast<const U*>(ptr);	}
+		inline U *as()	{	return dynamic_cast<U*>(ptr);	}
 
-		T * const &weak() const	{	return ptr;	}
-		T * &weak()	{	return ptr;	}
+		template<class U>
+		inline const U *as() const	{	return dynamic_cast<const U*>(ptr);	}
+
+		inline T * const &weak() const	{	return ptr;	}
+		inline T * &weak()	{	return ptr;	}
 
 	private:
-		void clear(T *p) const
+		inline void clear(T *p) const
 		{
 			__smartptr_trait_lockable<T>::lock(p);
 			p->release();

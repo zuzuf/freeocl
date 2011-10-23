@@ -39,7 +39,8 @@ set(PARSER_SOURCES
 set(UTILS_SOURCES
     utils/map.h
     utils/set.h
-    utils/smartptr.h
+	utils/hash.h
+	utils/smartptr.h
     utils/string.h
     utils/commandqueue.cpp    utils/commandqueue.h
     utils/mutex.cpp        utils/mutex.h
