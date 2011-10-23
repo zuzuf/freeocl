@@ -66,7 +66,27 @@ set(SOURCES
     codebuilder.cpp	codebuilder.h
 	)
 
-add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES})
+# Add FreeOCL headers in order to have them recognized by IDEs
+set(FREEOCL_HEADERS
+	../include/FreeOCL/asyncmemop.h
+	../include/FreeOCL/atomic.h
+	../include/FreeOCL/common.h
+	../include/FreeOCL/converters.h
+	../include/FreeOCL/geometric.h
+	../include/FreeOCL/imgreadwrite.h
+	../include/FreeOCL/integer.h
+	../include/FreeOCL/math.h
+	../include/FreeOCL/memfence.h
+	../include/FreeOCL/opencl_c.h
+	../include/FreeOCL/relational.h
+	../include/FreeOCL/sync.h
+	../include/FreeOCL/vectors.h
+	../include/FreeOCL/vloadstore.h
+	../include/FreeOCL/vmisc.h
+	../include/FreeOCL/workitem.h
+	)
+
+add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS})
 target_link_libraries(FreeOCL)
 
 # Installation and packaging process
