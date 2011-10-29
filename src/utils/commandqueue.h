@@ -111,11 +111,41 @@ namespace FreeOCL
 		virtual cl_command_type get_type() const;
 	};
 
+	struct command_read_image : public command_read_buffer_rect
+	{
+		virtual cl_command_type get_type() const;
+	};
+
+	struct command_write_image : public command_write_buffer_rect
+	{
+		virtual cl_command_type get_type() const;
+	};
+
+	struct command_copy_image : public command_copy_buffer_rect
+	{
+		virtual cl_command_type get_type() const;
+	};
+
+	struct command_copy_image_to_buffer : public command_copy_buffer_rect
+	{
+		virtual cl_command_type get_type() const;
+	};
+
+	struct command_copy_buffer_to_image : public command_copy_buffer_rect
+	{
+		virtual cl_command_type get_type() const;
+	};
+
 	struct command_map_buffer : public command_common
 	{
 		smartptr<_cl_mem> buffer;
 		void *ptr;
 
+		virtual cl_command_type get_type() const;
+	};
+
+	struct command_map_image : public command_map_buffer
+	{
 		virtual cl_command_type get_type() const;
 	};
 

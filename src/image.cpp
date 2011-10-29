@@ -361,7 +361,91 @@ extern "C"
 							   cl_event *event)
 	{
 		MSG(clEnqueueReadImageFCL);
-		return CL_INVALID_MEM_OBJECT;
+
+		if (ptr == NULL
+				|| region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(image);
+
+		if (image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (image->width < origin[0] + region[0]
+				|| image->height < origin[1] + region[1]
+				|| image->depth < origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		if (row_pitch == 0)	row_pitch = image->width * image->element_size;
+		if (slice_pitch == 0)	slice_pitch = image->height * image->row_pitch;
+
+		if (row_pitch < image->width * image->element_size
+				|| slice_pitch < image->row_pitch * image->height)
+			return CL_INVALID_VALUE;
+
+		if (blocking_read == CL_TRUE)
+		{
+			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+				if (event_wait_list[i]->status < 0)
+					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
+		}
+
+		FreeOCL::smartptr<FreeOCL::command_read_image> cmd = new FreeOCL::command_read_image;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = (blocking_read == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = image;
+		cmd->offset = origin[0] * image->element_size + origin[1] * image->row_pitch + origin[2] * image->slice_pitch;
+		cmd->cb[0] = region[0] * image->element_size;
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->ptr = ptr;
+		cmd->buffer_pitch[0] = image->row_pitch;
+		cmd->buffer_pitch[1] = image->slice_pitch;
+		cmd->host_pitch[0] = row_pitch;
+		cmd->host_pitch[1] = slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_READ_IMAGE;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		if (blocking_read == CL_TRUE)
+		{
+			clWaitForEvents(1, &(cmd->event.weak()));
+			if (event == NULL)
+				clReleaseEvent(cmd->event.weak());
+		}
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clEnqueueWriteImageFCL (cl_command_queue command_queue,
@@ -377,7 +461,91 @@ extern "C"
 								cl_event *event)
 	{
 		MSG(clEnqueueWriteImageFCL);
-		return CL_INVALID_MEM_OBJECT;
+
+		if (ptr == NULL
+				|| region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(image);
+
+		if (image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (image->width < origin[0] + region[0]
+				|| image->height < origin[1] + region[1]
+				|| image->depth < origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		if (input_row_pitch == 0)	input_row_pitch = image->width * image->element_size;
+		if (input_slice_pitch == 0)	input_slice_pitch = image->height * image->row_pitch;
+
+		if (input_row_pitch < image->width * image->element_size
+				|| input_slice_pitch < image->row_pitch * image->height)
+			return CL_INVALID_VALUE;
+
+		if (blocking_write == CL_TRUE)
+		{
+			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+				if (event_wait_list[i]->status < 0)
+					return CL_EXEC_STATUS_ERROR_FOR_EVENTS_IN_WAIT_LIST;
+		}
+
+		FreeOCL::smartptr<FreeOCL::command_write_image> cmd = new FreeOCL::command_write_image;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = (blocking_write == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = image;
+		cmd->offset = origin[0] * image->element_size + origin[1] * image->row_pitch + origin[2] * image->slice_pitch;
+		cmd->cb[0] = region[0] * image->element_size;
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->ptr = ptr;
+		cmd->buffer_pitch[0] = image->row_pitch;
+		cmd->buffer_pitch[1] = image->slice_pitch;
+		cmd->host_pitch[0] = input_row_pitch;
+		cmd->host_pitch[1] = input_slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_WRITE_IMAGE;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		if (blocking_write == CL_TRUE)
+		{
+			clWaitForEvents(1, &(cmd->event.weak()));
+			if (event == NULL)
+				clReleaseEvent(cmd->event.weak());
+		}
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clEnqueueCopyImageFCL (cl_command_queue command_queue,
@@ -391,7 +559,100 @@ extern "C"
 							   cl_event *event)
 	{
 		MSG(clEnqueueCopyImageFCL);
-		return CL_INVALID_MEM_OBJECT;
+		if (region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(src_image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(src_image);
+
+		if (src_image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& src_image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (src_image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (src_origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (src_image->width < src_origin[0] + region[0]
+				|| src_image->height < src_origin[1] + region[1]
+				|| src_image->depth < src_origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::is_valid(dst_image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(dst_image);
+
+		if (dst_image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& dst_image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (dst_image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (dst_origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (dst_image->width < dst_origin[0] + region[0]
+				|| dst_image->height < dst_origin[1] + region[1]
+				|| dst_image->depth < dst_origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		if (src_image->image_format.image_channel_order != dst_image->image_format.image_channel_order
+			|| src_image->image_format.image_channel_data_type != dst_image->image_format.image_channel_data_type)
+			return CL_IMAGE_FORMAT_MISMATCH;
+
+		if (src_image == dst_image
+				&& src_origin[0] + region[0] > dst_origin[0] && src_origin[0] < dst_origin[0] + region[0]
+				&& src_origin[1] + region[1] > dst_origin[1] && src_origin[1] < dst_origin[1] + region[1]
+				&& src_origin[2] + region[2] > dst_origin[2] && src_origin[2] < dst_origin[2] + region[2])
+			return CL_MEM_COPY_OVERLAP;
+
+		FreeOCL::smartptr<FreeOCL::command_copy_image> cmd = new FreeOCL::command_copy_image;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->src_buffer = src_image;
+		cmd->src_offset = src_origin[0] * src_image->element_size
+						  + src_origin[1] * src_image->row_pitch
+						  + src_origin[2] * src_image->slice_pitch;
+		cmd->dst_buffer = dst_image;
+		cmd->dst_offset = dst_origin[0] * dst_image->element_size
+						  + dst_origin[1] * dst_image->row_pitch
+						  + dst_origin[2] * dst_image->slice_pitch;
+		cmd->cb[0] = region[0] * src_image->element_size;
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->src_pitch[0] = src_image->row_pitch;
+		cmd->src_pitch[1] = src_image->slice_pitch;
+		cmd->dst_pitch[0] = dst_image->row_pitch;
+		cmd->dst_pitch[1] = dst_image->slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_COPY_IMAGE;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clEnqueueCopyImageToBufferFCL (cl_command_queue command_queue,
@@ -405,7 +666,78 @@ extern "C"
 									   cl_event *event)
 	{
 		MSG(clEnqueueCopyImageToBufferFCL);
-		return CL_INVALID_MEM_OBJECT;
+		if (region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(src_image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(src_image);
+
+		if (src_image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& src_image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (src_image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (src_origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (src_image->width < src_origin[0] + region[0]
+				|| src_image->height < src_origin[1] + region[1]
+				|| src_image->depth < src_origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::is_valid(dst_buffer))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(dst_buffer);
+
+		if (dst_buffer->size < dst_offset + region[0] * region[1] * region[2] * src_image->element_size)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::smartptr<FreeOCL::command_copy_image_to_buffer> cmd = new FreeOCL::command_copy_image_to_buffer;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->src_buffer = src_image;
+		cmd->src_offset = src_origin[0] * src_image->element_size
+						  + src_origin[1] * src_image->row_pitch
+						  + src_origin[2] * src_image->slice_pitch;
+		cmd->dst_buffer = dst_buffer;
+		cmd->dst_offset = dst_offset;
+		cmd->cb[0] = region[0] * src_image->element_size;
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->src_pitch[0] = src_image->row_pitch;
+		cmd->src_pitch[1] = src_image->slice_pitch;
+		cmd->dst_pitch[0] = region[0] * src_image->element_size;
+		cmd->dst_pitch[1] = region[0] * region[1] * src_image->element_size;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_COPY_IMAGE_TO_BUFFER;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clEnqueueCopyBufferToImageFCL (cl_command_queue command_queue,
@@ -419,7 +751,78 @@ extern "C"
 									   cl_event *event)
 	{
 		MSG(clEnqueueCopyBufferToImageFCL);
-		return CL_INVALID_MEM_OBJECT;
+		if (region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(src_buffer))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(src_buffer);
+
+		if (!FreeOCL::is_valid(dst_image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(dst_image);
+
+		if (dst_image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& dst_image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (dst_image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (dst_origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (dst_image->width < dst_origin[0] + region[0]
+				|| dst_image->height < dst_origin[1] + region[1]
+				|| dst_image->depth < dst_origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		if (src_buffer->size < src_offset + region[0] * region[1] * region[2] * dst_image->element_size)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::smartptr<FreeOCL::command_copy_buffer_to_image> cmd = new FreeOCL::command_copy_buffer_to_image;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->src_buffer = src_buffer;
+		cmd->src_offset = src_offset;
+		cmd->dst_buffer = dst_image;
+		cmd->dst_offset = dst_origin[0] * dst_image->element_size
+						  + dst_origin[1] * dst_image->row_pitch
+						  + dst_origin[2] * dst_image->slice_pitch;
+		cmd->cb[0] = region[0] * dst_image->element_size;
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->src_pitch[0] = region[0] * dst_image->element_size;
+		cmd->src_pitch[1] = region[0] * region[1] * dst_image->element_size;
+		cmd->dst_pitch[0] = dst_image->row_pitch;
+		cmd->dst_pitch[1] = dst_image->slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_COPY_BUFFER_TO_IMAGE;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		unlock.unlockall();
+
+		return CL_SUCCESS;
 	}
 
 	void *clEnqueueMapImageFCL (cl_command_queue command_queue,
@@ -436,8 +839,116 @@ extern "C"
 							  cl_int *errcode_ret)
 	{
 		MSG(clEnqueueMapImageFCL);
-		SET_RET(CL_INVALID_MEM_OBJECT);
-		return NULL;
+
+		if (image_row_pitch == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+		{
+			SET_RET(CL_INVALID_COMMAND_QUEUE);
+			return NULL;
+		}
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return NULL;
+		}
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(image))
+		{
+			SET_RET(CL_INVALID_MEM_OBJECT);
+			return NULL;
+		}
+		unlock.handle(image);
+		if (image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+		{
+			SET_RET(CL_INVALID_MEM_OBJECT);
+			return NULL;
+		}
+
+		if (image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (origin[2] != 0 || region[2] != 1))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
+
+		if (image->mem_type == CL_MEM_OBJECT_IMAGE3D && image_slice_pitch == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
+
+		if (image->width < origin[0] + region[0]
+				|| image->height < origin[1] + region[1]
+				|| image->depth < origin[2] + region[2])
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
+
+		*image_row_pitch = image->row_pitch;
+		if (image_slice_pitch)
+			*image_slice_pitch = (image->mem_type == CL_MEM_OBJECT_IMAGE2D) ? 0 : image->slice_pitch;
+
+		void *p = (char*)image->ptr
+				  + image->element_size * origin[0]
+				  + image->row_pitch * origin[1]
+				  + image->slice_pitch * origin[2];
+		if (num_events_in_wait_list == 0 || event_wait_list == NULL)
+		{
+			image->mapped.insert(p);
+			if (event)
+			{
+				cl_event e = new _cl_event(command_queue->context);
+				*event = e;
+				e->command_queue = command_queue;
+				e->command_type = CL_COMMAND_MAP_IMAGE;
+				e->status = CL_QUEUED;
+				e->change_status(CL_QUEUED);
+				e->change_status(CL_SUBMITTED);
+				e->change_status(CL_RUNNING);
+				e->change_status(CL_COMPLETE);
+			}
+		}
+		else
+		{
+			FreeOCL::smartptr<FreeOCL::command_map_image> cmd = new FreeOCL::command_map_image;
+			cmd->num_events_in_wait_list = num_events_in_wait_list;
+			cmd->event_wait_list = event_wait_list;
+			cmd->event = (blocking_map == CL_TRUE || event) ? new _cl_event(command_queue->context) : NULL;
+			if (cmd->event)
+			{
+				cmd->event->command_queue = command_queue;
+				cmd->event->command_type = CL_COMMAND_MAP_IMAGE;
+				cmd->event->status = CL_QUEUED;
+				if (event)
+					*event = cmd->event.weak();
+			}
+			cmd->buffer = image;
+			cmd->ptr = p;
+
+			unlock.forget(command_queue);
+			command_queue->enqueue(cmd);
+			unlock.unlockall();
+
+			if (blocking_map == CL_TRUE)
+			{
+				clWaitForEvents(1, &cmd->event.weak());
+				if (event == NULL)
+					clReleaseEvent(cmd->event.weak());
+			}
+		}
+		SET_RET(CL_SUCCESS);
+		return p;
 	}
 
 	cl_int clGetImageInfoFCL (cl_mem image,

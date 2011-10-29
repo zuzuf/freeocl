@@ -31,6 +31,11 @@
 
 namespace FreeOCL
 {
+	cl_command_type command_read_image::get_type() const	{	return CL_COMMAND_READ_IMAGE;	}
+	cl_command_type command_write_image::get_type() const	{	return CL_COMMAND_WRITE_IMAGE;	}
+	cl_command_type command_copy_image::get_type() const	{	return CL_COMMAND_COPY_IMAGE;	}
+	cl_command_type command_copy_image_to_buffer::get_type() const	{	return CL_COMMAND_COPY_IMAGE_TO_BUFFER;	}
+	cl_command_type command_copy_buffer_to_image::get_type() const	{	return CL_COMMAND_COPY_BUFFER_TO_IMAGE;	}
 	cl_command_type command_read_buffer_rect::get_type() const	{	return CL_COMMAND_READ_BUFFER_RECT;	}
 	cl_command_type command_write_buffer_rect::get_type() const	{	return CL_COMMAND_WRITE_BUFFER_RECT;	}
 	cl_command_type command_copy_buffer_rect::get_type() const	{	return CL_COMMAND_COPY_BUFFER_RECT;	}
@@ -38,6 +43,7 @@ namespace FreeOCL
 	cl_command_type command_write_buffer::get_type() const	{	return CL_COMMAND_WRITE_BUFFER;	}
 	cl_command_type command_copy_buffer::get_type() const	{	return CL_COMMAND_COPY_BUFFER;	}
 	cl_command_type command_map_buffer::get_type() const		{	return CL_COMMAND_MAP_BUFFER;	}
+	cl_command_type command_map_image::get_type() const		{	return CL_COMMAND_MAP_IMAGE;	}
 	cl_command_type command_unmap_buffer::get_type() const	{	return CL_COMMAND_UNMAP_MEM_OBJECT;	}
 	cl_command_type command_marker::get_type() const			{	return CL_COMMAND_MARKER;	}
 	cl_command_type command_native_kernel::get_type() const	{	return CL_COMMAND_NATIVE_KERNEL;	}
@@ -333,6 +339,7 @@ unsigned long _cl_command_queue::proc()
 
 		switch(cmd->get_type())
 		{
+		case CL_COMMAND_READ_IMAGE:
 		case CL_COMMAND_READ_BUFFER_RECT:
 			{
 				char *dst_ptr = (char*)cmd.as<FreeOCL::command_read_buffer_rect>()->ptr;
@@ -352,6 +359,7 @@ unsigned long _cl_command_queue::proc()
 						memcpy(dst_ptr, src_ptr, cb[0]);
 			}
 			break;
+		case CL_COMMAND_WRITE_IMAGE:
 		case CL_COMMAND_WRITE_BUFFER_RECT:
 			{
 				const char *src_ptr = (const char*)cmd.as<FreeOCL::command_write_buffer_rect>()->ptr;
@@ -371,6 +379,9 @@ unsigned long _cl_command_queue::proc()
 						memcpy(dst_ptr, src_ptr, cb[0]);
 			}
 			break;
+		case CL_COMMAND_COPY_IMAGE_TO_BUFFER:
+		case CL_COMMAND_COPY_BUFFER_TO_IMAGE:
+		case CL_COMMAND_COPY_IMAGE:
 		case CL_COMMAND_COPY_BUFFER_RECT:
 			{
 				const char *src_ptr = (const char*)cmd.as<FreeOCL::command_copy_buffer_rect>()->src_buffer->ptr
@@ -402,6 +413,7 @@ unsigned long _cl_command_queue::proc()
 				   (char*)cmd.as<FreeOCL::command_copy_buffer>()->src_buffer->ptr + cmd.as<FreeOCL::command_copy_buffer>()->src_offset,
 				   cmd.as<FreeOCL::command_copy_buffer>()->cb);
 			break;
+		case CL_COMMAND_MAP_IMAGE:
 		case CL_COMMAND_MAP_BUFFER:
 			cmd.as<FreeOCL::command_map_buffer>()->buffer->lock();
 			cmd.as<FreeOCL::command_map_buffer>()->buffer->mapped.insert(cmd.as<FreeOCL::command_map_buffer>()->ptr);
