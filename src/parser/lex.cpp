@@ -4,12 +4,14 @@
 */
 #include "parser.h"
 #include <utils/map.h>
+#include <utils/string.h>
 #include <cmath>
 #include <sstream>
 #include "value.h"
 #include "token.h"
 #include "symbol_table.h"
 #include <stdint.h>
+#include "macros.h"
 
 using namespace std;
 
@@ -201,11 +203,32 @@ lex_start:
 
 			static bool b_init_keywords = true;
 			static FreeOCL::map<string, int> keywords;
+			static FreeOCL::set<string> reserved;
 			if (b_init_keywords)
 			{
 				b_init_keywords = false;
+				const char *vreserved[] = { "bool2","bool3","bool4","bool8","bool16",
+											"half2","half3","half4","half8","half16",
+											"quad", "quad2","quad3","quad4","quad8","quad16",
+											"complex", "imaginary"};
+				reserved.insert(vreserved, vreserved + sizeof(vreserved) / sizeof(*vreserved));
+				for(int i = 1 ; i < 16 ; ++i)
+				{
+					for(int j = 1 ; j < 16 ; ++j)
+					{
+						const std::string suffix = FreeOCL::to_string(i) + "x" + FreeOCL::to_string(j);
+						reserved.insert("float" + suffix);
+						reserved.insert("double" + suffix);
+					}
+				}
+
 				keywords["typedef"] = TYPEDEF;
 				keywords["sizeof"] = SIZEOF;
+
+				keywords["sampler_t"] = SAMPLER_T;
+				keywords["image2d_t"] = IMAGE2D_T;
+				keywords["image3d_t"] = IMAGE3D_T;
+				keywords["event_t"] = EVENT_T;
 
 				keywords["bool"] = BOOL;
 				keywords["half"] = HALF;
@@ -275,6 +298,9 @@ lex_start:
 				keywords["inline"] = INLINE;
 				keywords["__attribute__"] = __ATTRIBUTE__;
 			}
+
+			if (reserved.count(name))
+				ERROR("'" + name + "' is reserved");
 
 			FreeOCL::map<string, int>::const_iterator it = keywords.find(name);
 			if (it != keywords.end())

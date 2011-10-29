@@ -48,6 +48,9 @@ namespace FreeOCL
 			{
 				m_types["bool"] = native_type::BOOL;
 				m_types["half"] = native_type::HALF;
+				m_types["sampler_t"] = native_type::SAMPLER_T;
+				m_types["image2d_t"] = native_type::IMAGE2D_T;
+				m_types["image3d_t"] = native_type::IMAGE3D_T;
 				m_types["size_t"] = native_type::SIZE_T;
 				m_types["char"] = native_type::CHAR;
 				m_types["short"] = native_type::SHORT;

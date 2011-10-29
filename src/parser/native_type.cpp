@@ -19,6 +19,10 @@
 
 namespace FreeOCL
 {
+	smartptr<type> native_type::t_image2d_t(new native_type(native_type::IMAGE2D_T, true, type::CONSTANT));
+	smartptr<type> native_type::t_image3d_t(new native_type(native_type::IMAGE3D_T, true, type::CONSTANT));
+	smartptr<type> native_type::t_sampler_t(new native_type(native_type::SAMPLER_T, true, type::CONSTANT));
+	smartptr<type> native_type::t_event_t(new native_type(native_type::EVENT_T, true, type::CONSTANT));
 	smartptr<type> native_type::t_void(new native_type(native_type::VOID, true, type::CONSTANT));
 	smartptr<type> native_type::t_bool(new native_type(native_type::BOOL, true, type::CONSTANT));
 	smartptr<type> native_type::t_half(new native_type(native_type::HALF, true, type::CONSTANT));
@@ -98,7 +102,7 @@ namespace FreeOCL
 	std::string native_type::get_name() const
 	{
 		static const char *type_name[] = {
-			"void", "bool", "half", "size_t",
+			"void", "bool", "half", "size_t", "sampler_t", "image2d_t", "image3d_t", "event_t",
 			"char", "short", "int", "long", "uchar", "ushort", "uint", "ulong", "float", "double",
 			"char2", "short2", "int2", "long2", "uchar2", "ushort2", "uint2", "ulong2", "float2", "double2",
 			"char3", "short3", "int3", "long3", "uchar3", "ushort3", "uint3", "ulong3", "float3", "double3",
@@ -133,7 +137,7 @@ namespace FreeOCL
 	size_t native_type::get_dim_for(int id)
 	{
 		static size_t type_dim[] = {
-			0, 1, 1, 1,
+			0, 1, 1, 1, 1, 1, 1, 1,
 			1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 			2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
 			3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
