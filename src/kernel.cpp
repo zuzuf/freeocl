@@ -21,6 +21,7 @@
 #include "event.h"
 #include "mem.h"
 #include "program.h"
+#include "device.h"
 #include <cstdlib>
 #include <cstring>
 #include <dlfcn.h>
@@ -373,9 +374,7 @@ extern "C"
 		size_t p_local_work_size[3];
 		if (local_work_size == NULL)
 		{
-			cl_uint nb_cores;
-			clGetDeviceInfo(FreeOCL::device, CL_DEVICE_MAX_COMPUTE_UNITS, sizeof(cl_uint), &nb_cores, NULL);
-			p_local_work_size[0] = nb_cores;
+			p_local_work_size[0] = FreeOCL::device->cpu_cores;
 			p_local_work_size[1] = 1;
 			p_local_work_size[2] = 1;
 			local_work_size = p_local_work_size;

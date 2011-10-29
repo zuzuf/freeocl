@@ -46,6 +46,11 @@ struct _cl_mem : public FreeOCL::icd_table, public FreeOCL::ref_counter, public 
 	std::deque<FreeOCL::mem_call_back> call_backs;
 	std::multiset<void*> mapped;
 	size_t offset;
+	size_t width, height, depth;
+	size_t row_pitch;
+	size_t slice_pitch;
+	size_t element_size;
+	_cl_image_format image_format;
 };
 
 #endif

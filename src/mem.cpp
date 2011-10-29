@@ -19,6 +19,7 @@
 #include "context.h"
 #include "utils/commandqueue.h"
 #include "event.h"
+#include "device.h"
 #include <cstring>
 #include <iostream>
 #include <algorithm>
@@ -138,9 +139,7 @@ extern "C"
 					SET_RET(CL_INVALID_VALUE);
 					return 0;
 				}
-				cl_uint mem_align;
-				clGetDeviceInfo(FreeOCL::device, CL_DEVICE_MEM_BASE_ADDR_ALIGN, sizeof(mem_align), &mem_align, NULL);
-				if ((p_info->origin % mem_align) != 0)
+				if ((p_info->origin % FreeOCL::device->mem_base_addr_align) != 0)
 				{
 					SET_RET(CL_MISALIGNED_SUB_BUFFER_OFFSET);
 					return 0;
