@@ -205,9 +205,8 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #include "asyncmemop.h"
 #include "atomic.h"
 #include "vmisc.h"
-#include "imgreadwrite.h"
-
 #include "converters.h"
+#include "imgreadwrite.h"
 
 #undef FLOAT2
 #undef FLOAT4

@@ -17,12 +17,15 @@
 */
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_INTEGER_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_INTEGER_H__
+#include "vectors.h"
+
 // Built-in integer functions
 
 inline long clamp(long, long, long);
 
 // for int
 //inline uint abs(int x)	{	return x >= 0 ? x : -x;	}
+inline uint abs(const int &x)	{	return x >= 0 ? x : -x;	}
 inline uint abs_diff(int x, int y)	{	return x > y ? x - y : y - x;	}
 inline int add_sat(int x, int y)
 {	return int(clamp(long(x) + long(y), -0x80000000, 0x7FFFFFFF));	}
@@ -78,5 +81,8 @@ inline ulong upsample(uint hi, uint lo)	{	return ((long long)hi << 32) | lo;	}
 // fast integer built-in functions
 inline int mad24(int x, int y, int z)	{	return x * y + z;	}
 inline int mul24(int x, int y)	{	return x * y;	}
+
+VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_I(clamp)
+VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_I(abs)
 
 #endif

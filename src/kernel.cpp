@@ -37,6 +37,7 @@ namespace
 		uint channel_data_type;
 		size_t width, height;
 		size_t row_pitch;
+		size_t element_size;
 		void *data;
 	};
 
@@ -46,6 +47,7 @@ namespace
 		uint channel_data_type;
 		size_t width, height, depth;
 		size_t row_pitch, slice_pitch;
+		size_t element_size;
 		void *data;
 	};
 }
@@ -325,6 +327,7 @@ extern "C"
 				img.width = image->width;
 				img.height = image->height;
 				img.row_pitch = image->row_pitch;
+				img.element_size = image->element_size;
 				img.data = image->ptr;
 
 				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
@@ -352,6 +355,7 @@ extern "C"
 				img.depth = image->depth;
 				img.row_pitch = image->row_pitch;
 				img.slice_pitch = image->slice_pitch;
+				img.element_size = image->element_size;
 				img.data = image->ptr;
 
 				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
