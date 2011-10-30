@@ -70,42 +70,32 @@ extern "C"
 			channels = 4;
 			break;
 		case CL_BGRA:
+		case CL_ARGB:
 			channels = 4;
 			switch(image_format->image_channel_data_type)
 			{
 			case CL_UNORM_INT8:
-				break;
 			case CL_SNORM_INT8:
 			case CL_SIGNED_INT8:
 			case CL_UNSIGNED_INT8:
-				SET_RET(CL_IMAGE_FORMAT_NOT_SUPPORTED);
-				return 0;
+				break;
 			default:
 				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
 				return 0;
 			}
 			break;
 		case CL_R:
-		case CL_Rx:
 		case CL_A:
+			channels = 1;
+			break;
+		case CL_Rx:
 		case CL_RG:
-		case CL_RGx:
 		case CL_RA:
-			SET_RET(CL_IMAGE_FORMAT_NOT_SUPPORTED);
-			return 0;
-		case CL_ARGB:
-			switch(image_format->image_channel_data_type)
-			{
-			case CL_UNORM_INT8:
-			case CL_SNORM_INT8:
-			case CL_SIGNED_INT8:
-			case CL_UNSIGNED_INT8:
-				SET_RET(CL_IMAGE_FORMAT_NOT_SUPPORTED);
-				break;
-			default:
-				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
-			}
-			return 0;
+			channels = 2;
+			break;
+		case CL_RGx:
+			channels = 3;
+			break;
 		case CL_INTENSITY:
 		case CL_LUMINANCE:
 			channels = 1;
@@ -117,25 +107,26 @@ extern "C"
 			case CL_SNORM_INT16:
 			case CL_HALF_FLOAT:
 			case CL_FLOAT:
-				SET_RET(CL_IMAGE_FORMAT_NOT_SUPPORTED);
 				break;
 			default:
 				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+				return 0;
 			}
-			return 0;
+			break;
 		case CL_RGB:
 		case CL_RGBx:
+			channels = (image_format->image_channel_order == CL_RGB) ? 3 : 4;
 			switch(image_format->image_channel_data_type)
 			{
 			case CL_UNORM_SHORT_555:
 			case CL_UNORM_SHORT_565:
 			case CL_UNORM_INT_101010:
-				SET_RET(CL_IMAGE_FORMAT_NOT_SUPPORTED);
 				break;
 			default:
 				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+				return 0;
 			}
-			return 0;
+			break;
 		default:
 			SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
 			return 0;
@@ -154,19 +145,21 @@ extern "C"
 		case CL_HALF_FLOAT:		data_size = 2;	break;
 		case CL_FLOAT:			data_size = 4;	break;
 
-		case CL_SNORM_INT8:
-		case CL_SNORM_INT16:
-		case CL_UNORM_SHORT_565:
-		case CL_UNORM_SHORT_555:
-		case CL_UNORM_INT_101010:
-			SET_RET(CL_IMAGE_FORMAT_NOT_SUPPORTED);
-			return 0;
+		case CL_SNORM_INT8:			data_size = 1;	break;
+		case CL_SNORM_INT16:		data_size = 2;	break;
+		case CL_UNORM_SHORT_565:	data_size = 2;	break;
+		case CL_UNORM_SHORT_555:	data_size = 2;	break;
+		case CL_UNORM_INT_101010:	data_size = 4;	break;
 		default:
 			SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
 			return 0;
 		}
 
-		const size_t element_size = channels * data_size;
+		const size_t element_size = image_format->image_channel_data_type == CL_UNORM_SHORT_555
+									|| image_format->image_channel_data_type == CL_UNORM_SHORT_565
+									|| image_format->image_channel_data_type == CL_UNORM_INT_101010
+									? data_size
+									: channels * data_size;
 
 		if (image_row_pitch == 0)
 			image_row_pitch = image_width * element_size;
@@ -319,21 +312,62 @@ extern "C"
 		unlock.handle(context);
 
 		static _cl_image_format supported_formats[] = {
-			{CL_RGBA, CL_UNORM_INT8},
-			{CL_RGBA, CL_UNORM_INT16},
+			{CL_RGBA, CL_UNORM_INT8}, {CL_RGBA, CL_UNORM_INT16},
+			{CL_RGBA, CL_SNORM_INT8}, {CL_RGBA, CL_SNORM_INT16},
+			{CL_RGBA, CL_SIGNED_INT8}, {CL_RGBA, CL_SIGNED_INT16}, {CL_RGBA, CL_SIGNED_INT32},
+			{CL_RGBA, CL_UNSIGNED_INT8}, {CL_RGBA, CL_UNSIGNED_INT16}, {CL_RGBA, CL_UNSIGNED_INT32},
+			{CL_RGBA, CL_HALF_FLOAT}, {CL_RGBA, CL_FLOAT},
 
-			{CL_RGBA, CL_SIGNED_INT8},
-			{CL_RGBA, CL_SIGNED_INT16},
-			{CL_RGBA, CL_SIGNED_INT32},
+			{CL_BGRA, CL_UNORM_INT8}, {CL_BGRA, CL_SNORM_INT8}, {CL_BGRA, CL_SIGNED_INT8}, {CL_BGRA, CL_UNSIGNED_INT8},
+			{CL_ARGB, CL_UNORM_INT8}, {CL_ARGB, CL_SNORM_INT8}, {CL_ARGB, CL_SIGNED_INT8}, {CL_ARGB, CL_UNSIGNED_INT8},
 
-			{CL_RGBA, CL_UNSIGNED_INT8},
-			{CL_RGBA, CL_UNSIGNED_INT16},
-			{CL_RGBA, CL_UNSIGNED_INT32},
+			{CL_R, CL_UNORM_INT8}, {CL_R, CL_UNORM_INT16},
+			{CL_R, CL_SNORM_INT8}, {CL_R, CL_SNORM_INT16},
+			{CL_R, CL_SIGNED_INT8}, {CL_R, CL_SIGNED_INT16}, {CL_R, CL_SIGNED_INT32},
+			{CL_R, CL_UNSIGNED_INT8}, {CL_R, CL_UNSIGNED_INT16}, {CL_R, CL_UNSIGNED_INT32},
+			{CL_R, CL_HALF_FLOAT}, {CL_R, CL_FLOAT},
 
-			{CL_RGBA, CL_HALF_FLOAT},
-			{CL_RGBA, CL_FLOAT},
+			{CL_A, CL_UNORM_INT8}, {CL_A, CL_UNORM_INT16},
+			{CL_A, CL_SNORM_INT8}, {CL_A, CL_SNORM_INT16},
+			{CL_A, CL_SIGNED_INT8}, {CL_A, CL_SIGNED_INT16}, {CL_A, CL_SIGNED_INT32},
+			{CL_A, CL_UNSIGNED_INT8}, {CL_A, CL_UNSIGNED_INT16}, {CL_A, CL_UNSIGNED_INT32},
+			{CL_A, CL_HALF_FLOAT}, {CL_A, CL_FLOAT},
 
-			{CL_BGRA, CL_UNORM_INT8},
+			{CL_Rx, CL_UNORM_INT8}, {CL_Rx, CL_UNORM_INT16},
+			{CL_Rx, CL_SNORM_INT8}, {CL_Rx, CL_SNORM_INT16},
+			{CL_Rx, CL_SIGNED_INT8}, {CL_Rx, CL_SIGNED_INT16}, {CL_Rx, CL_SIGNED_INT32},
+			{CL_Rx, CL_UNSIGNED_INT8}, {CL_Rx, CL_UNSIGNED_INT16}, {CL_Rx, CL_UNSIGNED_INT32},
+			{CL_Rx, CL_HALF_FLOAT}, {CL_Rx, CL_FLOAT},
+
+			{CL_RG, CL_UNORM_INT8}, {CL_RG, CL_UNORM_INT16},
+			{CL_RG, CL_SNORM_INT8}, {CL_RG, CL_SNORM_INT16},
+			{CL_RG, CL_SIGNED_INT8}, {CL_RG, CL_SIGNED_INT16}, {CL_RG, CL_SIGNED_INT32},
+			{CL_RG, CL_UNSIGNED_INT8}, {CL_RG, CL_UNSIGNED_INT16}, {CL_RG, CL_UNSIGNED_INT32},
+			{CL_RG, CL_HALF_FLOAT}, {CL_RG, CL_FLOAT},
+
+			{CL_RA, CL_UNORM_INT8}, {CL_RA, CL_UNORM_INT16},
+			{CL_RA, CL_SNORM_INT8}, {CL_RA, CL_SNORM_INT16},
+			{CL_RA, CL_SIGNED_INT8}, {CL_RA, CL_SIGNED_INT16}, {CL_RA, CL_SIGNED_INT32},
+			{CL_RA, CL_UNSIGNED_INT8}, {CL_RA, CL_UNSIGNED_INT16}, {CL_RA, CL_UNSIGNED_INT32},
+			{CL_RA, CL_HALF_FLOAT}, {CL_RA, CL_FLOAT},
+
+			{CL_RGx, CL_UNORM_INT8}, {CL_RGx, CL_UNORM_INT16},
+			{CL_RGx, CL_SNORM_INT8}, {CL_RGx, CL_SNORM_INT16},
+			{CL_RGx, CL_SIGNED_INT8}, {CL_RGx, CL_SIGNED_INT16}, {CL_RGx, CL_SIGNED_INT32},
+			{CL_RGx, CL_UNSIGNED_INT8}, {CL_RGx, CL_UNSIGNED_INT16}, {CL_RGx, CL_UNSIGNED_INT32},
+			{CL_RGx, CL_HALF_FLOAT}, {CL_RGx, CL_FLOAT},
+
+			{CL_LUMINANCE, CL_UNORM_INT8}, {CL_LUMINANCE, CL_UNORM_INT16},
+			{CL_LUMINANCE, CL_SNORM_INT8}, {CL_LUMINANCE, CL_SNORM_INT16},
+			{CL_LUMINANCE, CL_SIGNED_INT8}, {CL_LUMINANCE, CL_SIGNED_INT16}, {CL_LUMINANCE, CL_SIGNED_INT32},
+			{CL_LUMINANCE, CL_UNSIGNED_INT8}, {CL_LUMINANCE, CL_UNSIGNED_INT16}, {CL_LUMINANCE, CL_UNSIGNED_INT32},
+			{CL_LUMINANCE, CL_HALF_FLOAT}, {CL_LUMINANCE, CL_FLOAT},
+
+			{CL_INTENSITY, CL_UNORM_INT8}, {CL_INTENSITY, CL_UNORM_INT16},
+			{CL_INTENSITY, CL_SNORM_INT8}, {CL_INTENSITY, CL_SNORM_INT16},
+			{CL_INTENSITY, CL_SIGNED_INT8}, {CL_INTENSITY, CL_SIGNED_INT16}, {CL_INTENSITY, CL_SIGNED_INT32},
+			{CL_INTENSITY, CL_UNSIGNED_INT8}, {CL_INTENSITY, CL_UNSIGNED_INT16}, {CL_INTENSITY, CL_UNSIGNED_INT32},
+			{CL_INTENSITY, CL_HALF_FLOAT}, {CL_INTENSITY, CL_FLOAT},
 		};
 		const size_t num_supported_formats = sizeof(supported_formats) / sizeof(*supported_formats);
 
