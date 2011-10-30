@@ -621,6 +621,7 @@ namespace FreeOCL
 		{
 		case CONST:			RULE1(token<CONST>);		break;
 		case VOLATILE:		RULE1(token<VOLATILE>);		break;
+		case RESTRICT:		RULE1(token<RESTRICT>);		break;
 		case __GLOBAL:		RULE1(token<__GLOBAL>);		break;
 		case __LOCAL:		RULE1(token<__LOCAL>);		break;
 		case __PRIVATE:		RULE1(token<__PRIVATE>);	break;
@@ -1642,16 +1643,33 @@ namespace FreeOCL
 						const expression *pexp = exp.as<expression>();
 						if (!pexp)
 							ERROR("syntax error: expression expected!");
-						const smartptr<pointer_type> type = pexp->get_type().as<pointer_type>();
-						if (!type)
+						const smartptr<pointer_type> ptr_type = pexp->get_type().as<pointer_type>();
+						if (!ptr_type)
 							ERROR("base operand of '->' is not a pointer!");
-						const smartptr<struct_type> base = type->get_base_type().as<struct_type>();
-						if (!base)
-							ERROR("pointer to struct or union type expected!");
-						const std::string &member_name = d_val__.as<chunk>()->back().as<token>()->get_string();
-						if (!base->has_member(member_name))
-							ERROR("member not found!");
-						exp = new member(exp, member_name);
+						smartptr<type> p_type = ptr_type->get_base_type();
+						smartptr<type_def> tdef = p_type.as<type_def>();
+						if (tdef)	p_type = tdef->get_type();
+						const smartptr<struct_type> stype = p_type.as<struct_type>();
+						const smartptr<native_type> ntype = p_type.as<native_type>();
+
+						if (stype)
+						{
+							const std::string &member_name = d_val__.as<chunk>()->back().as<token>()->get_string();
+							if (!stype->has_member(member_name))
+								ERROR("member not found!");
+							exp = new member(exp, member_name);
+						}
+						else if (ntype)
+						{
+							if (!ntype->is_vector())
+								ERROR("struct, union or vector type expected!");
+							const std::string &components = d_val__.as<chunk>()->back().as<token>()->get_string();
+							if (!swizzle::validate_components(components, ntype->get_dim()))
+								ERROR("invalid vector components");
+							exp = new swizzle(exp, components);
+						}
+						else
+							ERROR("struct, union or vector type expected!");
 					}
 					break;
 				}

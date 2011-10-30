@@ -220,6 +220,8 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #define constant	__constant
 #define private		__private
 
+#define restrict
+
 #define __read_only	const
 #define __write_only
 #define __read_write

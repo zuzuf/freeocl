@@ -7,6 +7,15 @@
 
 namespace FreeOCL
 {
+	namespace
+	{
+		inline std::deque<int> &operator<<(std::deque<int> &container, FreeOCL::native_type::type_id i)
+		{
+			container.push_back((int)i);
+			return container;
+		}
+	}
+
 	builtin::builtin(const smartptr<type> &return_type, const std::string &name, const size_t num_params)
 		: return_type(return_type),
 		name(name),
@@ -78,6 +87,48 @@ namespace FreeOCL
 		std::deque<int> gentype_vec4;
 		std::deque<int> gentype_vec8;
 		std::deque<int> gentype_vec16;
+		std::deque<int> gentype_size1;
+		std::deque<int> gentype_size2;
+		std::deque<int> gentype_size3;
+		std::deque<int> gentype_size4;
+		std::deque<int> gentype_size6;
+		std::deque<int> gentype_size8;
+		std::deque<int> gentype_size12;
+		std::deque<int> gentype_size16;
+		std::deque<int> gentype_size24;
+		std::deque<int> gentype_size32;
+		std::deque<int> gentype_size64;
+		std::deque<int> gentype_size128;
+		gentype_size1 << native_type::CHAR << native_type::UCHAR;
+		gentype_size2 << native_type::CHAR2 << native_type::UCHAR2
+					  << native_type::SHORT << native_type::USHORT;
+		gentype_size3 << native_type::CHAR3 << native_type::UCHAR3;
+		gentype_size4 << native_type::CHAR4 << native_type::UCHAR4
+					  << native_type::SHORT2 << native_type::USHORT2
+					  << native_type::INT << native_type::UINT
+					  << native_type::FLOAT;
+		gentype_size6 << native_type::SHORT3 << native_type::USHORT3;
+		gentype_size8 << native_type::CHAR8 << native_type::UCHAR8
+					  << native_type::SHORT4 << native_type::USHORT4
+					  << native_type::INT2 << native_type::UINT2
+					  << native_type::LONG << native_type::ULONG
+					  << native_type::FLOAT2 << native_type::DOUBLE;
+		gentype_size12 << native_type::INT3 << native_type::UINT3 << native_type::FLOAT3;
+		gentype_size16 << native_type::CHAR16 << native_type::UCHAR16
+					   << native_type::SHORT8 << native_type::USHORT8
+					   << native_type::INT4 << native_type::UINT4
+					   << native_type::LONG2 << native_type::ULONG2
+					   << native_type::FLOAT4 << native_type::DOUBLE2;
+		gentype_size24 << native_type::LONG3 << native_type::ULONG3 << native_type::DOUBLE3;
+		gentype_size32 << native_type::SHORT16 << native_type::USHORT16
+					   << native_type::INT8 << native_type::UINT8
+					   << native_type::LONG4 << native_type::ULONG4
+					   << native_type::FLOAT8 << native_type::DOUBLE4;
+		gentype_size64 << native_type::INT16 << native_type::UINT16
+					   << native_type::LONG8 << native_type::ULONG8
+					   << native_type::FLOAT16 << native_type::DOUBLE8;
+		gentype_size128 << native_type::LONG16 << native_type::ULONG16
+						<< native_type::DOUBLE16;
 		gentype_all.insert(gentype_all.end(), &(types[0]), &(types[sizeof(types)/sizeof(int)]));
 		gentype_floats.insert(gentype_floats.end(), &(types[6 * 8]), &(types[6 * 9]));
 		gentype_floats14.insert(gentype_floats14.end(), &(types[6 * 8]), &(types[6 * 8 + 4]));
@@ -401,6 +452,87 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("int get_image_channel_order(image3d_t)", gentype_single);
 		REGISTER_OVERLOADED("int2 get_image_dim(image2d_t)", gentype_single);
 		REGISTER_OVERLOADED("int4 get_image_dim(image3d_t)", gentype_single);
+
+		// as_type(n) functions
+		REGISTER_OVERLOADED("char as_char(gentype)", gentype_size1);
+		REGISTER_OVERLOADED("uchar as_uchar(gentype)", gentype_size1);
+		REGISTER_OVERLOADED("short as_short(gentype)", gentype_size2);
+		REGISTER_OVERLOADED("ushort as_ushort(gentype)", gentype_size2);
+		REGISTER_OVERLOADED("int as_int(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("uint as_uint(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("long as_long(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("ulong as_ulong(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("float as_float(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("double as_double(gentype)", gentype_size8);
+		switch(sizeof(void*))
+		{
+		case 4:
+			REGISTER_OVERLOADED("size_t as_size_t(gentype)", gentype_size4);
+			break;
+		case 8:
+			REGISTER_OVERLOADED("size_t as_size_t(gentype)", gentype_size8);
+			break;
+		}
+		REGISTER_OVERLOADED("char2 as_char2(gentype)", gentype_size2);
+		REGISTER_OVERLOADED("uchar2 as_uchar2(gentype)", gentype_size2);
+		REGISTER_OVERLOADED("short2 as_short2(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("ushort2 as_ushort2(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("int2 as_int2(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("uint2 as_uint2(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("long2 as_long2(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("ulong2 as_ulong2(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("float2 as_float2(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("double2 as_double2(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("char3 as_char3(gentype)", gentype_size3);
+		REGISTER_OVERLOADED("uchar3 as_uchar3(gentype)", gentype_size3);
+		REGISTER_OVERLOADED("short3 as_short3(gentype)", gentype_size6);
+		REGISTER_OVERLOADED("ushort3 as_ushort3(gentype)", gentype_size6);
+		REGISTER_OVERLOADED("int3 as_int3(gentype)", gentype_size12);
+		REGISTER_OVERLOADED("uint3 as_uint3(gentype)", gentype_size12);
+		REGISTER_OVERLOADED("long3 as_long3(gentype)", gentype_size24);
+		REGISTER_OVERLOADED("ulong3 as_ulong3(gentype)", gentype_size24);
+		REGISTER_OVERLOADED("float3 as_float3(gentype)", gentype_size12);
+		REGISTER_OVERLOADED("double3 as_double3(gentype)", gentype_size24);
+		REGISTER_OVERLOADED("char3 as_char3(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("uchar3 as_uchar3(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("short3 as_short3(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("ushort3 as_ushort3(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("int3 as_int3(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("uint3 as_uint3(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("long3 as_long3(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("ulong3 as_ulong3(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("float3 as_float3(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("double3 as_double3(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("char4 as_char4(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("uchar4 as_uchar4(gentype)", gentype_size4);
+		REGISTER_OVERLOADED("short4 as_short4(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("ushort4 as_ushort4(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("int4 as_int4(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("uint4 as_uint4(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("long4 as_long4(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("ulong4 as_ulong4(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("float4 as_float4(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("double4 as_double4(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("char8 as_char8(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("uchar8 as_uchar8(gentype)", gentype_size8);
+		REGISTER_OVERLOADED("short8 as_short8(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("ushort8 as_ushort8(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("int8 as_int8(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("uint8 as_uint8(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("long8 as_long8(gentype)", gentype_size64);
+		REGISTER_OVERLOADED("ulong8 as_ulong8(gentype)", gentype_size64);
+		REGISTER_OVERLOADED("float8 as_float8(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("double8 as_double8(gentype)", gentype_size64);
+		REGISTER_OVERLOADED("char16 as_char16(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("uchar16 as_uchar16(gentype)", gentype_size16);
+		REGISTER_OVERLOADED("short16 as_short16(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("ushort16 as_ushort16(gentype)", gentype_size32);
+		REGISTER_OVERLOADED("int16 as_int16(gentype)", gentype_size64);
+		REGISTER_OVERLOADED("uint16 as_uint16(gentype)", gentype_size64);
+		REGISTER_OVERLOADED("long16 as_long16(gentype)", gentype_size128);
+		REGISTER_OVERLOADED("ulong16 as_ulong16(gentype)", gentype_size128);
+		REGISTER_OVERLOADED("float16 as_float16(gentype)", gentype_size64);
+		REGISTER_OVERLOADED("double16 as_double16(gentype)", gentype_size128);
 
 		// Conversion functions
 		// Default versions

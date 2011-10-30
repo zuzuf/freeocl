@@ -39,8 +39,11 @@ namespace FreeOCL
 	template<>	smartptr<type> value<int64_t>::get_type() const
 	{	return native_type::t_long;	}
 
-	template<>	smartptr<type> value<int>::get_type() const
+	template<>	smartptr<type> value<int32_t>::get_type() const
 	{	return native_type::t_int;	}
+
+	template<>	smartptr<type> value<uint32_t>::get_type() const
+	{	return native_type::t_uint;	}
 
 	template<>	smartptr<type> value<bool>::get_type() const
 	{	return native_type::t_bool;	}

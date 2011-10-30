@@ -124,4 +124,31 @@ CONVERTER_VECTORS_SAT(ulong)
 #undef CONVERTER_VECTORS_SAT
 #undef CONVERTER_SAT
 
+#define AS_TYPE(Out)\
+template<typename In>	inline const Out &as_##Out(const In &t)	{	return reinterpret_cast<const Out&>(t);	}\
+template<typename In>	inline Out &as_##Out(In &t)	{	return reinterpret_cast<Out&>(t);	}
+
+#define AS_BASE_TYPE(Out)\
+AS_TYPE(Out)\
+AS_TYPE(Out##2)\
+AS_TYPE(Out##3)\
+AS_TYPE(Out##4)\
+AS_TYPE(Out##8)\
+AS_TYPE(Out##16)
+
+AS_BASE_TYPE(char)
+AS_BASE_TYPE(short)
+AS_BASE_TYPE(int)
+AS_BASE_TYPE(long)
+AS_BASE_TYPE(uchar)
+AS_BASE_TYPE(ushort)
+AS_BASE_TYPE(uint)
+AS_BASE_TYPE(ulong)
+AS_BASE_TYPE(float)
+AS_BASE_TYPE(double)
+AS_TYPE(size_t)
+
+#undef AS_TYPE
+#undef AS_BASE_TYPE
+
 #endif

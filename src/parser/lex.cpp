@@ -125,14 +125,14 @@ lex_start:
 				i = i * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
 			if (c == 'U' || c == 'u')
 			{
-				d_val__ = new value<uint64_t>(i);
+				d_val__ = new value<uint32_t>(i);
 				return CONSTANT;
 			}
 			else if (!in || (c != '.' && c != 'e' && c != 'E'))
 			{
 				if (c != '.' || base != 10)
 					putback(c);
-				d_val__ = new value<int64_t>(i);
+				d_val__ = new value<int32_t>(i);
 				return CONSTANT;
 			}
 			b_integer_parsed = true;
@@ -267,6 +267,7 @@ lex_start:
 				keywords["const"] = CONST;
 				keywords["__const"] = CONST;
 				keywords["volatile"] = VOLATILE;
+				keywords["restrict"] = RESTRICT;
 				keywords["void"] = VOID;
 				keywords["struct"] = STRUCT;
 				keywords["union"] = UNION;

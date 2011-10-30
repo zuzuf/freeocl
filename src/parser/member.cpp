@@ -45,7 +45,15 @@ namespace FreeOCL
 		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
 
 		const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
-		const smartptr<struct_type> type = ptr ? ptr->get_base_type() : p_type.as<struct_type>();
-		return type->get_type_of_member(member_name);
+		smartptr<struct_type> s_type;
+		if (ptr)
+		{
+			p_type = ptr->get_base_type();
+			if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
+			s_type = p_type.as<struct_type>();
+		}
+		else
+			s_type = p_type.as<struct_type>();
+		return s_type->get_type_of_member(member_name);
 	}
 }
