@@ -57,6 +57,8 @@ namespace FreeOCL
 			__KERNEL, INLINE,
 			__GLOBAL, __LOCAL, __PRIVATE, __CONSTANT,
 
+			__READ_ONLY, __WRITE_ONLY, __READ_WRITE,
+
 			__ATTRIBUTE__,	SPECIAL
 		};
 	public:

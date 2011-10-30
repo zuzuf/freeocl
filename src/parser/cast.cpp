@@ -19,6 +19,7 @@
 #include "native_type.h"
 #include "binary.h"
 #include <sstream>
+#include <iostream>
 
 namespace FreeOCL
 {
@@ -47,6 +48,36 @@ namespace FreeOCL
 		}
 		else
 			out << '(' << *p_type << ")(" << *exp << ')';
+	}
+
+	bool cast::validate() const
+	{
+		smartptr<native_type> native = p_type.as<native_type>();
+		if (native && native->is_vector())
+		{
+			const int literal_dim = native->get_dim();
+			int acc_dim = 0;
+			smartptr<expression> cur = exp;
+			while(cur.as<binary>() && cur.as<binary>()->get_op() == ',')
+			{
+				smartptr<binary> bin = cur.as<binary>();
+				smartptr<native_type> t = bin->get_right()->get_type().as<native_type>();
+				if (!t)
+					return false;
+				acc_dim += t->get_dim();
+				cur = bin->get_left();
+			}
+			smartptr<expression> exp = cur.as<expression>();
+			if (!exp)
+				return false;
+			smartptr<native_type> t = exp->get_type().as<native_type>();
+			if (!t)
+				return false;
+			acc_dim += t->get_dim();
+			return literal_dim == acc_dim || acc_dim == 1;
+		}
+		else
+			return true;
 	}
 
 	smartptr<type> cast::get_type() const

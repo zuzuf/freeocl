@@ -22,6 +22,7 @@
 #include "mem.h"
 #include "program.h"
 #include "device.h"
+#include "sampler.h"
 #include <cstdlib>
 #include <cstring>
 #include <dlfcn.h>
@@ -29,7 +30,37 @@
 namespace
 {
 	const size_t kernel_preferred_work_group_size_multiple = 1;
+
+	struct image2d_t
+	{
+		uint channel_order;
+		uint channel_data_type;
+		size_t width, height;
+		size_t row_pitch;
+		void *data;
+	};
+
+	struct image3d_t
+	{
+		uint channel_order;
+		uint channel_data_type;
+		size_t width, height, depth;
+		size_t row_pitch, slice_pitch;
+		void *data;
+	};
 }
+
+#define CLK_NORMALIZED_COORDS_FALSE		0x00000000U
+#define CLK_NORMALIZED_COORDS_TRUE		0x01000000U
+
+#define CLK_ADDRESS_NONE				0x00000000U
+#define CLK_ADDRESS_CLAMP_TO_EDGE		0x00000001U
+#define CLK_ADDRESS_REPEAT				0x00000002U
+#define CLK_ADDRESS_CLAMP				0x00000003U
+#define CLK_ADDRESS_MIRRORED_REPEAT		0x00000004U
+
+#define CLK_FILTER_NEAREST				0x00000000U
+#define CLK_FILTER_LINEAR				0x00010000U
 
 #define SET_STRING(X)	FreeOCL::copy_memory_within_limits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
@@ -239,6 +270,92 @@ extern "C"
 			if (arg_value != NULL || arg_size == 0)
 				return CL_INVALID_ARG_VALUE;
 			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
+			break;
+		case CL_UNORM_INT_101010:
+			{
+				if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+					return CL_INVALID_ARG_VALUE;
+				if (arg_size != sizeof(cl_sampler))
+					return CL_INVALID_ARG_SIZE;
+				cl_sampler sampler = *(cl_sampler*)arg_value;
+				if (!FreeOCL::is_valid(sampler))
+					return CL_INVALID_SAMPLER;
+				unlock.handle(sampler);
+				uint sampler_value = 0;
+				if (sampler->normalized_coords)
+					sampler_value |= CLK_NORMALIZED_COORDS_TRUE;
+				else
+					sampler_value |= CLK_NORMALIZED_COORDS_FALSE;
+
+				switch(sampler->addressing_mode)
+				{
+				case CL_ADDRESS_MIRRORED_REPEAT:	sampler_value |= CLK_ADDRESS_MIRRORED_REPEAT;	break;
+				case CL_ADDRESS_NONE:				sampler_value |= CLK_ADDRESS_NONE;	break;
+				case CL_ADDRESS_CLAMP_TO_EDGE:		sampler_value |= CLK_ADDRESS_CLAMP_TO_EDGE;	break;
+				case CL_ADDRESS_CLAMP:				sampler_value |= CLK_ADDRESS_CLAMP;	break;
+				case CL_ADDRESS_REPEAT:				sampler_value |= CLK_ADDRESS_REPEAT;	break;
+				}
+
+				switch(sampler->filter_mode)
+				{
+				case CL_FILTER_LINEAR:	sampler_value |= CLK_FILTER_LINEAR;	break;
+				case CL_FILTER_NEAREST:	sampler_value |= CLK_FILTER_NEAREST;	break;
+				}
+
+				*(uint*)&(kernel->args_buffer[kernel->args_offset[arg_index]]) = sampler_value;
+			}
+			break;
+		case CL_MEM_OBJECT_IMAGE2D:
+			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
+			else
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				cl_mem image = *(cl_mem*)arg_value;
+				if (!FreeOCL::is_valid(image))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(image);
+				if (image->mem_type != CL_MEM_OBJECT_IMAGE2D)
+					return CL_INVALID_MEM_OBJECT;
+
+				image2d_t img;
+				img.channel_data_type = image->image_format.image_channel_data_type;
+				img.channel_order = image->image_format.image_channel_order;
+				img.width = image->width;
+				img.height = image->height;
+				img.row_pitch = image->row_pitch;
+				img.data = image->ptr;
+
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+			}
+			break;
+		case CL_MEM_OBJECT_IMAGE3D:
+			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
+			else
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				cl_mem image = *(cl_mem*)arg_value;
+				if (!FreeOCL::is_valid(image))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(image);
+				if (image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+					return CL_INVALID_MEM_OBJECT;
+
+				image3d_t img;
+				img.channel_data_type = image->image_format.image_channel_data_type;
+				img.channel_order = image->image_format.image_channel_order;
+				img.width = image->width;
+				img.height = image->height;
+				img.depth = image->depth;
+				img.row_pitch = image->row_pitch;
+				img.slice_pitch = image->slice_pitch;
+				img.data = image->ptr;
+
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+			}
 			break;
 		default:
 			if (kernel->args_size[arg_index] != arg_size)

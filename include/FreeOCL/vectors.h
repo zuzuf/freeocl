@@ -24,6 +24,8 @@
 // A small template to get base type and components of a vector type
 template<typename V>	struct __vector;
 
+template<typename V>	struct __dim	{	enum { value = 1 };	};
+
 template<typename B, int N>	struct __vector_type;
 
 template<int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int iA, int iB, int iC, int iD, int iE, int iF, int N> struct Get;
@@ -238,6 +240,25 @@ public:
 #undef _get
 };
 
+template<class V,
+		 class W,
+		 int i0, int i1,
+		 int i2, int i3,
+		 int i4, int i5, int i6, int i7, int i8,
+		 int i9, int iA, int iB, int iC, int iD, int iE, int iF>
+struct __dim<__swizzle_wrapper<V, W, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, iA, iB, iC, iD, iE, iF> > : public __dim<W>
+{
+};
+template<class V,
+		 class W,
+		 int i0, int i1,
+		 int i2, int i3,
+		 int i4, int i5, int i6, int i7, int i8,
+		 int i9, int iA, int iB, int iC, int iD, int iE, int iF>
+struct __dim<__swizzle_wrapper_int<V, W, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, iA, iB, iC, iD, iE, iF> > : public __dim<W>
+{
+};
+
 #define IMPLEMENT_OPERATOR(op, X, N)\
 inline X##N &operator op(const X##N &w)\
 {\
@@ -250,19 +271,294 @@ inline X##N &operator op(const X &w)\
 	return *this;\
 }
 
-#define DEFINE_VECTOR_MAKE_1(X, N)	static inline X##N make(X p0) {	X##N v;	for(size_t i = 0 ; i < N ; ++i)	v.v[i] = p0;	return v;	}
-#define DEFINE_VECTOR_MAKE_2(X)	static inline X##2 make(X p0, X p1) {	X##2 v;	v.v[0] = p0, v.v[1] = p1;	return v;	}
-#define DEFINE_VECTOR_MAKE_3(X)	static inline X##3 make(X p0, X p1, X p2) {	X##3 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2;	return v;	}
-#define DEFINE_VECTOR_MAKE_4(X)	static inline X##4 make(X p0, X p1, X p2, X p3) {	X##4 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3; return v;	}
-#define DEFINE_VECTOR_MAKE_8(X)	static inline X##8 make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7) {	X##8 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7;	return v;	}
-#define DEFINE_VECTOR_MAKE_16(X)	static inline X##16 make(X p0, X p1, X p2, X p3, X p4, X p5, X p6, X p7, X p8, X p9, X pA, X pB, X pC, X pD, X pE, X pF) {	X##16 v;	v.v[0] = p0, v.v[1] = p1, v.v[2] = p2, v.v[3] = p3, v.v[4] = p4, v.v[5] = p5, v.v[6] = p6, v.v[7] = p7, v.v[8] = p8, v.v[9] = p9, v.v[10] = pA, v.v[11] = pB, v.v[12] = pC, v.v[13] = pD, v.v[14] = pE, v.v[15] = pF;	return v;	}
+#define DEFINE_VECTOR_SET(X,N)\
+template<int shift, class T0>\
+static inline typename __if<__dim<T0>::value != 1, void>::type set(X##N &v, const T0 &v0)\
+{\
+	for(size_t i = 0 ; i < __dim<T0>::value ; ++i)	v.v[i + shift] = v0.v[i];\
+}\
+template<int shift, class T0>\
+static inline typename __if<__dim<T0>::value == 1, void>::type set(X##N &v, const T0 &v0)\
+{\
+	v.v[shift] = v0;\
+}
+#define DEFINE_VECTOR_MAKE_1(X,N)\
+template<class T0>\
+static inline typename __right<__vector<T0>, X##N>::type make(const T0 &v0)\
+{\
+	X##N v;\
+	for(size_t i = 0 ; i < __dim<T0>::value ; ++i)	v.v[i] = v0.v[i];\
+	return v;\
+}\
+template<class T0>\
+static inline typename __right<__scalar<T0>, X##N>::type make(const T0 &v0)\
+{\
+	X##N v;\
+	for(size_t i = 0 ; i < N ; ++i)	v.v[i] = v0;\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_2(X,N)\
+template<class T0, class T1>\
+static inline X##N make(const T0 &v0, const T1 &v1)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_3(X,N)\
+template<class T0, class T1, class T2>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_4(X,N)\
+template<class T0, class T1, class T2, class T3>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_5(X,N)\
+template<class T0, class T1, class T2, class T3, class T4>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_6(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_7(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_8(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_9(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_10(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_11(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9, const T10 &v10)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value>(v, v10);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_12(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9, const T10 &v10, const T11 &v11)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value>(v, v10);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value>(v, v11);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_13(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9, const T10 &v10, const T11 &v11, const T12 &v12)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value>(v, v10);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value>(v, v11);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value>(v, v12);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_14(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9, const T10 &v10, const T11 &v11, const T12 &v12, const T13 &v13)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value>(v, v10);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value>(v, v11);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value>(v, v12);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value + __dim<T12>::value>(v, v13);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_15(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9, const T10 &v10, const T11 &v11, const T12 &v12, const T13 &v13, const T14 &v14)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value>(v, v10);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value>(v, v11);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value>(v, v12);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value + __dim<T12>::value>(v, v13);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value + __dim<T12>::value + __dim<T13>::value>(v, v14);\
+	return v;\
+}
+#define DEFINE_VECTOR_MAKE_16(X,N)\
+template<class T0, class T1, class T2, class T3, class T4, class T5, class T6, class T7, class T8, class T9, class T10, class T11, class T12, class T13, class T14, class T15>\
+static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5, const T6 &v6, const T7 &v7, const T8 &v8, const T9 &v9, const T10 &v10, const T11 &v11, const T12 &v12, const T13 &v13, const T14 &v14, const T15 &v15)\
+{\
+	X##N v;\
+	set<0>(v, v0);\
+	set<__dim<T0>::value>(v, v1);\
+	set<__dim<T0>::value + __dim<T1>::value>(v, v2);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value>(v, v3);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value>(v, v4);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value>(v, v5);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value>(v, v6);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value>(v, v7);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value>(v, v8);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value>(v, v9);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value>(v, v10);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value>(v, v11);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value>(v, v12);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value + __dim<T12>::value>(v, v13);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value + __dim<T12>::value + __dim<T13>::value>(v, v14);\
+	set<__dim<T0>::value + __dim<T1>::value + __dim<T2>::value + __dim<T3>::value + __dim<T4>::value + __dim<T5>::value + __dim<T6>::value + __dim<T7>::value + __dim<T8>::value + __dim<T9>::value + __dim<T10>::value + __dim<T11>::value + __dim<T12>::value + __dim<T13>::value + __dim<T14>::value>(v, v15);\
+	return v;\
+}
 
 #define DEFINE_VECTOR_TYPE(X, N)\
 struct X##N\
 {\
 	X v[N];\
+	DEFINE_VECTOR_SET(X, N)\
 	DEFINE_VECTOR_MAKE_1(X, N)\
-	DEFINE_VECTOR_MAKE_##N(X)\
+	DEFINE_VECTOR_MAKE_2(X, N)\
+	DEFINE_VECTOR_MAKE_3(X, N)\
+	DEFINE_VECTOR_MAKE_4(X, N)\
+	DEFINE_VECTOR_MAKE_5(X, N)\
+	DEFINE_VECTOR_MAKE_6(X, N)\
+	DEFINE_VECTOR_MAKE_7(X, N)\
+	DEFINE_VECTOR_MAKE_8(X, N)\
+	DEFINE_VECTOR_MAKE_9(X, N)\
+	DEFINE_VECTOR_MAKE_10(X, N)\
+	DEFINE_VECTOR_MAKE_11(X, N)\
+	DEFINE_VECTOR_MAKE_12(X, N)\
+	DEFINE_VECTOR_MAKE_13(X, N)\
+	DEFINE_VECTOR_MAKE_14(X, N)\
+	DEFINE_VECTOR_MAKE_15(X, N)\
+	DEFINE_VECTOR_MAKE_16(X, N)\
 	template<class W,\
 			 int i0, int i1,\
 			 int i2, int i3,\
@@ -296,14 +592,33 @@ template<>	struct __vector<X##N>\
 template<>	struct __vector_type<X, N>\
 {\
 	typedef X##N	type;\
-}
+};\
+template<>	struct __dim<X##N>\
+{\
+	enum { value = N };\
+};
 
 #define DEFINE_VECTOR_INT_TYPE(X, N)\
 struct X##N\
 {\
 	X v[N];\
+	DEFINE_VECTOR_SET(X, N)\
 	DEFINE_VECTOR_MAKE_1(X, N)\
-	DEFINE_VECTOR_MAKE_##N(X)\
+	DEFINE_VECTOR_MAKE_2(X, N)\
+	DEFINE_VECTOR_MAKE_3(X, N)\
+	DEFINE_VECTOR_MAKE_4(X, N)\
+	DEFINE_VECTOR_MAKE_5(X, N)\
+	DEFINE_VECTOR_MAKE_6(X, N)\
+	DEFINE_VECTOR_MAKE_7(X, N)\
+	DEFINE_VECTOR_MAKE_8(X, N)\
+	DEFINE_VECTOR_MAKE_9(X, N)\
+	DEFINE_VECTOR_MAKE_10(X, N)\
+	DEFINE_VECTOR_MAKE_11(X, N)\
+	DEFINE_VECTOR_MAKE_12(X, N)\
+	DEFINE_VECTOR_MAKE_13(X, N)\
+	DEFINE_VECTOR_MAKE_14(X, N)\
+	DEFINE_VECTOR_MAKE_15(X, N)\
+	DEFINE_VECTOR_MAKE_16(X, N)\
 	template<class W,\
 			 int i0, int i1,\
 			 int i2, int i3,\
@@ -343,7 +658,11 @@ template<>	struct __vector<X##N>\
 template<>	struct __vector_type<X, N>\
 {\
 	typedef X##N	type;\
-}
+};\
+template<>	struct __dim<X##N>\
+{\
+	enum { value = N };\
+};
 
 #define DEFINE_VECTORS(X)\
 DEFINE_VECTOR_TYPE(X, 2);\

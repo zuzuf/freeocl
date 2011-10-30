@@ -30,6 +30,8 @@ namespace FreeOCL
 		virtual void write(std::ostream &out) const;
 		virtual smartptr<type> get_type() const;
 
+		bool validate() const;
+
 	private:
 		const smartptr<expression> exp;
 		const smartptr<type> p_type;

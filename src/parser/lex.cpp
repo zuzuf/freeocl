@@ -295,6 +295,13 @@ lex_start:
 				keywords["private"] = __PRIVATE;
 				keywords["constant"] = __CONSTANT;
 
+				keywords["__read_only"] = __READ_ONLY;
+				keywords["__write_only"] = __WRITE_ONLY;
+				keywords["__read_write"] = __READ_WRITE;
+				keywords["read_only"] = __READ_ONLY;
+				keywords["write_only"] = __WRITE_ONLY;
+				keywords["read_write"] = __READ_WRITE;
+
 				keywords["inline"] = INLINE;
 				keywords["__attribute__"] = __ATTRIBUTE__;
 			}

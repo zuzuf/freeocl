@@ -20,10 +20,12 @@
 #include <sstream>
 #include <fcntl.h>
 #include "freeocl.h"
+#include "device.h"
 #include "parser/parser.h"
 #include "parser/chunk.h"
 #include "parser/token.h"
 #include "parser/pointer_type.h"
+#include "parser/native_type.h"
 #include "utils/string.h"
 
 namespace FreeOCL
@@ -234,9 +236,10 @@ namespace FreeOCL
 		std::stringstream cmd;
 		cmd << "cpp"
 			<< " -x c --std=c99"
-			<< " -D__OPENCL_VERSION__=110 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110"
-			<< " -D__ENDIAN_LITTLE__=1"
-//			<< " -D__IMAGE_SUPPORT__=1"
+			<< " -D__OPENCL_VERSION__=110 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110";
+		if (device->endian_little)
+			cmd	<< " -D__ENDIAN_LITTLE__=1";
+		cmd	<< " -D__IMAGE_SUPPORT__=1"
 			<< ' ' << options
 			<< " -o " << filename_out
 			<< " " << filename_in
@@ -326,6 +329,7 @@ namespace FreeOCL
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
 				const smartptr<chunk> cur = (*params)[j].as<chunk>();
+				const smartptr<native_type> native = cur->front().as<native_type>();
 				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
 				const bool b_pointer = ptr;
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
@@ -336,6 +340,21 @@ namespace FreeOCL
 						type_id = CL_LOCAL;
 					else
 						type_id = CL_GLOBAL;
+				}
+				if (native)
+				{
+					switch(native->get_type_id())
+					{
+					case native_type::SAMPLER_T:
+						type_id = CL_UNORM_INT_101010;
+						break;
+					case native_type::IMAGE2D_T:
+						type_id = CL_MEM_OBJECT_IMAGE2D;
+						break;
+					case native_type::IMAGE3D_T:
+						type_id = CL_MEM_OBJECT_IMAGE3D;
+						break;
+					}
 				}
 				gen	<< "\tcase " << j << ":" << std::endl
 					<< "\t\t*type = " << type_id << ';' << std::endl

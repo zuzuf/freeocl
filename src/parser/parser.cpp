@@ -625,6 +625,9 @@ namespace FreeOCL
 		case __LOCAL:		RULE1(token<__LOCAL>);		break;
 		case __PRIVATE:		RULE1(token<__PRIVATE>);	break;
 		case __CONSTANT:	RULE1(token<__CONSTANT>);	break;
+		case __READ_ONLY:	RULE1(token<__READ_ONLY>);	break;
+		case __WRITE_ONLY:	RULE1(token<__WRITE_ONLY>);	break;
+		case __READ_WRITE:	RULE1(token<__READ_WRITE>);	break;
 		}
 		END();
 	}
@@ -1372,7 +1375,10 @@ namespace FreeOCL
 		BEGIN();
 		MATCH4(token<'('>, type_name, token<')'>, cast_expression)
 		{
-			d_val__ = new cast(N[1].as<type>(), N[3].as<expression>());
+			smartptr<cast> pcast = new cast(N[1].as<type>(), N[3].as<expression>());
+			if (!pcast->validate())
+				ERROR("vector literals must take either 1 scalar or match vector type dimension.");
+			d_val__ = pcast;
 			return 1;
 		}
 		RULE1(unary_expression);
