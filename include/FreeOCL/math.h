@@ -62,7 +62,7 @@ inline double sincos(double x, double *cosval)
 	sincos(x, &_sin, cosval);
 	return _sin;
 #else
-	*cosval = cos(v);
+	*cosval = cos(x);
 	return sin(x);
 #endif
 }
@@ -91,7 +91,14 @@ inline float erfc(float x)	{	return erfcf(x);	}
 inline float erf(float x)	{	return erff(x);	}
 inline float exp(float x)	{	return expf(x);	}
 inline float exp2(float x)	{	return exp2f(x);	}
-inline float exp10(float x)	{	return exp10f(x);	}
+inline float exp10(float x)
+{
+#ifdef _GNU_SOURCE
+	return exp10f(x);
+#else
+	return exp(x * 2.3025851f);
+#endif
+}
 inline float expm1(float x)	{	return expm1f(x);	}
 inline float fabs(float x)	{	return fabsf(x);	}
 inline float fdim(float x, float y)	{	return fdimf(x, y);	}
@@ -153,7 +160,7 @@ inline float sincos(float x, float *cosval)
 	sincosf(x, &_sin, cosval);
 	return _sin;
 #else
-	*cosval = cos(v);
+	*cosval = cos(x);
 	return sin(x);
 #endif
 }
