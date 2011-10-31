@@ -24,7 +24,7 @@ namespace FreeOCL
 		// Create a default mutex
 		pthread_mutexattr_t attr;
 		pthread_mutexattr_init(&attr);
-		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+		pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 		pthread_mutex_init(&pm, &attr);
 		pthread_mutexattr_destroy(&attr);
 	}

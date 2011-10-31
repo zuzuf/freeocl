@@ -160,12 +160,7 @@ _cl_device_id::_cl_device_id() :
 	device_type(CL_DEVICE_TYPE_CPU),
 	vendor_id(0),
 	addressbits(sizeof(void*) * 8),
-	memsize(FreeOCL::parse_int(FreeOCL::run_command("cat /proc/meminfo | grep MemTotal | awk '{ print $2 }'")) * 1024U),
-	freememsize(FreeOCL::parse_int(FreeOCL::run_command("cat /proc/meminfo | grep MemFree | awk '{ print $2 }'")) * 1024U),
-	name(FreeOCL::trim(FreeOCL::run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""))),
-	vendor(FreeOCL::trim(FreeOCL::run_command("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""))),
 	version("OpenCL 1.1 FreeOCL-" FREEOCL_VERSION_STRING),
-	cpu_cores(FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep \"cpu cores\" | head -1 | sed -e \"s/cpu cores\t: //\""))),
 	driver_version(FREEOCL_VERSION_STRING),
 	device_profile("FULL_PROFILE"),
 	opencl_c_version("OpenCL C 1.1 FreeOCL-" FREEOCL_VERSION_STRING),
@@ -195,10 +190,7 @@ _cl_device_id::_cl_device_id() :
 	native_vector_width_half(8),
 	max_work_item_dimensions(3),
 	max_work_group_size(1024),
-	max_clock_frequency(FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""))),
 	mem_cache_type(CL_READ_WRITE_CACHE),
-	mem_cacheline_size(FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""))),
-	mem_cache_size(FreeOCL::parse_int(FreeOCL::run_command("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U),
 	local_mem_type(CL_GLOBAL),
 	local_mem_size(0x100000),
 	max_parameter_size(8192),
@@ -218,6 +210,34 @@ _cl_device_id::_cl_device_id() :
 	image3d_max_depth(2048),
 	max_samplers(16)
 {
+	using namespace FreeOCL;
+
+	const std::string ostype = trim(run_command("sysctl -a | grep ostype | awk '{ print $NF }'"));
+	if (ostype == "Linux")
+	{
+		cpu_cores = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu cores\" | head -1 | sed -e \"s/cpu cores\t: //\""));
+		memsize = parse_int(run_command("cat /proc/meminfo | grep MemTotal | awk '{ print $2 }'")) * 1024U;
+		freememsize = parse_int(run_command("cat /proc/meminfo | grep MemFree | awk '{ print $2 }'")) * 1024U;
+		name = trim(run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));
+		vendor = trim(run_command("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""));
+		max_clock_frequency = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
+		mem_cacheline_size = parse_int(run_command("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));
+		mem_cache_size = parse_int(run_command("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U;
+	}
+	else if (ostype == "FreeBSD" || ostype == "NetBSD" || ostype == "OpenBSD")	// Regarding NetBSD and OpenBSD
+	{																			// this is just a guess
+		cpu_cores = parse_int(run_command("sysctl hw.ncpu | awk '{ print $NF }'"));
+		name = trim(run_command("sysctl hw.model | awk '{ for(i=2;i<NF;++i) print $i }' | tr \"\\n\" \" \""));
+		vendor = trim(run_command("sysctl hw.model | awk '{ print $2 }'"));
+		memsize = parse_int(run_command("sysctl hw.realmem | awk '{ print $NF }'"));
+		freememsize = parse_int(run_command("sysctl -a | grep v_free_count | awk '{ print $NF }'"))
+					  * parse_int(run_command("sysctl -a | grep v_page_size | awk '{ print $NF }'"));
+		max_clock_frequency = parse_int(run_command("sysctl hw.clockrate | awk '{ print $NF }'"));
+		// I don't know how to get this information ... so let's use default values
+		mem_cacheline_size = 64;
+		mem_cache_size = 4 * 1024 * 1024;
+	}
+
 	max_work_item_sizes[0] = 1024;
 	max_work_item_sizes[1] = 1024;
 	max_work_item_sizes[2] = 1024;

@@ -18,6 +18,7 @@
 #include "codebuilder.h"
 #include <cstdlib>
 #include <sstream>
+#include <sys/stat.h>
 #include <fcntl.h>
 #include "freeocl.h"
 #include "device.h"
