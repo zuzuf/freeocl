@@ -214,7 +214,7 @@ namespace FreeOCL
 		}
 	}
 
-	bool native_type::is_float() const
+	bool native_type::is_floatting() const
 	{
 		switch(id)
 		{
@@ -236,6 +236,86 @@ namespace FreeOCL
 		case HALF16:
 		case FLOAT16:
 		case DOUBLE16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool native_type::is_float() const
+	{
+		switch(id)
+		{
+		case FLOAT:
+		case FLOAT2:
+		case FLOAT3:
+		case FLOAT4:
+		case FLOAT8:
+		case FLOAT16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool native_type::is_half() const
+	{
+		switch(id)
+		{
+		case HALF:
+		case HALF2:
+		case HALF3:
+		case HALF4:
+		case HALF8:
+		case HALF16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool native_type::is_double() const
+	{
+		switch(id)
+		{
+		case DOUBLE:
+		case DOUBLE2:
+		case DOUBLE3:
+		case DOUBLE4:
+		case DOUBLE8:
+		case DOUBLE16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool native_type::is_long() const
+	{
+		switch(id)
+		{
+		case LONG:
+		case LONG2:
+		case LONG3:
+		case LONG4:
+		case LONG8:
+		case LONG16:
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	bool native_type::is_ulong() const
+	{
+		switch(id)
+		{
+		case ULONG:
+		case ULONG2:
+		case ULONG3:
+		case ULONG4:
+		case ULONG8:
+		case ULONG16:
 			return true;
 		default:
 			return false;

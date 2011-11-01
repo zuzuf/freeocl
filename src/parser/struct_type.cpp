@@ -58,7 +58,7 @@ namespace FreeOCL
 		for(std::vector<std::pair<std::string, smartptr<type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
 			; ++it)
-			out << "    " << it->second->get_name() << ' ' << it->first << ';' << std::endl;
+			out << "    " << it->second->prefix() << ' ' << it->first << it->second->suffix() << ';' << std::endl;
 
 		out << '}';
 	}

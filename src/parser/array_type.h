@@ -15,45 +15,32 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_TYPE_H__
-#define __FREEOCL_PARSER_TYPE_H__
+#ifndef __FREEOCL_PARSER_ARRAY_TYPE_H__
+#define __FREEOCL_PARSER_ARRAY_TYPE_H__
 
-#include "node.h"
+#include "pointer_type.h"
+#include <vector>
 
 namespace FreeOCL
 {
-	class type : public node
+	class array_type : public pointer_type
 	{
 	public:
-		enum address_space
-		{
-			GLOBAL,
-			LOCAL,
-			PRIVATE,
-			CONSTANT,
-		};
+		array_type(const smartptr<type> &base_type,
+				   const bool b_const,
+				   const address_space addr_space,
+				   const size_t size)
+			: pointer_type(base_type, b_const, addr_space), size(size)	{}
 
-	public:
-		type(const bool b_const, const address_space addr_space);
-
-		virtual bool operator==(const type &t) const = 0;
-		bool operator!=(const type &t) const
-		{	return !(*this == t);	}
-		virtual std::string get_name() const = 0;
-
-		bool is_const() const	{	return b_const;	}
-		address_space get_address_space() const	{	return addr_space;	}
-
-		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const = 0;
+		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 
 		virtual std::string suffix() const;
 		virtual std::string prefix() const;
-	private:
-		const bool b_const;
-		const address_space addr_space;
 
-	public:
-		static smartptr<type> compute_resulting_type(const smartptr<type> &t0, const smartptr<type> &t1);
+		size_t get_size() const	{	return size;	}
+
+	private:
+		size_t size;
 	};
 }
 

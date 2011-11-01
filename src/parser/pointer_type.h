@@ -37,7 +37,7 @@ namespace FreeOCL
 		smartptr<type> clone() const;
 
 		void set_root_type(const smartptr<type> &root_type);
-	private:
+	protected:
 		smartptr<type> base_type;
 
 	public:

@@ -41,6 +41,8 @@ namespace FreeOCL
 
 		smartptr<node> &operator[](size_t idx)	{	return childs[idx];	}
 		const smartptr<node> &operator[](size_t idx) const	{	return childs[idx];	}
+		smartptr<node> &at(size_t idx)	{	return childs[idx];	}
+		const smartptr<node> &at(size_t idx) const	{	return childs[idx];	}
 
 		size_t size() const	{	return childs.size();	}
 

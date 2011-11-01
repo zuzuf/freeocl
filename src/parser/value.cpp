@@ -63,4 +63,15 @@ namespace FreeOCL
 		out.precision(18);
 		out << v << ' ';
 	}
+
+	template<> uint32_t value<uint32_t>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<int32_t>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<uint64_t>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<int64_t>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<float>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<char>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<double>::get_as_uint() const	{	return v;	}
+	template<> uint32_t value<bool>::get_as_uint() const	{	return v;	}
+
+	template<> uint32_t value<std::string>::get_as_uint() const	{	return 0;	}
 }

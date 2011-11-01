@@ -731,8 +731,8 @@ namespace FreeOCL
 		// Common functions
 		REGISTER_OVERLOADED("gentype clamp(gentype,gentype,gentype)|gentype clamp(gentype,double,double)", gentype_doubles);
 		REGISTER_OVERLOADED("gentype degrees(gentype)", gentype_integers);
-		REGISTER_OVERLOADED("gentype max(gentype,gentype)|gentype max(gentype,double)", gentype_integers);
-		REGISTER_OVERLOADED("gentype min(gentype,gentype)|gentype min(gentype,double)", gentype_integers);
+		REGISTER_OVERLOADED("gentype max(gentype,gentype)|gentype max(gentype,double)", gentype_doubles);
+		REGISTER_OVERLOADED("gentype min(gentype,gentype)|gentype min(gentype,double)", gentype_doubles);
 		REGISTER_OVERLOADED("gentype mix(gentype,gentype,gentype)|gentype mix(gentype,gentype,double)", gentype_doubles);
 		REGISTER_OVERLOADED("gentype radians(gentype)", gentype_integers);
 		REGISTER_OVERLOADED("gentype step(gentype,gentype)|gentype step(double,gentype)", gentype_integers);

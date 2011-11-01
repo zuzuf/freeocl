@@ -20,6 +20,7 @@
 
 #include <ostream>
 #include "utils/smartptr.h"
+#include "utils/mutex.h"
 
 namespace FreeOCL
 {

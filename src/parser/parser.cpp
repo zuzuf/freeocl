@@ -25,6 +25,7 @@
 #include "kernel.h"
 #include "native_type.h"
 #include "pointer_type.h"
+#include "array_type.h"
 #include "binary.h"
 #include "unary.h"
 #include "symbol_table.h"
@@ -276,7 +277,7 @@ namespace FreeOCL
 							if (!p_chunk)
 								continue;
 							if (p_chunk->front().as<token>()->get_id() == '[')
-								l_type = new pointer_type(l_type, false, pointer_type::PRIVATE);
+								l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<generic_value>()->get_as_uint());
 						}
 					}
 					else
@@ -290,7 +291,7 @@ namespace FreeOCL
 							if (!p_chunk)
 								continue;
 							if (p_chunk->front().as<token>()->get_id() == '[')
-								l_type = new pointer_type(l_type, false, pointer_type::PRIVATE);
+								l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<generic_value>()->get_as_uint());
 						}
 					}
 					if (decl)
@@ -937,6 +938,21 @@ namespace FreeOCL
 					l_type = p_type;
 					name = declarator->front().as<token>();
 				}
+				smartptr<chunk> back = declarator->back().as<chunk>();
+				if (back)
+				{
+					const type::address_space addr_space = l_type->get_address_space();
+					if (back->size() > 0 && !back->front().as<chunk>())
+						back = new chunk(back);
+					for(size_t i = 0 ; i < back->size() ; ++i)
+					{
+						const smartptr<chunk> ch = (*back)[i].as<chunk>();
+						if (!ch)
+							continue;
+						if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
+							l_type = new array_type(l_type->clone(l_type->is_const(), addr_space), false, type::PRIVATE, ch->at(1).as<generic_value>()->get_as_uint());
+					}
+				}
 				members->push_back(new chunk(l_type, name));
 			}
 			d_val__ = members;
@@ -1561,6 +1577,8 @@ namespace FreeOCL
 					exp = new unary(i_token, exp, true);
 					break;
 				case '[':
+					if (!exp.as<expression>()->get_type().as<pointer_type>())
+						ERROR("pointer or array type expected!");
 					exp = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
 					break;
 				case '(':
@@ -1576,11 +1594,11 @@ namespace FreeOCL
 								<< " instead of " << exp.as<callable>()->get_num_params() << ')';
 							ERROR(buf.str());
 						}
+						std::deque<smartptr<type> > arg_types = args->get_as_types();
 						try
 						{
-							if (!exp.as<callable>()->get_return_type(args->get_as_types()))
+							if (!exp.as<callable>()->get_return_type(arg_types))
 							{
-								std::deque<smartptr<type> > arg_types = args->get_as_types();
 								std::string arg_list("(");
 								for(size_t i = 0 ; i < arg_types.size() ; ++i)
 								{
@@ -1594,6 +1612,15 @@ namespace FreeOCL
 						}
 						catch(const std::exception &e)
 						{
+							std::string arg_list("(");
+							for(size_t i = 0 ; i < arg_types.size() ; ++i)
+							{
+								if (i)
+									arg_list += ',';
+								arg_list += arg_types[i]->get_name();
+							}
+							arg_list += ')';
+							std::cerr << arg_list << std::endl;
 							if (exp.as<overloaded_builtin>())
 								exp.as<overloaded_builtin>()->print_debug_info();
 							ERROR(e.what());

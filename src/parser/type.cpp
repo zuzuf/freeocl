@@ -33,9 +33,15 @@ namespace FreeOCL
 		{
 			if (n0->is_scalar() && n1->is_scalar())
 			{
-				if (n0->is_float() || n1->is_float())
+				if (n0->is_double() || n1->is_double())
 					return native_type::t_double;
-				return native_type::t_long;
+				if (n0->is_float() || n1->is_float())
+					return native_type::t_float;
+				if (n0->is_ulong() || n1->is_ulong())
+					return native_type::t_ulong;
+				if (n0->is_long() || n1->is_long())
+					return native_type::t_long;
+				return native_type::t_int;
 			}
 			if (n0->is_vector())
 				return t0;
@@ -51,5 +57,15 @@ namespace FreeOCL
 			return t1;
 		// If you get there, someone is doing something ugly
 		return native_type::t_void;
+	}
+
+	std::string type::suffix() const
+	{
+		return std::string();
+	}
+
+	std::string type::prefix() const
+	{
+		return get_name();
 	}
 }

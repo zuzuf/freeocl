@@ -15,40 +15,25 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_VALUE_H__
-#define __FREEOCL_PARSER_VALUE_H__
-
-#include "expression.h"
-#include <stdint.h>
+#include "array_type.h"
+#include "utils/string.h"
 
 namespace FreeOCL
 {
-	class generic_value : public expression
+	smartptr<type> array_type::clone(const bool b_const, const address_space addr_space) const
 	{
-	public:
-		virtual uint32_t get_as_uint() const = 0;
-	};
+		return new array_type(base_type, b_const, addr_space, size);
+	}
 
-	template<class T>
-	class value : public generic_value
+	std::string array_type::suffix() const
 	{
-	public:
-		value(const T &v) : v(v)	{}
-		virtual ~value()	{}
+		return base_type->suffix() + '[' + to_string(size) + ']';
+	}
 
-		const T &get_value() const	{	return v;	}
-
-		virtual uint32_t get_as_uint() const;
-
-		virtual smartptr<type> get_type() const;
-
-		virtual void write(std::ostream& out) const
-		{
-			out << v << ' ';
-		}
-	private:
-		const T v;
-	};
+	std::string array_type::prefix() const
+	{
+		if (is_const())
+			return (' ' + base_type->prefix()) + " const";
+		return base_type->prefix();
+	}
 }
-
-#endif

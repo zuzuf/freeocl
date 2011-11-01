@@ -212,7 +212,11 @@ _cl_device_id::_cl_device_id() :
 {
 	using namespace FreeOCL;
 
-	const std::string ostype = trim(run_command("sysctl -a | grep ostype | awk '{ print $NF }'"));
+	std::string ostype = trim(run_command("sysctl -e kernel.ostype | awk '{ print $NF }'"));
+	if (ostype.empty())
+		ostype = trim(run_command("sysctl -e kern.ostype | awk '{ print $NF }'"));
+	if (ostype.empty())
+		ostype = trim(run_command("sysctl -a | grep ostype | awk '{ print $NF }'"));
 	if (ostype == "Linux")
 	{
 		cpu_cores = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu cores\" | head -1 | sed -e \"s/cpu cores\t: //\""));
