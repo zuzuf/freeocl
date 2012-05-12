@@ -254,7 +254,7 @@ int main(int argc, const char **argv)
 
 		SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_EVENTTHREAD);
 
-		SDL_Surface *screen = SDL_SetVideoMode(1024, 768, 32, SDL_OPENGL | SDL_DOUBLEBUF);
+		SDL_Surface *screen = SDL_SetVideoMode(1024, 768, 32, SDL_OPENGL | SDL_DOUBLEBUF | SDL_ASYNCBLIT);
 		bool done = false;
 		glDisable(GL_LIGHTING);
 		glEnable(GL_COLOR_MATERIAL);
@@ -304,7 +304,7 @@ int main(int argc, const char **argv)
 
 			p_pos = (cl_float4*)queue.enqueueMapBuffer(pos0,
 													   true,
-													   CL_MEM_READ_ONLY,
+													   CL_MAP_READ,
 													   0,
 													   sizeof(cl_float4) * nb_particles);
 

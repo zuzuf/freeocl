@@ -22,6 +22,7 @@
 #include <time.h>
 #include <algorithm>
 #include <CL/cl_ext.h>
+#include <unistd.h>
 
 #define SEP " "
 
@@ -219,7 +220,11 @@ _cl_device_id::_cl_device_id() :
 		ostype = trim(run_command("sysctl -a | grep ostype | awk '{ print $NF }'"));
 	if (ostype == "Linux")
 	{
+#ifdef _SC_NPROCESSORS_ONLN
+		cpu_cores = sysconf(_SC_NPROCESSORS_ONLN);
+#else
 		cpu_cores = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu cores\" | head -1 | sed -e \"s/cpu cores\t: //\""));
+#endif
 		memsize = parse_int(run_command("cat /proc/meminfo | grep MemTotal | awk '{ print $2 }'")) * 1024U;
 		freememsize = parse_int(run_command("cat /proc/meminfo | grep MemFree | awk '{ print $2 }'")) * 1024U;
 		name = trim(run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));

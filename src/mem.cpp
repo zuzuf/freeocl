@@ -473,6 +473,11 @@ extern "C"
 							   cl_int *errcode_ret)
 	{
 		MSG(clEnqueueMapBufferFCL);
+		if (map_flags & ~(CL_MAP_READ | CL_MAP_WRITE))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::is_valid(command_queue))
 		{

@@ -164,7 +164,7 @@ int main(int argc, const char **argv)
 		queue.enqueueNDRangeKernel(k, cl::NDRange(0), cl::NDRange(12), cl::NDRange(12));
 
 		queue.finish();
-		char *p = (char*)queue.enqueueMapBuffer(buffer, true, CL_MEM_READ_ONLY, 0, 16);
+		char *p = (char*)queue.enqueueMapBuffer(buffer, true, CL_MAP_READ, 0, 16);
 		std::cout << "p = " << p << std::endl;
 		queue.enqueueUnmapMemObject(buffer, p);
 	}
