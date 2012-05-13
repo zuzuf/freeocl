@@ -56,6 +56,7 @@ int main(int argc, const char **argv)
 			return 0;
 
 		string filename;
+		string compiler_args;
 		for(int i = 1 ; i < argc ; ++i)
 		{
 			if (!strcmp(argv[i], "--platform") || !strcmp(argv[i], "-p"))
@@ -65,6 +66,22 @@ int main(int argc, const char **argv)
 					++i;
 					id = strtol(argv[i], NULL, 0);
 				}
+				continue;
+			}
+			if (!strcmp(argv[i], "-I"))
+			{
+				if (i + 1 < argc)
+				{
+					++i;
+					compiler_args += " -I";
+					compiler_args += argv[i];
+				}
+				continue;
+			}
+			if (!strncmp(argv[i], "-I", 2))
+			{
+				compiler_args += ' ';
+				compiler_args += argv[i];
 				continue;
 			}
 			filename = argv[i];
@@ -107,7 +124,7 @@ int main(int argc, const char **argv)
 		cl::Program program(context, sources);
 		try
 		{
-			program.build(devices);
+			program.build(devices, compiler_args.c_str());
 		} catch(...)	{}
 		cout << "source code: " << endl << source_code.data() << endl;
 		cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << endl;
