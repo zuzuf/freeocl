@@ -253,7 +253,7 @@ namespace FreeOCL
 		table.clRetainCommandQueue = clRetainCommandQueueFCL;
 		table.clReleaseCommandQueue = clReleaseCommandQueueFCL;
 		table.clGetCommandQueueInfo = clGetCommandQueueInfoFCL;
-		table.clSetCommandQueueProperty = NULL;
+		table.clSetCommandQueueProperty = clSetCommandQueuePropertyFCL;
 
 		table.clCreateBuffer = clCreateBufferFCL;
 		table.clCreateSubBuffer = clCreateSubBufferFCL;

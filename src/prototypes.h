@@ -316,6 +316,12 @@ extern "C"
 							void *              /* param_value */,
 							size_t *            /* param_value_size_ret */) CL_API_SUFFIX__VERSION_1_0;
 
+	CL_API_ENTRY cl_int CL_API_CALL
+	clSetCommandQueuePropertyFCL(cl_command_queue /* command_queue */,
+								 cl_command_queue_properties /* properties */,
+								 cl_bool /* enable */,
+								 cl_command_queue_properties * /* old_properties */) CL_API_SUFFIX__VERSION_1_0;
+
 	/* Flush and Finish APIs */
 	CL_API_ENTRY cl_int CL_API_CALL
 	clFlushFCL(cl_command_queue /* command_queue */) CL_API_SUFFIX__VERSION_1_0;

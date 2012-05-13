@@ -118,10 +118,10 @@ extern "C"
 	}
 
 	cl_int clGetCommandQueueInfoFCL (cl_command_queue command_queue,
-								  cl_command_queue_info param_name,
-								  size_t param_value_size,
-								  void *param_value,
-								  size_t *param_value_size_ret)
+									 cl_command_queue_info param_name,
+									 size_t param_value_size,
+									 void *param_value,
+									 size_t *param_value_size_ret)
 	{
 		MSG(clGetCommandQueueInfoFCL);
 		if (!FreeOCL::is_valid(command_queue))
@@ -142,6 +142,30 @@ extern "C"
 		if (bTooSmall && param_value != NULL)
 			return CL_INVALID_VALUE;
 
+		return CL_SUCCESS;
+	}
+
+	cl_int clSetCommandQueuePropertyFCL (cl_command_queue command_queue,
+										 cl_command_queue_properties properties,
+										 cl_bool enable,
+										 cl_command_queue_properties *old_properties)
+	{
+		if (properties & ~(CL_QUEUE_PROFILING_ENABLE | CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE))
+			return CL_INVALID_VALUE;
+
+		MSG(clSetCommandQueuePropertyFCL);
+		clFinishFCL (command_queue);
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		if (old_properties)
+			*old_properties = command_queue->properties;
+
+		if (enable)
+			command_queue->properties |= properties;
+		else
+			command_queue->properties &= ~properties;
+		command_queue->unlock();
 		return CL_SUCCESS;
 	}
 
