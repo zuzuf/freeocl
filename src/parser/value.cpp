@@ -49,6 +49,12 @@ namespace FreeOCL
 	{	return native_type::t_bool;	}
 
 	template<>
+	void value<char>::write(std::ostream& out) const
+	{
+		out << "((char)" << (int)v << ") ";
+	}
+
+	template<>
 	void value<float>::write(std::ostream& out) const
 	{
 		std::scientific(out);
