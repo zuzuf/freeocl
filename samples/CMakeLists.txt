@@ -7,7 +7,7 @@ if(BUILD_SAMPLES)
 
     # samples will be linked against FreeOCL which is not needed
     # in the real world apps
-	set(SAMPLES_LIBRARIES samples_common OpenCL FreeOCL)
+    set(SAMPLES_LIBRARIES samples_common OpenCL FreeOCL)
 
 	set(CLDEMO_SOURCES cldemo.cpp)
 	add_executable(cldemo ${CLDEMO_SOURCES})
