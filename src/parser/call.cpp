@@ -52,4 +52,10 @@ namespace FreeOCL
 		}
 		out << ')';
 	}
+
+	uint32_t call::eval_as_uint() const
+	{
+		throw "function calls cannot be statically evaluated";
+		return 0;
+	}
 }

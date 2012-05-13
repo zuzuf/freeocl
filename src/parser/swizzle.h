@@ -29,6 +29,7 @@ namespace FreeOCL
 		void write(std::ostream& out) const;
 		smartptr<type> get_type() const;
 
+		virtual uint32_t eval_as_uint() const;
 	private:
 		static void parse_components(const std::string &components, int values[], size_t dim);
 

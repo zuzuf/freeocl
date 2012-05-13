@@ -31,6 +31,8 @@ namespace FreeOCL
 		virtual void write(std::ostream& out) const;
 
 		const std::string &get_name() const	{	return name;	}
+
+		virtual uint32_t eval_as_uint() const;
 	private:
 		const std::string name;
 		const smartptr<type> p_type;

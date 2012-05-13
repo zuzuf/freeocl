@@ -83,7 +83,10 @@ namespace FreeOCL
 
 		// If dlopens fails, stop here
 		if (!handle)
+		{
+			std::cerr << dlerror() << std::endl;
 			FAIL();
+		}
 		typedef cl_int (*fn_clIcdGetPlatformIDsKHR) (cl_uint, cl_platform_id *, cl_uint *);
 		typedef cl_int (*fn_clGetPlatformInfo) (cl_platform_id, cl_platform_info, size_t, void *, size_t *);
 		typedef void* (*fn_clGetExtensionFunctionAddress) (const char *funcname);

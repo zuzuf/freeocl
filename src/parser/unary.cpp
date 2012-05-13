@@ -80,4 +80,21 @@ namespace FreeOCL
 	{
 		return p_type;
 	}
+
+	uint32_t unary::eval_as_uint() const
+	{
+		const uint32_t v = exp->eval_as_uint();
+		switch(op)
+		{
+		case parser::INC_OP:	return v + 1;
+		case parser::DEC_OP:	return v - 1;
+		case '!':				return !v;
+		case '~':				return ~v;
+		case '-':				return -v;
+		case '+':				return v;
+		case '*':				throw "unary operator * cannot be statically evaluated";
+		case '&':				throw "unary operator & cannot be statically evaluated";
+		}
+		return 0;
+	}
 }

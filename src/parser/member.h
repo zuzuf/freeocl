@@ -28,6 +28,8 @@ namespace FreeOCL
 		member(const smartptr<expression> &base, const std::string &member_name);
 		void write(std::ostream& out) const;
 		smartptr<type> get_type() const;
+
+		virtual uint32_t eval_as_uint() const;
 	private:
 		smartptr<expression> base;
 		const std::string member_name;

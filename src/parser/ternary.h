@@ -35,6 +35,8 @@ namespace FreeOCL
 		const smartptr<expression> &get_exp1() const	{	return exp1;	}
 		const smartptr<expression> &get_exp2() const	{	return exp2;	}
 		const smartptr<expression> &get_exp3() const	{	return exp3;	}
+
+		virtual uint32_t eval_as_uint() const;
 	private:
 		const smartptr<expression> exp1;
 		const smartptr<expression> exp2;

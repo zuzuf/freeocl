@@ -32,6 +32,8 @@ namespace FreeOCL
 		virtual void write(std::ostream &out) const;
 
 		virtual smartptr<type> get_type() const;
+
+		virtual uint32_t eval_as_uint() const;
 	private:
 		smartptr<node> n;
 	};

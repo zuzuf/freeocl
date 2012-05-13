@@ -26,6 +26,8 @@ namespace FreeOCL
 	{
 	public:
 		virtual smartptr<type> get_type() const = 0;
+
+		virtual uint32_t eval_as_uint() const = 0;
 	};
 }
 

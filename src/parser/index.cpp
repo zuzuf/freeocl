@@ -44,4 +44,10 @@ namespace FreeOCL
 	{
 		out << *ptr << '[' << *idx << ']';
 	}
+
+	uint32_t index::eval_as_uint() const
+	{
+		throw "operator [] cannot be statically evaluated";
+		return 0;
+	}
 }

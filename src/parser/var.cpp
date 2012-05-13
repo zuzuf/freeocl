@@ -38,4 +38,10 @@ namespace FreeOCL
 	{
 		out << name << ' ';
 	}
+
+	uint32_t var::eval_as_uint() const
+	{
+		throw "variable cannot be statically evaluated";
+		return 0;
+	}
 }

@@ -128,4 +128,44 @@ namespace FreeOCL
 	{
 		return p_type;
 	}
+
+	uint32_t binary::eval_as_uint() const
+	{
+		const uint32_t vl = left->eval_as_uint();
+		const uint32_t vr = right->eval_as_uint();
+		switch(op)
+		{
+		case '+':	return vl + vr;
+		case '-':	return vl - vr;
+		case '*':	return vl * vr;
+		case '/':	return vl / vr;
+		case '%':	return vl % vr;
+		case '|':	return vl | vr;
+		case '^':	return vl ^ vr;
+		case '&':	return vl & vr;
+		case '<':	return vl < vr;
+		case '>':	return vl > vr;
+		case '=':	return vr;
+		case ',':	return vr;
+		case parser::LEFT_OP:		return vl << vr;
+		case parser::RIGHT_OP:		return vl >> vr;
+		case parser::LE_OP:			return vl <= vr;
+		case parser::GE_OP:			return vl >= vr;
+		case parser::EQ_OP:			return vl == vr;
+		case parser::NE_OP:			return vl != vr;
+		case parser::AND_OP:		return vl && vr;
+		case parser::OR_OP:			return vl || vr;
+		case parser::MUL_ASSIGN:	return vl * vr;
+		case parser::DIV_ASSIGN:	return vl / vr;
+		case parser::MOD_ASSIGN:	return vl % vr;
+		case parser::ADD_ASSIGN:	return vl + vr;
+		case parser::SUB_ASSIGN:	return vl - vr;
+		case parser::LEFT_ASSIGN:	return vl << vr;
+		case parser::RIGHT_ASSIGN:	return vl >> vr;
+		case parser::AND_ASSIGN:	return vl & vr;
+		case parser::XOR_ASSIGN:	return vl ^ vr;
+		case parser::OR_ASSIGN:		return vl | vr;
+		}
+		return 0;
+	}
 }

@@ -23,4 +23,10 @@ namespace FreeOCL
 	{
 		return native_type::t_size_t;
 	}
+
+	uint32_t size_of::eval_as_uint() const
+	{
+		throw "static evaluation of sizeof operator not implemented!";
+		return 0;
+	}
 }

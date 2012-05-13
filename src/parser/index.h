@@ -31,6 +31,7 @@ namespace FreeOCL
 		virtual smartptr<type> get_type() const;
 		virtual void write(std::ostream& out) const;
 
+		virtual uint32_t eval_as_uint() const;
 	private:
 		const smartptr<expression> ptr;
 		const smartptr<expression> idx;

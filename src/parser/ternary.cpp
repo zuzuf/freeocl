@@ -44,4 +44,9 @@ namespace FreeOCL
 	{
 		return p_type;
 	}
+
+	uint32_t ternary::eval_as_uint() const
+	{
+		return exp1->eval_as_uint() ? exp2->eval_as_uint() : exp3->eval_as_uint();
+	}
 }

@@ -74,4 +74,6 @@ namespace FreeOCL
 	template<> uint32_t value<bool>::get_as_uint() const	{	return v;	}
 
 	template<> uint32_t value<std::string>::get_as_uint() const	{	return 0;	}
+
+	uint32_t generic_value::eval_as_uint() const	{	return get_as_uint();	}
 }

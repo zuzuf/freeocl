@@ -123,10 +123,7 @@ namespace FreeOCL
 		const std::string validated_code = validate_code(preprocessed_code, log, kernels);
 
 		if (validated_code.empty())
-		{
-			std::cerr << log.str() << std::endl;
 			return std::string();
-		}
 
 		char buf[1024];		// Buffer for tmpnam (to make it thread safe)
 		int fd_in = -1;

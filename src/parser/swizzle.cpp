@@ -239,4 +239,10 @@ namespace FreeOCL
 			break;
 		}
 	}
+
+	uint32_t swizzle::eval_as_uint() const
+	{
+		throw "swizzling not supported in statically evaluated expressions";
+		return 0;
+	}
 }

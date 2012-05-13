@@ -34,6 +34,8 @@ namespace FreeOCL
 
 		const smartptr<expression> &get_exp() const		{	return exp;	}
 		int get_op() const	{	return op;	}
+
+		virtual uint32_t eval_as_uint() const;
 	private:
 		const smartptr<expression> exp;
 		smartptr<type> p_type;

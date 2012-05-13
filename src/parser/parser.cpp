@@ -248,78 +248,10 @@ namespace FreeOCL
 				return 1;
 			}
 
-			const bool decl = p_type.as<type_decl>();
-			smartptr<type> fully_qualified_type = p_type;
-			if (p_type.as<type_def>())
-				p_type = p_type.as<type_def>()->get_type();
-
+			d_val__ = p_type;
 			MATCH2(init_declarator_list, token<';'>)
 			{
-				// register variables
-				smartptr<chunk> var_list = N[0].as<chunk>();
-				for(size_t i = 0 ; i < var_list->size() ; i += 2)
-				{
-					const smartptr<chunk> p_declarator = (*var_list)[i].as<chunk>()->front().as<chunk>();
-					smartptr<type> l_type;
-					std::string name;
-					if (p_declarator->front().as<pointer_type>())
-					{
-						smartptr<pointer_type> ptr = p_declarator->front().as<pointer_type>()->clone();
-						ptr->set_root_type(p_type);
-						l_type = ptr;
-
-						name = p_declarator->back().as<chunk>()->front().as<token>()->get_string();
-
-						smartptr<chunk> suffix_list = p_declarator->back().as<chunk>();
-						for(size_t j = 1 ; j < suffix_list->size() ; ++j)
-						{
-							smartptr<chunk> p_chunk = (*suffix_list)[j].as<chunk>();
-							if (!p_chunk)
-								continue;
-							if (p_chunk->front().as<token>()->get_id() == '[')
-								l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<generic_value>()->get_as_uint());
-						}
-					}
-					else
-					{
-						l_type = p_type;
-						name = p_declarator->front().as<token>()->get_string();
-
-						for(size_t j = 1 ; j < p_declarator->size() ; ++j)
-						{
-							smartptr<chunk> p_chunk = (*p_declarator)[j].as<chunk>();
-							if (!p_chunk)
-								continue;
-							if (p_chunk->front().as<token>()->get_id() == '[')
-								l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<generic_value>()->get_as_uint());
-						}
-					}
-					if (decl)
-						symbols->insert(name, new type_def(name, l_type));
-					else
-						symbols->insert(name, new var(name, l_type));
-
-					if ((*var_list)[i].as<chunk>()->size() == 3)		// Check initializer
-					{
-						// If it's not an expression, then it's a vector/struct initializer which will be handleded by the C++ compiler
-						smartptr<expression> init = (*var_list)[i].as<chunk>()->back().as<expression>();
-						if (init && init->get_type().as<native_type>() && l_type.as<native_type>())
-						{
-							smartptr<native_type> init_type = init->get_type().as<native_type>();
-							smartptr<native_type> v_type = l_type.as<native_type>();
-							const std::string v_type_name = native_type(v_type->get_type_id(), false, native_type::PRIVATE).get_name();
-							if (v_type->is_vector() && init_type->is_scalar())
-								(*var_list)[i].as<chunk>()->back() = new chunk(new token(v_type_name + "::make(", parser::SPECIAL), init, new token(")", ')'));
-							else if (v_type->is_vector() && init_type->is_vector())
-							{
-								if (v_type->get_dim() != init_type->get_dim())
-									ERROR("vector dimensions must match!");
-								(*var_list)[i].as<chunk>()->back() = new call(symbols->get<callable>("convert_" + v_type_name), new chunk(init));
-							}
-						}
-					}
-				}
-				d_val__ = new declarator(fully_qualified_type, N[0], N[1]);
+				d_val__ = new declarator(p_type, N[0], N[1]);
 				return 1;
 			}
 			ERROR("syntax error, ';' expected");
@@ -408,24 +340,124 @@ namespace FreeOCL
 
 	int parser::__init_declarator_list()
 	{
-		if (__init_declarator())
+		smartptr<type> p_type = d_val__;
+		const bool decl = p_type.as<type_decl>();
+		if (p_type.as<type_def>())
+			p_type = p_type.as<type_def>()->get_type();
+
+		smartptr<chunk> N = new chunk;
+		size_t l = processed.size();
+		while(true)
 		{
-			smartptr<chunk> N = new chunk(d_val__);
-			size_t l = processed.size();
-			while (__token<','>())
+			if (!__init_declarator())
 			{
-				N->push_back(d_val__);
-				if (!__init_declarator())
-				{
-					roll_back_to(l);
-					break;
-				}
-				N->push_back(d_val__);
-				l = processed.size();
+				roll_back_to(l);
+				if (N->size() == 0)
+					return 0;
+				ERROR("syntax error, init_declarator expected");
 			}
-			d_val__ = N;
-			return 1;
+			N->push_back(d_val__);
+			// register variables
+			{
+				const smartptr<chunk> p_declarator = d_val__.as<chunk>()->front().as<chunk>();
+				smartptr<type> l_type;
+				std::string name;
+				if (p_declarator->front().as<pointer_type>())
+				{
+					smartptr<pointer_type> ptr = p_declarator->front().as<pointer_type>()->clone();
+					ptr->set_root_type(p_type);
+					l_type = ptr;
+
+					name = p_declarator->back().as<chunk>()->front().as<token>()->get_string();
+
+					smartptr<chunk> suffix_list = p_declarator->back().as<chunk>();
+					for(size_t j = 1 ; j < suffix_list->size() ; ++j)
+					{
+						smartptr<chunk> p_chunk = (*suffix_list)[j].as<chunk>();
+						if (!p_chunk)
+							continue;
+						if (p_chunk->front().as<token>()->get_id() == '[')
+							l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<generic_value>()->get_as_uint());
+					}
+				}
+				else
+				{
+					l_type = p_type;
+					name = p_declarator->front().as<token>()->get_string();
+
+					for(size_t j = 1 ; j < p_declarator->size() ; ++j)
+					{
+						smartptr<chunk> p_chunk = (*p_declarator)[j].as<chunk>();
+						if (!p_chunk)
+							continue;
+						if (p_chunk->front().as<token>()->get_id() == '[')
+						{
+							smartptr<expression> exp = p_chunk->at(1).as<expression>();
+							if (exp)
+							{
+								try
+								{
+									l_type = new array_type(l_type, false, pointer_type::PRIVATE, exp->eval_as_uint());
+								}
+								catch(const char *msg)
+								{
+									ERROR(msg);
+								}
+							}
+						}
+					}
+				}
+				if (decl)
+					symbols->insert(name, new type_def(name, l_type));
+				else
+					symbols->insert(name, new var(name, l_type));
+
+				if (d_val__.as<chunk>()->size() == 3)		// Check initializer
+				{
+					// If it's not an expression, then it's a vector/struct initializer which will be handleded by the C++ compiler
+					smartptr<expression> init = d_val__.as<chunk>()->back().as<expression>();
+					if (init && init->get_type().as<native_type>() && l_type.as<native_type>())
+					{
+						smartptr<native_type> init_type = init->get_type().as<native_type>();
+						smartptr<native_type> v_type = l_type.as<native_type>();
+						const std::string v_type_name = native_type(v_type->get_type_id(), false, native_type::PRIVATE).get_name();
+						if (v_type->is_vector() && init_type->is_scalar())
+							d_val__.as<chunk>()->back() = new chunk(new token(v_type_name + "::make(", parser::SPECIAL), init, new token(")", ')'));
+						else if (v_type->is_vector() && init_type->is_vector())
+						{
+							if (v_type->get_dim() != init_type->get_dim())
+								ERROR("vector dimensions must match!");
+							d_val__.as<chunk>()->back() = new call(symbols->get<callable>("convert_" + v_type_name), new chunk(init));
+						}
+					}
+				}
+			}
+			l = processed.size();
+			if (!__token<','>())
+			{
+				d_val__ = N;
+				return 1;
+			}
+			N->push_back(d_val__);
 		}
+//		if (__init_declarator())
+//		{
+//			smartptr<chunk> N = new chunk(d_val__);
+//			size_t l = processed.size();
+//			while (__token<','>())
+//			{
+//				N->push_back(d_val__);
+//				if (!__init_declarator())
+//				{
+//					roll_back_to(l);
+//					break;
+//				}
+//				N->push_back(d_val__);
+//				l = processed.size();
+//			}
+//			d_val__ = N;
+//			return 1;
+//		}
 		return 0;
 	}
 

@@ -20,6 +20,7 @@
 #include "utils/commandqueue.h"
 #include "device.h"
 #include <cstring>
+#include "prototypes.h"
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -474,9 +475,9 @@ extern "C"
 
 		if (blocking_read == CL_TRUE)
 		{
-			clWaitForEvents(1, &(cmd->event.weak()));
+			clWaitForEventsFCL(1, &(cmd->event.weak()));
 			if (event == NULL)
-				clReleaseEvent(cmd->event.weak());
+				clReleaseEventFCL(cmd->event.weak());
 		}
 
 		return CL_SUCCESS;
@@ -574,9 +575,9 @@ extern "C"
 
 		if (blocking_write == CL_TRUE)
 		{
-			clWaitForEvents(1, &(cmd->event.weak()));
+			clWaitForEventsFCL(1, &(cmd->event.weak()));
 			if (event == NULL)
-				clReleaseEvent(cmd->event.weak());
+				clReleaseEventFCL(cmd->event.weak());
 		}
 
 		return CL_SUCCESS;
@@ -976,9 +977,9 @@ extern "C"
 
 			if (blocking_map == CL_TRUE)
 			{
-				clWaitForEvents(1, &cmd->event.weak());
+				clWaitForEventsFCL(1, &cmd->event.weak());
 				if (event == NULL)
-					clReleaseEvent(cmd->event.weak());
+					clReleaseEventFCL(cmd->event.weak());
 			}
 		}
 		SET_RET(CL_SUCCESS);

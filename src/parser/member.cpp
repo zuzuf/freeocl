@@ -56,4 +56,10 @@ namespace FreeOCL
 			s_type = p_type.as<struct_type>();
 		return s_type->get_type_of_member(member_name);
 	}
+
+	uint32_t member::eval_as_uint() const
+	{
+		throw "user defined types cannot appear in statically evaluated expressions";
+		return 0;
+	}
 }

@@ -32,6 +32,7 @@ namespace FreeOCL
 
 		bool validate() const;
 
+		virtual uint32_t eval_as_uint() const;
 	private:
 		const smartptr<expression> exp;
 		const smartptr<type> p_type;

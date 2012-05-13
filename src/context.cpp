@@ -159,7 +159,7 @@ extern "C"
 			SET_RET(CL_INVALID_DEVICE_TYPE);
 			return 0;
 		}
-		return clCreateContext(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);
+		return clCreateContextFCL(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);
 	}
 
 	cl_int clRetainContextFCL (cl_context context)

@@ -26,6 +26,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <dlfcn.h>
+#include "prototypes.h"
 
 namespace
 {
@@ -228,7 +229,7 @@ extern "C"
 		{
 			kernel->invalidate();
 			kernel->unlock();
-			clReleaseProgram(kernel->program);
+			clReleaseProgramFCL(kernel->program);
 			delete kernel;
 		}
 		else

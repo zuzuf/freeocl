@@ -84,4 +84,9 @@ namespace FreeOCL
 	{
 		return p_type;
 	}
+
+	uint32_t cast::eval_as_uint() const
+	{
+		return exp->eval_as_uint();
+	}
 }

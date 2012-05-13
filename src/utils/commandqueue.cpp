@@ -25,6 +25,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+#include "prototypes.h"
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -167,12 +168,12 @@ extern "C"
 		command_queue->unlock();
 
 		cl_event event;
-		cl_int err = clEnqueueMarker(command_queue, &event);
+		cl_int err = clEnqueueMarkerFCL(command_queue, &event);
 		if (err != CL_SUCCESS)
 			return err;
 
-		err = clWaitForEvents(1, &event);
-		clReleaseEvent(event);
+		err = clWaitForEventsFCL(1, &event);
+		clReleaseEventFCL(event);
 		return err;
 	}
 }

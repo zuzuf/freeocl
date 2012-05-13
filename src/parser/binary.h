@@ -35,6 +35,8 @@ namespace FreeOCL
 		const smartptr<expression> &get_left() const		{	return left;	}
 		const smartptr<expression> &get_right() const	{	return right;	}
 		int get_op() const	{	return op;	}
+
+		virtual uint32_t eval_as_uint() const;
 	private:
 		const smartptr<expression> left;
 		const smartptr<expression> right;
