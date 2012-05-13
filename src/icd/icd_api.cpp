@@ -64,6 +64,17 @@ extern "C"
 															  param_value_size_ret);
 	}
 
+	cl_int clSetCommandQueueProperty(cl_command_queue command_queue,
+									 cl_command_queue_properties properties,
+									 cl_bool enable,
+									 cl_command_queue_properties *old_properties)
+	{
+		return command_queue->dispatch->clSetCommandQueueProperty(command_queue,
+																  properties,
+																  enable,
+																  old_properties);
+	}
+
 	cl_int clFlush (cl_command_queue command_queue)
 	{
 		return command_queue->dispatch->clFlush(command_queue);

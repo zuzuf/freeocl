@@ -63,6 +63,7 @@ clRetainMemObject;
 clRetainProgram;
 clRetainSampler;
 clSetKernelArg;
+clSetCommandQueueProperty;
 clUnloadCompiler;
 clWaitForEvents;
 };

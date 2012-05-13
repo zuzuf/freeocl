@@ -1038,6 +1038,22 @@ template<class V> inline CHECK(V) F(const V &x, V *y)\
 		ret.v[i] = F(x.v[i], &(y->v[i]));\
 	return ret;\
 }
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2S(F)\
+template<class V> inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x.v[i], y);\
+	return ret;\
+}
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2S_(F)\
+template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x, y.v[i]);\
+	return ret;\
+}
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3(F)\
 template<class V> inline CHECK(V) F(const V &x, const V &y, const V &z)\
 {\
@@ -1060,6 +1076,38 @@ template<class V> inline CHECKUI(V) F(const V &x, const V &y, const V &z)\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		ret.v[i] = F(x.v[i], y.v[i], z.v[i]);\
+	return ret;\
+}
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS(F)\
+template<class V> inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y, const typename __vector<V>::base_type z)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x.v[i], y, z);\
+	return ret;\
+}
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_S(F)\
+template<class V> inline CHECK(V) F(const V &x, const V &y, const typename __vector<V>::base_type z)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x.v[i], y.v[i], z);\
+	return ret;\
+}
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3S_(F)\
+template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y, const V &z)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x, y.v[i], z.v[i]);\
+	return ret;\
+}
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS_(F)\
+template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, const typename __vector<V>::base_type y, const V &z)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x, y, z.v[i]);\
 	return ret;\
 }
 #endif

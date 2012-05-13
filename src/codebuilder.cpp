@@ -414,12 +414,23 @@ namespace FreeOCL
 				<< "\t{" << std::endl
 				<< "\t\tFreeOCL::group_id[0] = x;" << std::endl
 				<< "\t\tFreeOCL::group_id[1] = y;" << std::endl
-				<< "\t\tFreeOCL::group_id[2] = z;" << std::endl
-				<< "\t\tstatic char local_memory[0x100000];" << std::endl
+				<< "\t\tFreeOCL::group_id[2] = z;" << std::endl;
+			bool b_has_local_parameters = false;
+			for(size_t j = 0 ; j < params->size() && !b_has_local_parameters ; ++j)
+			{
+				const smartptr<chunk> cur = (*params)[j].as<chunk>();
+				const smartptr<type> p_type = cur->front().as<type>();
+				const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
+				const bool b_pointer = ptr;
+				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
+				b_has_local_parameters |= b_local;
+			}
+			if (b_has_local_parameters)
+				gen << "\t\tstatic char local_memory[0x100000];" << std::endl;
 #ifdef FREEOCL_USE_OPENMP
-				<< "#pragma omp parallel" << std::endl
+			gen	<< "#pragma omp parallel" << std::endl
 #else
-				<< "for(FreeOCL::thread_num = 1 ; FreeOCL::thread_num <= num ; FreeOCL::thread_num++)" << std::endl
+			gen	<< "for(FreeOCL::thread_num = 1 ; FreeOCL::thread_num <= num ; FreeOCL::thread_num++)" << std::endl
 #endif
 				<< "\t\t{" << std::endl
 				<< "\t\t\t" << i->first << "(";
