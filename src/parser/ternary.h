@@ -37,6 +37,8 @@ namespace FreeOCL
 		const smartptr<expression> &get_exp3() const	{	return exp3;	}
 
 		virtual uint32_t eval_as_uint() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const smartptr<expression> exp1;
 		const smartptr<expression> exp2;

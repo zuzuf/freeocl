@@ -29,4 +29,9 @@ namespace FreeOCL
 		throw "static evaluation of sizeof operator not implemented!";
 		return 0;
 	}
+
+	bool size_of::has_references_to(const std::string &function_name) const
+	{
+		return false;
+	}
 }

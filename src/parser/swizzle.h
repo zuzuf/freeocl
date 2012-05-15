@@ -30,6 +30,8 @@ namespace FreeOCL
 		smartptr<type> get_type() const;
 
 		virtual uint32_t eval_as_uint() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		static void parse_components(const std::string &components, int values[], size_t dim);
 

@@ -82,4 +82,9 @@ namespace FreeOCL
 	template<> uint32_t value<std::string>::get_as_uint() const	{	return 0;	}
 
 	uint32_t generic_value::eval_as_uint() const	{	return get_as_uint();	}
+
+	bool generic_value::has_references_to(const std::string &function_name) const
+	{
+		return false;
+	}
 }

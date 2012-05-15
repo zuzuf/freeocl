@@ -30,6 +30,8 @@ namespace FreeOCL
 		virtual ~node()	{}
 
 		virtual void write(std::ostream& out) const = 0;
+
+		virtual bool has_references_to(const std::string &function_name) const = 0;
 	};
 
 	inline std::ostream &operator<<(std::ostream &out, const node &n)

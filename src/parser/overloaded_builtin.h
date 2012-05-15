@@ -38,6 +38,7 @@ namespace FreeOCL
 
 		void merge(const smartptr<overloaded_builtin> rhs);
 
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		void remove_duplicates();
 

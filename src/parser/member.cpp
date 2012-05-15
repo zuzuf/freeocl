@@ -62,4 +62,9 @@ namespace FreeOCL
 		throw "user defined types cannot appear in statically evaluated expressions";
 		return 0;
 	}
+
+	bool member::has_references_to(const std::string &function_name) const
+	{
+		return base->has_references_to(function_name);
+	}
 }

@@ -44,4 +44,9 @@ namespace FreeOCL
 		}
 		out << *p_type << *n0 << *n1;
 	}
+
+	bool declarator::has_references_to(const std::string &function_name) const
+	{
+		return n0->has_references_to(function_name) || n1->has_references_to(function_name);
+	}
 }

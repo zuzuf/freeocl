@@ -47,6 +47,8 @@ namespace FreeOCL
 		inline void unset() {	flags &= ~F;	}
 
 		inline int get_flags() const	{	return flags;	}
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		int flags;
 	};

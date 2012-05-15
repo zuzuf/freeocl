@@ -245,4 +245,9 @@ namespace FreeOCL
 		throw "swizzling not supported in statically evaluated expressions";
 		return 0;
 	}
+
+	bool swizzle::has_references_to(const std::string &function_name) const
+	{
+		return base->has_references_to(function_name);
+	}
 }

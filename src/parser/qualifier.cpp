@@ -35,4 +35,9 @@ namespace FreeOCL
 		if (is_set<INLINE>())
 			out << "inline ";
 	}
+
+	bool qualifier::has_references_to(const std::string &function_name) const
+	{
+		return false;
+	}
 }

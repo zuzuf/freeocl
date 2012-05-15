@@ -48,6 +48,8 @@ namespace FreeOCL
 
 		virtual std::string suffix() const;
 		virtual std::string prefix() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const bool b_const;
 		const address_space addr_space;

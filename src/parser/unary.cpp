@@ -97,4 +97,9 @@ namespace FreeOCL
 		}
 		return 0;
 	}
+
+	bool unary::has_references_to(const std::string &function_name) const
+	{
+		return exp->has_references_to(function_name);
+	}
 }

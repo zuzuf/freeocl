@@ -94,4 +94,12 @@ namespace FreeOCL
 
 		return types;
 	}
+
+	bool chunk::has_references_to(const std::string &function_name) const
+	{
+		for(std::deque<smartptr<node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
+			if ((*it)->has_references_to(function_name))
+				return true;
+		return false;
+	}
 }

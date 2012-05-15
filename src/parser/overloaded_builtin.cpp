@@ -426,4 +426,9 @@ namespace FreeOCL
 		}
 		possible_types.resize(possible_types.size() - e);
 	}
+
+	bool overloaded_builtin::has_references_to(const std::string &function_name) const
+	{
+		return name == function_name;
+	}
 }

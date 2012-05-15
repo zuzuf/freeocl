@@ -68,4 +68,9 @@ namespace FreeOCL
 	{
 		return get_name();
 	}
+
+	bool type::has_references_to(const std::string &function_name) const
+	{
+		return false;
+	}
 }

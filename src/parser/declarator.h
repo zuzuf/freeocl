@@ -31,6 +31,8 @@ namespace FreeOCL
 		virtual ~declarator();
 
 		virtual void write(std::ostream &out) const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		smartptr<type> p_type;
 		smartptr<node> n0, n1;

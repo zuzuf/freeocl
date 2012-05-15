@@ -33,6 +33,8 @@ namespace FreeOCL
 		bool validate() const;
 
 		virtual uint32_t eval_as_uint() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const smartptr<expression> exp;
 		const smartptr<type> p_type;

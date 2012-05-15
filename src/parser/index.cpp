@@ -50,4 +50,9 @@ namespace FreeOCL
 		throw "operator [] cannot be statically evaluated";
 		return 0;
 	}
+
+	bool index::has_references_to(const std::string &function_name) const
+	{
+		return ptr->has_references_to(function_name) || idx->has_references_to(function_name);
+	}
 }

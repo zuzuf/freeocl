@@ -168,4 +168,9 @@ namespace FreeOCL
 		}
 		return 0;
 	}
+
+	bool binary::has_references_to(const std::string &function_name) const
+	{
+		return left->has_references_to(function_name) || right->has_references_to(function_name);
+	}
 }

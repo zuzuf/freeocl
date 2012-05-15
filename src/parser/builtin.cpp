@@ -804,4 +804,9 @@ namespace FreeOCL
 		b_init = false;
 		syms = *symbols;
 	}
+
+	bool builtin::has_references_to(const std::string &function_name) const
+	{
+		return name == function_name;
+	}
 }

@@ -28,6 +28,7 @@ namespace FreeOCL
 	public:
 		virtual uint32_t get_as_uint() const = 0;
 		virtual uint32_t eval_as_uint() const;
+		virtual bool has_references_to(const std::string &function_name) const;
 	};
 
 	template<class T>

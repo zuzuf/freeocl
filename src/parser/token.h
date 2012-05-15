@@ -32,6 +32,8 @@ namespace FreeOCL
 		const std::string &get_string() const	{	return str;	}
 
 		virtual void write(std::ostream& out) const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const int token_id;
 		const std::string str;

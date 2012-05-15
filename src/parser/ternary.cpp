@@ -49,4 +49,9 @@ namespace FreeOCL
 	{
 		return exp1->eval_as_uint() ? exp2->eval_as_uint() : exp3->eval_as_uint();
 	}
+
+	bool ternary::has_references_to(const std::string &function_name) const
+	{
+		return exp1->has_references_to(function_name) || exp2->has_references_to(function_name) || exp3->has_references_to(function_name);
+	}
 }

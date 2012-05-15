@@ -64,6 +64,7 @@ namespace FreeOCL
 
 		std::deque<smartptr<type> > get_as_types() const;
 
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		std::deque<smartptr<node> >	childs;
 	};

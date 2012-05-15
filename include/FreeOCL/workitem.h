@@ -30,8 +30,10 @@ namespace FreeOCL
 	static size_t local_size[3];
 	static size_t group_id[3];
 	static size_t num_groups[3];
-#ifndef FREEOCL_USE_OPENMP
 	static size_t thread_num;
+#ifdef FREEOCL_USE_OPENMP
+#pragma omp threadprivate(thread_num)
+#pragma omp threadprivate(group_id)
 #endif
 }
 
@@ -89,10 +91,6 @@ inline size_t get_global_offset(uint dimindx)
 
 inline size_t get_thread_num()
 {
-#ifdef FREEOCL_USE_OPENMP
-	return omp_get_thread_num();
-#else
 	return FreeOCL::thread_num;
-#endif
 }
 #endif

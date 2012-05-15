@@ -44,4 +44,9 @@ namespace FreeOCL
 		throw "variable cannot be statically evaluated";
 		return 0;
 	}
+
+	bool var::has_references_to(const std::string &function_name) const
+	{
+		return false;
+	}
 }

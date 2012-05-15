@@ -34,6 +34,8 @@ namespace FreeOCL
 		virtual void write(std::ostream& out) const;
 
 		virtual uint32_t eval_as_uint() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const smartptr<callable> fn;
 		const smartptr<chunk> args;

@@ -34,6 +34,8 @@ namespace FreeOCL
 		virtual smartptr<type> get_type() const;
 
 		virtual uint32_t eval_as_uint() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		smartptr<node> n;
 	};

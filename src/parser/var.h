@@ -33,6 +33,8 @@ namespace FreeOCL
 		const std::string &get_name() const	{	return name;	}
 
 		virtual uint32_t eval_as_uint() const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const std::string name;
 		const smartptr<type> p_type;

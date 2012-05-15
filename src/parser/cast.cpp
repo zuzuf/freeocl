@@ -89,4 +89,9 @@ namespace FreeOCL
 	{
 		return exp->eval_as_uint();
 	}
+
+	bool cast::has_references_to(const std::string &function_name) const
+	{
+		return exp->has_references_to(function_name);
+	}
 }

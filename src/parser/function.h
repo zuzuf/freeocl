@@ -41,6 +41,7 @@ namespace FreeOCL
 		smartptr<chunk> get_arguments() const	{	return arguments;	}
 		smartptr<chunk> get_body() const	{	return body;	}
 
+		virtual bool has_references_to(const std::string &function_name) const;
 	private:
 		const std::string name;
 		smartptr<type>	return_type;

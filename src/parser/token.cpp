@@ -27,4 +27,9 @@ namespace FreeOCL
 			out	<< str << ' ';
 		}
 	}
+
+	bool token::has_references_to(const std::string &function_name) const
+	{
+		return false;
+	}
 }

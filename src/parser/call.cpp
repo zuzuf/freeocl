@@ -58,4 +58,13 @@ namespace FreeOCL
 		throw "function calls cannot be statically evaluated";
 		return 0;
 	}
+
+	bool call::has_references_to(const std::string &function_name) const
+	{
+		if (args)
+			for(size_t i = 0 ; i < args->size() ; ++i)
+				if (args->at(i)->has_references_to(function_name))
+					return true;
+		return fn->has_references_to(function_name);
+	}
 }
