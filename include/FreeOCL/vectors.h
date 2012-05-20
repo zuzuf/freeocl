@@ -596,7 +596,7 @@ template<>	struct __vector_type<X, N>\
 template<>	struct __dim<X##N>\
 {\
 	enum { value = N };\
-};
+}
 
 #define DEFINE_VECTOR_INT_TYPE(X, N)\
 struct X##N\
@@ -662,7 +662,7 @@ template<>	struct __vector_type<X, N>\
 template<>	struct __dim<X##N>\
 {\
 	enum { value = N };\
-};
+}
 
 #define DEFINE_VECTORS(X)\
 DEFINE_VECTOR_TYPE(X, 2);\

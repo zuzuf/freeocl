@@ -86,7 +86,8 @@ set(FREEOCL_HEADERS
 	../include/FreeOCL/vloadstore.h
 	../include/FreeOCL/vmisc.h
 	../include/FreeOCL/workitem.h
-	)
+    ../include/FreeOCL/simdopts.h
+    )
 
 add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS})
 target_link_libraries(FreeOCL)

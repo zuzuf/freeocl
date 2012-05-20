@@ -147,6 +147,8 @@ struct half
 };
 
 template<class A, class B>	struct __right {	typedef B	type;	};
+template<class A, class B>	struct __match {	enum { value = false };	};
+template<class A>	struct __match<A, A> {	enum { value = true };	};
 
 // A small template to filter scalar types allowed for arithmetic operations
 template<typename S>	struct __scalar;
@@ -193,6 +195,8 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 	typedef V	type;
 };
 
+#include "simdopts.h"
+
 #include "workitem.h"
 #include "math.h"
 #include "integer.h"
@@ -220,7 +224,11 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #define constant	__constant
 #define private		__private
 
+#ifdef __GNUG__
+#define restrict	__restrict__
+#else
 #define restrict
+#endif
 
 #define __read_only	const
 #define __write_only

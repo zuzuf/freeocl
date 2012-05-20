@@ -24,8 +24,8 @@
 inline long clamp(long, long, long);
 
 // for int
-//inline uint abs(int x)	{	return x >= 0 ? x : -x;	}
-inline uint abs(const int &x)	{	return x >= 0 ? x : -x;	}
+inline uint __abs(const int &x)	{	return x >= 0 ? x : -x;	}
+#define abs(x)	__abs(x)
 inline uint abs_diff(int x, int y)	{	return x > y ? x - y : y - x;	}
 inline int add_sat(int x, int y)
 {	return int(clamp(long(x) + long(y), -0x80000000, 0x7FFFFFFF));	}

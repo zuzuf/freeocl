@@ -31,18 +31,22 @@ template<> struct __type_range<ulong>		{	enum { __min = 0, __max = 0xFFFFFFFFFFF
 // Built-in type conversion functions
 #define CONVERTER(X)\
 template<class Scalar>\
-inline typename __right<typename __scalar<Scalar>::type, X>::type convert_##X(const Scalar &v)	{	return (X)v;	}
+inline typename __if< !__match<typename __scalar<Scalar>::type, X>::value, X>::type convert_##X(const Scalar &v)	{	return (X)v;	}\
+template<class Scalar>\
+inline const typename __if< __match<Scalar, X>::value, X>::type &convert_##X(const Scalar &v)	{	return v;	}
 
 #define CONVERTER_SAT(X)\
 template<class Scalar>\
-inline typename __right<typename __scalar<Scalar>::type, X>::type convert_##X##_sat(const Scalar &v)\
+inline typename __if< !__match<typename __scalar<Scalar>::type, X>::value, X>::type convert_##X##_sat(const Scalar &v)\
 {\
 	return (X)(v > __type_range<X>::__max\
 			   ? __type_range<X>::__max\
 			   : v < __type_range<X>::__min\
 				 ? __type_range<X>::__min\
 				 : v);\
-}
+}\
+template<class Scalar>\
+inline const typename __if< __match<Scalar, X>::value , X>::type &convert_##X##_sat(const Scalar &v)	{	return v;	}
 
 CONVERTER(char)
 CONVERTER(uchar)
@@ -69,22 +73,26 @@ CONVERTER_SAT(ulong)
 
 #define CONVERTER(X, N)\
 template<class V>\
-	inline typename __if<__vector<V>::components == N, X##N>::type convert_##X##N(const V &v)\
+	inline typename __if<__vector<V>::components == N && !__match<X##N, V>::value, X##N>::type convert_##X##N(const V &v)\
 {\
 	X##N ret;\
 	for(size_t i = 0 ; i < N ; ++i)\
 		ret.v[i] = (X)v.v[i];\
 	return ret;\
-}
+}\
+template<class V>\
+	inline const typename __if<__match<X##N, V>::value, X##N>::type &convert_##X##N(const V &v)	{	return v;	}
 #define CONVERTER_SAT(X, N)\
 template<class V>\
-	inline typename __if<__vector<V>::components == N, X##N>::type convert_##X##N##_sat(const V &v)\
+	inline typename __if<__vector<V>::components == N && !__match<X##N, V>::value, X##N>::type convert_##X##N##_sat(const V &v)\
 {\
 	X##N ret;\
 	for(size_t i = 0 ; i < N ; ++i)\
 		ret.v[i] = convert_##X##_sat(v.v[i]);\
 	return ret;\
-}
+}\
+template<class V>\
+	inline const typename __if<__match<X##N, V>::value, X##N>::type &convert_##X##N##_sat(const V &v)	{	return v;	}
 
 #define CONVERTER_VECTORS(X)\
 	CONVERTER(X, 2)\

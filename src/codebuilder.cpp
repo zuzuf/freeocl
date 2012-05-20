@@ -36,6 +36,7 @@ namespace FreeOCL
 		b_valid_options = true;
 
 		std::string macros;
+		std::string compiler_extra_args;
 
 		std::stringstream coptions(options);
 		while(coptions)
@@ -76,28 +77,34 @@ namespace FreeOCL
 			}
 			else if (word == "-cl-single-precision-constant")
 			{
+				compiler_extra_args += "-fsingle-precision-constant";
 			}
 			else if (word == "-cl-denorms-are-zero")
 			{
 			}
 			else if (word == "-cl-opt-disable")
 			{
+				compiler_extra_args += " -O 0";
 			}
 			else if (word == "-cl-mad-enable")
 			{
 			}
 			else if (word == "-cl-no-signed-zeros")
 			{
+				compiler_extra_args += " -fno-signed-zeros";
 			}
 			else if (word == "-cl-unsafe-math-optimizations")
 			{
+				compiler_extra_args += " -funsafe-math-optimizations";
 			}
 			else if (word == "-cl-finite-math-only")
 			{
+				compiler_extra_args += " -ffinite-math-only";
 			}
 			else if (word == "-cl-fast-relaxed-math")
 			{
 				macros += " -D__FAST_RELAXED_MATH__=1";
+				compiler_extra_args += " -ffast-math -D__FAST_RELAXED_MATH__=1";
 			}
 			else if (word == "-w")
 			{
@@ -171,6 +178,7 @@ namespace FreeOCL
 		std::stringstream cmd;
 		cmd << FREEOCL_CXX_COMPILER
 			<< FREEOCL_CXX_FLAGS
+			<< compiler_extra_args
 			<< " -o " << filename_out
 			<< ' ' << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
@@ -368,7 +376,7 @@ namespace FreeOCL
 				<< "\treturn 0;" << std::endl
 				<< "}" << std::endl;
 
-			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void *args, size_t dim, size_t *global_offset, size_t *global_size, size_t *local_size)" << std::endl
+			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, const size_t dim, const size_t * const global_offset, const size_t * const global_size, const size_t * const local_size)" << std::endl
 				<< "{" << std::endl
 				<< "\tconst size_t num = local_size[0] * local_size[1] * local_size[2];" << std::endl;
 #ifdef FREEOCL_USE_OPENMP
@@ -432,23 +440,25 @@ namespace FreeOCL
 				<< "\t{" << std::endl;
 #endif
 			gen	<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
-				<< "\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
-				<< "\tfor(size_t z = 0 ; z < FreeOCL::num_groups[2] ; ++z)" << std::endl
 				<< "\t{" << std::endl
 				<< "\t\tFreeOCL::group_id[0] = x;" << std::endl
-				<< "\t\tFreeOCL::group_id[1] = y;" << std::endl
-				<< "\t\tFreeOCL::group_id[2] = z;" << std::endl;
+				<< "\t\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
+				<< "\t\t{" << std::endl
+				<< "\t\t\tFreeOCL::group_id[1] = y;" << std::endl
+				<< "\t\t\tfor(size_t z = 0 ; z < FreeOCL::num_groups[2] ; ++z)" << std::endl
+				<< "\t\t\t{" << std::endl
+				<< "\t\t\t\tFreeOCL::group_id[2] = z;" << std::endl;
 #ifdef FREEOCL_USE_OPENMP
 			gen	<< "#pragma omp for nowait" << std::endl
-				<< "\t\tfor(size_t thread_id = 0 ; thread_id < num ; thread_id++)" << std::endl
+				<< "\t\t\t\tfor(size_t thread_id = 0 ; thread_id < num ; thread_id++)" << std::endl
 #else
-			gen	<< "\t\tfor(FreeOCL::thread_num = 0 ; FreeOCL::thread_num < num ; FreeOCL::thread_num++)" << std::endl
+			gen	<< "\t\t\t\tfor(FreeOCL::thread_num = 0 ; FreeOCL::thread_num < num ; FreeOCL::thread_num++)" << std::endl
 #endif
-				<< "\t\t{" << std::endl
+				<< "\t\t\t\t{" << std::endl
 #ifdef FREEOCL_USE_OPENMP
-				<< "\t\t\tFreeOCL::thread_num = thread_id;" << std::endl
+				<< "\t\t\t\t\tFreeOCL::thread_num = thread_id;" << std::endl
 #endif
-				<< "\t\t\t" << i->first << "(";
+				<< "\t\t\t\t\t" << i->first << "(";
 			std::stringstream cat;
 			cat << '0';
 			for(size_t j = 0 ; j < params->size() ; ++j)
@@ -460,7 +470,7 @@ namespace FreeOCL
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 
 				if (j)
-					gen << ",\n\t\t\t\t";
+					gen << ",\n\t\t\t\t\t\t";
 				if (b_local)
 					gen << "(" << *p_type << ")(local_memory + __shift" << j << ")";
 				else
@@ -468,7 +478,9 @@ namespace FreeOCL
 				cat << " + sizeof(" << *p_type << ")";
 			}
 			gen << ");" << std::endl;
-			gen << "\t\t}" << std::endl
+			gen << "\t\t\t\t}" << std::endl
+				<< "\t\t\t}" << std::endl
+				<< "\t\t}" << std::endl
 				<< "\t}" << std::endl;
 #ifdef FREEOCL_USE_OPENMP
 			gen << "\t}" << std::endl;

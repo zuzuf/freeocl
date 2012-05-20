@@ -33,7 +33,7 @@
 		" -shared -fPIC -pipe" /* -Wall*/ \
 		" -I./include" \
 		" -g -O3" \
-		" -fomit-frame-pointer -ftree-vectorize" \
+        " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
 		" -rdynamic" \
 		" -fno-exceptions" \
 		/*" -ffast-math"*/ \
