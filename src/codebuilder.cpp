@@ -20,6 +20,7 @@
 #include <sstream>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include "freeocl.h"
 #include "device.h"
 #include "parser/parser.h"
