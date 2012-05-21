@@ -81,3 +81,25 @@ clEnqueueCopyBufferRect;
 local:
 *;
 } OPENCL_1.0;
+
+OPENCL_1.2 {
+global:
+clCreateSubDevices;
+clRetainDevice;
+clReleaseDevice;
+clCreateImage;
+clCreateProgramWithBuiltInKernels;
+clCompileProgram;
+clLinkProgram;
+clUnloadPlatformCompiler;
+clGetKernelArgInfo;
+clEnqueueFillBuffer;
+clEnqueueFillImage;
+clEnqueueMigrateMemObjects;
+clEnqueueMarkerWithWaitList;
+clEnqueueBarrierWithWaitList;
+clSetPrintfCallback;
+clGetExtensionFunctionAddressForPlatform;
+local:
+*;
+} OPENCL_1.1;

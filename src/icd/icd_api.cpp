@@ -1156,4 +1156,227 @@ extern "C"
 
 		return NULL;
 	}
+
+	//------------------------------------------------- OpenCL 1.2 API -------------------------------------------------
+
+	CL_API_ENTRY cl_int CL_API_CALL	clCreateSubDevices(cl_device_id                         in_device,
+													   const cl_device_partition_property * properties,
+													   cl_uint                              num_devices,
+													   cl_device_id *                       out_devices,
+													   cl_uint *                            num_devices_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		return in_device->dispatch->clCreateSubDevices(in_device,
+													   properties,
+													   num_devices,
+													   out_devices,
+													   num_devices_ret);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL clRetainDevice(cl_device_id device) CL_API_SUFFIX__VERSION_1_2
+	{
+		return device->dispatch->clRetainDevice(device);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL clReleaseDevice(cl_device_id device) CL_API_SUFFIX__VERSION_1_2
+	{
+		return device->dispatch->clReleaseDevice(device);
+	}
+
+	CL_API_ENTRY cl_mem CL_API_CALL	clCreateImage(cl_context              context,
+												  cl_mem_flags            flags,
+												  const cl_image_format * image_format,
+												  const cl_image_desc *   image_desc,
+												  void *                  host_ptr,
+												  cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		return context->dispatch->clCreateImage(context,
+												flags,
+												image_format,
+												image_desc,
+												host_ptr,
+												errcode_ret);
+	}
+
+	CL_API_ENTRY cl_program CL_API_CALL clCreateProgramWithBuiltInKernels(cl_context            context,
+																		  cl_uint               num_devices,
+																		  const cl_device_id *  device_list,
+																		  const char *          kernel_names,
+																		  cl_int *              errcode_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		return context->dispatch->clCreateProgramWithBuiltInKernels(context,
+																	num_devices,
+																	device_list,
+																	kernel_names,
+																	errcode_ret);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clCompileProgram(cl_program           program,
+													 cl_uint              num_devices,
+													 const cl_device_id * device_list,
+													 const char *         options,
+													 cl_uint              num_input_headers,
+													 const cl_program *   input_headers,
+													 const char **        header_include_names,
+													 void (CL_CALLBACK *  pfn_notify)(cl_program /* program */, void * /* user_data */),
+													 void *               user_data) CL_API_SUFFIX__VERSION_1_2
+	{
+		return program->dispatch->clCompileProgram(program,
+												   num_devices,
+												   device_list,
+												   options,
+												   num_input_headers,
+												   input_headers,
+												   header_include_names,
+												   pfn_notify,
+												   user_data);
+	}
+
+	CL_API_ENTRY cl_program CL_API_CALL	clLinkProgram(cl_context           context,
+													  cl_uint              num_devices,
+													  const cl_device_id * device_list,
+													  const char *         options,
+													  cl_uint              num_input_programs,
+													  const cl_program *   input_programs,
+													  void (CL_CALLBACK *  pfn_notify)(cl_program /* program */, void * /* user_data */),
+													  void *               user_data,
+													  cl_int *             errcode_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		return context->dispatch->clLinkProgram(context,
+												num_devices,
+												device_list,
+												options,
+												num_input_programs,
+												input_programs,
+												pfn_notify,
+												user_data,
+												errcode_ret);
+	}
+
+
+	CL_API_ENTRY cl_int CL_API_CALL	clUnloadPlatformCompiler(cl_platform_id platform) CL_API_SUFFIX__VERSION_1_2
+	{
+		return platform->dispatch->clUnloadPlatformCompiler(platform);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clGetKernelArgInfo(cl_kernel       kernel,
+													   cl_uint         arg_indx,
+													   cl_kernel_arg_info  param_name,
+													   size_t          param_value_size,
+													   void *          param_value,
+													   size_t *        param_value_size_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		return kernel->dispatch->clGetKernelArgInfo(kernel,
+													arg_indx,
+													param_name,
+													param_value_size,
+													param_value,
+													param_value_size_ret);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueFillBuffer(cl_command_queue   command_queue,
+														cl_mem             buffer,
+														const void *       pattern,
+														size_t             pattern_size,
+														size_t             offset,
+														size_t             size,
+														cl_uint            num_events_in_wait_list,
+														const cl_event *   event_wait_list,
+														cl_event *         event) CL_API_SUFFIX__VERSION_1_2
+	{
+		return command_queue->dispatch->clEnqueueFillBuffer(command_queue,
+															buffer,
+															pattern,
+															pattern_size,
+															offset,
+															size,
+															num_events_in_wait_list,
+															event_wait_list,
+															event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueFillImage(cl_command_queue   command_queue,
+													   cl_mem             image,
+													   const void *       fill_color,
+													   const size_t *     origin,
+													   const size_t *     region,
+													   cl_uint            num_events_in_wait_list,
+													   const cl_event *   event_wait_list,
+													   cl_event *         event) CL_API_SUFFIX__VERSION_1_2
+	{
+		return command_queue->dispatch->clEnqueueFillImage(command_queue,
+														   image,
+														   fill_color,
+														   origin,
+														   region,
+														   num_events_in_wait_list,
+														   event_wait_list,
+														   event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL clEnqueueMigrateMemObjects(cl_command_queue       command_queue,
+															   cl_uint                num_mem_objects,
+															   const cl_mem *         mem_objects,
+															   cl_mem_migration_flags flags,
+															   cl_uint                num_events_in_wait_list,
+															   const cl_event *       event_wait_list,
+															   cl_event *             event) CL_API_SUFFIX__VERSION_1_2
+	{
+		return command_queue->dispatch->clEnqueueMigrateMemObjects(command_queue,
+																   num_mem_objects,
+																   mem_objects,
+																   flags,
+																   num_events_in_wait_list,
+																   event_wait_list,
+																   event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueMarkerWithWaitList(cl_command_queue command_queue,
+																cl_uint          num_events_in_wait_list,
+																const cl_event * event_wait_list,
+																cl_event *       event) CL_API_SUFFIX__VERSION_1_2
+	{
+		return command_queue->dispatch->clEnqueueMarkerWithWaitList(command_queue,
+																	num_events_in_wait_list,
+																	event_wait_list,
+																	event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL clEnqueueBarrierWithWaitList(cl_command_queue command_queue,
+																 cl_uint          num_events_in_wait_list,
+																 const cl_event * event_wait_list,
+																 cl_event *       event) CL_API_SUFFIX__VERSION_1_2
+	{
+		return command_queue->dispatch->clEnqueueBarrierWithWaitList(command_queue,
+																	 num_events_in_wait_list,
+																	 event_wait_list,
+																	 event);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL clSetPrintfCallback(cl_context          context,
+														void (CL_CALLBACK * pfn_notify)(cl_context /* program */,
+																						cl_uint /*printf_data_len */,
+																						char * /* printf_data_ptr */,
+																						void * /* user_data */),
+														void *              user_data) CL_API_SUFFIX__VERSION_1_2
+	{
+		return context->dispatch->clSetPrintfCallback(context,
+													  pfn_notify,
+													  user_data);
+	}
+
+
+
+	/* Extension function access
+	 *
+	 * Returns the extension function address for the given function name,
+	 * or NULL if a valid function can not be found.  The client must
+	 * check to make sure the address is not NULL, before using or
+	 * calling the returned function address.
+	 */
+	CL_API_ENTRY void * CL_API_CALL	clGetExtensionFunctionAddressForPlatform(cl_platform_id platform,
+																			 const char *   func_name) CL_API_SUFFIX__VERSION_1_2
+	{
+		return platform->dispatch->clGetExtensionFunctionAddressForPlatform(platform,
+																			func_name);
+	}
 }
