@@ -190,20 +190,134 @@ inline float half_sqrt(float x)	{	return sqrt(x);	}
 inline float half_tan(float x)	{	return tan(x);	}
 
 // native_ versions
-inline float native_cos(float x)	{	return cos(x);	}
+//inline float native_cos(float x)	{	return cos(x);	}
 inline float native_divide(float x, float y)	{	return x / y;	}
-inline float native_exp(float x)	{	return exp(x);	}
+//inline float native_exp(float x)	{	return exp(x);	}
 inline float native_exp2(float x)	{	return exp2(x);	}
 inline float native_exp10(float x)	{	return exp10(x);	}
-inline float native_log(float x)	{	return log(x);	}
+//inline float native_log(float x)	{	return log(x);	}
 inline float native_log2(float x)	{	return log2(x);	}
 inline float native_log10(float x)	{	return log10(x);	}
-inline float native_powr(float x, float y)	{	return powr(x, y);	}
+//inline float native_powr(float x, float y)	{	return powr(x, y);	}
 inline float native_recip(float x)	{	return 1.0f / x;	}
 inline float native_rsqrt(float x)	{	return 1.0f / sqrt(x);	}
-inline float native_sin(float x)	{	return sin(x);	}
+//inline float native_sin(float x)	{	return sin(x);	}
 inline float native_sqrt(float x)	{	return sqrt(x);	}
-inline float native_tan(float x)	{	return tan(x);	}
+//inline float native_tan(float x)	{	return tan(x);	}
+
+inline float native_sin(const float x)
+{
+	float sign, y;
+	if (x < 0.0f)
+	{
+		sign = -1.0f;
+		y = -x;
+	}
+	else
+	{
+		sign = 1.0f;
+		y = x;
+	}
+	int q = y * float(1.0 / M_PI_2);
+	y -= q * float(M_PI_2);
+	if (q & 2)
+		sign = -sign;
+	if (q & 1)
+		y = float(M_PI_2) - y;
+
+	const float y2 = y * y;
+	float z;
+	z = float(1.0 / 362880.0);
+	z = z * y2 - float(1.0 / 5040.0);
+	z = z * y2 + float(1.0 / 120.0);
+	z = z * y2 - float(1.0 / 6.0);
+	z = z * y2 + 1.0f;
+	z *= y;
+	return sign * z;
+}
+
+inline float native_cos(const float x)
+{
+	float sign = 1.0f, y;
+	if (x < 0.0f)
+		y = -x;
+	else
+		y = x;
+	int q = y * float(1.0 / M_PI_2);
+	y -= q * float(M_PI_2);
+	q &= 3;
+	if (q == 1 || q == 2)
+		sign = -sign;
+	if (q & 1)
+		y = float(M_PI_2) - y;
+
+	y *= y;
+	float z;
+	z = float(1.0 / 40320.0);
+	z = z * y - float(1.0 / 720.0);
+	z = z * y + float(1.0 / 24.0);
+	z = z * y - float(1.0 / 2.0);
+	z = z * y + 1.0f;
+	return sign * z;
+}
+
+inline float native_ldexp(const float x, const int exp)
+{
+	const unsigned int ix = reinterpret_cast<const unsigned int &>(x);
+	const unsigned int e = (ix & 0x7F800000U) + (exp << 23);
+	const unsigned int f = (ix & ~0x7F800000U) | e;
+	return reinterpret_cast<const float&>(f);
+}
+
+inline float native_exp(const float x)
+{
+//	if (x > 88.7228f)
+//		return float(INFINITY);
+//	if (x < -87.3365f)
+//		return 0.0f;
+	float y = x * float(1.0 / M_LN2);
+	const int j = y;
+	y = fmodf(y, 1.0f);
+	y *= float(M_LN2);
+	float z;
+	z = float(1.0 / 720.0);
+	z = z * y  + float(1.0 / 120.0);
+	z = z * y  + float(1.0 / 24.0);
+	z = z * y  + float(1.0 / 6.0);
+	z = z * y  + float(1.0 / 2.0);
+	z = z * y  + 1.0f;
+	z = z * y  + 1.0f;
+	return native_ldexp(z, j);
+}
+
+inline float native_log(const float x)
+{
+	int e;
+	const float y = frexpf(x, &e) - 1.0f;
+	float z;
+	z = -float(1.0 / 10.0);
+	z = z * y  + float(1.0 / 9.0);
+	z = z * y  - float(1.0 / 8.0);
+	z = z * y  + float(1.0 / 7.0);
+	z = z * y  - float(1.0 / 6.0);
+	z = z * y  + float(1.0 / 5.0);
+	z = z * y  - float(1.0 / 4.0);
+	z = z * y  + float(1.0 / 3.0);
+	z = z * y  - float(1.0 / 2.0);
+	z = z * y  + 1.0f;
+	z = z * y;
+	return z + e * float(M_LN2);
+}
+
+inline float native_tan(const float x)
+{
+	return native_sin(x) / native_cos(x);
+}
+
+inline float native_powr(const float x, const float y)
+{
+	return native_exp(y * native_log(x));
+}
 
 // Vector versions
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(acos)
