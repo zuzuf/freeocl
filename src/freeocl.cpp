@@ -324,11 +324,31 @@ namespace FreeOCL
 
 //		table.clGetExtensionFunctionAddress = clGetExtensionFunctionAddress;
 
+		table.clCreateSubDevices = clCreateSubDevicesFCL;
+		table.clRetainDevice = clRetainDeviceFCL;
+		table.clReleaseDevice = clReleaseDeviceFCL;
+		table.clCreateImage = clCreateImageFCL;
+		table.clCreateProgramWithBuiltInKernels = clCreateProgramWithBuiltInKernelsFCL;
+		table.clCompileProgram = clCompileProgramFCL;
+		table.clLinkProgram = clLinkProgramFCL;
+		table.clUnloadPlatformCompiler = clUnloadPlatformCompilerFCL;
+		table.clGetKernelArgInfo = clGetKernelArgInfoFCL;
+		table.clEnqueueFillBuffer = clEnqueueFillBufferFCL;
+		table.clEnqueueFillImage = clEnqueueFillImageFCL;
+		table.clEnqueueMigrateMemObjects = clEnqueueMigrateMemObjectsFCL;
+		table.clEnqueueMarkerWithWaitList = clEnqueueMarkerWithWaitListFCL;
+		table.clEnqueueBarrierWithWaitList = clEnqueueBarrierWithWaitListFCL;
+		table.clSetPrintfCallback = clSetPrintfCallbackFCL;
+		table.clGetExtensionFunctionAddressForPlatform = clGetExtensionFunctionAddressForPlatformFCL;
+
 		for(size_t i = 0 ; i < sizeof(table.empty_after_1_0_API) / sizeof(size_t) ; ++i)
 			table.empty_after_1_0_API[i] = (_stub)empty_slot;
 
 		for(size_t i = 0 ; i < sizeof(table.empty_after_1_1_API) / sizeof(size_t) ; ++i)
 			table.empty_after_1_1_API[i] = (_stub)empty_slot;
+
+		for(size_t i = 0 ; i < sizeof(table.empty_after_1_2_API) / sizeof(size_t) ; ++i)
+			table.empty_after_1_2_API[i] = (_stub)empty_slot;
 		return table;
 	}
 
@@ -357,6 +377,11 @@ namespace FreeOCL
 extern "C"
 {
 	void* clGetExtensionFunctionAddress (const char *funcname)
+	{
+		return clGetExtensionFunctionAddressFCL(funcname);
+	}
+
+	CL_API_ENTRY void* CL_API_CALL	clGetExtensionFunctionAddressFCL (const char *funcname) CL_API_SUFFIX__VERSION_1_2
 	{
 	#define ADD(name)	if (strcmp(funcname, #name) == 0)	return (void*)name
 

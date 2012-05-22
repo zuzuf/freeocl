@@ -291,6 +291,49 @@ extern "C"
 
 		return CL_SUCCESS;
 	}
+
+	CL_API_ENTRY cl_program CL_API_CALL clCreateProgramWithBuiltInKernelsFCL(cl_context            context,
+																			 cl_uint               num_devices,
+																			 const cl_device_id *  device_list,
+																			 const char *          kernel_names,
+																			 cl_int *              errcode_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clCreateProgramWithBuiltInKernelsFCL);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clCompileProgramFCL(cl_program           program,
+														cl_uint              num_devices,
+														const cl_device_id * device_list,
+														const char *         options,
+														cl_uint              num_input_headers,
+														const cl_program *   input_headers,
+														const char **        header_include_names,
+														void (CL_CALLBACK *  pfn_notify)(cl_program /* program */, void * /* user_data */),
+														void *               user_data) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clCompileProgramFCL);
+	}
+
+	CL_API_ENTRY cl_program CL_API_CALL	clLinkProgramFCL(cl_context           context,
+														 cl_uint              num_devices,
+														 const cl_device_id * device_list,
+														 const char *         options,
+														 cl_uint              num_input_programs,
+														 const cl_program *   input_programs,
+														 void (CL_CALLBACK *  pfn_notify)(cl_program /* program */, void * /* user_data */),
+														 void *               user_data,
+														 cl_int *             errcode_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clLinkProgramFCL);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL clUnloadPlatformCompilerFCL(cl_platform_id platform) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clUnloadPlatformCompilerFCL);
+		if (platform != FreeOCL::platform)
+			return CL_INVALID_PLATFORM;
+		return CL_SUCCESS;
+	}
 }
 
 _cl_program::_cl_program(cl_context context) : context_resource(context), handle(NULL), build_status(CL_BUILD_NONE)

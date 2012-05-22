@@ -23,6 +23,7 @@
 #include "platform.h"
 #include <cstring>
 #include <iostream>
+#include "prototypes.h"
 
 namespace
 {
@@ -106,6 +107,15 @@ extern "C"
 			platforms[0] = FreeOCL::platform;
 
 		return CL_SUCCESS;
+	}
+
+	CL_API_ENTRY void * CL_API_CALL	clGetExtensionFunctionAddressForPlatformFCL(cl_platform_id platform,
+																				const char *   func_name) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clGetExtensionFunctionAddressForPlatformFCL);
+		if (platform != FreeOCL::platform)
+			return NULL;
+		return clGetExtensionFunctionAddressFCL(func_name);
 	}
 }
 

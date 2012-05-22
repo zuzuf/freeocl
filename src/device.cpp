@@ -155,6 +155,93 @@ extern "C"
 
 		return CL_SUCCESS;
 	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clCreateSubDevicesFCL(cl_device_id                         in_device,
+														  const cl_device_partition_property * properties,
+														  cl_uint                              num_devices,
+														  cl_device_id *                       out_devices,
+														  cl_uint *                            num_devices_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clCreateSubDevicesFCL);
+		if (in_device != FreeOCL::device)
+			return CL_INVALID_DEVICE;
+		if (!properties)
+			return CL_INVALID_VALUE;
+		if (!out_devices && num_devices < 1)
+			return CL_INVALID_VALUE;
+
+		for(size_t i = 0 ; properties[i] != 0 ; ++i)
+		{
+			switch(properties[i])
+			{
+			case CL_DEVICE_PARTITION_EQUALLY:
+				++i;
+				if (properties[i] == 0)
+					return CL_INVALID_VALUE;
+				if (properties[i] > in_device->cpu_cores)
+					return CL_DEVICE_PARTITION_FAILED;
+				break;
+			case CL_DEVICE_PARTITION_BY_COUNTS:
+				{
+					size_t j;
+					for(j = 1 ; properties[i + j] != CL_DEVICE_PARTITION_BY_COUNTS_LIST_END ; ++j)
+					{}
+					if (j == 1)
+					{
+						if (num_devices_ret)
+							*num_devices_ret = 0;
+						return CL_SUCCESS;
+					}
+					if (j > 2)
+						return CL_INVALID_DEVICE_PARTITION_COUNT;
+					if (properties[i + 1] > in_device->cpu_cores)
+						return CL_INVALID_DEVICE_PARTITION_COUNT;
+					i += j;
+				}
+				break;
+			case CL_DEVICE_PARTITION_BY_AFFINITY_DOMAIN:
+				++i;
+				switch(properties[i])
+				{
+				case CL_DEVICE_AFFINITY_DOMAIN_NUMA:
+				case CL_DEVICE_AFFINITY_DOMAIN_L1_CACHE:
+				case CL_DEVICE_AFFINITY_DOMAIN_L2_CACHE:
+				case CL_DEVICE_AFFINITY_DOMAIN_L3_CACHE:
+				case CL_DEVICE_AFFINITY_DOMAIN_L4_CACHE:
+				case CL_DEVICE_AFFINITY_DOMAIN_NEXT_PARTITIONABLE:
+					break;
+				default:
+					return CL_INVALID_VALUE;
+				}
+
+				break;
+			default:
+				return CL_INVALID_VALUE;
+			}
+		}
+
+		if (out_devices)
+			*out_devices = in_device;
+		if (num_devices_ret)
+			*num_devices_ret = 1;
+		return CL_SUCCESS;
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clRetainDeviceFCL(cl_device_id device) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clRetainDeviceFCL);
+		if (device != FreeOCL::device)
+			return CL_INVALID_DEVICE;
+		return CL_SUCCESS;
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clReleaseDeviceFCL(cl_device_id device) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clReleaseDeviceFCL);
+		if (device != FreeOCL::device)
+			return CL_INVALID_DEVICE;
+		return CL_SUCCESS;
+	}
 }
 
 _cl_device_id::_cl_device_id() :

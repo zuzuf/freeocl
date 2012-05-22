@@ -1021,4 +1021,36 @@ extern "C"
 
 		return CL_SUCCESS;
 	}
+
+	CL_API_ENTRY cl_mem CL_API_CALL	clCreateImageFCL(cl_context              context,
+													 cl_mem_flags            flags,
+													 const cl_image_format * image_format,
+													 const cl_image_desc *   image_desc,
+													 void *                  host_ptr,
+													 cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clCreateImageFCL);
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return NULL;
+		}
+		unlock.handle(context);
+
+		SET_RET(CL_SUCCESS);
+		return NULL;
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueFillImageFCL(cl_command_queue   command_queue,
+														  cl_mem             image,
+														  const void *       fill_color,
+														  const size_t *     origin,
+														  const size_t *     region,
+														  cl_uint            num_events_in_wait_list,
+														  const cl_event *   event_wait_list,
+														  cl_event *         event) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clEnqueueFillImageFCL);
+	}
 }

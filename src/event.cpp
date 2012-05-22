@@ -262,6 +262,22 @@ extern "C"
 
 		return CL_SUCCESS;
 	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueMarkerWithWaitListFCL(cl_command_queue command_queue,
+																   cl_uint           num_events_in_wait_list,
+																   const cl_event *  event_wait_list,
+																   cl_event *        event) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clEnqueueMarkerWithWaitListFCL);
+	}
+
+	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueBarrierWithWaitListFCL(cl_command_queue command_queue,
+																	cl_uint           num_events_in_wait_list,
+																	const cl_event *  event_wait_list,
+																	cl_event *        event) CL_API_SUFFIX__VERSION_1_2
+	{
+		MSG(clEnqueueBarrierWithWaitListFCL);
+	}
 }
 
 void _cl_event::change_status(cl_int new_status)
