@@ -381,7 +381,7 @@ extern "C"
 		return clGetExtensionFunctionAddressFCL(funcname);
 	}
 
-	CL_API_ENTRY void* CL_API_CALL	clGetExtensionFunctionAddressFCL (const char *funcname) CL_API_SUFFIX__VERSION_1_2
+	void* clGetExtensionFunctionAddressFCL (const char *funcname)
 	{
 	#define ADD(name)	if (strcmp(funcname, #name) == 0)	return (void*)name
 

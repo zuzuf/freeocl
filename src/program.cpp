@@ -299,6 +299,60 @@ extern "C"
 																			 cl_int *              errcode_ret) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clCreateProgramWithBuiltInKernelsFCL);
+		if (device_list == NULL && num_devices > 0)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
+		if (!kernel_names)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return NULL;
+		}
+
+		for(size_t i = 0 ; i < num_devices ; ++i)
+			if (device_list[i] != FreeOCL::device)
+			{
+				SET_RET(CL_INVALID_DEVICE);
+				return NULL;
+			}
+
+		const std::deque<std::string> &splitted_kernel_names = FreeOCL::split(kernel_names, ";");
+		void *main_program = dlopen(NULL, RTLD_NOLOAD);
+		for(std::deque<std::string>::const_iterator i = splitted_kernel_names.begin() ; i != splitted_kernel_names.end() ; ++i)
+		{
+			if (!dlsym(main_program, ("__FCL_info_" + *i).c_str())
+					|| !dlsym(main_program, ("__FCL_kernel_" + *i).c_str()))
+			{
+				SET_RET(CL_INVALID_VALUE);
+				return NULL;
+			}
+		}
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return NULL;
+		}
+		unlock.handle(context);
+
+		cl_program program = new _cl_program(context);
+		program->source_code.clear();
+		program->build_status = CL_BUILD_NONE;
+		program->handle = main_program;
+		program->binary_file.clear();
+		program->devices.push_back(FreeOCL::device);
+
+		FreeOCL::set<std::string> s_kernel_names;
+		s_kernel_names.insert(splitted_kernel_names.begin(), splitted_kernel_names.end());
+
+		program->kernel_names = s_kernel_names;
+
+		program->build_status = CL_BUILD_SUCCESS;
+
+		SET_RET(CL_SUCCESS);
+		return program;
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL	clCompileProgramFCL(cl_program           program,
@@ -349,7 +403,7 @@ _cl_program::~_cl_program()
 	FreeOCL::valid_programs.erase(this);
 	FreeOCL::global_mutex.unlock();
 
-	if (handle)
+	if (handle && !binary_file.empty())
 		dlclose(handle);
 	if (!binary_file.empty())
 		remove(binary_file.c_str());

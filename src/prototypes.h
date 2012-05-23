@@ -657,7 +657,7 @@ extern "C"
 	CL_API_ENTRY void * CL_API_CALL	clGetExtensionFunctionAddressForPlatformFCL(cl_platform_id /* platform */,
 																				const char *   /* func_name */) CL_API_SUFFIX__VERSION_1_2;
 
-	CL_API_ENTRY void* CL_API_CALL	clGetExtensionFunctionAddressFCL (const char * /*funcname*/) CL_API_SUFFIX__VERSION_1_2;
+	void* clGetExtensionFunctionAddressFCL (const char * /*funcname*/);
 }
 
 #endif
