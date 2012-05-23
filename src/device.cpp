@@ -82,6 +82,8 @@ extern "C"
 		case CL_DEVICE_IMAGE3D_MAX_HEIGHT:				bTooSmall = SET_VAR(device->image3d_max_height);	break;
 		case CL_DEVICE_IMAGE3D_MAX_DEPTH:				bTooSmall = SET_VAR(device->image3d_max_depth);	break;
 		case CL_DEVICE_MAX_SAMPLERS:					bTooSmall = SET_VAR(device->max_samplers);	break;
+		case CL_DEVICE_IMAGE_MAX_ARRAY_SIZE:			bTooSmall = SET_VAR(device->image_max_array_size);	break;
+		case CL_DEVICE_IMAGE_MAX_BUFFER_SIZE:			bTooSmall = SET_VAR(device->image_max_buffer_size);	break;
 
 		case CL_DEVICE_MAX_PARAMETER_SIZE:				bTooSmall = SET_VAR(device->max_parameter_size);	break;
 		case CL_DEVICE_MEM_BASE_ADDR_ALIGN:				bTooSmall = SET_VAR(device->mem_base_addr_align);	break;
@@ -296,6 +298,8 @@ _cl_device_id::_cl_device_id() :
 	image3d_max_width(2048),
 	image3d_max_height(2048),
 	image3d_max_depth(2048),
+	image_max_buffer_size(0x400000),
+	image_max_array_size(2048),
 	max_samplers(16)
 {
 	using namespace FreeOCL;

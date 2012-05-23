@@ -77,6 +77,8 @@ struct _cl_device_id : public FreeOCL::icd_table
 	const size_t image3d_max_width;
 	const size_t image3d_max_height;
 	const size_t image3d_max_depth;
+	const size_t image_max_buffer_size;
+	const size_t image_max_array_size;
 	const cl_uint max_samplers;
 
 	cl_bool endian_little;

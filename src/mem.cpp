@@ -936,7 +936,7 @@ _cl_mem::~_cl_mem()
 	FreeOCL::valid_mems.erase(this);
 	FreeOCL::global_mutex.unlock();
 
-	if (ptr && !parent && !(flags & CL_MEM_USE_HOST_PTR))
+	if (ptr && !parent && !(flags & CL_MEM_USE_HOST_PTR) && mem_type != CL_MEM_OBJECT_IMAGE1D_BUFFER)
 	{
 		free(ptr);
 		ptr = NULL;

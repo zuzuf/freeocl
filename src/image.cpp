@@ -999,7 +999,11 @@ extern "C"
 		unlock.handle(image);
 
 		if (image->mem_type != CL_MEM_OBJECT_IMAGE2D
-				&& image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE3D
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE1D
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE1D_ARRAY
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE1D_BUFFER
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE2D_ARRAY)
 			return CL_INVALID_MEM_OBJECT;
 
 		bool bTooSmall = false;
@@ -1010,8 +1014,53 @@ extern "C"
 		case CL_IMAGE_ROW_PITCH:	bTooSmall = SET_VAR(image->row_pitch);		break;
 		case CL_IMAGE_SLICE_PITCH:	bTooSmall = SET_VAR(image->slice_pitch);	break;
 		case CL_IMAGE_WIDTH:		bTooSmall = SET_VAR(image->width);	break;
-		case CL_IMAGE_HEIGHT:		bTooSmall = SET_VAR(image->height);	break;
-		case CL_IMAGE_DEPTH:		bTooSmall = SET_VAR(image->depth);	break;
+		case CL_IMAGE_HEIGHT:
+			switch(image->mem_type)
+			{
+			case CL_MEM_OBJECT_IMAGE1D:
+			case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+			case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+				{
+					size_t zero = 0;
+					bTooSmall = SET_VAR(zero);
+				}
+				break;
+			}
+			bTooSmall = SET_VAR(image->height);
+			break;
+		case CL_IMAGE_DEPTH:
+			if (image->mem_type == CL_MEM_OBJECT_IMAGE3D)
+				bTooSmall = SET_VAR(image->depth);
+			else
+			{
+				size_t zero = 0;
+				bTooSmall = SET_VAR(zero);
+			}
+			break;
+		case CL_IMAGE_ARRAY_SIZE:
+			switch(image->mem_type)
+			{
+			case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+				bTooSmall = SET_VAR(image->height);
+				break;
+			case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+				bTooSmall = SET_VAR(image->depth);
+				break;
+			default:
+				{
+					size_t zero = 0;
+					bTooSmall = SET_VAR(zero);
+				}
+				break;
+			}
+			break;
+		case CL_IMAGE_NUM_MIP_LEVELS:
+		case CL_IMAGE_NUM_SAMPLES:
+			{
+				size_t zero = 0;
+				bTooSmall = SET_VAR(zero);
+			}
+			break;
 		default:
 			return CL_INVALID_VALUE;
 		}
@@ -1030,6 +1079,255 @@ extern "C"
 													 cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clCreateImageFCL);
+		if (!image_desc)
+		{
+			SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+			return NULL;
+		}
+
+		size_t image_width = 1;
+		size_t image_height = 1;
+		size_t image_depth = 1;
+		size_t image_row_pitch = 0;
+		size_t image_slice_pitch = 0;
+
+		if (image_desc->image_type != CL_MEM_OBJECT_IMAGE1D_BUFFER && image_desc->buffer != NULL)
+		{
+			SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+			return NULL;
+		}
+		switch(image_desc->image_type)
+		{
+		case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+			if (image_desc->image_width == 0
+					|| image_desc->image_width > FreeOCL::device->image_max_buffer_size)
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			if (flags & (CL_MEM_COPY_HOST_PTR | CL_MEM_USE_HOST_PTR | CL_MEM_ALLOC_HOST_PTR))
+			{
+				SET_RET(CL_INVALID_VALUE);
+				return NULL;
+			}
+			image_width = image_desc->image_width;
+			break;
+		case CL_MEM_OBJECT_IMAGE1D:
+			if (image_desc->image_width == 0
+					|| image_desc->image_width > FreeOCL::device->image2d_max_width)
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			image_width = image_desc->image_width;
+			break;
+		case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+			if (image_desc->image_width == 0 || image_desc->image_array_size == 0
+					|| image_desc->image_width > FreeOCL::device->image2d_max_width
+					|| image_desc->image_array_size > FreeOCL::device->image_max_array_size)
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			image_width = image_desc->image_width;
+			image_height = image_desc->image_array_size;
+			image_row_pitch = image_desc->image_row_pitch;
+			break;
+		case CL_MEM_OBJECT_IMAGE2D:
+			if (image_desc->image_width == 0 || image_desc->image_height == 0
+					|| image_desc->image_width > FreeOCL::device->image2d_max_width
+					|| image_desc->image_height > FreeOCL::device->image2d_max_height)
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			image_width = image_desc->image_width;
+			image_height = image_desc->image_height;
+			image_row_pitch = image_desc->image_row_pitch;
+			break;
+		case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+			if (image_desc->image_width == 0 || image_desc->image_height == 0 || image_desc->image_array_size == 0
+					|| image_desc->image_width > FreeOCL::device->image2d_max_width
+					|| image_desc->image_height > FreeOCL::device->image2d_max_height
+					|| image_desc->image_array_size > FreeOCL::device->image_max_array_size)
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			image_width = image_desc->image_width;
+			image_height = image_desc->image_height;
+			image_depth = image_desc->image_array_size;
+			image_row_pitch = image_desc->image_row_pitch;
+			image_slice_pitch = image_desc->image_slice_pitch;
+			break;
+		case CL_MEM_OBJECT_IMAGE3D:
+			if (image_desc->image_width == 0 || image_desc->image_height == 0 || image_desc->image_depth == 0
+					|| image_desc->image_width > FreeOCL::device->image3d_max_width
+					|| image_desc->image_height > FreeOCL::device->image3d_max_height
+					|| image_desc->image_depth > FreeOCL::device->image3d_max_depth)
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			image_width = image_desc->image_width;
+			image_height = image_desc->image_height;
+			image_depth = image_desc->image_depth;
+			image_row_pitch = image_desc->image_row_pitch;
+			image_slice_pitch = image_desc->image_slice_pitch;
+			break;
+		default:
+			SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+			return NULL;
+		}
+
+		if (!image_format)
+		{
+			SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+			return NULL;
+		}
+
+		if (image_desc->num_mip_levels || image_desc->num_samples)
+		{
+			SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+			return NULL;
+		}
+
+		if (((flags & (CL_MEM_USE_HOST_PTR | CL_MEM_COPY_HOST_PTR))
+			&& host_ptr == NULL)
+			|| (host_ptr != NULL && !(flags & (CL_MEM_USE_HOST_PTR | CL_MEM_COPY_HOST_PTR))))
+		{
+			SET_RET(CL_INVALID_HOST_PTR);
+			return 0;
+		}
+
+		if ((flags & CL_MEM_USE_HOST_PTR) && (flags & (CL_MEM_ALLOC_HOST_PTR | CL_MEM_COPY_HOST_PTR)))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		if (host_ptr == NULL && (image_row_pitch != 0 || image_slice_pitch != 0))
+		{
+			SET_RET(CL_INVALID_IMAGE_SIZE);
+			return 0;
+		}
+
+		size_t channels = 0;
+		size_t data_size = 0;
+		switch(image_format->image_channel_order)
+		{
+		case CL_RGBA:
+			channels = 4;
+			break;
+		case CL_BGRA:
+		case CL_ARGB:
+			channels = 4;
+			switch(image_format->image_channel_data_type)
+			{
+			case CL_UNORM_INT8:
+			case CL_SNORM_INT8:
+			case CL_SIGNED_INT8:
+			case CL_UNSIGNED_INT8:
+				break;
+			default:
+				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+				return 0;
+			}
+			break;
+		case CL_R:
+		case CL_A:
+			channels = 1;
+			break;
+		case CL_Rx:
+		case CL_RG:
+		case CL_RA:
+			channels = 2;
+			break;
+		case CL_RGx:
+			channels = 3;
+			break;
+		case CL_INTENSITY:
+		case CL_LUMINANCE:
+			channels = 1;
+			switch(image_format->image_channel_data_type)
+			{
+			case CL_UNORM_INT8:
+			case CL_UNORM_INT16:
+			case CL_SNORM_INT8:
+			case CL_SNORM_INT16:
+			case CL_HALF_FLOAT:
+			case CL_FLOAT:
+				break;
+			default:
+				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+				return 0;
+			}
+			break;
+		case CL_RGB:
+		case CL_RGBx:
+			channels = (image_format->image_channel_order == CL_RGB) ? 3 : 4;
+			switch(image_format->image_channel_data_type)
+			{
+			case CL_UNORM_SHORT_555:
+			case CL_UNORM_SHORT_565:
+			case CL_UNORM_INT_101010:
+				break;
+			default:
+				SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+				return 0;
+			}
+			break;
+		default:
+			SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+			return 0;
+		}
+
+		switch(image_format->image_channel_data_type)
+		{
+		case CL_UNORM_INT8:		data_size = 1;	break;
+		case CL_UNORM_INT16:	data_size = 2;	break;
+		case CL_SIGNED_INT8:	data_size = 1;	break;
+		case CL_SIGNED_INT16:	data_size = 2;	break;
+		case CL_SIGNED_INT32:	data_size = 4;	break;
+		case CL_UNSIGNED_INT8:	data_size = 1;	break;
+		case CL_UNSIGNED_INT16:	data_size = 2;	break;
+		case CL_UNSIGNED_INT32:	data_size = 4;	break;
+		case CL_HALF_FLOAT:		data_size = 2;	break;
+		case CL_FLOAT:			data_size = 4;	break;
+
+		case CL_SNORM_INT8:			data_size = 1;	break;
+		case CL_SNORM_INT16:		data_size = 2;	break;
+		case CL_UNORM_SHORT_565:	data_size = 2;	break;
+		case CL_UNORM_SHORT_555:	data_size = 2;	break;
+		case CL_UNORM_INT_101010:	data_size = 4;	break;
+		default:
+			SET_RET(CL_INVALID_IMAGE_FORMAT_DESCRIPTOR);
+			return 0;
+		}
+
+		const size_t element_size = image_format->image_channel_data_type == CL_UNORM_SHORT_555
+									|| image_format->image_channel_data_type == CL_UNORM_SHORT_565
+									|| image_format->image_channel_data_type == CL_UNORM_INT_101010
+									? data_size
+									: channels * data_size;
+
+		if (image_row_pitch == 0)
+			image_row_pitch = image_width * element_size;
+		else if (image_row_pitch < image_width * element_size || (image_row_pitch % element_size) != 0)
+		{
+			SET_RET(CL_INVALID_IMAGE_SIZE);
+			return 0;
+		}
+
+		if (image_slice_pitch == 0)
+			image_slice_pitch = image_row_pitch * image_height;
+		else if (image_slice_pitch < image_row_pitch * image_height || (image_slice_pitch % image_row_pitch) != 0)
+		{
+			SET_RET(CL_INVALID_IMAGE_SIZE);
+			return 0;
+		}
+
+		const size_t size = image_depth * image_slice_pitch;
+
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::is_valid(context))
 		{
@@ -1038,8 +1336,57 @@ extern "C"
 		}
 		unlock.handle(context);
 
+		if (image_desc->image_type == CL_MEM_OBJECT_IMAGE1D_BUFFER)
+		{
+			if (!FreeOCL::is_valid(image_desc->buffer))
+			{
+				SET_RET(CL_INVALID_IMAGE_DESCRIPTOR);
+				return NULL;
+			}
+			unlock.handle(image_desc->buffer);
+			if (image_width * element_size > image_desc->buffer->size)
+			{
+				SET_RET(CL_INVALID_IMAGE_SIZE);
+				return NULL;
+			}
+		}
+
+		cl_mem mem = new _cl_mem(context);
+		mem->flags = flags;
+		mem->size = size;
+		mem->mem_type = image_desc->image_type;
+		mem->host_ptr = host_ptr;
+		mem->parent = NULL;
+		mem->offset = 0;
+		mem->width = image_width;
+		mem->height = image_height;
+		mem->depth = image_depth;
+		mem->row_pitch = image_row_pitch;
+		mem->slice_pitch = image_slice_pitch;
+		mem->element_size = element_size;
+		mem->image_format = *image_format;
+		if (image_desc->image_type == CL_MEM_OBJECT_IMAGE1D_BUFFER)
+		{
+			mem->ptr = image_desc->buffer->ptr;
+		}
+		else
+		{
+			if (flags & CL_MEM_USE_HOST_PTR)
+				mem->ptr = host_ptr;
+			else if (posix_memalign(&(mem->ptr), 256, size) == ENOMEM)
+			{
+				SET_RET(CL_OUT_OF_RESOURCES);
+				delete mem;
+				return 0;
+			}
+		}
+
+		if (flags & CL_MEM_COPY_HOST_PTR)
+			memcpy(mem->ptr, host_ptr, size);
+
 		SET_RET(CL_SUCCESS);
-		return NULL;
+
+		return mem;
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueFillImageFCL(cl_command_queue   command_queue,

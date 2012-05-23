@@ -269,6 +269,28 @@ extern "C"
 																   cl_event *        event) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clEnqueueMarkerWithWaitListFCL);
+		if (num_events_in_wait_list == 0 || event_wait_list == NULL)
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		if (event)
+		{
+			cmd->event = *event = new _cl_event(command_queue->context);
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_MARKER;
+			cmd->event->status = CL_SUBMITTED;
+		}
+		else
+			cmd->event = NULL;
+
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueBarrierWithWaitListFCL(cl_command_queue command_queue,
@@ -277,6 +299,28 @@ extern "C"
 																	cl_event *        event) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clEnqueueBarrierWithWaitListFCL);
+		if (num_events_in_wait_list == 0 || event_wait_list == NULL)
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		if (event)
+		{
+			cmd->event = *event = new _cl_event(command_queue->context);
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_BARRIER;
+			cmd->event->status = CL_SUBMITTED;
+		}
+		else
+			cmd->event = NULL;
+
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
 	}
 }
 
