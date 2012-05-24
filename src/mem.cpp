@@ -963,6 +963,42 @@ extern "C"
 																  cl_event *             event) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clEnqueueMigrateMemObjectsFCL);
+
+		if (num_mem_objects == 0 || mem_objects == NULL)
+			return CL_INVALID_VALUE;
+
+		if ((num_events_in_wait_list > 0 && mem_objects == NULL)
+				|| (num_events_in_wait_list == 0 && mem_objects != NULL))
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		if (flags & ~ (CL_MIGRATE_MEM_OBJECT_HOST | CL_MIGRATE_MEM_OBJECT_CONTENT_UNDEFINED))
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+
+		// We have nothing to do except when an event is requested
+		if (event)
+		{
+			FreeOCL::smartptr<FreeOCL::command_marker> cmd = new FreeOCL::command_marker;
+			cmd->num_events_in_wait_list = num_events_in_wait_list;
+			cmd->event_wait_list = event_wait_list;
+			if (event)
+			{
+				cmd->event = *event = new _cl_event(command_queue->context);
+				cmd->event->command_queue = command_queue;
+				cmd->event->command_type = CL_COMMAND_MIGRATE_MEM_OBJECTS;
+				cmd->event->status = CL_SUBMITTED;
+			}
+			else
+				cmd->event = NULL;
+
+			command_queue->enqueue(cmd);
+		}
+		else
+			command_queue->unlock();
+
+		return CL_SUCCESS;
 	}
 }
 
