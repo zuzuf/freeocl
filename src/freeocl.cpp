@@ -338,7 +338,7 @@ namespace FreeOCL
 		table.clEnqueueMigrateMemObjects = clEnqueueMigrateMemObjectsFCL;
 		table.clEnqueueMarkerWithWaitList = clEnqueueMarkerWithWaitListFCL;
 		table.clEnqueueBarrierWithWaitList = clEnqueueBarrierWithWaitListFCL;
-		table.clSetPrintfCallback = clSetPrintfCallbackFCL;
+//		table.clSetPrintfCallback = clSetPrintfCallbackFCL;
 		table.clGetExtensionFunctionAddressForPlatform = clGetExtensionFunctionAddressForPlatformFCL;
 
 		for(size_t i = 0 ; i < sizeof(table.empty_after_1_0_API) / sizeof(size_t) ; ++i)

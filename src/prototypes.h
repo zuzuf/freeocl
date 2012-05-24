@@ -640,13 +640,6 @@ extern "C"
 																	const cl_event *  /* event_wait_list */,
 																	cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_2;
 
-	CL_API_ENTRY cl_int CL_API_CALL	clSetPrintfCallbackFCL(cl_context          /* context */,
-														   void (CL_CALLBACK * /* pfn_notify */)(cl_context /* program */,
-																								 cl_uint /*printf_data_len */,
-																								 char * /* printf_data_ptr */,
-																								 void * /* user_data */),
-														   void *              /* user_data */) CL_API_SUFFIX__VERSION_1_2;
-
 	/* Extension function access
 	 *
 	 * Returns the extension function address for the given function name,

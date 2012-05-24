@@ -584,7 +584,7 @@ struct _cl_icd_dispatch
 							const cl_event *    /* event_wait_list */,
 							cl_event *          /* event */) CL_API_SUFFIX__VERSION_1_1;
 
-	_stub		empty_after_1_1_API[72];
+	_stub		empty_after_1_1_API[4];
 /* #161 */
 	CL_API_ENTRY cl_int (CL_API_CALL *
 	clCreateSubDevices)(cl_device_id                         /* in_device */,
@@ -690,13 +690,16 @@ struct _cl_icd_dispatch
 								 const cl_event *  /* event_wait_list */,
 								 cl_event *        /* event */) CL_API_SUFFIX__VERSION_1_2;
 
-	CL_API_ENTRY cl_int (CL_API_CALL *
-	clSetPrintfCallback)(cl_context          /* context */,
-						void (CL_CALLBACK * /* pfn_notify */)(cl_context /* program */,
-															  cl_uint /*printf_data_len */,
-															  char * /* printf_data_ptr */,
-															  void * /* user_data */),
-						void *              /* user_data */) CL_API_SUFFIX__VERSION_1_2;
+// NB: The clSetPrintfCallback function appears to be missing both from the specifications and the dispatch table
+// even though it is in the cl.h file.
+//
+//	CL_API_ENTRY cl_int (CL_API_CALL *
+//	clSetPrintfCallback)(cl_context          /* context */,
+//						void (CL_CALLBACK * /* pfn_notify */)(cl_context /* program */,
+//															  cl_uint /*printf_data_len */,
+//															  char * /* printf_data_ptr */,
+//															  void * /* user_data */),
+//						void *              /* user_data */) CL_API_SUFFIX__VERSION_1_2;
 
 
 
@@ -711,7 +714,7 @@ struct _cl_icd_dispatch
 	clGetExtensionFunctionAddressForPlatform)(cl_platform_id /* platform */,
 											 const char *   /* func_name */) CL_API_SUFFIX__VERSION_1_2;
 
-	_stub		empty_after_1_2_API[64];
+	_stub		empty_after_1_2_API[4];
 };
 
 #endif

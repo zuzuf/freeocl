@@ -1359,9 +1359,10 @@ extern "C"
 																						void * /* user_data */),
 														void *              user_data) CL_API_SUFFIX__VERSION_1_2
 	{
-		return context->dispatch->clSetPrintfCallback(context,
-													  pfn_notify,
-													  user_data);
+		return CL_INVALID_OPERATION;
+//		return context->dispatch->clSetPrintfCallback(context,
+//													  pfn_notify,
+//													  user_data);
 	}
 
 
