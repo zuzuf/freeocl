@@ -66,6 +66,7 @@ namespace FreeOCL
 	std::string trim(const std::string &s);
 	std::deque<std::string> split(const std::string &s, const std::string &sep);
 	bool contains_word(const std::string &s, const std::string &w);
+	bool remove_words(std::string &s, const char **w);
 
 	u_int64_t usec_timer();
 

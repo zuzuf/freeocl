@@ -215,6 +215,23 @@ namespace FreeOCL
 		return std::find(words.begin(), words.end(), w) != words.end();
 	}
 
+	bool remove_words(std::string &s, const char **w)
+	{
+		std::deque<std::string> words = split(s, " \t\n\r");
+		s.clear();
+		for(size_t i = 0 ; i < words.size() ; ++i)
+		{
+			bool b_found = false;
+			for(size_t j = 0 ; w[j] && !b_found ; ++j)
+				b_found = words[i] == w[j];
+			if (b_found)
+				continue;
+			if (!s.empty())
+				s += ' ';
+			s += words[i];
+		}
+	}
+
 	u_int64_t usec_timer()
 	{
 		struct timeval tv;

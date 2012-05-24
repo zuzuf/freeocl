@@ -896,11 +896,11 @@ inline int get_image_channel_data_type(const image3d_t &image)	{	return image.ch
 inline int get_image_channel_order(const image2d_t &image)	{	return image.channel_order;	}
 inline int get_image_channel_order(const image3d_t &image)	{	return image.channel_order;	}
 
-inline const int2 &get_image_dim(const image2d_t &image)
+inline int2 get_image_dim(const image2d_t &image)
 {
 	return int2::make(image.width, image.height);
 }
-inline const int4 &get_image_dim(const image3d_t &image)
+inline int4 get_image_dim(const image3d_t &image)
 {
 	return int4::make(image.width, image.height, image.depth, 0);
 }

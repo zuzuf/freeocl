@@ -107,6 +107,9 @@ namespace FreeOCL
 				macros += " -D__FAST_RELAXED_MATH__=1";
 				compiler_extra_args += " -ffast-math -D__FAST_RELAXED_MATH__=1";
 			}
+			else if (word == "-cl-kernel-arg-infos")
+			{
+			}
 			else if (word == "-w")
 			{
 			}
@@ -332,8 +335,12 @@ namespace FreeOCL
 				cur->front() = p_type;
 			}
 
-			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx, int *type)" << std::endl
+			gen << "extern \"C\" size_t __FCL_info_" << i->first << "(size_t idx, int *type, const char **name, const char **type_name, int *type_qualifier, int *type_access_qualifier)" << std::endl
 				<< "{" << std::endl
+				<< "\t*name = 0;" << std::endl
+				<< "\t*type_name = 0;" << std::endl
+				<< "\t*type_qualifier = 0;" << std::endl
+				<< "\t*type_access_qualifier = " << CL_KERNEL_ARG_ACCESS_NONE << ';' << std::endl
 				<< "\tswitch(idx)" << std::endl
 				<< "\t{" << std::endl;
 			for(size_t j = 0 ; j < params->size() ; ++j)
@@ -343,13 +350,35 @@ namespace FreeOCL
 				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
 				const bool b_pointer = ptr;
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
+				const bool b_const = cur->front().as<type>()->is_const();
+				const std::string name = cur->back().as<token>()
+										 ? cur->back().as<token>()->get_string()
+										 : cur->back().as<chunk>()->front().as<token>()->get_string();
+				std::string type_name = cur->front().as<type>()->get_name();
+				const char *keywords_to_be_removed[] = { "__global", "__local", "__constant", "__private",
+														 "global", "local", "constant", "private",
+														 "volatile", "restrict", "const",
+														 "__read_only", "__read_write", "__write_only",
+														 "read_only", "read_write", "write_only", 0 };
+				FreeOCL::remove_words(type_name, keywords_to_be_removed);
 				int type_id = 0;
 				if (b_pointer)
 				{
-					if (b_local)
-						type_id = CL_LOCAL;
-					else
-						type_id = CL_GLOBAL;
+					switch(ptr->get_base_type()->get_address_space())
+					{
+					case type::LOCAL:
+						type_id = CL_KERNEL_ARG_ADDRESS_LOCAL;
+						break;
+					case type::GLOBAL:
+						type_id = CL_KERNEL_ARG_ADDRESS_GLOBAL;
+						break;
+					case type::CONSTANT:
+						type_id = CL_KERNEL_ARG_ADDRESS_CONSTANT;
+						break;
+					case type::PRIVATE:
+						type_id = CL_KERNEL_ARG_ADDRESS_PRIVATE;
+						break;
+					}
 				}
 				if (native)
 				{
@@ -368,7 +397,11 @@ namespace FreeOCL
 				}
 				gen	<< "\tcase " << j << ":" << std::endl
 					<< "\t\t*type = " << type_id << ';' << std::endl
-					<< "\t\treturn sizeof(";
+					<< "\t\t*name = \"" << name << "\";" << std::endl
+					<< "\t\t*type_name = \"" << type_name << "\";" << std::endl;
+				if (b_const)
+					gen << "\t\t*type_qualifier |= " << CL_KERNEL_ARG_TYPE_CONST << ';' << std::endl;
+				gen	<< "\t\treturn sizeof(";
 				if (b_pointer)	gen << "void*";
 				else			gen << *(cur->front());
 				gen << ");" << std::endl;

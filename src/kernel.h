@@ -27,11 +27,15 @@ struct _cl_kernel : public FreeOCL::icd_table, public FreeOCL::ref_counter, publ
 	cl_program program;
 	std::string function_name;
 
-	size_t (*__FCL_info)(size_t, int*);
+	size_t (*__FCL_info)(size_t, int*, const char **, const char **, int *, int *);
 	void (*__FCL_kernel)(const void*,size_t,size_t*,size_t*,size_t*);
 	std::deque<size_t> args_size;
 	std::deque<size_t> args_offset;
 	std::deque<int> args_type;
+	std::deque<std::string> args_name;
+	std::deque<std::string> args_type_name;
+	std::deque<cl_kernel_arg_type_qualifier> args_qualifier;
+	std::deque<cl_kernel_arg_access_qualifier> args_access_qualifier;
 	std::vector<char> args_buffer;
 
 	_cl_kernel();

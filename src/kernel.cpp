@@ -171,7 +171,7 @@ extern "C"
 		cl_kernel kernel = new _cl_kernel;
 		kernel->program = program;
 		kernel->function_name = kernel_name;
-		kernel->__FCL_info = (size_t (*)(size_t,int*)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
+		kernel->__FCL_info = (size_t (*)(size_t, int*, const char **, const char **, int *, int *)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
 		kernel->__FCL_kernel = (void (*)(const void*,size_t,size_t*,size_t*,size_t*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
 
 		if (kernel->__FCL_info == NULL || kernel->__FCL_kernel == NULL)
@@ -182,12 +182,19 @@ extern "C"
 		}
 
 		size_t offset = 0;
-		int type = 0;
-		for(size_t s = kernel->__FCL_info(0, &type), i = 1 ; s != 0 ; s = kernel->__FCL_info(i, &type), ++i)
+		int type = 0, type_qualifier, type_access_qualifier;
+		const char *name, *type_name;
+		for(size_t s = kernel->__FCL_info(0, &type, &name, &type_name, &type_qualifier, &type_access_qualifier), i = 1
+			; s != 0
+			; s = kernel->__FCL_info(i, &type, &name, &type_name, &type_qualifier, &type_access_qualifier), ++i)
 		{
 			kernel->args_size.push_back(s);
 			kernel->args_offset.push_back(offset);
 			kernel->args_type.push_back(type);
+			kernel->args_access_qualifier.push_back(type_access_qualifier);
+			kernel->args_qualifier.push_back(type_qualifier);
+			kernel->args_name.push_back(name);
+			kernel->args_type_name.push_back(type_name);
 			offset += s;
 		}
 		kernel->args_buffer.resize(offset);
@@ -251,7 +258,9 @@ extern "C"
 			return CL_INVALID_ARG_INDEX;
 		switch(kernel->args_type[arg_index])
 		{
-		case CL_GLOBAL:
+		case CL_KERNEL_ARG_ADDRESS_GLOBAL:
+		case CL_KERNEL_ARG_ADDRESS_CONSTANT:
+		case CL_KERNEL_ARG_ADDRESS_PRIVATE:
 			{
 				if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
 				{
@@ -269,7 +278,7 @@ extern "C"
 				}
 			}
 			break;
-		case CL_LOCAL:
+		case CL_KERNEL_ARG_ADDRESS_LOCAL:
 			if (arg_value != NULL || arg_size == 0)
 				return CL_INVALID_ARG_VALUE;
 			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
@@ -570,6 +579,46 @@ extern "C"
 														  size_t *        param_value_size_ret) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clGetKernelArgInfoFCL);
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(kernel))
+			return CL_INVALID_KERNEL;
+		unlock.handle(kernel);
+
+		if (kernel->args_type.size() <= arg_indx)
+			return CL_INVALID_ARG_INDEX;
+
+		bool bTooSmall = false;
+
+		switch(param_name)
+		{
+		case CL_KERNEL_ARG_ADDRESS_QUALIFIER:
+			switch(kernel->args_type[arg_indx])
+			{
+			case CL_KERNEL_ARG_ADDRESS_CONSTANT:
+			case CL_KERNEL_ARG_ADDRESS_LOCAL:
+			case CL_KERNEL_ARG_ADDRESS_GLOBAL:
+			case CL_KERNEL_ARG_ADDRESS_PRIVATE:
+				bTooSmall = SET_VAR(kernel->args_type[arg_indx]);
+				break;
+			default:
+				{
+					cl_kernel_arg_address_qualifier tmp = CL_KERNEL_ARG_ADDRESS_PRIVATE;
+					bTooSmall = SET_VAR(tmp);
+				}
+				break;
+			}
+			break;
+		case CL_KERNEL_ARG_ACCESS_QUALIFIER:	bTooSmall = SET_VAR(kernel->args_access_qualifier[arg_indx]);	break;
+		case CL_KERNEL_ARG_TYPE_NAME:			bTooSmall = SET_STRING(kernel->args_type_name[arg_indx].c_str());	break;
+		case CL_KERNEL_ARG_NAME:				bTooSmall = SET_STRING(kernel->args_name[arg_indx].c_str());	break;
+		case CL_KERNEL_ARG_TYPE_QUALIFIER:		bTooSmall = SET_VAR(kernel->args_qualifier[arg_indx]);	break;
+		default:
+			return CL_INVALID_VALUE;
+		}
+		if (bTooSmall && param_value != NULL)
+			return CL_INVALID_VALUE;
+
+		return CL_SUCCESS;
 	}
 }
 
