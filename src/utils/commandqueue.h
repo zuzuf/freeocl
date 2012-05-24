@@ -74,6 +74,17 @@ namespace FreeOCL
 		virtual cl_command_type get_type() const;
 	};
 
+	struct command_fill_buffer : public command_common
+	{
+		smartptr<_cl_mem> buffer;
+		size_t offset;
+		size_t size;
+		void *pattern;
+		size_t pattern_size;
+
+		virtual cl_command_type get_type() const;
+	};
+
 	struct command_read_buffer_rect : public command_common
 	{
 		smartptr<_cl_mem> buffer;

@@ -902,6 +902,56 @@ extern "C"
 														   cl_event *         event) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clEnqueueFillBufferFCL);
+
+		if ((pattern_size & (pattern_size - 1))
+				|| pattern_size > 128
+				|| pattern_size == 0
+				|| pattern == NULL)
+			return CL_INVALID_VALUE;
+
+		if (offset % pattern_size || size % pattern_size)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(buffer))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(buffer);
+
+		if (buffer->context != command_queue->context)
+			return CL_INVALID_CONTEXT;
+
+		if (buffer->size < offset + size)
+			return CL_INVALID_VALUE;
+
+		FreeOCL::smartptr<FreeOCL::command_fill_buffer> cmd = new FreeOCL::command_fill_buffer;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = buffer;
+		cmd->offset = offset;
+		cmd->size = size;
+		cmd->pattern_size = pattern_size;
+		cmd->pattern = malloc(pattern_size);
+		memcpy(cmd->pattern, pattern, pattern_size);
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_FILL_BUFFER;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL	clEnqueueMigrateMemObjectsFCL(cl_command_queue       command_queue,

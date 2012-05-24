@@ -43,6 +43,7 @@ namespace FreeOCL
 	cl_command_type command_read_buffer::get_type() const	{	return CL_COMMAND_READ_BUFFER;	}
 	cl_command_type command_write_buffer::get_type() const	{	return CL_COMMAND_WRITE_BUFFER;	}
 	cl_command_type command_copy_buffer::get_type() const	{	return CL_COMMAND_COPY_BUFFER;	}
+	cl_command_type command_fill_buffer::get_type() const	{	return CL_COMMAND_FILL_BUFFER;	}
 	cl_command_type command_map_buffer::get_type() const		{	return CL_COMMAND_MAP_BUFFER;	}
 	cl_command_type command_map_image::get_type() const		{	return CL_COMMAND_MAP_IMAGE;	}
 	cl_command_type command_unmap_buffer::get_type() const	{	return CL_COMMAND_UNMAP_MEM_OBJECT;	}
@@ -461,6 +462,82 @@ unsigned long _cl_command_queue::proc()
 																			cmd.as<FreeOCL::command_ndrange_kernel>()->local_size);
 			if (cmd.as<FreeOCL::command_ndrange_kernel>()->args)
 				free(cmd.as<FreeOCL::command_ndrange_kernel>()->args);
+			break;
+		case CL_COMMAND_FILL_BUFFER:
+			{
+				FreeOCL::command_fill_buffer *cfb = cmd.as<FreeOCL::command_fill_buffer>();
+				const size_t nb_elts = cfb->size / cfb->pattern_size;
+				switch(cfb->pattern_size)
+				{
+				case 1:
+					memset(cfb->offset + (char*)cfb->buffer->ptr, *(char*)cfb->pattern, cfb->size);
+					break;
+				case 2:
+					{
+						cl_ushort * const ptr = (cfb->offset >> 1) + (cl_ushort*)cfb->buffer->ptr;
+						const cl_ushort &pattern = *(const cl_ushort*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				case 4:
+					{
+						cl_uint * const ptr = (cfb->offset >> 2) + (cl_uint*)cfb->buffer->ptr;
+						const cl_uint &pattern = *(const cl_uint*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				case 8:
+					{
+						cl_ulong * const ptr = (cfb->offset >> 3) + (cl_ulong*)cfb->buffer->ptr;
+						const cl_ulong &pattern = *(const cl_ulong*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				case 16:
+					{
+						cl_float4 * const ptr = (cfb->offset >> 4) + (cl_float4*)cfb->buffer->ptr;
+						const cl_float4 &pattern = *(const cl_float4*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				case 32:
+					{
+						cl_float8 * const ptr = (cfb->offset >> 5) + (cl_float8*)cfb->buffer->ptr;
+						const cl_float8 &pattern = *(const cl_float8*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				case 64:
+					{
+						cl_float16 * const ptr = (cfb->offset >> 6) + (cl_float16*)cfb->buffer->ptr;
+						const cl_float16 &pattern = *(const cl_float16*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				case 128:
+					{
+						cl_double16 * const ptr = (cfb->offset >> 7) + (cl_double16*)cfb->buffer->ptr;
+						const cl_double16 &pattern = *(const cl_double16*)cfb->pattern;
+#pragma omp parallel for
+						for(size_t i = 0 ; i < nb_elts ; ++i)
+							ptr[i] = pattern;
+					}
+					break;
+				}
+				free(cfb->pattern);
+			}
 			break;
 		}
 
