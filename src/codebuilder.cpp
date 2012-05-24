@@ -355,6 +355,8 @@ namespace FreeOCL
 										 ? cur->back().as<token>()->get_string()
 										 : cur->back().as<chunk>()->front().as<token>()->get_string();
 				std::string type_name = cur->front().as<type>()->get_name();
+				const bool b_restrict = FreeOCL::contains_word(type_name, "restrict");
+				const bool b_volatile = FreeOCL::contains_word(b_pointer ? ptr->get_base_type()->get_name() : type_name, "volatile");
 				const char *keywords_to_be_removed[] = { "__global", "__local", "__constant", "__private",
 														 "global", "local", "constant", "private",
 														 "volatile", "restrict", "const",
@@ -401,6 +403,10 @@ namespace FreeOCL
 					<< "\t\t*type_name = \"" << type_name << "\";" << std::endl;
 				if (b_const)
 					gen << "\t\t*type_qualifier |= " << CL_KERNEL_ARG_TYPE_CONST << ';' << std::endl;
+				if (b_restrict)
+					gen << "\t\t*type_qualifier |= " << CL_KERNEL_ARG_TYPE_RESTRICT << ';' << std::endl;
+				if (b_volatile)
+					gen << "\t\t*type_qualifier |= " << CL_KERNEL_ARG_TYPE_VOLATILE << ';' << std::endl;
 				gen	<< "\t\treturn sizeof(";
 				if (b_pointer)	gen << "void*";
 				else			gen << *(cur->front());

@@ -22,6 +22,7 @@
 #include "codebuilder.h"
 #include <sstream>
 
+#define SET_STRING(X)	FreeOCL::copy_memory_within_limits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X),\
 														param_value_size,\
 														param_value,\
@@ -238,6 +239,30 @@ extern "C"
 			}
 			break;
 		case CL_PROGRAM_BINARIES:
+			break;
+		case CL_PROGRAM_NUM_KERNELS:
+			if (!program->handle)
+				return CL_INVALID_PROGRAM_EXECUTABLE;
+			else
+			{
+				const size_t tmp = program->kernel_names.size();
+				bTooSmall = SET_VAR(tmp);
+			}
+			break;
+		case CL_PROGRAM_KERNEL_NAMES:
+			if (!program->handle)
+				return CL_INVALID_PROGRAM_EXECUTABLE;
+			else
+			{
+				std::string names;
+				for(FreeOCL::set<std::string>::const_iterator it = program->kernel_names.begin() ; it != program->kernel_names.end() ; ++it)
+				{
+					if (!names.empty())
+						names += ';';
+					names += *it;
+				}
+				bTooSmall = SET_STRING(names.c_str());
+			}
 			break;
 		default:
 			return CL_INVALID_VALUE;
