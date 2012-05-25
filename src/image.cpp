@@ -1399,5 +1399,261 @@ extern "C"
 														  cl_event *         event) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clEnqueueFillImageFCL);
+		if (fill_color == NULL
+				|| region[0] == 0
+				|| region[1] == 0
+				|| region[2] == 0)
+			return CL_INVALID_VALUE;
+
+		if ((num_events_in_wait_list > 0 && event_wait_list == NULL)
+				|| (num_events_in_wait_list == 0 && event_wait_list != NULL))
+				return CL_INVALID_EVENT_WAIT_LIST;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(command_queue))
+			return CL_INVALID_COMMAND_QUEUE;
+		unlock.handle(command_queue);
+
+		if (!FreeOCL::is_valid(command_queue->context))
+			return CL_INVALID_CONTEXT;
+		command_queue->context->unlock();
+
+		if (!FreeOCL::is_valid(image))
+			return CL_INVALID_MEM_OBJECT;
+		unlock.handle(image);
+
+		if (image->context != command_queue->context)
+			return CL_INVALID_CONTEXT;
+
+		if (image->mem_type != CL_MEM_OBJECT_IMAGE2D
+				&& image->mem_type != CL_MEM_OBJECT_IMAGE3D)
+			return CL_INVALID_MEM_OBJECT;
+
+		if (image->mem_type == CL_MEM_OBJECT_IMAGE2D
+				&& (origin[2] != 0 || region[2] != 1))
+			return CL_INVALID_VALUE;
+
+		if (image->width < origin[0] + region[0]
+				|| image->height < origin[1] + region[1]
+				|| image->depth < origin[2] + region[2])
+			return CL_INVALID_VALUE;
+
+		FreeOCL::smartptr<FreeOCL::command_fill_image> cmd = new FreeOCL::command_fill_image;
+		cmd->num_events_in_wait_list = num_events_in_wait_list;
+		cmd->event_wait_list = event_wait_list;
+		cmd->event = event ? new _cl_event(command_queue->context) : NULL;
+		cmd->buffer = image;
+		cmd->offset = origin[0] * image->element_size + origin[1] * image->row_pitch + origin[2] * image->slice_pitch;
+		cmd->cb[0] = region[0] * image->element_size;
+		cmd->cb[1] = region[1];
+		cmd->cb[2] = region[2];
+		cmd->fill_color = malloc(sizeof(cl_float4));
+		memcpy(cmd->fill_color, fill_color, sizeof(cl_float4));
+		cmd->buffer_pitch[0] = image->row_pitch;
+		cmd->buffer_pitch[1] = image->slice_pitch;
+
+		if (cmd->event)
+		{
+			cmd->event->command_queue = command_queue;
+			cmd->event->command_type = CL_COMMAND_FILL_IMAGE;
+			cmd->event->status = CL_QUEUED;
+		}
+
+		if (event)
+			*event = cmd->event.weak();
+
+		unlock.forget(command_queue);
+		command_queue->enqueue(cmd);
+
+		return CL_SUCCESS;
+	}
+}
+
+namespace FreeOCL
+{
+	void write_channel(void *out, const void *in, const size_t from, const size_t to, const _cl_image_format &format)
+	{
+		switch(format.image_channel_data_type)
+		{
+		case CL_UNORM_INT8:
+			((cl_uchar*)out)[to] = cl_uchar(std::min(1.0f, std::max(0.0f, ((const float*)in)[from])) * 255.0f);
+			break;
+		case CL_SNORM_INT8:
+			((cl_char*)out)[to] = cl_char(std::min(1.0f, std::max(0.0f, ((const float*)in)[from])) * 127.0f);
+			break;
+		case CL_SNORM_INT16:
+			((cl_short*)out)[to] = cl_short(std::min(1.0f, std::max(0.0f, ((const float*)in)[from])) * 32767.0f);
+			break;
+		case CL_UNORM_INT16:
+			((cl_ushort*)out)[to] = cl_ushort(std::min(1.0f, std::max(0.0f, ((const float*)in)[from])) * 65535.0f);
+			break;
+		case CL_HALF_FLOAT:
+			((cl_half*)out)[to] = half_from_float(((const float*)in)[from]);
+			break;
+		case CL_FLOAT:
+			((float*)out)[to] = ((const float*)in)[from];
+			break;
+
+		case CL_SIGNED_INT8:
+			((cl_char*)out)[to] = cl_char(((const cl_int*)in)[from]);
+			break;
+		case CL_SIGNED_INT16:
+			((cl_short*)out)[to] = cl_short(((const cl_int*)in)[from]);
+			break;
+		case CL_SIGNED_INT32:
+			((cl_int*)out)[to] = ((const cl_int*)in)[from];
+			break;
+
+		case CL_UNSIGNED_INT8:
+			((cl_uchar*)out)[to] = cl_uchar(((const cl_uint*)in)[from]);
+			break;
+		case CL_UNSIGNED_INT16:
+			((cl_ushort*)out)[to] = cl_ushort(((const cl_uint*)in)[from]);
+			break;
+		case CL_UNSIGNED_INT32:
+			((cl_uint*)out)[to] = ((const cl_uint*)in)[from];
+			break;
+		}
+	}
+
+	void command_fill_image::process() const
+	{
+		char *dst_ptr = (char*)buffer->ptr + offset;
+		const size_t dst_row_pitch = buffer_pitch[0];
+		const size_t dst_slice_pitch = buffer_pitch[1] - dst_row_pitch * cb[1];
+
+		cl_uchar data[16];
+		switch(buffer->image_format.image_channel_order)
+		{
+		case CL_RGBA:
+			write_channel(data, fill_color, 0, 0, buffer->image_format);
+			write_channel(data, fill_color, 1, 1, buffer->image_format);
+			write_channel(data, fill_color, 2, 2, buffer->image_format);
+			write_channel(data, fill_color, 3, 3, buffer->image_format);
+			break;
+		case CL_BGRA:
+			write_channel(data, fill_color, 2, 0, buffer->image_format);
+			write_channel(data, fill_color, 1, 1, buffer->image_format);
+			write_channel(data, fill_color, 0, 2, buffer->image_format);
+			write_channel(data, fill_color, 3, 3, buffer->image_format);
+			break;
+		case CL_ARGB:
+			write_channel(data, fill_color, 3, 0, buffer->image_format);
+			write_channel(data, fill_color, 0, 1, buffer->image_format);
+			write_channel(data, fill_color, 1, 2, buffer->image_format);
+			write_channel(data, fill_color, 2, 3, buffer->image_format);
+			break;
+		case CL_R:
+			write_channel(data, fill_color, 0, 0, buffer->image_format);
+			break;
+		case CL_A:
+			write_channel(data, fill_color, 3, 0, buffer->image_format);
+			break;
+		case CL_Rx:
+			write_channel(data, fill_color, 0, 0, buffer->image_format);
+			break;
+		case CL_RG:
+			write_channel(data, fill_color, 0, 0, buffer->image_format);
+			write_channel(data, fill_color, 1, 1, buffer->image_format);
+			break;
+		case CL_RA:
+			write_channel(data, fill_color, 0, 0, buffer->image_format);
+			write_channel(data, fill_color, 3, 1, buffer->image_format);
+			break;
+		case CL_RGx:
+			write_channel(data, fill_color, 0, 0, buffer->image_format);
+			write_channel(data, fill_color, 1, 1, buffer->image_format);
+			break;
+		case CL_INTENSITY:
+		case CL_LUMINANCE:
+			{
+				const float y = ((const float*)fill_color)[0] * 0.299f
+								+ ((const float*)fill_color)[1] * 0.587f
+								+ ((const float*)fill_color)[2] * 0.114f;
+				switch(buffer->image_format.image_channel_data_type)
+				{
+				case CL_UNORM_INT8:
+					*((cl_uchar*)data) = cl_uchar(y * 255.0f);
+					break;
+				case CL_UNORM_INT16:
+					*((cl_ushort*)data) = cl_ushort(y * 65535.0f);
+					break;
+				case CL_SNORM_INT8:
+					*((cl_char*)data) = cl_char(y * 127.0f);
+					break;
+				case CL_SNORM_INT16:
+					*((cl_short*)data) = cl_short(y * 32767.0f);
+					break;
+				case CL_HALF_FLOAT:
+					*((cl_half*)data) = half_from_float(y);
+					break;
+				case CL_FLOAT:
+					*((cl_float*)data) = y;
+					break;
+				}
+			}
+			break;
+		case CL_RGB:
+		case CL_RGBx:
+			{
+				const float r = std::min(1.0f, std::max(0.0f, ((const float*)fill_color)[0]));
+				const float g = std::min(1.0f, std::max(0.0f, ((const float*)fill_color)[1]));
+				const float b = std::min(1.0f, std::max(0.0f, ((const float*)fill_color)[2]));
+				switch(buffer->image_format.image_channel_data_type)
+				{
+				case CL_UNORM_SHORT_555:
+					*((cl_ushort*)data) = (cl_uint(r * 31.0f) << 10) | (cl_uint(g * 31.0f) << 5) | cl_uint(b * 31.0f);
+					break;
+				case CL_UNORM_SHORT_565:
+					*((cl_ushort*)data) = (cl_uint(r * 31.0f) << 11) | (cl_uint(g * 63.0f) << 5) | cl_uint(b * 31.0f);
+					break;
+				case CL_UNORM_INT_101010:
+					*((cl_uint*)data) = (cl_uint(r * 1023.0f) << 20) | (cl_uint(g * 1023.0f) << 10) | cl_uint(b * 1023.0f);
+					break;
+				}
+			}
+			break;
+		}
+
+		const size_t n = cb[0] / buffer->element_size;
+
+		switch(buffer->element_size)
+		{
+		case 1:
+			for(size_t z = 0 ; z < cb[2] ; ++z, dst_ptr += dst_slice_pitch)
+				for(size_t y = 0 ; y < cb[1] ; ++y, dst_ptr += dst_row_pitch)
+					memset(dst_ptr, data[0], n);
+			break;
+		case 2:
+			for(size_t z = 0 ; z < cb[2] ; ++z, dst_ptr += dst_slice_pitch)
+				for(size_t y = 0 ; y < cb[1] ; ++y, dst_ptr += dst_row_pitch)
+					for(size_t x = 0 ; x < n ; ++x)
+						((cl_ushort*)dst_ptr)[x] = *((const cl_ushort*)data);
+			break;
+		case 4:
+			for(size_t z = 0 ; z < cb[2] ; ++z, dst_ptr += dst_slice_pitch)
+				for(size_t y = 0 ; y < cb[1] ; ++y, dst_ptr += dst_row_pitch)
+					for(size_t x = 0 ; x < n ; ++x)
+						((cl_uint*)dst_ptr)[x] = *((const cl_uint*)data);
+			break;
+		case 8:
+			for(size_t z = 0 ; z < cb[2] ; ++z, dst_ptr += dst_slice_pitch)
+				for(size_t y = 0 ; y < cb[1] ; ++y, dst_ptr += dst_row_pitch)
+					for(size_t x = 0 ; x < n ; ++x)
+						((cl_ulong*)dst_ptr)[x] = *((const cl_ulong*)data);
+			break;
+		case 16:
+			for(size_t z = 0 ; z < cb[2] ; ++z, dst_ptr += dst_slice_pitch)
+				for(size_t y = 0 ; y < cb[1] ; ++y, dst_ptr += dst_row_pitch)
+					for(size_t x = 0 ; x < n ; ++x)
+						((cl_uint4*)dst_ptr)[x] = *((const cl_uint4*)data);
+			break;
+		default:
+			for(size_t z = 0 ; z < cb[2] ; ++z, dst_ptr += dst_slice_pitch)
+				for(size_t y = 0 ; y < cb[1] ; ++y, dst_ptr += dst_row_pitch)
+					for(size_t x = 0 ; x < n ; ++x)
+						memcpy(dst_ptr + x * buffer->element_size, data, buffer->element_size);
+			break;
+		}
 	}
 }

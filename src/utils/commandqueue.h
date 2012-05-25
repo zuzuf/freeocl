@@ -109,6 +109,19 @@ namespace FreeOCL
 		virtual cl_command_type get_type() const;
 	};
 
+	struct command_fill_image : public command_common
+	{
+		smartptr<_cl_mem> buffer;
+		size_t offset;
+		size_t cb[3];
+		size_t buffer_pitch[2];
+		void *fill_color;
+
+		virtual cl_command_type get_type() const;
+
+		void process() const;
+	};
+
 	struct command_copy_buffer_rect : public command_common
 	{
 		smartptr<_cl_mem> src_buffer;

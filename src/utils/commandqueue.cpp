@@ -44,6 +44,7 @@ namespace FreeOCL
 	cl_command_type command_write_buffer::get_type() const	{	return CL_COMMAND_WRITE_BUFFER;	}
 	cl_command_type command_copy_buffer::get_type() const	{	return CL_COMMAND_COPY_BUFFER;	}
 	cl_command_type command_fill_buffer::get_type() const	{	return CL_COMMAND_FILL_BUFFER;	}
+	cl_command_type command_fill_image::get_type() const	{	return CL_COMMAND_FILL_IMAGE;	}
 	cl_command_type command_map_buffer::get_type() const		{	return CL_COMMAND_MAP_BUFFER;	}
 	cl_command_type command_map_image::get_type() const		{	return CL_COMMAND_MAP_IMAGE;	}
 	cl_command_type command_unmap_buffer::get_type() const	{	return CL_COMMAND_UNMAP_MEM_OBJECT;	}
@@ -538,6 +539,10 @@ unsigned long _cl_command_queue::proc()
 				}
 				free(cfb->pattern);
 			}
+			break;
+		case CL_COMMAND_FILL_IMAGE:
+			cmd.as<FreeOCL::command_fill_image>()->process();
+			free(cmd.as<FreeOCL::command_fill_image>()->fill_color);
 			break;
 		}
 

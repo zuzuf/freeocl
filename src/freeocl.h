@@ -70,6 +70,8 @@ namespace FreeOCL
 
 	u_int64_t usec_timer();
 
+	cl_half half_from_float(float f);
+
 	struct icd_table
 	{
 		struct _cl_icd_dispatch *dispatch;

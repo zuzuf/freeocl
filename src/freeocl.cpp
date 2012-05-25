@@ -389,6 +389,33 @@ namespace FreeOCL
 			context->unlock();
 		}
 	}
+
+	cl_half half_from_float(float f)
+	{
+		union
+		{
+			cl_uint i;
+			cl_float f;
+		} u;
+		u.f = f;
+
+		cl_half h;
+		const cl_uint s = (u.i & 0x80000000U) >> 16;
+		const cl_uint e = (u.i & 0x7F800000U) >> 23;
+		const cl_uint m = (u.i & 0x007FFFFFU) >> 13;
+		switch(e)
+		{
+		case 0:
+			h = s;
+			break;
+		case 0xFF:
+			h = s | 0x7C00U | m;
+			break;
+		default:
+			h = s | (e << 10) | m;
+		}
+		return h;
+	}
 }
 
 extern "C"
