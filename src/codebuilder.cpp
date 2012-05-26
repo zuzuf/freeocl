@@ -257,7 +257,7 @@ namespace FreeOCL
 		std::stringstream cmd;
 		cmd << "cpp"
 			<< " -x c --std=c99"
-			<< " -D__OPENCL_VERSION__=110 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110";
+			<< " -D__OPENCL_VERSION__=120 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110 -DCL_VERSION_1_2=120";
 		if (device->endian_little)
 			cmd	<< " -D__ENDIAN_LITTLE__=1";
 		cmd	<< " -D__IMAGE_SUPPORT__=1"

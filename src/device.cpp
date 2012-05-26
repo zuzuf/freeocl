@@ -250,10 +250,10 @@ _cl_device_id::_cl_device_id() :
 	device_type(CL_DEVICE_TYPE_CPU),
 	vendor_id(0),
 	addressbits(sizeof(void*) * 8),
-	version("OpenCL 1.1 FreeOCL-" FREEOCL_VERSION_STRING),
+	version("OpenCL 1.2 FreeOCL-" FREEOCL_VERSION_STRING),
 	driver_version(FREEOCL_VERSION_STRING),
 	device_profile("FULL_PROFILE"),
-	opencl_c_version("OpenCL C 1.1 FreeOCL-" FREEOCL_VERSION_STRING),
+	opencl_c_version("OpenCL C 1.2 FreeOCL-" FREEOCL_VERSION_STRING),
 	extensions("cl_khr_icd" SEP
 			   "cl_khr_global_int32_base_atomics" SEP
 			   "cl_khr_global_int32_extended_atomics" SEP

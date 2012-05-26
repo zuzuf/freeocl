@@ -34,8 +34,9 @@
 		" -I./include" \
 		" -g -O3" \
         " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
-		" -rdynamic" \
-		" -fno-exceptions" \
+        " -fno-math-errno -fno-trapping-math" \
+        " -rdynamic" \
+        " -fno-exceptions -fno-rtti" \
 		/*" -ffast-math"*/ \
 		" -x c++ " \
 		" -Wall -Wextra"
