@@ -78,11 +78,27 @@ inline uint upsample(ushort hi, ushort lo)	{	return ((uint)hi << 16) | lo;	}
 inline long upsample(int hi, uint lo)	{	return ((long long)hi << 32) | lo;	}
 inline ulong upsample(uint hi, uint lo)	{	return ((long long)hi << 32) | lo;	}
 
+inline ulong popcount(ulong x)
+{
+#ifdef __GNUG__
+	return __builtin_popcount(x);
+#else
+	const ulong m1 = 0x5555555555555555;
+	const ulong m2 = 0x3333333333333333;
+	const ulong m4 = 0x0f0f0f0f0f0f0f0f;
+	x -= (x >> 1) & m1;
+	x = (x & m2) + ((x >> 2) & m2);
+	x = (x + (x >> 4)) & m4;
+	return (x * h01) >> 56;
+#endif
+}
+
 // fast integer built-in functions
 inline int mad24(int x, int y, int z)	{	return x * y + z;	}
 inline int mul24(int x, int y)	{	return x * y;	}
 
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_I(clamp)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_I(abs)
+VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_I(popcount)
 
 #endif

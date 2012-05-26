@@ -397,8 +397,20 @@ namespace FreeOCL
 					case native_type::SAMPLER_T:
 						type_id = CL_UNORM_INT_101010;
 						break;
+					case native_type::IMAGE1D_T:
+						type_id = CL_MEM_OBJECT_IMAGE1D;
+						break;
+					case native_type::IMAGE1D_BUFFER_T:
+						type_id = CL_MEM_OBJECT_IMAGE1D_BUFFER;
+						break;
+					case native_type::IMAGE1D_ARRAY_T:
+						type_id = CL_MEM_OBJECT_IMAGE1D_ARRAY;
+						break;
 					case native_type::IMAGE2D_T:
 						type_id = CL_MEM_OBJECT_IMAGE2D;
+						break;
+					case native_type::IMAGE2D_ARRAY_T:
+						type_id = CL_MEM_OBJECT_IMAGE2D_ARRAY;
 						break;
 					case native_type::IMAGE3D_T:
 						type_id = CL_MEM_OBJECT_IMAGE3D;

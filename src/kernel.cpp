@@ -32,6 +32,27 @@ namespace
 {
 	const size_t kernel_preferred_work_group_size_multiple = 1;
 
+	struct image1d_t
+	{
+		uint channel_order;
+		uint channel_data_type;
+		size_t width;
+		size_t element_size;
+		void *data;
+	};
+
+	typedef image1d_t image1d_buffer_t;
+
+	struct image1d_array_t
+	{
+		uint channel_order;
+		uint channel_data_type;
+		size_t width, array_size;
+		size_t row_pitch;
+		size_t element_size;
+		void *data;
+	};
+
 	struct image2d_t
 	{
 		uint channel_order;
@@ -42,6 +63,15 @@ namespace
 		void *data;
 	};
 
+	struct image2d_array_t
+	{
+		uint channel_order;
+		uint channel_data_type;
+		size_t width, height, array_size;
+		size_t row_pitch, slice_pitch;
+		size_t element_size;
+		void *data;
+	};
 	struct image3d_t
 	{
 		uint channel_order;
@@ -317,6 +347,80 @@ extern "C"
 				*(uint*)&(kernel->args_buffer[kernel->args_offset[arg_index]]) = sampler_value;
 			}
 			break;
+		case CL_MEM_OBJECT_IMAGE1D:
+			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
+			else
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				cl_mem image = *(cl_mem*)arg_value;
+				if (!FreeOCL::is_valid(image))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(image);
+				if (image->mem_type != CL_MEM_OBJECT_IMAGE1D)
+					return CL_INVALID_MEM_OBJECT;
+
+				image1d_t img;
+				img.channel_data_type = image->image_format.image_channel_data_type;
+				img.channel_order = image->image_format.image_channel_order;
+				img.width = image->width;
+				img.element_size = image->element_size;
+				img.data = image->ptr;
+
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+			}
+			break;
+		case CL_MEM_OBJECT_IMAGE1D_BUFFER:
+			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
+			else
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				cl_mem image = *(cl_mem*)arg_value;
+				if (!FreeOCL::is_valid(image))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(image);
+				if (image->mem_type != CL_MEM_OBJECT_IMAGE1D_BUFFER)
+					return CL_INVALID_MEM_OBJECT;
+
+				image1d_buffer_t img;
+				img.channel_data_type = image->image_format.image_channel_data_type;
+				img.channel_order = image->image_format.image_channel_order;
+				img.width = image->width;
+				img.element_size = image->element_size;
+				img.data = image->ptr;
+
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+			}
+			break;
+		case CL_MEM_OBJECT_IMAGE1D_ARRAY:
+			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
+			else
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				cl_mem image = *(cl_mem*)arg_value;
+				if (!FreeOCL::is_valid(image))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(image);
+				if (image->mem_type != CL_MEM_OBJECT_IMAGE1D_ARRAY)
+					return CL_INVALID_MEM_OBJECT;
+
+				image1d_array_t img;
+				img.channel_data_type = image->image_format.image_channel_data_type;
+				img.channel_order = image->image_format.image_channel_order;
+				img.width = image->width;
+				img.array_size = image->height;
+				img.row_pitch = image->row_pitch;
+				img.element_size = image->element_size;
+				img.data = image->ptr;
+
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+			}
+			break;
 		case CL_MEM_OBJECT_IMAGE2D:
 			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
 				return CL_INVALID_ARG_VALUE;
@@ -337,6 +441,34 @@ extern "C"
 				img.width = image->width;
 				img.height = image->height;
 				img.row_pitch = image->row_pitch;
+				img.element_size = image->element_size;
+				img.data = image->ptr;
+
+				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+			}
+			break;
+		case CL_MEM_OBJECT_IMAGE2D_ARRAY:
+			if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
+			else
+			{
+				if (arg_size != sizeof(cl_mem))
+					return CL_INVALID_ARG_SIZE;
+				cl_mem image = *(cl_mem*)arg_value;
+				if (!FreeOCL::is_valid(image))
+					return CL_INVALID_MEM_OBJECT;
+				unlock.handle(image);
+				if (image->mem_type != CL_MEM_OBJECT_IMAGE2D_ARRAY)
+					return CL_INVALID_MEM_OBJECT;
+
+				image2d_array_t img;
+				img.channel_data_type = image->image_format.image_channel_data_type;
+				img.channel_order = image->image_format.image_channel_order;
+				img.width = image->width;
+				img.height = image->height;
+				img.array_size = image->depth;
+				img.row_pitch = image->row_pitch;
+				img.slice_pitch = image->slice_pitch;
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
