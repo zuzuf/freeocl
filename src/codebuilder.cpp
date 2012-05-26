@@ -32,12 +32,20 @@
 
 namespace FreeOCL
 {
-	std::string build_program(const std::string &options, const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels, bool &b_valid_options)
+	std::string build_program(const std::string &options,
+							  const std::string &code,
+							  std::stringstream &log,
+							  FreeOCL::set<std::string> &kernels,
+							  bool &b_valid_options,
+							  const bool b_compile_only,
+							  const FreeOCL::map<std::string, std::string> &headers)
 	{
 		b_valid_options = true;
 
 		std::string macros;
 		std::string compiler_extra_args;
+		if (b_compile_only)
+			compiler_extra_args += " -c";
 
 		std::stringstream coptions(options);
 		while(coptions)
@@ -78,7 +86,7 @@ namespace FreeOCL
 			}
 			else if (word == "-cl-single-precision-constant")
 			{
-				compiler_extra_args += "-fsingle-precision-constant";
+				compiler_extra_args += " -fsingle-precision-constant";
 			}
 			else if (word == "-cl-denorms-are-zero")
 			{
@@ -175,7 +183,7 @@ namespace FreeOCL
 				return filename_out;
 			}
 			filename_out = tmpnam(buf);
-			filename_out += ".so";
+			filename_out += b_compile_only ? ".o" : ".so";
 			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDONLY, S_IWUSR | S_IRUSR | S_IXUSR);
 		}
 
@@ -192,7 +200,7 @@ namespace FreeOCL
 		close(fd_out);
 		fclose(file_in);
 		// Remove the input file which is now useless
-//		remove(filename_in.c_str());
+		remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
@@ -530,5 +538,104 @@ namespace FreeOCL
 
 		log << "converted code:" << std::endl << gen.str() << std::endl;
 		return gen.str();
+	}
+
+	std::string link_program(const std::string &options,
+							 const std::vector<std::string> &files_to_link,
+							  std::stringstream &log,
+							  bool &b_valid_options)
+	{
+		b_valid_options = true;
+
+		std::string compiler_extra_args;
+		std::stringstream coptions(options);
+		bool b_library = false;
+		while(coptions)
+		{
+			std::string word;
+			coptions >> word;
+
+			if (word.empty() && !coptions)
+				break;
+
+			if (word == "-create-library")
+			{
+				b_library = true;
+			}
+			else if (word == "-enable-link-options")
+			{
+			}
+			else if (word == "-cl-denorms-are-zero")
+			{
+			}
+			else if (word == "-cl-no-signed-zeros")
+			{
+				compiler_extra_args += " -fno-signed-zeros";
+			}
+			else if (word == "-cl-unsafe-math-optimizations")
+			{
+				compiler_extra_args += " -funsafe-math-optimizations";
+			}
+			else if (word == "-cl-finite-math-only")
+			{
+				compiler_extra_args += " -ffinite-math-only";
+			}
+			else if (word == "-cl-fast-relaxed-math")
+			{
+				compiler_extra_args += " -ffast-math -D__FAST_RELAXED_MATH__=1";
+			}
+			else
+			{
+				b_valid_options = false;
+				return std::string();
+			}
+		}
+
+		char buf[1024];		// Buffer for tmpnam (to make it thread safe)
+		int fd_out = -1;
+		std::string filename_out;
+
+		size_t n = 0;
+		while(fd_out == -1)
+		{
+			++n;
+			if (n > 0x10000)
+			{
+				log << "error: impossible to get a temporary file as linker output" << std::endl;
+				filename_out.clear();
+				return filename_out;
+			}
+			filename_out = tmpnam(buf);
+			filename_out += b_library ? ".a" : ".so";
+			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDONLY, S_IWUSR | S_IRUSR | S_IXUSR);
+		}
+
+		std::stringstream cmd;
+		if (b_library)	// Static library (CL_PROGRAM_BINARY_TYPE_LIBRARY)
+		{
+			cmd << "ar rcs "
+				<< filename_out;
+		}
+		else			// Shared library (CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+		{
+			cmd << FREEOCL_CXX_COMPILER
+				<< FREEOCL_CXX_FLAGS
+				<< compiler_extra_args
+				<< " -o " << filename_out;
+		}
+		for(size_t i = 0 ; i < files_to_link.size() ; ++i)
+			cmd	<< ' ' << files_to_link[i];
+		cmd	<< " 2>&1";			// Redirects everything to stdout in order to read all logs
+		int ret = 0;
+		log << run_command(cmd.str(), &ret) << std::endl;
+
+		close(fd_out);
+
+		if (ret != 0)
+		{
+			remove(filename_out.c_str());
+			filename_out.clear();
+		}
+		return filename_out;
 	}
 }

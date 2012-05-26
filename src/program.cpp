@@ -151,7 +151,19 @@ extern "C"
 			}
 			char buf[1024];
 			filename_out = tmpnam(buf);
-			filename_out += ".so";
+			switch(program->binary_type)
+			{
+			case CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT:
+				filename_out += ".o";
+				break;
+			case CL_PROGRAM_BINARY_TYPE_LIBRARY:
+				filename_out += ".a";
+				break;
+			case CL_PROGRAM_BINARY_TYPE_EXECUTABLE:
+			default:
+				filename_out += ".so";
+			}
+
 			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDONLY, S_IWUSR | S_IRUSR | S_IXUSR);
 		}
 		const size_t written_bytes = write(fd_out, ptr + offset, size_of_binary_data);	offset += size_of_binary_data;
@@ -167,6 +179,18 @@ extern "C"
 
 		const size_t build_options_size = *(const size_t*)(ptr + offset);	offset += sizeof(size_t);
 		program->build_options = std::string((const char*)(ptr + offset), build_options_size);
+
+		if (program->binary_type == CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+		{
+			program->handle = dlopen(program->binary_file.c_str(), RTLD_NOW | RTLD_LOCAL);
+			if (!program->handle)
+			{
+				remove(program->binary_file.c_str());
+				delete program;
+				SET_RET(CL_INVALID_BINARY);
+				return 0;
+			}
+		}
 
 		SET_RET(CL_SUCCESS);
 		return program;
@@ -218,7 +242,7 @@ extern "C"
 		program->retain();
 
 		program->build_status = CL_BUILD_IN_PROGRESS;
-		const std::string source_code = program->source_code;
+		const std::string &source_code = program->source_code;
 
 		if (program->handle)
 			dlclose(program->handle);
@@ -271,6 +295,7 @@ extern "C"
 
 		program->kernel_names = kernel_names;
 
+		program->build_options = options ? options : "";
 		program->build_status = CL_BUILD_SUCCESS;
 		program->binary_type = CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
 		program->unlock();
@@ -528,6 +553,83 @@ extern "C"
 														void *               user_data) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clCompileProgramFCL);
+		if (device_list == NULL && num_devices > 0)
+			return CL_INVALID_VALUE;
+		if (pfn_notify == NULL && user_data != NULL)
+			return CL_INVALID_VALUE;
+		if ((num_input_headers == 0 || input_headers == NULL || header_include_names == NULL)
+				&& (num_input_headers != 0 || input_headers != NULL || header_include_names != NULL))
+			return CL_INVALID_VALUE;
+
+		if (!FreeOCL::is_valid(program))
+			return CL_INVALID_PROGRAM;
+		if (program->source_code.empty() || program->build_status != CL_BUILD_NONE)
+		{
+			program->unlock();
+			if (pfn_notify)	pfn_notify(program, user_data);
+			return CL_INVALID_OPERATION;
+		}
+
+		program->build_status = CL_BUILD_IN_PROGRESS;
+
+		if (program->handle)
+			dlclose(program->handle);
+		if (!program->binary_file.empty())
+			remove(program->binary_file.c_str());
+		program->handle = NULL;
+		program->binary_file.clear();
+
+		const std::string &source_code = program->source_code;
+		FreeOCL::map<std::string, std::string> headers;
+		for(size_t i = 0 ; i < num_input_headers ; ++i)
+		{
+			if (input_headers[i] == NULL
+					|| header_include_names[i] == NULL
+					|| !FreeOCL::is_valid(input_headers[i]))
+			{
+				program->unlock();
+				if (pfn_notify)	pfn_notify(program, user_data);
+				return CL_INVALID_VALUE;
+			}
+			headers[header_include_names[i]] = input_headers[i]->source_code;
+			input_headers[i]->unlock();
+		}
+
+		std::stringstream build_log;
+		bool b_valid_options = true;
+		FreeOCL::set<std::string> kernel_names;
+		const std::string binary_file = FreeOCL::build_program(options ? options : std::string(),
+															   source_code,
+															   build_log,
+															   kernel_names,
+															   b_valid_options,
+															   true,
+															   headers);
+
+		if (!b_valid_options)
+		{
+			program->unlock();
+			if (pfn_notify)	pfn_notify(program, user_data);
+			return CL_INVALID_BUILD_OPTIONS;
+		}
+
+		program->binary_file = binary_file;
+		program->build_log = build_log.str();
+
+		if (program->binary_file.empty())
+		{
+			program->build_status = CL_BUILD_ERROR;
+			if (pfn_notify)	pfn_notify(program, user_data);
+			return CL_COMPILE_PROGRAM_FAILURE;
+		}
+
+		program->kernel_names = kernel_names;
+
+		program->build_status = CL_BUILD_SUCCESS;
+		program->binary_type = CL_PROGRAM_BINARY_TYPE_COMPILED_OBJECT;
+		program->unlock();
+		if (pfn_notify)	pfn_notify(program, user_data);
+		return CL_SUCCESS;
 	}
 
 	CL_API_ENTRY cl_program CL_API_CALL	clLinkProgramFCL(cl_context           context,
@@ -541,6 +643,93 @@ extern "C"
 														 cl_int *             errcode_ret) CL_API_SUFFIX__VERSION_1_2
 	{
 		MSG(clLinkProgramFCL);
+		if (pfn_notify == NULL && user_data != NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		if ((num_devices == 0) ^ (device_list == NULL))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		if (num_input_programs == 0 || input_programs == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		if (num_devices > 0 && device_list[0] != FreeOCL::device)
+		{
+			SET_RET(CL_INVALID_DEVICE);
+			return 0;
+		}
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return 0;
+		}
+		unlock.handle(context);
+
+		FreeOCL::set<std::string> kernel_names;
+		std::vector<std::string> files_to_link;
+		files_to_link.reserve(num_input_programs);
+		for(size_t i = 0 ; i < num_input_programs ; ++i)
+		{
+			if (!FreeOCL::is_valid(input_programs[i]))
+			{
+				SET_RET(CL_INVALID_PROGRAM);
+				return 0;
+			}
+			unlock.handle(input_programs[i]);
+			if (input_programs[i]->binary_type == CL_PROGRAM_BINARY_TYPE_NONE
+					|| input_programs[i]->binary_type == CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+			{
+				SET_RET(CL_INVALID_PROGRAM);
+				return 0;
+			}
+			files_to_link.push_back(input_programs[i]->binary_file);
+			kernel_names.insert(input_programs[i]->kernel_names.begin(), input_programs[i]->kernel_names.end());
+		}
+
+		std::stringstream log;
+		bool b_valid_options = true;
+		const std::string &binary_file = FreeOCL::link_program(options ? options : "",
+															   files_to_link,
+															   log,
+															   b_valid_options);
+		if (!b_valid_options)
+		{
+			SET_RET(CL_INVALID_LINKER_OPTIONS);
+			return 0;
+		}
+		if (binary_file.empty())
+		{
+			SET_RET(CL_LINK_PROGRAM_FAILURE);
+			return 0;
+		}
+
+		cl_program program = new _cl_program(context);
+		program->binary_file = binary_file;
+		program->binary_type = (*binary_file.rbegin() == 'a')
+							   ? CL_PROGRAM_BINARY_TYPE_LIBRARY
+							   : CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
+		program->build_options = options ? options : "";
+		program->build_log = log.str();
+		program->kernel_names.swap(kernel_names);
+		program->build_status = CL_BUILD_SUCCESS;
+
+		if (program->binary_type == CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+		{
+			program->handle = dlopen(program->binary_file.c_str(), RTLD_NOW | RTLD_LOCAL);
+			if (!program->handle)
+			{
+				delete program;
+				SET_RET(CL_LINK_PROGRAM_FAILURE);
+				return 0;
+			}
+		}
+		return program;
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL clUnloadPlatformCompilerFCL(cl_platform_id platform) CL_API_SUFFIX__VERSION_1_2
