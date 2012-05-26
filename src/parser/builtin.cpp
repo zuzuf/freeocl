@@ -797,6 +797,67 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("int atom_or(__global int*,int)|uint atom_or(__global uint*,uint)|int atom_or(__local int*,int)|uint atom_or(__local uint*,uint)", gentype_single);
 		REGISTER_OVERLOADED("int atom_xor(__global int*,int)|uint atom_xor(__global uint*,uint)|int atom_xor(__local int*,int)|uint atom_xor(__local uint*,uint)", gentype_single);
 
+		// OpenCL 1.2 image functions
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_t,sampler_t,int)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_t,sampler_t,float)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_t,sampler_t,int)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_t,sampler_t,float)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_t,sampler_t,int)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_t,sampler_t,float)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagef(image1d_t,int,float4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagei(image1d_t,int,int4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imageui(image1d_t,int,uint4)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_t,int)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_t,int)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_t,int)", gentype_single);
+		REGISTER_OVERLOADED("int get_image_width(image1d_t)", gentype_single);
+
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_buffer_t,int)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_buffer_t,int)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_buffer_t,int)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagef(image1d_buffer_t,int,float4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagei(image1d_buffer_t,int,int4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imageui(image1d_buffer_t,int,uint4)", gentype_single);
+		REGISTER_OVERLOADED("int get_image_width(image1d_buffer_t)", gentype_single);
+
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_array_t,sampler_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_array_t,sampler_t,float2)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_array_t,sampler_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_array_t,sampler_t,float2)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_array_t,sampler_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_array_t,sampler_t,float2)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagef(image1d_array_t,int2,float4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagei(image1d_array_t,int2,int4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imageui(image1d_array_t,int2,uint4)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image1d_array_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image1d_array_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image1d_array_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("int get_image_width(image1d_array_t)", gentype_single);
+		REGISTER_OVERLOADED("size_t get_image_array_size(image1d_array_t)", gentype_single);
+
+		REGISTER_OVERLOADED("float4 read_imagef(image2d_array_t,sampler_t,int4)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image2d_array_t,sampler_t,float4)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image2d_array_t,sampler_t,int4)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image2d_array_t,sampler_t,float4)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image2d_array_t,sampler_t,int4)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image2d_array_t,sampler_t,float4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagef(image2d_array_t,int4,float4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imagei(image2d_array_t,int4,int4)", gentype_single);
+		REGISTER_OVERLOADED("void write_imageui(image2d_array_t,int4,uint4)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image2d_array_t,int4)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image2d_array_t,int4)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image2d_array_t,int4)", gentype_single);
+		REGISTER_OVERLOADED("int get_image_width(image2d_array_t)", gentype_single);
+		REGISTER_OVERLOADED("int get_image_height(image2d_array_t)", gentype_single);
+		REGISTER_OVERLOADED("size_t get_image_array_size(image2d_array_t)", gentype_single);
+
+		REGISTER_OVERLOADED("float4 read_imagef(image2d_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image2d_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image2d_t,int2)", gentype_single);
+		REGISTER_OVERLOADED("float4 read_imagef(image3d_t,int)", gentype_single);
+		REGISTER_OVERLOADED("int4 read_imagei(image3d_t,int)", gentype_single);
+		REGISTER_OVERLOADED("uint4 read_imageui(image3d_t,int)", gentype_single);
+
 #undef REGISTER
 #undef REGISTER_OVERLOADED
 #undef REGISTER_VAR

@@ -77,7 +77,13 @@ set(FREEOCL_HEADERS
 	../include/FreeOCL/converters.h
 	../include/FreeOCL/geometric.h
 	../include/FreeOCL/imgreadwrite.h
-	../include/FreeOCL/integer.h
+    ../include/FreeOCL/image1d_t.h
+    ../include/FreeOCL/image1d_buffer_t.h
+    ../include/FreeOCL/image1d_array_t.h
+    ../include/FreeOCL/image2d_t.h
+    ../include/FreeOCL/image2d_array_t.h
+    ../include/FreeOCL/image3d_t.h
+    ../include/FreeOCL/integer.h
 	../include/FreeOCL/math.h
 	../include/FreeOCL/memfence.h
 	../include/FreeOCL/opencl_c.h

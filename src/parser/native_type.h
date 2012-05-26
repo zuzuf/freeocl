@@ -26,7 +26,8 @@ namespace FreeOCL
 	{
 	public:
 		enum type_id {
-			VOID, BOOL, HALF, SIZE_T, SAMPLER_T, IMAGE2D_T, IMAGE3D_T, EVENT_T,
+			VOID, BOOL, HALF, SIZE_T, SAMPLER_T, EVENT_T,
+			IMAGE1D_T, IMAGE1D_BUFFER_T, IMAGE1D_ARRAY_T, IMAGE2D_T, IMAGE2D_ARRAY_T, IMAGE3D_T,
 			CHAR, SHORT, INT, LONG, UCHAR, USHORT, UINT, ULONG, FLOAT, DOUBLE,
 			CHAR2, SHORT2, INT2, LONG2, UCHAR2, USHORT2, UINT2, ULONG2, FLOAT2, DOUBLE2,
 			CHAR3, SHORT3, INT3, LONG3, UCHAR3, USHORT3, UINT3, ULONG3, FLOAT3, DOUBLE3,
@@ -61,7 +62,11 @@ namespace FreeOCL
 	public:
 		static smartptr<type> t_event_t;
 		static smartptr<type> t_sampler_t;
+		static smartptr<type> t_image1d_t;
+		static smartptr<type> t_image1d_buffer_t;
+		static smartptr<type> t_image1d_array_t;
 		static smartptr<type> t_image2d_t;
+		static smartptr<type> t_image2d_array_t;
 		static smartptr<type> t_image3d_t;
 		static smartptr<type> t_void;
 		static smartptr<type> t_bool;

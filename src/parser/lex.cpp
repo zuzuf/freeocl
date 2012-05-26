@@ -247,7 +247,11 @@ lex_start:
 				keywords["sizeof"] = SIZEOF;
 
 				keywords["sampler_t"] = SAMPLER_T;
+				keywords["image1d_t"] = IMAGE1D_T;
+				keywords["image1d_buffer_t"] = IMAGE1D_BUFFER_T;
+				keywords["image1d_array_t"] = IMAGE1D_ARRAY_T;
 				keywords["image2d_t"] = IMAGE2D_T;
+				keywords["image2d_array_t"] = IMAGE2D_ARRAY_T;
 				keywords["image3d_t"] = IMAGE3D_T;
 				keywords["event_t"] = EVENT_T;
 

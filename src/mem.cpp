@@ -474,7 +474,7 @@ extern "C"
 							   cl_int *errcode_ret)
 	{
 		MSG(clEnqueueMapBufferFCL);
-		if (map_flags & ~(CL_MAP_READ | CL_MAP_WRITE))
+		if (map_flags & ~(CL_MAP_READ | CL_MAP_WRITE | CL_MAP_WRITE_INVALIDATE_REGION))
 		{
 			SET_RET(CL_INVALID_VALUE);
 			return NULL;

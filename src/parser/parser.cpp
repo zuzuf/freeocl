@@ -632,7 +632,11 @@ namespace FreeOCL
 		case DOUBLE16:	d_val__ = new native_type(native_type::DOUBLE16, false, type::PRIVATE);	return 1;
 		case SIZE_T:	d_val__ = new native_type(native_type::SIZE_T, false, type::PRIVATE);	return 1;
 		case SAMPLER_T:	d_val__ = new native_type(native_type::SAMPLER_T, false, type::PRIVATE);	return 1;
+		case IMAGE1D_T:	d_val__ = new native_type(native_type::IMAGE1D_T, false, type::PRIVATE);	return 1;
+		case IMAGE1D_BUFFER_T:	d_val__ = new native_type(native_type::IMAGE1D_BUFFER_T, false, type::PRIVATE);	return 1;
+		case IMAGE1D_ARRAY_T:	d_val__ = new native_type(native_type::IMAGE1D_ARRAY_T, false, type::PRIVATE);	return 1;
 		case IMAGE2D_T:	d_val__ = new native_type(native_type::IMAGE2D_T, false, type::PRIVATE);	return 1;
+		case IMAGE2D_ARRAY_T:	d_val__ = new native_type(native_type::IMAGE2D_ARRAY_T, false, type::PRIVATE);	return 1;
 		case IMAGE3D_T:	d_val__ = new native_type(native_type::IMAGE3D_T, false, type::PRIVATE);	return 1;
 		case EVENT_T:	d_val__ = new native_type(native_type::EVENT_T, false, type::PRIVATE);	return 1;
 
