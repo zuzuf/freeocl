@@ -31,6 +31,8 @@ struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, pub
 
 	std::vector<cl_device_id> devices;
 
+	cl_program_binary_type binary_type;
+
 	void *handle;
 	std::string binary_file;
 	FreeOCL::set<std::string> kernel_names;

@@ -5,6 +5,7 @@ set(PARSER_SOURCES
 	parser/macros.h
 	parser/lex.cpp
 	parser/error.cpp
+    parser/pragma.cpp
 	parser/node.cpp		parser/node.h
 	parser/chunk.cpp	parser/chunk.h
 	parser/value.h		parser/value.cpp

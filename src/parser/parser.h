@@ -25,6 +25,7 @@
 #include <vector>
 #include "node.h"
 #include "kernel.h"
+#include <bitset>
 
 namespace FreeOCL
 {
@@ -61,6 +62,20 @@ namespace FreeOCL
 
 			__ATTRIBUTE__,	SPECIAL
 		};
+		enum extension_id
+		{
+			_cl_khr_icd,
+			_cl_khr_global_int32_base_atomics,
+			_cl_khr_global_int32_extended_atomics,
+			_cl_khr_local_int32_base_atomics,
+			_cl_khr_local_int32_extended_atomics,
+			_cl_khr_byte_addressable_store,
+			_cl_khr_fp64,
+			_cl_khr_int64_base_atomics,
+			_cl_khr_int64_extended_atomics,
+			_nb_extensions
+		};
+
 	public:
 		parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), b_errors(false)	{}
 
@@ -73,6 +88,7 @@ namespace FreeOCL
 		void error(const std::string &msg);	// called on (syntax) errors
 		void warning(const std::string &msg);	// called on warnings
 		int lex();							// returns the next token from the
+		void parse_pragma(const std::string &line);	// parse a #pragma line
 
 		// support functions for parse()
 		inline int read_token();
@@ -100,9 +116,10 @@ namespace FreeOCL
 		smartptr<node> d_val__;
 
 		FreeOCL::map<std::string, smartptr<kernel> >	kernels;
-		std::vector<std::pair<int, smartptr<node> > > tokens;
-		std::vector<std::pair<int, smartptr<node> > > processed;
+		std::vector<std::pair<int, smartptr<node> > >	tokens;
+		std::vector<std::pair<int, smartptr<node> > >	processed;
 		symbol_table *symbols;
+		std::bitset<_nb_extensions>	active_extensions;
 
 	private:
 		// parser grammar rules

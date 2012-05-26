@@ -19,8 +19,12 @@
 #include "context.h"
 #include <cstring>
 #include <dlfcn.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 #include "codebuilder.h"
 #include <sstream>
+#include <fstream>
 
 #define SET_STRING(X)	FreeOCL::copy_memory_within_limits(X, strlen(X) + 1, param_value_size, param_value, param_value_size_ret)
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X),\
@@ -81,8 +85,91 @@ extern "C"
 										  cl_int *errcode_ret)
 	{
 		MSG(clCreateProgramWithBinaryFCL);
-		SET_RET(CL_INVALID_OPERATION);
-		return 0;
+		if (num_devices == 0 || device_list == NULL
+				|| lengths == NULL || binaries == NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+		if (!binary_status)
+		{
+			bool b_error = false;
+			for(size_t i = 0 ; i < num_devices ; ++i)
+			{
+				if (lengths[i] == 0 || binaries[i] == NULL)
+				{
+					binary_status[i] = CL_INVALID_VALUE;
+					b_error = true;
+					continue;
+				}
+				binary_status[i] = CL_SUCCESS;
+			}
+			if (b_error)
+			{
+				SET_RET(CL_INVALID_VALUE);
+				return 0;
+			}
+		}
+
+		for(size_t i = 0 ; i < num_devices ; ++i)
+			if (device_list[i] != FreeOCL::device)
+			{
+				SET_RET(CL_INVALID_DEVICE);
+				return 0;
+			}
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(context))
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return 0;
+		}
+		unlock.handle(context);
+
+		cl_program program = new _cl_program(context);
+		for(size_t i = 0 ; i < num_devices ; ++i)
+			program->devices.push_back(device_list[i]);
+		program->build_status = CL_BUILD_SUCCESS;
+		program->handle = NULL;
+
+		const unsigned char *ptr = binaries[0];
+		size_t offset = 0;
+		program->binary_type = *(const cl_program_binary_type*)ptr;	offset += sizeof(cl_program_binary_type);
+		const size_t size_of_binary_data = *(const size_t*)(ptr + offset);	offset += sizeof(size_t);
+		// Creates a unique temporary file to write the binary data
+		size_t n = 0;
+		int fd_out = -1;
+		std::string filename_out;
+		while(fd_out == -1)
+		{
+			++n;
+			if (n > 0x10000)
+			{
+				delete program;
+				SET_RET(CL_OUT_OF_RESOURCES);
+				return 0;
+			}
+			char buf[1024];
+			filename_out = tmpnam(buf);
+			filename_out += ".so";
+			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDONLY, S_IWUSR | S_IRUSR | S_IXUSR);
+		}
+		const size_t written_bytes = write(fd_out, ptr + offset, size_of_binary_data);	offset += size_of_binary_data;
+		close(fd_out);
+		program->binary_file = filename_out;
+
+		const size_t number_of_kernels = *(const size_t*)(ptr + offset);	offset += sizeof(size_t);
+		for(size_t i = 0 ; i < number_of_kernels ; ++i)
+		{
+			const size_t kernel_name_size = *(const size_t*)(ptr + offset);	offset += sizeof(size_t);
+			program->kernel_names.insert(std::string((const char*)(ptr + offset), kernel_name_size));	offset += kernel_name_size;
+		}
+
+		const size_t build_options_size = *(const size_t*)(ptr + offset);	offset += sizeof(size_t);
+		program->build_options = std::string((const char*)(ptr + offset), build_options_size);
+
+		SET_RET(CL_SUCCESS);
+		return program;
 	}
 
 	cl_int clRetainProgramFCL (cl_program program)
@@ -185,7 +272,10 @@ extern "C"
 		program->kernel_names = kernel_names;
 
 		program->build_status = CL_BUILD_SUCCESS;
+		program->binary_type = CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
 		program->unlock();
+		if (pfn_notify)
+			pfn_notify(program, user_data);
 		clReleaseProgramFCL(program);
 		return CL_SUCCESS;
 	}
@@ -230,7 +320,20 @@ extern "C"
 		case CL_PROGRAM_BINARY_SIZES:
 			{
 				std::vector<size_t> sizes;
-				sizes.resize(program->devices.size(), 0);
+				std::fstream binary_file(program->binary_file.c_str(), std::ios_base::in);
+				binary_file.seekg(0, std::ios_base::end);
+				const size_t binary_file_size = binary_file.tellg();
+				binary_file.close();
+				size_t kernel_names_size = 0;
+				for(FreeOCL::set<std::string>::const_iterator it = program->kernel_names.begin()
+					; it != program->kernel_names.end()
+					; ++it)
+					kernel_names_size += sizeof(size_t) + it->size();
+				const size_t binary_size = sizeof(program->binary_type)
+										   + sizeof(size_t) + binary_file_size
+										   + sizeof(size_t) + kernel_names_size
+										   + sizeof(size_t) + program->build_options.size();
+				sizes.resize(program->devices.size(), binary_size);
 				bTooSmall = FreeOCL::copy_memory_within_limits(&(sizes.front()),
 															   sizes.size() * sizeof(size_t),
 															   param_value_size,
@@ -239,6 +342,39 @@ extern "C"
 			}
 			break;
 		case CL_PROGRAM_BINARIES:
+			for(size_t i = 0 ; i < program->devices.size() ; ++i)
+			{
+				char *ptr = ((char**)param_value)[i];
+				// Skip device
+				if (!ptr)
+					continue;
+				size_t offset = 0;
+				// Write binary type
+				*(cl_program_binary_type*)ptr = program->binary_type;	offset += sizeof(cl_program_binary_type);
+
+				// Write binary data
+				std::fstream binary_file(program->binary_file.c_str(), std::ios_base::in);
+				binary_file.seekg(0, std::ios_base::end);
+				const size_t binary_file_size = binary_file.tellg();
+				*(size_t*)(ptr + offset) = binary_file_size;	offset += sizeof(size_t);
+				binary_file.seekg(0);
+				binary_file.read(ptr + offset, binary_file_size);	offset += binary_file_size;
+				binary_file.close();
+
+				// Write kernel names
+				*(size_t*)(ptr + offset) = program->kernel_names.size();	offset += sizeof(size_t);
+				for(FreeOCL::set<std::string>::const_iterator it = program->kernel_names.begin()
+					; it != program->kernel_names.end()
+					; ++it)
+				{
+					*(size_t*)(ptr + offset) = it->size();	offset += sizeof(size_t);
+					memcpy(ptr + offset, it->data(), it->size());	offset += it->size();
+				}
+
+				// Write build options
+				*(size_t*)(ptr + offset) = program->build_options.size();	offset += sizeof(size_t);
+				memcpy(ptr + offset, program->build_options.data(), program->build_options.size());	offset += program->build_options.size();
+			}
 			break;
 		case CL_PROGRAM_NUM_KERNELS:
 			if (!program->handle)
@@ -308,6 +444,7 @@ extern "C"
 														   param_value,
 														   param_value_size_ret);
 			break;
+		case CL_PROGRAM_BINARY_TYPE:		bTooSmall = SET_VAR(program->binary_type);	break;
 		default:
 			return CL_INVALID_VALUE;
 		}
@@ -415,7 +552,11 @@ extern "C"
 	}
 }
 
-_cl_program::_cl_program(cl_context context) : context_resource(context), handle(NULL), build_status(CL_BUILD_NONE)
+_cl_program::_cl_program(cl_context context)
+	: context_resource(context),
+	  binary_type(CL_PROGRAM_BINARY_TYPE_NONE),
+	  handle(NULL),
+	  build_status(CL_BUILD_NONE)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_programs.insert(this);

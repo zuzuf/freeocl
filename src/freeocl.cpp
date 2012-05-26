@@ -215,7 +215,7 @@ namespace FreeOCL
 		return std::find(words.begin(), words.end(), w) != words.end();
 	}
 
-	bool remove_words(std::string &s, const char **w)
+	void remove_words(std::string &s, const char **w)
 	{
 		std::deque<std::string> words = split(s, " \t\n\r");
 		s.clear();
