@@ -30,7 +30,7 @@ namespace FreeOCL
 			GLOBAL,
 			LOCAL,
 			PRIVATE,
-			CONSTANT,
+			CONSTANT
 		};
 
 	public:

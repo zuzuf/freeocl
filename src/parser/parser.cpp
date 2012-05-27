@@ -46,6 +46,7 @@
 #include "declarator.h"
 #include "qualifier.h"
 #include "sizeof.h"
+#include "enum_type.h"
 
 namespace FreeOCL
 {
@@ -243,6 +244,11 @@ namespace FreeOCL
 			smartptr<type> p_type = d_val__;
 			if(__token<';'>())
 			{
+				if (p_type.as<enum_type>())
+				{
+					d_val__ = new chunk(p_type, d_val__);
+					return 1;
+				}
 				warning("declaration doesn't declare anything!");
 				d_val__ = new token("", 0);
 				return 1;
@@ -689,9 +695,46 @@ namespace FreeOCL
 		BEGIN();
 		if (peek_token() != ENUM)
 			END();
-		RULE4(token<ENUM>, token<'{'>, enumerator_list, token<'}'>);
-		RULE5(token<ENUM>, token<IDENTIFIER>, token<'{'>, enumerator_list, token<'}'>);
-		RULE2(token<ENUM>, token<IDENTIFIER>);
+		MATCH4(token<ENUM>, token<'{'>, enumerator_list, token<'}'>)
+		{
+			std::vector<smartptr<node> > values;
+			const chunk *p_enum_list = N[2].as<chunk>();
+			values.reserve((p_enum_list->size() + 1) / 2);
+			for(size_t i = 0 ; i < p_enum_list->size() ; i += 2)
+			{
+				values.push_back(p_enum_list->at(i));
+				const chunk *p_chunk = values.back().as<chunk>();
+				const std::string &enum_name = p_chunk
+											   ? p_chunk->front().as<token>()->get_string()
+											   : values.back().as<token>()->get_string();
+				symbols->insert(enum_name, new var(enum_name, native_type::t_int));
+			}
+			d_val__ = new enum_type(std::string(), values, false, type::PRIVATE);
+			return 1;
+		}
+		MATCH5(token<ENUM>, token<IDENTIFIER>, token<'{'>, enumerator_list, token<'}'>)
+		{
+			std::vector<smartptr<node> > values;
+			const chunk *p_enum_list = N[3].as<chunk>();
+			values.reserve((p_enum_list->size() + 1) / 2);
+			for(size_t i = 0 ; i < p_enum_list->size() ; i += 2)
+			{
+				values.push_back(p_enum_list->at(i));
+				const chunk *p_chunk = values.back().as<chunk>();
+				const std::string &enum_name = p_chunk
+											   ? p_chunk->front().as<token>()->get_string()
+											   : values.back().as<token>()->get_string();
+				symbols->insert(enum_name, new var(enum_name, native_type::t_int));
+			}
+			d_val__ = new enum_type(N[1].as<token>()->get_string(), values, false, type::PRIVATE);
+			return 1;
+		}
+		MATCH2(token<ENUM>, token<IDENTIFIER>)
+		{
+			d_val__ = new enum_type(N[1].as<token>()->get_string(), std::vector<smartptr<node> >(), false, type::PRIVATE);
+			return 1;
+		}
+
 		CHECK(1, "syntax error");
 		END();
 	}

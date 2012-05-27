@@ -16,7 +16,8 @@ set(PARSER_SOURCES
 	parser/struct_type.h	parser/struct_type.cpp
 	parser/union_type.h		parser/union_type.cpp
 	parser/pointer_type.h	parser/pointer_type.cpp
-	parser/typedef.h		parser/typedef.cpp
+    parser/enum_type.h      parser/enum_type.cpp
+    parser/typedef.h		parser/typedef.cpp
 	parser/function.h		parser/function.cpp
 	parser/kernel.h			parser/kernel.cpp
 	parser/ternary.h		parser/ternary.cpp
