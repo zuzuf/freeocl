@@ -42,6 +42,7 @@ namespace FreeOCL
 		virtual std::string get_name() const;
 
 		bool has_member(const std::string &name) const;
+		size_t members_count() const;
 		smartptr<type> get_type_of_member(const std::string &name) const;
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 

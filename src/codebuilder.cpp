@@ -93,7 +93,7 @@ namespace FreeOCL
 			}
 			else if (word == "-cl-opt-disable")
 			{
-				compiler_extra_args += " -O 0";
+				compiler_extra_args += " -O 0 -g";
 			}
 			else if (word == "-cl-mad-enable")
 			{

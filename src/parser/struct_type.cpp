@@ -109,7 +109,9 @@ namespace FreeOCL
 
 	smartptr<type> struct_type::clone(const bool b_const, const address_space addr_space) const
 	{
-		return root ? new struct_type(root, b_const, addr_space) : new struct_type(this, b_const, addr_space);
+		smartptr<struct_type> ret = root ? new struct_type(root, b_const, addr_space) : new struct_type(this, b_const, addr_space);
+		ret->members = members;
+		return ret;
 	}
 
 	struct_type &struct_type::operator<<(const std::pair<std::string, smartptr<type> > &member)
@@ -128,5 +130,10 @@ namespace FreeOCL
 		if (root)
 			return root->get_aggregate_type();
 		return STRUCT;
+	}
+
+	size_t struct_type::members_count() const
+	{
+		return members.size();
 	}
 }

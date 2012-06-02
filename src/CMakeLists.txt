@@ -10,6 +10,7 @@ set(PARSER_SOURCES
 	parser/chunk.cpp	parser/chunk.h
 	parser/value.h		parser/value.cpp
 	parser/token.h		parser/token.cpp
+    parser/struct_literal.h parser/struct_literal.cpp
 	parser/type.h			parser/type.cpp
 	parser/array_type.h		parser/array_type.cpp
 	parser/native_type.h	parser/native_type.cpp

@@ -17,6 +17,7 @@
 */
 #include "swizzle.h"
 #include "native_type.h"
+#include "pointer_type.h"
 #include "typedef.h"
 
 namespace FreeOCL
@@ -33,10 +34,18 @@ namespace FreeOCL
 		int values[16];
 		parse_components(components, values, p_type.as<native_type>()->get_dim());
 		if (p_type.as<native_type>()->is_scalar())
-			out << '(' << *base << ").get<" << values[0] << ">() ";
+		{
+			if (base->get_type().as<pointer_type>())
+				out << '(' << *base << ")->get<" << values[0] << ">() ";
+			else
+				out << '(' << *base << ").get<" << values[0] << ">() ";
+		}
 		else
 		{
-			out << '(' << *base << ").swizzle<";
+			if (base->get_type().as<pointer_type>())
+				out << '(' << *base << ")->swizzle<";
+			else
+				out << '(' << *base << ").swizzle<";
 			out << *p_type << ',';
 			for(size_t i = 0 ; i < 15 ; ++i)
 				out << values[i] << ',';
@@ -47,7 +56,10 @@ namespace FreeOCL
 
 	smartptr<type> swizzle::get_type() const
 	{
-		smartptr<native_type> p_type = base->get_type().as<native_type>();
+		smartptr<type> p_base_type = base->get_type();
+		smartptr<native_type> p_type = p_base_type.as<native_type>();
+		if (p_base_type.as<pointer_type>())
+			p_type = p_base_type.as<pointer_type>()->get_base_type();
 		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
 		const int dim = get_number_of_components(components, p_type->get_dim());
 		return native_type::make_vector_type(p_type->get_scalar_type(), dim)->clone(p_type->is_const(), p_type->get_address_space());

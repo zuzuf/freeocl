@@ -47,6 +47,7 @@
 #include "qualifier.h"
 #include "sizeof.h"
 #include "enum_type.h"
+#include "struct_literal.h"
 
 namespace FreeOCL
 {
@@ -1477,6 +1478,15 @@ namespace FreeOCL
 			d_val__ = pcast;
 			return 1;
 		}
+		MATCH6(token<'('>, type_name, token<')'>, token<'{'>, initializer_list, token<'}'>)
+		{
+			smartptr<struct_literal> literal = new struct_literal(N[1].as<type>(), N[4]);
+			if (!literal->validate())
+				ERROR("incorrect struct literal.");
+			d_val__ = literal;
+			return 1;
+		}
+
 		RULE1(unary_expression);
 		END();
 	}

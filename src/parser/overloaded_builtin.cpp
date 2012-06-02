@@ -49,7 +49,11 @@ namespace FreeOCL
 				m_types["bool"] = native_type::BOOL;
 				m_types["half"] = native_type::HALF;
 				m_types["sampler_t"] = native_type::SAMPLER_T;
+				m_types["image1d_t"] = native_type::IMAGE1D_T;
+				m_types["image1d_buffer_t"] = native_type::IMAGE1D_BUFFER_T;
+				m_types["image1d_array_t"] = native_type::IMAGE1D_ARRAY_T;
 				m_types["image2d_t"] = native_type::IMAGE2D_T;
+				m_types["image2d_array_t"] = native_type::IMAGE2D_ARRAY_T;
 				m_types["image3d_t"] = native_type::IMAGE3D_T;
 				m_types["size_t"] = native_type::SIZE_T;
 				m_types["char"] = native_type::CHAR;
@@ -347,11 +351,15 @@ namespace FreeOCL
 	{
 		if (*a == *b)
 			return true;
+		if (*(a->clone(true, a->get_address_space())) == *b)
+			return true;
 
 		const pointer_type *ptrA = a.as<pointer_type>();
 		const pointer_type *ptrB = b.as<pointer_type>();
 		if (ptrA && ptrB)
-			return ptrA->is_compatible_with(*ptrB) && *ptrA->get_base_type() == *ptrB->get_base_type();
+			return ptrA->is_compatible_with(*ptrB)
+					&& (*ptrA->get_base_type() == *ptrB->get_base_type()
+						|| *ptrA->get_base_type()->clone(true, ptrA->get_base_type()->get_address_space()) == *ptrB->get_base_type());
 
 		const native_type *natA = a.as<native_type>();
 		const native_type *natB = b.as<native_type>();

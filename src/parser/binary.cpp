@@ -58,7 +58,15 @@ namespace FreeOCL
 		case parser::NE_OP:
 		case parser::AND_OP:
 		case parser::OR_OP:
-			p_type = native_type::get_int_for_dim(std::max(t0.as<native_type>()->get_dim(), t1.as<native_type>()->get_dim()));
+			{
+				int dim0 = 1;
+				int dim1 = 1;
+				if (t0.as<native_type>())
+					dim0 = t0.as<native_type>()->get_dim();
+				if (t1.as<native_type>())
+					dim1 = t1.as<native_type>()->get_dim();
+				p_type = native_type::get_int_for_dim(std::max(dim0, dim1));
+			}
 			break;
 
 		case '=':

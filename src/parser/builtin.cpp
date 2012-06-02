@@ -173,6 +173,55 @@ namespace FreeOCL
 		REGISTER(size_t, get_global_offset, 1);
 
 		// Math functions
+		REGISTER_VAR(int, FLT_DIG);
+		REGISTER_VAR(int, FLT_MANT_DIG);
+		REGISTER_VAR(int, FLT_MAX_10_EXP);
+		REGISTER_VAR(int, FLT_MAX_EXP);
+		REGISTER_VAR(int, FLT_MIN_10_EXP);
+		REGISTER_VAR(int, FLT_MIN_EXP);
+		REGISTER_VAR(int, FLT_RADIX);
+		REGISTER_VAR(float, FLT_MAX);
+		REGISTER_VAR(float, FLT_MIN);
+		REGISTER_VAR(float, FLT_EPSILON);
+
+		REGISTER_VAR(float, M_E_F);
+		REGISTER_VAR(float, M_LOG2E_F);
+		REGISTER_VAR(float, M_LOG10E_F);
+		REGISTER_VAR(float, M_LN2_F);
+		REGISTER_VAR(float, M_LN10_F);
+		REGISTER_VAR(float, M_PI_F);
+		REGISTER_VAR(float, M_PI_2_F);
+		REGISTER_VAR(float, M_PI_4_F);
+		REGISTER_VAR(float, M_1_PI_F);
+		REGISTER_VAR(float, M_2_PI_F);
+		REGISTER_VAR(float, M_2_SQRTPI_F);
+		REGISTER_VAR(float, M_SQRT2_F);
+		REGISTER_VAR(float, M_SQRT1_2_F);
+
+		REGISTER_VAR(int, DBL_DIG);
+		REGISTER_VAR(int, DBL_MANT_DIG);
+		REGISTER_VAR(int, DBL_MAX_10_EXP);
+		REGISTER_VAR(int, DBL_MAX_EXP);
+		REGISTER_VAR(int, DBL_MIN_10_EXP);
+		REGISTER_VAR(int, DBL_MIN_EXP);
+		REGISTER_VAR(double, DBL_MAX);
+		REGISTER_VAR(double, DBL_MIN);
+		REGISTER_VAR(double, DBL_EPSILON);
+
+		REGISTER_VAR(double, M_E);
+		REGISTER_VAR(double, M_LOG2E);
+		REGISTER_VAR(double, M_LOG10E);
+		REGISTER_VAR(double, M_LN2);
+		REGISTER_VAR(double, M_LN10);
+		REGISTER_VAR(double, M_PI);
+		REGISTER_VAR(double, M_PI_2);
+		REGISTER_VAR(double, M_PI_4);
+		REGISTER_VAR(double, M_1_PI);
+		REGISTER_VAR(double, M_2_PI);
+		REGISTER_VAR(double, M_2_SQRTPI);
+		REGISTER_VAR(double, M_SQRT2);
+		REGISTER_VAR(double, M_SQRT1_2);
+
 		REGISTER_OVERLOADED("gentype acos(gentype)", gentype_floats);
 		REGISTER_OVERLOADED("gentype acosh(gentype)", gentype_floats);
 		REGISTER_OVERLOADED("gentype acospi(gentype)", gentype_floats);
@@ -356,7 +405,7 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("event_t async_work_group_copy(__global gentype*,const __local gentype*,size_t,event_t)|event_t async_work_group_copy(__local gentype*,const __global gentype*,size_t,event_t)", gentype_all);
 		REGISTER_OVERLOADED("event_t async_work_group_strided_copy(__global gentype*,const __local gentype*,size_t,size_t,event_t)|event_t async_work_group_strided_copy(__local gentype*,const __global gentype*,size_t,size_t,event_t)", gentype_all);
 		REGISTER_OVERLOADED("void wait_group_events(int num_events,event_t*)", gentype_single);
-		REGISTER_OVERLOADED("void prefetch(const gentype*,size_t)", gentype_all);
+		REGISTER_OVERLOADED("void prefetch(const __global gentype*,size_t)", gentype_all);
 
 		// Atomic Functions
 		REGISTER_OVERLOADED("int atomic_add(__global int*,int)|uint atomic_add(__global uint*,uint)|int atomic_add(__local int*,int)|uint atomic_add(__local uint*,uint)", gentype_single);
@@ -533,6 +582,37 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("ulong16 as_ulong16(gentype)", gentype_size128);
 		REGISTER_OVERLOADED("float16 as_float16(gentype)", gentype_size64);
 		REGISTER_OVERLOADED("double16 as_double16(gentype)", gentype_size128);
+
+		// vector data load and store functions
+#define REGISTER_VLOAD_VSTOR(T,N)\
+		REGISTER_OVERLOADED(#T #N " vload"#N"(size_t, const __global "#T" *)", gentype_single);\
+		REGISTER_OVERLOADED(#T #N " vload"#N"(size_t, const __constant "#T" *)", gentype_single);\
+		REGISTER_OVERLOADED(#T #N " vload"#N"(size_t, const __local "#T" *)", gentype_single);\
+		REGISTER_OVERLOADED(#T #N " vload"#N"(size_t, const __private "#T" *)", gentype_single);\
+		REGISTER_OVERLOADED("void vstore"#N"("#T #N", size_t, __global "#T" *)", gentype_single);\
+		REGISTER_OVERLOADED("void vstore"#N"("#T #N", size_t, __local "#T" *)", gentype_single);\
+		REGISTER_OVERLOADED("void vstore"#N"("#T #N", size_t, __private "#T" *)", gentype_single)
+
+#define REGISTER_VLOAD_VSTOR_ALL(T)\
+		REGISTER_VLOAD_VSTOR(T, 2);\
+		REGISTER_VLOAD_VSTOR(T, 3);\
+		REGISTER_VLOAD_VSTOR(T, 4);\
+		REGISTER_VLOAD_VSTOR(T, 8);\
+		REGISTER_VLOAD_VSTOR(T, 16)
+
+		REGISTER_VLOAD_VSTOR_ALL(char);
+		REGISTER_VLOAD_VSTOR_ALL(uchar);
+		REGISTER_VLOAD_VSTOR_ALL(short);
+		REGISTER_VLOAD_VSTOR_ALL(ushort);
+		REGISTER_VLOAD_VSTOR_ALL(int);
+		REGISTER_VLOAD_VSTOR_ALL(uint);
+		REGISTER_VLOAD_VSTOR_ALL(long);
+		REGISTER_VLOAD_VSTOR_ALL(ulong);
+		REGISTER_VLOAD_VSTOR_ALL(float);
+		REGISTER_VLOAD_VSTOR_ALL(double);
+
+#undef REGISTER_VLOAD_VSTOR_ALL
+#undef REGISTER_VLOAD_VSTOR
 
 		// Conversion functions
 		// Default versions
