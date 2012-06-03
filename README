@@ -1,4 +1,4 @@
-FreeOCL is an implementation of the Open Computing Language 1.1 specifications targeting CPUs.
+FreeOCL is an implementation of the Open Computing Language 1.2 specifications targeting CPUs.
 Instead of using a built-in or dedicated compiler, it relies on an external C++ compiler.
 
 It aims to provide a debugging tool and a reliable platform which can run everywhere. 
