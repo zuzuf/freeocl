@@ -29,6 +29,10 @@
 #include "parser/pointer_type.h"
 #include "parser/native_type.h"
 #include "utils/string.h"
+#include "preprocessor/preprocessor.h"
+#include <fstream>
+#include <utility>
+#include <algorithm>
 
 namespace FreeOCL
 {
@@ -42,12 +46,13 @@ namespace FreeOCL
 	{
 		b_valid_options = true;
 
-		std::string macros;
+		std::vector<std::pair<std::string, std::string> > macros;
 		std::string compiler_extra_args;
 		if (b_compile_only)
 			compiler_extra_args += " -c";
 
 		std::stringstream coptions(options);
+		std::vector<std::string> include_paths;
 		while(coptions)
 		{
 			std::string word;
@@ -64,11 +69,19 @@ namespace FreeOCL
 					return std::string();
 				}
 				coptions >> word;
-				macros += " -D " + word;
+				const size_t eq = word.find('=');
+				if (eq == std::string::npos)
+					macros.push_back(std::make_pair(word, std::string()));
+				else
+					macros.push_back(std::make_pair(word.substr(0, eq), word.substr(eq + 1)));
 			}
 			else if (word.size() > 2 && word.substr(0, 2) == "-D")		//	macro
 			{
-				macros += ' ' + word;
+				const size_t eq = word.find('=');
+				if (eq == std::string::npos)
+					macros.push_back(std::make_pair(word.substr(2), std::string()));
+				else
+					macros.push_back(std::make_pair(word.substr(2, eq - 2), word.substr(eq + 1)));
 			}
 			else if (word == "-I")		//	include path
 			{
@@ -78,11 +91,11 @@ namespace FreeOCL
 					return std::string();
 				}
 				coptions >> word;
-				macros += " -I " + word;
+				include_paths.push_back(word);
 			}
 			else if (word.size() > 2 && word.substr(0, 2) == "-I")		//	include path
 			{
-				macros += ' ' + word;
+				include_paths.push_back(word.substr(2));
 			}
 			else if (word == "-cl-single-precision-constant")
 			{
@@ -112,7 +125,7 @@ namespace FreeOCL
 			}
 			else if (word == "-cl-fast-relaxed-math")
 			{
-				macros += " -D__FAST_RELAXED_MATH__=1";
+				macros.push_back(std::make_pair(std::string("__FAST_RELAXED_MATH__"), std::string("1")));
 				compiler_extra_args += " -ffast-math -D__FAST_RELAXED_MATH__=1";
 			}
 			else if (word == "-cl-kernel-arg-infos")
@@ -134,7 +147,11 @@ namespace FreeOCL
 			}
 		}
 
-		const std::string preprocessed_code = preprocess_code(code, macros, log);
+		const std::string preprocessed_code = preprocess_code(code,
+															  macros,
+															  log,
+															  include_paths,
+															  headers);
 
 		if (preprocessed_code.empty())
 			return std::string();
@@ -210,73 +227,90 @@ namespace FreeOCL
 		return filename_out;
 	}
 
-	std::string preprocess_code(const std::string &code, const std::string &options, std::stringstream &log)
+	std::string preprocess_code(const std::string &code,
+								const std::vector<std::pair<std::string, std::string> > &options,
+								std::stringstream &log,
+								const std::vector<std::string> &include_paths,
+								const map<std::string, std::string> &headers)
 	{
 		log << "preprocessor log:" << std::endl;
-		char buf[1024];		// Buffer for tmpnam (to make it thread safe)
-		int fd_in = -1;
-		int fd_out = -1;
-		std::string filename_in;
-		std::string filename_out;
-		std::string out;
 
-		// Open a unique temporary file to write the code
-		size_t n = 0;
-		while(fd_in == -1)
-		{
-			++n;
-			if (n > 0x10000)
-			{
-				log << "error: impossible to get a temporary file as preprocessor input" << std::endl;
-				return out;
-			}
-			filename_in = tmpnam(buf);
-			fd_in = open(filename_in.c_str(), O_EXCL | O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
-		}
+		std::stringstream _out;
+		preprocessor preproc(_out, log);
+		preproc.set_include_paths(include_paths);
+		preproc.set_headers(headers);
 
-		FILE *file_in = fdopen(fd_in, "w");
-		(void)fwrite(code.c_str(), 1, code.size(), file_in);
-		(void)fflush(file_in);
-
-		// Creates a unique temporary file to write the binary data
-		n = 0;
-		while(fd_out == -1)
-		{
-			++n;
-			if (n > 0x10000)
-			{
-				fclose(file_in);
-				remove(filename_in.c_str());
-				log << "error: impossible to get a temporary file as preprocessor output" << std::endl;
-				return out;
-			}
-			filename_out = tmpnam(buf);
-			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDWR, S_IWUSR | S_IRUSR | S_IXUSR);
-		}
-
-		std::stringstream cmd;
-		cmd << "cpp"
-			<< " -x c --std=c99"
-			<< " -D__OPENCL_VERSION__=120 -DCL_VERSION_1_0=100 -DCL_VERSION_1_1=110 -DCL_VERSION_1_2=120";
+		preproc.define("__OPENCL_VERSION__", "120");
+		preproc.define("CL_VERSION_1_0", "100");
+		preproc.define("CL_VERSION_1_1", "110");
+		preproc.define("CL_VERSION_1_2", "120");
 		if (device->endian_little)
-			cmd	<< " -D__ENDIAN_LITTLE__=1";
-		cmd	<< " -D__IMAGE_SUPPORT__=1"
-			<< ' ' << options
-			<< " -o " << filename_out
-			<< " " << filename_in
-			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
-		int ret = 0;
-		log << run_command(cmd.str(), &ret) << std::endl;
+			preproc.define("__ENDIAN_LITTLE__", "1");
+		preproc.define("__IMAGE_SUPPORT__", "1");
+		for(size_t i = 0 ; i < options.size() ; ++i)
+			preproc.define(options[i].first, options[i].second);
 
-		fclose(file_in);
-		// Remove the input file which is now useless
-		remove(filename_in.c_str());
+		// Add math defines
+		preproc.define("FLT_DIG", "6");
+		preproc.define("FLT_MANT_DIG", "24");
+		preproc.define("FLT_MAX_10_EXP", "38");
+		preproc.define("FLT_MAX_EXP", "128");
+		preproc.define("FLT_MIN_10_EXP", "-37");
+		preproc.define("FLT_MIN_EXP", "-125");
+		preproc.define("FLT_RADIX", "2");
+		preproc.define("FLT_MAX", "0x1.fffffep127f");
+		preproc.define("FLT_MIN", "0x1.0p-126f");
+		preproc.define("FLT_EPSILON", "0x1.0p-23f");
 
-		if (ret == 0)
-			out = run_command("cat " + filename_out);
-		close(fd_out);
-		remove(filename_out.c_str());
-		return out;
+		preproc.define("M_E_F", "2.7182818284590452354f");
+		preproc.define("M_LOG2E_F", "1.4426950408889634074f");
+		preproc.define("M_LOG10E_F", "0.43429448190325182765f");
+		preproc.define("M_LN2_F", "0.69314718055994530942f");
+		preproc.define("M_LN10_F", "2.30258509299404568402f");
+		preproc.define("M_PI_F", "3.14159265358979323846f");
+		preproc.define("M_PI_2_F", "1.57079632679489661923f");
+		preproc.define("M_PI_4_F", "0.78539816339744830962f");
+		preproc.define("M_1_PI_F", "0.31830988618379067154f");
+		preproc.define("M_2_PI_F", "0.63661977236758134308f");
+		preproc.define("M_2_SQRTPI_F", "1.12837916709551257390f");
+		preproc.define("M_SQRT2_F", "1.41421356237309504880f");
+		preproc.define("M_SQRT1_2_F", "0.70710678118654752440f");
+
+		preproc.define("DBL_DIG", "15");
+		preproc.define("DBL_MANT_DIG", "53");
+		preproc.define("DBL_MAX_10_EXP", "308");
+		preproc.define("DBL_MAX_EXP", "1024");
+		preproc.define("DBL_MIN_10_EXP", "-307");
+		preproc.define("DBL_MIN_EXP", "-1021");
+		preproc.define("DBL_MAX", "0x1.fffffffffffffp1023f");
+		preproc.define("DBL_MIN", "0x1.0p-1022f");
+		preproc.define("DBL_EPSILON", "0x1.0p-52");
+
+		preproc.define("M_E", "2.7182818284590452354");
+		preproc.define("M_LOG2E", "1.4426950408889634074");
+		preproc.define("M_LOG10E", "0.43429448190325182765");
+		preproc.define("M_LN2", "0.69314718055994530942");
+		preproc.define("M_LN10", "2.30258509299404568402");
+		preproc.define("M_PI", "3.14159265358979323846");
+		preproc.define("M_PI_2", "1.57079632679489661923");
+		preproc.define("M_PI_4", "0.78539816339744830962");
+		preproc.define("M_1_PI", "0.31830988618379067154");
+		preproc.define("M_2_PI", "0.63661977236758134308");
+		preproc.define("M_2_SQRTPI", "1.12837916709551257390");
+		preproc.define("M_SQRT2", "1.41421356237309504880");
+		preproc.define("M_SQRT1_2", "0.70710678118654752440");
+
+		std::stringstream _code(preprocessor::fix_end_of_lines(code));
+		try
+		{
+			preproc.parse(_code);
+		}
+		catch(const std::string &msg)
+		{
+			return std::string();
+		}
+
+		return _out.str();
 	}
 
 	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels)

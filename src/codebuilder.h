@@ -39,7 +39,11 @@ namespace FreeOCL
 							  const FreeOCL::map<std::string, std::string> &headers = FreeOCL::map<std::string, std::string>());
 
 	// Return the output of the C preprocessor on the parameter 'code'
-	std::string preprocess_code(const std::string &code, const std::string &options, std::stringstream &log);
+	std::string preprocess_code(const std::string &code,
+								const std::vector<std::pair<std::string, std::string> > &options,
+								std::stringstream &log,
+								const std::vector<std::string> &include_paths,
+								const map<std::string, std::string> &headers);
 
 	// Validate the code and does the OpenCL C -> C++ conversion
 	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels);

@@ -173,55 +173,6 @@ namespace FreeOCL
 		REGISTER(size_t, get_global_offset, 1);
 
 		// Math functions
-		REGISTER_VAR(int, FLT_DIG);
-		REGISTER_VAR(int, FLT_MANT_DIG);
-		REGISTER_VAR(int, FLT_MAX_10_EXP);
-		REGISTER_VAR(int, FLT_MAX_EXP);
-		REGISTER_VAR(int, FLT_MIN_10_EXP);
-		REGISTER_VAR(int, FLT_MIN_EXP);
-		REGISTER_VAR(int, FLT_RADIX);
-		REGISTER_VAR(float, FLT_MAX);
-		REGISTER_VAR(float, FLT_MIN);
-		REGISTER_VAR(float, FLT_EPSILON);
-
-		REGISTER_VAR(float, M_E_F);
-		REGISTER_VAR(float, M_LOG2E_F);
-		REGISTER_VAR(float, M_LOG10E_F);
-		REGISTER_VAR(float, M_LN2_F);
-		REGISTER_VAR(float, M_LN10_F);
-		REGISTER_VAR(float, M_PI_F);
-		REGISTER_VAR(float, M_PI_2_F);
-		REGISTER_VAR(float, M_PI_4_F);
-		REGISTER_VAR(float, M_1_PI_F);
-		REGISTER_VAR(float, M_2_PI_F);
-		REGISTER_VAR(float, M_2_SQRTPI_F);
-		REGISTER_VAR(float, M_SQRT2_F);
-		REGISTER_VAR(float, M_SQRT1_2_F);
-
-		REGISTER_VAR(int, DBL_DIG);
-		REGISTER_VAR(int, DBL_MANT_DIG);
-		REGISTER_VAR(int, DBL_MAX_10_EXP);
-		REGISTER_VAR(int, DBL_MAX_EXP);
-		REGISTER_VAR(int, DBL_MIN_10_EXP);
-		REGISTER_VAR(int, DBL_MIN_EXP);
-		REGISTER_VAR(double, DBL_MAX);
-		REGISTER_VAR(double, DBL_MIN);
-		REGISTER_VAR(double, DBL_EPSILON);
-
-		REGISTER_VAR(double, M_E);
-		REGISTER_VAR(double, M_LOG2E);
-		REGISTER_VAR(double, M_LOG10E);
-		REGISTER_VAR(double, M_LN2);
-		REGISTER_VAR(double, M_LN10);
-		REGISTER_VAR(double, M_PI);
-		REGISTER_VAR(double, M_PI_2);
-		REGISTER_VAR(double, M_PI_4);
-		REGISTER_VAR(double, M_1_PI);
-		REGISTER_VAR(double, M_2_PI);
-		REGISTER_VAR(double, M_2_SQRTPI);
-		REGISTER_VAR(double, M_SQRT2);
-		REGISTER_VAR(double, M_SQRT1_2);
-
 		REGISTER_OVERLOADED("gentype acos(gentype)", gentype_floats);
 		REGISTER_OVERLOADED("gentype acosh(gentype)", gentype_floats);
 		REGISTER_OVERLOADED("gentype acospi(gentype)", gentype_floats);

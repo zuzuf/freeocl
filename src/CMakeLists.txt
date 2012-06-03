@@ -40,6 +40,13 @@ set(PARSER_SOURCES
 	parser/sizeof.h			parser/sizeof.cpp
 	)
 
+set(PREPROCESSOR_SOURCES
+    preprocessor/preprocessor.cpp   preprocessor/preprocessor.h
+    preprocessor/tokenizer.cpp
+    preprocessor/expression.cpp
+    preprocessor/macro_expansion.cpp
+    )
+
 set(UTILS_SOURCES
     utils/map.h
     utils/set.h
@@ -98,7 +105,7 @@ set(FREEOCL_HEADERS
     ../include/FreeOCL/simdopts.h
     )
 
-add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS})
+add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS} ${PREPROCESSOR_SOURCES})
 target_link_libraries(FreeOCL)
 
 # Installation and packaging process

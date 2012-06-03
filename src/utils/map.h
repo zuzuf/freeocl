@@ -23,6 +23,7 @@
 #include "hash.h"
 #else
 #include <map>
+typedef unsigned int	uint32_t;
 #endif
 
 namespace FreeOCL
