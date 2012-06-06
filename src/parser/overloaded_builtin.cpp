@@ -23,6 +23,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <utils/set.h>
+#include <utils/string.h>
 
 using namespace std;
 
@@ -140,8 +141,32 @@ namespace FreeOCL
 			const native_type _gentype((native_type::type_id)gentype, false, native_type::PRIVATE);
 			std::string uname = _gentype.get_name();
 			std::string iname = _gentype.get_name();
-			if (_gentype.is_signed() && m_types.count('u' + uname))	uname = 'u' + uname;
-			if (!_gentype.is_signed() && m_types.count(uname.substr(1)))	uname = uname.substr(1);
+			if (_gentype.is_float())
+			{
+				iname = "int";
+				if (_gentype.get_dim() > 1)
+					iname += to_string(_gentype.get_dim());
+				uname = 'u' + iname;
+			}
+			else if (_gentype.is_double())
+			{
+				iname = "long";
+				if (_gentype.get_dim() > 1)
+					iname += to_string(_gentype.get_dim());
+				uname = 'u' + iname;
+			}
+			else if (_gentype.is_half())
+			{
+				iname = "short";
+				if (_gentype.get_dim() > 1)
+					iname += to_string(_gentype.get_dim());
+				uname = 'u' + iname;
+			}
+			else
+			{
+				if (_gentype.is_signed() && m_types.count('u' + uname))	uname = 'u' + uname;
+				if (!_gentype.is_signed() && m_types.count(uname.substr(1)))	uname = uname.substr(1);
+			}
 
 			const int n = native_type::get_dim_for(gentype);
 			bool b_pointer = false;

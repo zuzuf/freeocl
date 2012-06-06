@@ -138,6 +138,8 @@ namespace FreeOCL
 		static smartptr<type> t_float16;
 		static smartptr<type> t_double16;
 		static smartptr<type> get_int_for_dim(int dim);
+		static smartptr<type> get_long_for_dim(int dim);
+		static smartptr<type> get_short_for_dim(int dim);
 
 		static size_t get_dim_for(int id);
 		static smartptr<type> make_vector_type(int base, int dim);

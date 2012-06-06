@@ -486,6 +486,48 @@ namespace FreeOCL
 		}
 	}
 
+	smartptr<type> native_type::get_long_for_dim(int dim)
+	{
+		switch(dim)
+		{
+		case 1:
+			return t_long;
+		case 2:
+			return t_long2;
+		case 3:
+			return t_long3;
+		case 4:
+			return t_long4;
+		case 8:
+			return t_long8;
+		case 16:
+			return t_long16;
+		default:
+			return t_long;
+		}
+	}
+
+	smartptr<type> native_type::get_short_for_dim(int dim)
+	{
+		switch(dim)
+		{
+		case 1:
+			return t_short;
+		case 2:
+			return t_short2;
+		case 3:
+			return t_short3;
+		case 4:
+			return t_short4;
+		case 8:
+			return t_short8;
+		case 16:
+			return t_short16;
+		default:
+			return t_short;
+		}
+	}
+
 	smartptr<type> native_type::make_vector_type(int base, int dim)
 	{
 #define IMPL(t)\

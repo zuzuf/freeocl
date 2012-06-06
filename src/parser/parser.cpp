@@ -1002,7 +1002,7 @@ namespace FreeOCL
 			const smartptr<chunk> var_list = N[1].as<chunk>();
 			for(size_t i = 0 ; i < var_list->size() ; ++i)
 			{
-				const smartptr<chunk> declarator = (*var_list)[i].as<chunk>();
+				smartptr<chunk> declarator = (*var_list)[i].as<chunk>();
 				smartptr<type> l_type;
 				smartptr<token> name;
 				if (declarator->front().as<pointer_type>())
@@ -1012,25 +1012,29 @@ namespace FreeOCL
 					l_type = ptr;
 
 					name = declarator->back().as<chunk>()->front().as<token>();
+					declarator = declarator->back();
 				}
 				else
 				{
 					l_type = p_type;
 					name = declarator->front().as<token>();
 				}
-				smartptr<chunk> back = declarator->back().as<chunk>();
-				if (back)
+				for(size_t i = 1 ; i < declarator->size() ; ++i)
 				{
-					const type::address_space addr_space = l_type->get_address_space();
-					if (back->size() > 0 && !back->front().as<chunk>())
-						back = new chunk(back);
-					for(size_t i = 0 ; i < back->size() ; ++i)
+					smartptr<chunk> cur = declarator->at(i).as<chunk>();
+					if (cur)
 					{
-						const smartptr<chunk> ch = (*back)[i].as<chunk>();
-						if (!ch)
-							continue;
-						if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
-							l_type = new array_type(l_type->clone(l_type->is_const(), addr_space), false, type::PRIVATE, ch->at(1).as<generic_value>()->get_as_uint());
+						const type::address_space addr_space = l_type->get_address_space();
+						if (cur->size() > 0 && !cur->front().as<chunk>())
+							cur = new chunk(cur);
+						for(size_t i = 0 ; i < cur->size() ; ++i)
+						{
+							const smartptr<chunk> ch = (*cur)[i].as<chunk>();
+							if (!ch)
+								continue;
+							if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
+								l_type = new array_type(l_type->clone(l_type->is_const(), addr_space), false, type::PRIVATE, ch->at(1).as<generic_value>()->get_as_uint());
+						}
 					}
 				}
 				members->push_back(new chunk(l_type, name));
@@ -1418,6 +1422,8 @@ namespace FreeOCL
 			{
 				if (N[0].as<token>()->get_id() == '&' && N[1].as<swizzle>())
 					ERROR("taking address of vector component is not allowed");
+				if (N[0].as<token>()->get_id() == '*' && !N[1].as<expression>()->get_type().as<pointer_type>())
+					ERROR("invalid type argument of unary '*' (" + N[1].as<expression>()->get_type()->get_name() + ')');
 				d_val__ = new unary(N[0].as<token>()->get_id(), N[1]);
 				return 1;
 			}
@@ -1667,7 +1673,9 @@ namespace FreeOCL
 					break;
 				case '[':
 					if (!exp.as<expression>()->get_type().as<pointer_type>())
+					{
 						ERROR("pointer or array type expected!");
+					}
 					exp = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
 					break;
 				case '(':
