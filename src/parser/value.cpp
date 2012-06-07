@@ -59,7 +59,25 @@ namespace FreeOCL
 	{
 		std::scientific(out);
 		out.precision(9);
-		out << v << 'f' << ' ';
+		out << v << "f ";
+	}
+
+	template<>
+	void value<uint32_t>::write(std::ostream& out) const
+	{
+		out << v << "U ";
+	}
+
+	template<>
+	void value<uint64_t>::write(std::ostream& out) const
+	{
+		out << v << "LU ";
+	}
+
+	template<>
+	void value<int64_t>::write(std::ostream& out) const
+	{
+		out << v << "L ";
 	}
 
 	template<>

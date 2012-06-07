@@ -61,7 +61,7 @@ namespace FreeOCL
 		void error(const std::string &msg);	// called on (syntax) errors
 		void warning(const std::string &msg);	// called on warnings
 
-		std::string macro_expansion(std::string text, const set<std::string> &forbidden = set<std::string>());
+		std::string macro_expansion(std::string text, const set<std::string> &forbidden = set<std::string>(), const bool b_defined_rule = false);
 		std::string parameters_substitution(const std::string &s,
 											const std::vector<std::string> &names,
 											const std::vector<std::string> &values);
@@ -69,6 +69,7 @@ namespace FreeOCL
 		// support functions for parse()
 		int get();
 		int peek();
+		void putback(char c);
 
 		std::string get_line();
 		std::string get_word();

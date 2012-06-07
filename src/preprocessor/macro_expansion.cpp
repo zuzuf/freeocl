@@ -20,7 +20,7 @@
 
 namespace FreeOCL
 {
-	std::string preprocessor::macro_expansion(std::string text, const set<std::string> &forbidden)
+	std::string preprocessor::macro_expansion(std::string text, const set<std::string> &forbidden, const bool b_defined_rule)
 	{
 		set<std::string> processed_macros(forbidden);
 		bool b_can_leave;
@@ -29,6 +29,7 @@ namespace FreeOCL
 		{
 			ret.clear();
 			b_can_leave = true;
+			bool b_last_was_defined = false;
 			set<std::string> processed_during_last_step;
 			for(size_t i = 0 ; i < text.size() ; ++i)
 			{
@@ -39,7 +40,8 @@ namespace FreeOCL
 					for(; i < text.size() && (isalnum(text[i]) || text[i] == '_') ; ++i)
 						word += text[i];
 					--i;
-					if (macros.count(word) && processed_macros.count(word) == 0)
+					if (macros.count(word) && processed_macros.count(word) == 0
+							&& (!b_last_was_defined || !b_defined_rule))
 					{
 						const macro &m = macros[word];
 						processed_during_last_step.insert(word);
@@ -102,7 +104,10 @@ namespace FreeOCL
 						b_can_leave = false;
 					}
 					else
+					{
 						ret += word;
+						b_last_was_defined = (word == "defined");
+					}
 				}
 				else
 					ret += c;

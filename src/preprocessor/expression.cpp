@@ -55,13 +55,17 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1, v2;
-		MATCH(eval_logical_or_expression(&v0) && eval_token(TER_0) && eval_expression(&v1) && eval_token(TER_1) && eval_conditional_expression(&v2))
+		MATCH(eval_logical_or_expression(&v0))
 		{
-			*v = v0 ? v1 : v2;
+			_token_id = token_id;
+			MATCH(eval_token(TER_0) && eval_expression(&v1) && eval_token(TER_1) && eval_conditional_expression(&v2))
+			{
+				*v = v0 ? v1 : v2;
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-
-		RULE(eval_logical_or_expression(v));
 		END();
 	}
 
@@ -69,12 +73,17 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_logical_and_expression(&v0) && eval_token(LOR_OP) && eval_logical_or_expression(&v1))
+		MATCH(eval_logical_and_expression(&v0))
 		{
-			*v = v0 || v1;
+			_token_id = token_id;
+			MATCH(eval_token(LOR_OP) && eval_logical_or_expression(&v1))
+			{
+				*v = v0 || v1;
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		RULE (eval_logical_and_expression(v));
 		END();
 	}
 
@@ -82,12 +91,17 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_or_expression(&v0) && eval_token(LAND_OP) && eval_logical_and_expression(&v1))
+		MATCH(eval_or_expression(&v0))
 		{
-			*v = v0 && v1;
+			_token_id = token_id;
+			MATCH(eval_token(LAND_OP) && eval_logical_and_expression(&v1))
+			{
+				*v = v0 && v1;
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		RULE (eval_or_expression(v));
 		END();
 	}
 
@@ -95,12 +109,17 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_xor_expression(&v0) && eval_token(OR_OP) && eval_or_expression(&v1))
+		MATCH(eval_xor_expression(&v0))
 		{
-			*v = v0 | v1;
+			_token_id = token_id;
+			MATCH(eval_token(OR_OP) && eval_or_expression(&v1))
+			{
+				*v = v0 | v1;
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		RULE (eval_xor_expression(v));
 		END();
 	}
 
@@ -108,12 +127,17 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_and_expression(&v0) && eval_token(XOR_OP) && eval_xor_expression(&v1))
+		MATCH(eval_and_expression(&v0))
 		{
-			*v = v0 ^ v1;
+			_token_id = token_id;
+			MATCH(eval_token(XOR_OP) && eval_xor_expression(&v1))
+			{
+				*v = v0 ^ v1;
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		RULE (eval_and_expression(v));
 		END();
 	}
 
@@ -121,12 +145,17 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_equality_expression(&v0) && eval_token(AND_OP) && eval_and_expression(&v1))
+		MATCH(eval_equality_expression(&v0))
 		{
-			*v = v0 & v1;
+			_token_id = token_id;
+			MATCH(eval_token(AND_OP) && eval_and_expression(&v1))
+			{
+				*v = v0 & v1;
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		RULE (eval_equality_expression(v));
 		END();
 	}
 
@@ -134,17 +163,22 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_relational_expression(&v0) && eval_token(EQ_OP) && eval_equality_expression(&v1))
+		MATCH(eval_relational_expression(&v0))
 		{
-			*v = (v0 == v1);
+			_token_id = token_id;
+			MATCH(eval_token(EQ_OP) && eval_equality_expression(&v1))
+			{
+				*v = (v0 == v1);
+				return true;
+			}
+			MATCH(eval_token(NE_OP) && eval_equality_expression(&v1))
+			{
+				*v = (v0 != v1);
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		MATCH(eval_relational_expression(&v0) && eval_token(NE_OP) && eval_equality_expression(&v1))
-		{
-			*v = (v0 != v1);
-			return true;
-		}
-		RULE (eval_relational_expression(v));
 		END();
 	}
 
@@ -152,27 +186,32 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_shift_expression(&v0) && eval_token(L_OP) && eval_relational_expression(&v1))
+		MATCH(eval_shift_expression(&v0))
 		{
-			*v = (v0 < v1);
+			_token_id = token_id;
+			MATCH(eval_token(L_OP) && eval_relational_expression(&v1))
+			{
+				*v = (v0 < v1);
+				return true;
+			}
+			MATCH(eval_token(G_OP) && eval_relational_expression(&v1))
+			{
+				*v = (v0 > v1);
+				return true;
+			}
+			MATCH(eval_token(LE_OP) && eval_relational_expression(&v1))
+			{
+				*v = (v0 <= v1);
+				return true;
+			}
+			MATCH(eval_token(GE_OP) && eval_relational_expression(&v1))
+			{
+				*v = (v0 >= v1);
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		MATCH(eval_shift_expression(&v0) && eval_token(G_OP) && eval_relational_expression(&v1))
-		{
-			*v = (v0 > v1);
-			return true;
-		}
-		MATCH(eval_shift_expression(&v0) && eval_token(LE_OP) && eval_relational_expression(&v1))
-		{
-			*v = (v0 <= v1);
-			return true;
-		}
-		MATCH(eval_shift_expression(&v0) && eval_token(GE_OP) && eval_relational_expression(&v1))
-		{
-			*v = (v0 >= v1);
-			return true;
-		}
-		RULE (eval_shift_expression(v));
 		END();
 	}
 
@@ -180,17 +219,22 @@ namespace FreeOCL
 	{
 		BEGIN();
 		int v0, v1;
-		MATCH(eval_additive_expression(&v0) && eval_token(LEFT_OP) && eval_shift_expression(&v1))
+		MATCH(eval_additive_expression(&v0))
 		{
-			*v = (v0 << v1);
+			_token_id = token_id;
+			MATCH(eval_token(LEFT_OP) && eval_shift_expression(&v1))
+			{
+				*v = (v0 << v1);
+				return true;
+			}
+			MATCH(eval_token(RIGHT_OP) && eval_shift_expression(&v1))
+			{
+				*v = (v0 >> v1);
+				return true;
+			}
+			*v = v0;
 			return true;
 		}
-		MATCH(eval_additive_expression(&v0) && eval_token(RIGHT_OP) && eval_shift_expression(&v1))
-		{
-			*v = (v0 >> v1);
-			return true;
-		}
-		RULE (eval_additive_expression(v));
 		END();
 	}
 
@@ -260,6 +304,7 @@ namespace FreeOCL
 			*v = -*v;
 			return true;
 		}
+		RULE(eval_token(ADD_OP) && eval_primary_expression(v));
 		MATCH (eval_token(NOT_OP) && eval_primary_expression(v))
 		{
 			*v = ~*v;
@@ -278,10 +323,21 @@ namespace FreeOCL
 	{
 		BEGIN();
 		RULE (eval_token(LP) && eval_expression(v) && eval_token(RP));
-		MATCH (eval_token(DEFINED) && eval_identifier(v))
+		MATCH (eval_token(DEFINED))
 		{
-			*v = macros.count(identifiers[*v]) > 0 ? 1 : 0;
-			return true;
+			_token_id = token_id;
+			MATCH (eval_identifier(v))
+			{
+				*v = macros.count(identifiers[*v]) > 0 ? 1 : 0;
+				return true;
+			}
+			MATCH (eval_token(LP) && eval_identifier(v) && eval_token(RP))
+			{
+				*v = macros.count(identifiers[*v]) > 0 ? 1 : 0;
+				return true;
+			}
+			error("macro name expected after 'defined'");
+			return false;
 		}
 		RULE (eval_constant(v));
 		END();

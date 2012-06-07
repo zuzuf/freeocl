@@ -114,7 +114,7 @@ lex_start:
 			return STRING_LITERAL;
 		}
 
-		int i = 0;
+		long long i = 0;
 		int base = 10;
 		bool b_integer_parsed = false;
 		if (isdigit(c))		// integer or float
@@ -146,7 +146,19 @@ lex_start:
 				i = i * base + (isdigit(c) ? c - '0' : (isupper(c) ? c - 'A' : c - 'a') + 10);
 			if (c == 'U' || c == 'u')
 			{
-				d_val__ = new value<uint32_t>(i);
+				c = peek();
+				if (c == 'l' || c == 'L')
+				{
+					get();
+					d_val__ = new value<uint64_t>(i);
+				}
+				else
+					d_val__ = new value<uint32_t>(i);
+				return CONSTANT;
+			}
+			else if (c == 'L' || c == 'l')
+			{
+				d_val__ = new value<int64_t>(i);
 				return CONSTANT;
 			}
 			else if (!in || (c != '.' && c != 'e' && c != 'E'))

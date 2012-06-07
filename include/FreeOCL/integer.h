@@ -55,7 +55,9 @@ inline int mad_sat(int a, int b, int c)
 {	return int(clamp(long(a) * long(b) + long(c), (long)-0x80000000, (long)0x7FFFFFFF));	}
 
 inline int max(int x, int y)	{	return x > y ? x : y;	}
+inline uint max(uint x, uint y)	{	return x > y ? x : y;	}
 inline int min(int x, int y)	{	return x < y ? x : y;	}
+inline uint min(uint x, uint y)	{	return x < y ? x : y;	}
 inline int mul_hi(int x, int y)	{	return int((long long)(x) * (long long)(y) >> 32);	}
 inline int rotate(int v, int i)	{	return (v << i) | (v >> (32 - i));	}
 
@@ -68,7 +70,9 @@ inline long min(long, long);
 inline long clamp(long x, long minval, long maxval)	{	return min(max(x, minval), maxval);	}
 
 inline long max(long x, long y)	{	return x > y ? x : y;	}
+inline ulong max(ulong x, ulong y)	{	return x > y ? x : y;	}
 inline long min(long x, long y)	{	return x < y ? x : y;	}
+inline ulong min(ulong x, ulong y)	{	return x < y ? x : y;	}
 
 // upsample functions
 inline short upsample(char hi, uchar lo)	{	return ((short)hi << 8) | lo;	}

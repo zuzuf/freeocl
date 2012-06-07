@@ -21,6 +21,7 @@
 #include <fstream>
 #include <utils/string.h>
 #include <ctime>
+#include <deque>
 
 namespace FreeOCL
 {
@@ -125,6 +126,8 @@ namespace FreeOCL
 						{
 							skip_whitespaces();
 							const std::string &macro_name = get_word();
+							if (macro_name == "defined")
+								error("'defined' cannot be used as macro name");
 							macro m;
 							if (peek() == '(')
 							{
@@ -158,7 +161,7 @@ namespace FreeOCL
 						else if (word == "if")
 						{
 							skip_whitespaces();
-							int v = eval(macro_expansion(get_line()));
+							int v = eval(macro_expansion(get_line(), set<std::string>(), true));
 							if (!v)
 							{
 								if_level_state.push_back(0);
@@ -180,7 +183,7 @@ namespace FreeOCL
 								continue;
 							}
 							skip_whitespaces();
-							int v = eval(macro_expansion(get_line()));
+							int v = eval(macro_expansion(get_line(), set<std::string>(), true));
 							if (!v)
 							{
 								word = skip_bloc();
@@ -474,23 +477,54 @@ namespace FreeOCL
 	{
 #define RED		"\033[31;1m"
 #define WHITE	"\033[29;1m"
+#define GREY	"\033[30;1m"
 #define BLUE	"\033[34;1m"
+#define YELLOW	"\033[33;1m"
+#define GREEN	"\033[32;1m"
 #define NORMAL	"\033[0m"
-
+		const size_t pos = current_line.size();
+		while(peek() != -1 && peek() != '\n')	get();
+		if (!current_line.empty() && *current_line.rbegin() != '\n')
+			current_line += '\n';
+		std::stringstream tmp;
+		tmp << line;
+		const std::string shift = std::string(8 + tmp.tellp() + current_file.size(), ' ');
 		err << std::endl
-			<< RED << "error " << NORMAL << WHITE << current_file << ":" << line << ": " << BLUE << msg << NORMAL << std::endl;
+			<< RED << "error " << NORMAL << WHITE << current_file << ":" << line << ": " << NORMAL << current_line
+			<< shift << std::string(pos, ' ') << YELLOW << '^' << NORMAL << std::endl
+			<< shift << ' ' << BLUE << msg << NORMAL << std::endl;
 		b_errors = true;
-
 		throw msg;
 	}
 
-	void preprocessor::warning(const std::string &msg)	// called on warnings
+	void preprocessor::warning(const std::string &msg)
 	{
+		const std::string old_line = current_line;
+		const size_t pos = current_line.size();
+		std::deque<char> chars;
+		while(peek() != -1 && peek() != '\n')
+			chars.push_back(get());
+		while(!chars.empty())
+		{
+			putback(chars.back());
+			chars.pop_back();
+		}
+		if (!current_line.empty() && *current_line.rbegin() != '\n')
+			current_line += '\n';
+		std::stringstream tmp;
+		tmp << line;
+		const std::string shift = std::string(10 + tmp.tellp() + current_file.size(), ' ');
 		err << std::endl
-			<< BLUE << "warning " << NORMAL << WHITE << current_file << ":" << line << ": " << BLUE << msg << NORMAL << std::endl;
+				<< BLUE << "warning " << NORMAL << WHITE << current_file << ":" << line << ": " << NORMAL << current_line
+				<< shift << std::string(pos, ' ') << YELLOW << '^' << NORMAL << std::endl
+				<< shift << ' ' << BLUE << msg << NORMAL << std::endl;
+		current_line = old_line;
 #undef RED
 #undef WHITE
+#undef GREY
 #undef BLUE
+#undef YELLOW
+#undef GREEN
 #undef NORMAL
 	}
 
@@ -506,6 +540,10 @@ namespace FreeOCL
 			macros["__LINE__"].value = to_string(line);
 			macros["__LINE__"].params.clear();
 		}
+		if (!current_line.empty() && *current_line.rbegin() == '\n')
+			current_line.clear();
+		if (ret != -1)
+			current_line += char(ret);
 		return ret;
 	}
 
@@ -515,6 +553,14 @@ namespace FreeOCL
 			return -1;
 		return in.back()->peek();
 	}
+
+	void preprocessor::putback(char c)
+	{
+		if (in.empty())
+			return;
+		in.back()->putback(c);
+	}
+
 
 	void preprocessor::define(const std::string &name, const std::string &value)
 	{

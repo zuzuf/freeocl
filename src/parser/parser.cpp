@@ -180,8 +180,26 @@ namespace FreeOCL
 				{
 					const smartptr<chunk> cur = (*args)[i].as<chunk>();
 					smartptr<type> p_type = cur->front().as<type>();
+					std::string name;
 					if (cur->back().as<chunk>())
 					{
+						smartptr<node> front = cur->back().as<chunk>()->front();
+						if (front.as<token>())
+							name = cur->back().as<chunk>()->front().as<token>()->get_string();
+						else if (front.as<chunk>())
+						{
+							smartptr<chunk> ch = front.as<chunk>();
+							if (ch->at(1).as<token>())
+								name = ch->at(1).as<token>()->get_string();
+							else if (ch->at(1).as<chunk>())
+							{
+								ch = ch->at(1).as<chunk>();
+								smartptr<pointer_type> ptr = ch->front().as<pointer_type>()->clone();
+								ptr->set_root_type(p_type);
+								p_type = ptr;
+								name = ch->at(1).as<chunk>()->front().as<token>()->get_string();
+							}
+						}
 						smartptr<chunk> back = cur->back().as<chunk>()->back().as<chunk>();
 						if (back)
 						{
@@ -198,9 +216,8 @@ namespace FreeOCL
 							}
 						}
 					}
-					std::string name = cur->back().as<token>()
-									   ? cur->back().as<token>()->get_string()
-									   : cur->back().as<chunk>()->front().as<token>()->get_string();
+					else if (cur->back().as<token>())
+						name = cur->back().as<token>()->get_string();
 					symbols->insert(name, new var(name, p_type));
 				}
 			}
@@ -384,7 +401,7 @@ namespace FreeOCL
 						if (!p_chunk)
 							continue;
 						if (p_chunk->front().as<token>()->get_id() == '[')
-							l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<generic_value>()->get_as_uint());
+							l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<expression>()->eval_as_uint());
 					}
 				}
 				else
@@ -647,8 +664,56 @@ namespace FreeOCL
 		case IMAGE3D_T:	d_val__ = new native_type(native_type::IMAGE3D_T, false, type::PRIVATE);	return 1;
 		case EVENT_T:	d_val__ = new native_type(native_type::EVENT_T, false, type::PRIVATE);	return 1;
 
-		case SIGNED:	return 1;
-		case UNSIGNED:	return 1;
+		case SIGNED:
+			switch (peek_token())
+			{
+			case CHAR:
+				read_token();
+				d_val__ = new native_type(native_type::CHAR, false, type::PRIVATE);
+				return 1;
+			case SHORT:
+				read_token();
+				d_val__ = new native_type(native_type::SHORT, false, type::PRIVATE);
+				return 1;
+			case INT:
+				read_token();
+				d_val__ = new native_type(native_type::INT, false, type::PRIVATE);
+				return 1;
+			case LONG:
+				read_token();
+				d_val__ = new native_type(native_type::LONG, false, type::PRIVATE);
+				return 1;
+			default:
+				d_val__ = new native_type(native_type::INT, false, type::PRIVATE);
+				return 1;
+			}
+			break;
+
+		case UNSIGNED:
+			switch (peek_token())
+			{
+			case CHAR:
+				read_token();
+				d_val__ = new native_type(native_type::UCHAR, false, type::PRIVATE);
+				return 1;
+			case SHORT:
+				read_token();
+				d_val__ = new native_type(native_type::USHORT, false, type::PRIVATE);
+				return 1;
+			case INT:
+				read_token();
+				d_val__ = new native_type(native_type::UINT, false, type::PRIVATE);
+				return 1;
+			case LONG:
+				read_token();
+				d_val__ = new native_type(native_type::ULONG, false, type::PRIVATE);
+				return 1;
+			default:
+				d_val__ = new native_type(native_type::UINT, false, type::PRIVATE);
+				return 1;
+			}
+			break;
+
 		case TYPE_NAME:	return 1;
 		default:
 			roll_back();
@@ -1033,7 +1098,7 @@ namespace FreeOCL
 							if (!ch)
 								continue;
 							if (ch->front().as<token>() && ch->front().as<token>()->get_id() == '[')
-								l_type = new array_type(l_type->clone(l_type->is_const(), addr_space), false, type::PRIVATE, ch->at(1).as<generic_value>()->get_as_uint());
+								l_type = new array_type(l_type->clone(l_type->is_const(), addr_space), false, type::PRIVATE, ch->at(1).as<expression>()->eval_as_uint());
 						}
 					}
 				}
