@@ -36,4 +36,11 @@ namespace FreeOCL
 			return (' ' + base_type->prefix()) + " const";
 		return base_type->prefix();
 	}
+
+	std::string array_type::complete_name() const
+	{
+		if (base_type.as<array_type>())
+			return base_type.as<array_type>()->complete_name() + '[' + to_string(size) + ']';
+		return base_type->get_name() + '[' + to_string(size) + ']';
+	}
 }

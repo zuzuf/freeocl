@@ -20,23 +20,30 @@
 // Built-in vector load and store functions
 // vloadn
 template<typename S>
-inline typename __vector_type<S, 2>::type vload2(size_t offset, const S *p)
+inline const typename __vector_type<S, 2>::type &vload2(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 2>::type*)(p + offset * 2));	}
 
 template<typename S>
 inline typename __vector_type<S, 3>::type vload3(size_t offset, const S *p)
-{	return *((typename __vector_type<S, 3>::type*)(p + offset * 3));	}
+{
+	typename __vector_type<S, 3>::type ret;
+	p += offset * 3;
+	ret.v[0] = p[0];
+	ret.v[1] = p[1];
+	ret.v[2] = p[2];
+	return ret;
+}
 
 template<typename S>
-inline typename __vector_type<S, 4>::type vload4(size_t offset, const S *p)
+inline const typename __vector_type<S, 4>::type &vload4(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 4>::type*)(p + offset * 4));	}
 
 template<typename S>
-inline typename __vector_type<S, 8>::type vload8(size_t offset, const S *p)
+inline const typename __vector_type<S, 8>::type &vload8(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 8>::type*)(p + offset * 8));	}
 
 template<typename S>
-inline typename __vector_type<S, 16>::type vload16(size_t offset, const S *p)
+inline const typename __vector_type<S, 16>::type &vload16(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 16>::type*)(p + offset * 16));	}
 
 // vstoren
@@ -46,7 +53,12 @@ inline void vstore2(const typename __vector_type<S, 2>::type &v, size_t offset, 
 
 template<typename S>
 inline void vstore3(const typename __vector_type<S, 3>::type &v, size_t offset, S *p)
-{	*reinterpret_cast<typename __vector_type<S, 3>::type __attribute__((packed))*>(p + offset * 3) = reinterpret_cast<typename __vector_type<S, 3>::type __attribute__((packed))&>(v);	}
+{
+	p += offset * 3;
+	p[0] = v.v[0];
+	p[1] = v.v[1];
+	p[2] = v.v[2];
+}
 
 template<typename S>
 inline void vstore4(const typename __vector_type<S, 4>::type &v, size_t offset, S *p)

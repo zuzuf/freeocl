@@ -25,6 +25,7 @@
 #include "symbol_table.h"
 #include <stdint.h>
 #include "macros.h"
+#include <limits>
 
 using namespace std;
 
@@ -165,7 +166,24 @@ lex_start:
 			{
 				if (c != '.' || base != 10)
 					putback(c);
-				d_val__ = new value<int32_t>(i);
+				if (i <= 0)
+				{
+					if (i >= std::numeric_limits<int>::min())
+						d_val__ = new value<int32_t>(i);
+					else
+						d_val__ = new value<int64_t>(i);
+				}
+				else
+				{
+					if (i <= std::numeric_limits<int>::max())
+						d_val__ = new value<int32_t>(i);
+					else if (i <= std::numeric_limits<uint32_t>::max())
+						d_val__ = new value<uint32_t>(i);
+					else if (i <= std::numeric_limits<int64_t>::max())
+						d_val__ = new value<int64_t>(i);
+					else
+						d_val__ = new value<uint64_t>(i);
+				}
 				return CONSTANT;
 			}
 			b_integer_parsed = true;

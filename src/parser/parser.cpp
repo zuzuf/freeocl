@@ -48,6 +48,7 @@
 #include "sizeof.h"
 #include "enum_type.h"
 #include "struct_literal.h"
+#include <utils/string.h>
 
 namespace FreeOCL
 {
@@ -383,9 +384,10 @@ namespace FreeOCL
 			N->push_back(d_val__);
 			// register variables
 			{
-				const smartptr<chunk> p_declarator = d_val__.as<chunk>()->front().as<chunk>();
+				smartptr<chunk> p_declarator = d_val__.as<chunk>()->front().as<chunk>();
 				smartptr<type> l_type;
 				std::string name;
+				bool b_use_local_hack = false;
 				if (p_declarator->front().as<pointer_type>())
 				{
 					smartptr<pointer_type> ptr = p_declarator->front().as<pointer_type>()->clone();
@@ -401,13 +403,18 @@ namespace FreeOCL
 						if (!p_chunk)
 							continue;
 						if (p_chunk->front().as<token>()->get_id() == '[')
-							l_type = new array_type(l_type, false, pointer_type::PRIVATE, p_chunk->at(1).as<expression>()->eval_as_uint());
+							l_type = new array_type(l_type, l_type->is_const(), l_type->get_address_space(), p_chunk->at(1).as<expression>()->eval_as_uint());
 					}
 				}
 				else
 				{
 					l_type = p_type;
+					b_use_local_hack = (l_type->get_address_space() == type::LOCAL);
 					name = p_declarator->front().as<token>()->get_string();
+					if (b_use_local_hack)
+						p_declarator->front() = new chunk(new token("(&",parser::SPECIAL),
+														  p_declarator->front(),
+														  new token(")",')'));
 
 					for(size_t j = 1 ; j < p_declarator->size() ; ++j)
 					{
@@ -421,7 +428,7 @@ namespace FreeOCL
 							{
 								try
 								{
-									l_type = new array_type(l_type, false, pointer_type::PRIVATE, exp->eval_as_uint());
+									l_type = new array_type(l_type, l_type->is_const(), l_type->get_address_space(), exp->eval_as_uint());
 								}
 								catch(const char *msg)
 								{
@@ -451,8 +458,27 @@ namespace FreeOCL
 						{
 							if (v_type->get_dim() != init_type->get_dim())
 								ERROR("vector dimensions must match!");
-							d_val__.as<chunk>()->back() = new call(symbols->get<callable>("convert_" + v_type_name), new chunk(init));
+							if (v_type->get_scalar_type() != init_type->get_scalar_type())
+								d_val__.as<chunk>()->back() = new call(symbols->get<callable>("convert_" + v_type_name), new chunk(init));
 						}
+					}
+				}
+				// Special hack for local values (use references to template generated static variables)
+				if (b_use_local_hack)
+				{
+					smartptr<chunk> ch = d_val__.as<chunk>();
+					const std::string regular_type_name = l_type.as<array_type>() ? l_type.as<array_type>()->complete_name() : l_type->get_name();
+					if (d_val__.as<chunk>()->size() == 1)
+					{
+						ch->push_back(new token("=", '='));
+						ch->push_back(new token("__create_local<" + regular_type_name + ", " + FreeOCL::to_string(line) + ">()", parser::SPECIAL));
+					}
+					else
+					{
+						smartptr<node> init = ch->at(2);
+						ch->at(2) = new chunk(new token("__create_local<" + regular_type_name + ", " + FreeOCL::to_string(line) + ">(", parser::SPECIAL),
+											  init,
+											  new token(")", ')'));
 					}
 				}
 			}

@@ -36,6 +36,7 @@ namespace FreeOCL
 
 		virtual std::string suffix() const;
 		virtual std::string prefix() const;
+		virtual std::string complete_name() const;
 
 		size_t get_size() const	{	return size;	}
 

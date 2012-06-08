@@ -178,6 +178,20 @@ template<>	struct __sint_type_of_same_size<double>	{	typedef long	type;	};
 template<bool, class T> struct __if;
 template<class T> struct __if<true, T>	{	typedef T type;	};
 
+template<typename T, int Id>
+inline T &__create_local()
+{
+	static T v;
+	return v;
+}
+template<typename T, int Id>
+inline T &__create_local(const T &init)
+{
+	static T v;
+	memcpy(&v, &init, sizeof(T));
+	return v;
+}
+
 #include "vectors.h"
 
 template<typename S, typename V = void>	struct __igentype;

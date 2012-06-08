@@ -35,13 +35,6 @@ namespace FreeOCL
 
 	void declarator::write(std::ostream &out) const
 	{
-		if (p_type->get_address_space() == type::LOCAL)
-		{
-			if (!p_type.as<pointer_type>())
-			{
-				out << "static ";
-			}
-		}
 		out << *p_type << *n0 << *n1;
 	}
 
