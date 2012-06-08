@@ -339,6 +339,11 @@ namespace FreeOCL
 			error("macro name expected after 'defined'");
 			return false;
 		}
+		MATCH (eval_identifier(v))
+		{
+			*v = 0;
+			return true;
+		}
 		RULE (eval_constant(v));
 		END();
 	}
