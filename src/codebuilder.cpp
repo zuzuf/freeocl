@@ -307,7 +307,6 @@ namespace FreeOCL
 		}
 		catch(const std::string &msg)
 		{
-			std::fstream("/tmp/preproc.txt", std::ios_base::out) << code;
 			return std::string();
 		}
 

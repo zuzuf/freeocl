@@ -468,15 +468,16 @@ namespace FreeOCL
 				{
 					smartptr<chunk> ch = d_val__.as<chunk>();
 					const std::string regular_type_name = l_type.as<array_type>() ? l_type.as<array_type>()->complete_name() : l_type->get_name();
+					const size_t ID = (line << 10) ^ current_line.size();
 					if (d_val__.as<chunk>()->size() == 1)
 					{
 						ch->push_back(new token("=", '='));
-						ch->push_back(new token("__create_local<" + regular_type_name + ", " + FreeOCL::to_string(line) + ">()", parser::SPECIAL));
+						ch->push_back(new token("__create_local<" + regular_type_name + ", " + FreeOCL::to_string(ID) + ">()", parser::SPECIAL));
 					}
 					else
 					{
 						smartptr<node> init = ch->at(2);
-						ch->at(2) = new chunk(new token("__create_local<" + regular_type_name + ", " + FreeOCL::to_string(line) + ">(", parser::SPECIAL),
+						ch->at(2) = new chunk(new token("__create_local<" + regular_type_name + ", " + FreeOCL::to_string(ID) + ">(", parser::SPECIAL),
 											  init,
 											  new token(")", ')'));
 					}
