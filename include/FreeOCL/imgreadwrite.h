@@ -18,7 +18,7 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_IMGREADWRITE_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_IMGREADWRITE_H__
 
-typedef uint sampler_t;
+typedef __uint sampler_t;
 
 #define CLK_NORMALIZED_COORDS_FALSE		0x00000000U
 #define CLK_NORMALIZED_COORDS_TRUE		0x01000000U
@@ -118,7 +118,7 @@ inline T __map_channels_for_reading(const I &image, const T &v)
 }
 
 template<typename I, class T>
-inline T __map_channels_for_writing(const I &image, const T &color, size_t &nb_chan)
+inline T __map_channels_for_writing(const I &image, const T &color, __size_t &nb_chan)
 {
 	T v;
 	switch(image.channel_order)
