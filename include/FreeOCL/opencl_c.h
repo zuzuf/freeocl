@@ -82,10 +82,32 @@
 #define packed	__packed__
 
 // Built-in scalar types
-typedef unsigned int uint;
-typedef unsigned short ushort;
+#ifdef __GNUG__
+
+#ifdef __i386__
 typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
 typedef unsigned long ulong;
+#elif defined __x86_64__
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+#else
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+#endif
+
+#else
+typedef unsigned char uchar;
+typedef unsigned short ushort;
+typedef unsigned int uint;
+typedef unsigned long ulong;
+#endif
+
 struct half
 {
 	ushort v;

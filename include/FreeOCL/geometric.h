@@ -85,7 +85,7 @@ inline float fast_distance(const float4 &p0, const float4 &p1)	{	return fast_len
 inline float  fast_normalize(const float  &p)	{	return half_rsqrt(dot(p,p)) * p;	}
 inline float2 fast_normalize(const float2 &p)	{	return half_rsqrt(dot(p,p)) * p;	}
 inline float3 fast_normalize(const float3 &p)	{	return half_rsqrt(dot(p,p)) * p;	}
-#ifdef __SSE2__
+#ifdef __SSE4_1__
 inline float4 fast_normalize(const float4 &p)
 {
 	const __m128 v = reinterpret_cast<const __m128&>(p);
