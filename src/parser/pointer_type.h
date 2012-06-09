@@ -29,6 +29,7 @@ namespace FreeOCL
 		virtual bool operator==(const type &p_type) const;
 		virtual void write(std::ostream &out) const;
 		virtual std::string get_name() const;
+		virtual std::string get_cxx_name() const;
 
 		const smartptr<type> &get_base_type() const	{	return base_type;	}
 		bool is_compatible_with(const pointer_type &p_type) const;

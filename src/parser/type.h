@@ -40,6 +40,7 @@ namespace FreeOCL
 		bool operator!=(const type &t) const
 		{	return !(*this == t);	}
 		virtual std::string get_name() const = 0;
+		virtual std::string get_cxx_name() const;
 
 		bool is_const() const	{	return b_const;	}
 		address_space get_address_space() const	{	return addr_space;	}

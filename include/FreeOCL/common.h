@@ -20,20 +20,20 @@
 #include "vectors.h"
 
 // Built-in common functions
-// for float
-inline float clamp(float x, float minval, float maxval)	{	return fmin(fmax(x, minval), maxval);	}
-inline float degrees(float radians)	{	return radians * 57.295779513082f;	}
-inline float max(float x, float y)	{	return x < y ? y : x;	}
-inline float min(float x, float y)	{	return y < x ? y : x;	}
-inline float mix(float x, float y, float a)	{	return x + (y - x) * a;	}
-inline float radians(float degrees)	{	return degrees * 0.017453292519943f;	}
-inline float step(float edge, float x)	{	return x < edge ? 0.0f : 1.0f;	}
-inline float smoothstep(float edge0, float edge1, float x)
+// for __float
+inline __float clamp(__float x, __float minval, __float maxval)	{	return fmin(fmax(x, minval), maxval);	}
+inline __float degrees(__float radians)	{	return radians * 57.295779513082f;	}
+inline __float max(__float x, __float y)	{	return x < y ? y : x;	}
+inline __float min(__float x, __float y)	{	return y < x ? y : x;	}
+inline __float mix(__float x, __float y, __float a)	{	return x + (y - x) * a;	}
+inline __float radians(__float degrees)	{	return degrees * 0.017453292519943f;	}
+inline __float step(__float edge, __float x)	{	return x < edge ? 0.0f : 1.0f;	}
+inline __float smoothstep(__float edge0, __float edge1, __float x)
 {
-	float t = clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
+	__float t = clamp((x - edge0) / (edge1 - edge0), 0.0f, 1.0f);
 	return t * t * (3.0f - 2.0f * t);
 }
-inline float sign(float x)
+inline __float sign(__float x)
 {
 	return x > 0.0f ? 1.0f : x < 0.0f ? -1.0f : isnan(x) ? 0.0f : x;
 }

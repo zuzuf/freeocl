@@ -64,12 +64,12 @@ typedef uint sampler_t;
 #define CLK_HALF_FLOAT			0x10DD
 #define CLK_FLOAT				0x10DE
 
-inline float __third(float v)	{	return v * 0.3333333333f;	}
-inline int __third(int v)	{	return v / 3;	}
-inline uint __third(uint v)	{	return v / 3U;	}
-inline float __quarter(float v)	{	return v * 0.25f;	}
-inline int __quarter(int v)	{	return v >> 2;	}
-inline uint __quarter(uint v)	{	return v >> 2;	}
+inline __float __third(__float v)	{	return v * 0.3333333333f;	}
+inline __int __third(__int v)	{	return v / 3;	}
+inline __uint __third(__uint v)	{	return v / 3U;	}
+inline __float __quarter(__float v)	{	return v * 0.25f;	}
+inline __int __quarter(__int v)	{	return v >> 2;	}
+inline __uint __quarter(__uint v)	{	return v >> 2;	}
 
 template<class I, class T>
 inline T __map_channels_for_reading(const I &image, const T &v)

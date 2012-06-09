@@ -129,9 +129,35 @@ namespace FreeOCL
 		return prefix + type_name[id];
 	}
 
+	std::string native_type::get_cxx_name() const
+	{
+		static const char *type_name[] = {
+			"void", "__bool", "__half", "__size_t", "sampler_t", "event_t",
+			"image1d_t", "image1d_buffer_t", "image1d_array_t", "image2d_t", "image2d_array_t", "image3d_t",
+			"__char", "__short", "__int", "__long", "__uchar", "__ushort", "__uint", "__ulong", "__float", "__double",
+			"__char2", "__short2", "__int2", "__long2", "__uchar2", "__ushort2", "__uint2", "__ulong2", "__float2", "__double2",
+			"__char3", "__short3", "__int3", "__long3", "__uchar3", "__ushort3", "__uint3", "__ulong3", "__float3", "__double3",
+			"__char4", "__short4", "__int4", "__long4", "__uchar4", "__ushort4", "__uint4", "__ulong4", "__float4", "__double4",
+			"__char8", "__short8", "__int8", "__long8", "__uchar8", "__ushort8", "__uint8", "__ulong8", "__float8", "__double8",
+			"__char16", "__short16", "__int16", "__long16", "__uchar16", "__ushort16", "__uint16", "__ulong16", "__float16", "__double16",
+			"__half2", "__half3", "__half4", "__half8", "__half16"
+		};
+		std::string prefix;
+		switch(get_address_space())
+		{
+		case PRIVATE:	break;
+		case GLOBAL:	prefix = "__global ";	break;
+		case LOCAL:		prefix = "__local ";	break;
+		case CONSTANT:	prefix = "__constant ";	break;
+		}
+		if (is_const() && get_address_space() != CONSTANT)
+			return prefix + std::string("const ") + type_name[id];
+		return prefix + type_name[id];
+	}
+
 	void native_type::write(std::ostream &out) const
 	{
-		out << get_name() << ' ';
+		out << get_cxx_name() << ' ';
 	}
 
 	int native_type::get_dim() const

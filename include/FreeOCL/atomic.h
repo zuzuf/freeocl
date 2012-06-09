@@ -22,39 +22,39 @@
 
 // Built-in atomic functions
 // 32-bit atomics
-inline int atomic_add(volatile int *p, int val)
+inline __int atomic_add(volatile __int *p, __int val)
 {	return __sync_fetch_and_add(p, val);	}
-inline uint atomic_add(volatile uint *p, uint val)
+inline __uint atomic_add(volatile __uint *p, __uint val)
 {	return __sync_fetch_and_add(p, val);	}
 
-inline int atomic_sub(volatile int *p, int val)
+inline __int atomic_sub(volatile __int *p, __int val)
 {	return __sync_fetch_and_sub(p, val);	}
-inline uint atomic_sub(volatile uint *p, uint val)
+inline __uint atomic_sub(volatile __uint *p, __uint val)
 {	return __sync_fetch_and_sub(p, val);	}
 
-inline int atomic_xchg(volatile int *p, int val)
+inline __int atomic_xchg(volatile __int *p, __int val)
 {	return __sync_lock_test_and_set(p, val);	}
-inline uint atomic_xchg(volatile uint *p, uint val)
+inline __uint atomic_xchg(volatile __uint *p, __uint val)
 {	return __sync_lock_test_and_set(p, val);	}
 
-inline int atomic_inc(volatile int *p)
+inline __int atomic_inc(volatile __int *p)
 {	return atomic_add(p, 1);	}
-inline uint atomic_inc(volatile uint *p)
+inline __uint atomic_inc(volatile __uint *p)
 {	return atomic_add(p, 1U);	}
 
-inline int atomic_dec(volatile int *p)
+inline __int atomic_dec(volatile __int *p)
 {	return atomic_sub(p, 1);	}
-inline uint atomic_dec(volatile uint *p)
+inline __uint atomic_dec(volatile __uint *p)
 {	return atomic_sub(p, 1U);	}
 
-inline int atomic_cmpxchg(volatile int *p, int cmp, int val)
+inline __int atomic_cmpxchg(volatile __int *p, __int cmp, __int val)
 {	return __sync_val_compare_and_swap(p, cmp, val);	}
-inline uint atomic_cmpxchg(volatile uint *p, uint cmp, uint val)
+inline __uint atomic_cmpxchg(volatile __uint *p, __uint cmp, __uint val)
 {	return __sync_val_compare_and_swap(p, cmp, val);	}
 
-inline int atomic_min(volatile int *p, int val)
+inline __int atomic_min(volatile __int *p, __int val)
 {
-	int old;
+	__int old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -65,9 +65,9 @@ inline int atomic_min(volatile int *p, int val)
 	}
 	return old;
 }
-inline uint atomic_min(volatile uint *p, uint val)
+inline __uint atomic_min(volatile __uint *p, __uint val)
 {
-	uint old;
+	__uint old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -79,9 +79,9 @@ inline uint atomic_min(volatile uint *p, uint val)
 	return old;
 }
 
-inline int atomic_max(volatile int *p, int val)
+inline __int atomic_max(volatile __int *p, __int val)
 {
-	int old;
+	__int old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -92,9 +92,9 @@ inline int atomic_max(volatile int *p, int val)
 	}
 	return old;
 }
-inline uint atomic_max(volatile uint *p, uint val)
+inline __uint atomic_max(volatile __uint *p, __uint val)
 {
-	uint old;
+	__uint old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -106,55 +106,55 @@ inline uint atomic_max(volatile uint *p, uint val)
 	return old;
 }
 
-inline int atomic_and(volatile int *p, int val)
+inline __int atomic_and(volatile __int *p, __int val)
 {	return __sync_fetch_and_and(p, val);	}
-inline uint atomic_and(volatile uint *p, uint val)
+inline __uint atomic_and(volatile __uint *p, __uint val)
 {	return __sync_fetch_and_and(p, val);	}
 
-inline int atomic_or(volatile int *p, int val)
+inline __int atomic_or(volatile __int *p, __int val)
 {	return __sync_fetch_and_or(p, val);	}
-inline uint atomic_or(volatile uint *p, uint val)
+inline __uint atomic_or(volatile __uint *p, __uint val)
 {	return __sync_fetch_and_or(p, val);	}
 
-inline int atomic_xor(volatile int *p, int val)
+inline __int atomic_xor(volatile __int *p, __int val)
 {	return __sync_fetch_and_xor(p, val);	}
-inline uint atomic_xor(volatile uint *p, uint val)
+inline __uint atomic_xor(volatile __uint *p, __uint val)
 {	return __sync_fetch_and_xor(p, val);	}
 
 // 64-bit atomics
-inline long atomic_add(volatile long *p, long val)
+inline __long atomic_add(volatile __long *p, __long val)
 {	return __sync_fetch_and_add(p, val);	}
-inline ulong atomic_add(volatile ulong *p, ulong val)
+inline __ulong atomic_add(volatile __ulong *p, __ulong val)
 {	return __sync_fetch_and_add(p, val);	}
 
-inline long atomic_sub(volatile long *p, long val)
+inline __long atomic_sub(volatile __long *p, __long val)
 {	return __sync_fetch_and_sub(p, val);	}
-inline ulong atomic_sub(volatile ulong *p, ulong val)
+inline ulong atomic_sub(volatile __ulong *p, __ulong val)
 {	return __sync_fetch_and_sub(p, val);	}
 
-inline long atomic_xchg(volatile long *p, long val)
+inline __long atomic_xchg(volatile __long *p, __long val)
 {	return __sync_lock_test_and_set(p, val);	}
-inline ulong atomic_xchg(volatile ulong *p, ulong val)
+inline __ulong atomic_xchg(volatile __ulong *p, __ulong val)
 {	return __sync_lock_test_and_set(p, val);	}
 
-inline long atomic_inc(volatile long *p)
+inline __long atomic_inc(volatile __long *p)
 {	return atomic_add(p, 1);	}
-inline ulong atomic_inc(volatile ulong *p)
+inline __ulong atomic_inc(volatile __ulong *p)
 {	return atomic_add(p, 1U);	}
 
-inline long atomic_dec(volatile long *p)
+inline __long atomic_dec(volatile __long *p)
 {	return atomic_sub(p, 1);	}
-inline ulong atomic_dec(volatile ulong *p)
+inline __ulong atomic_dec(volatile __ulong *p)
 {	return atomic_sub(p, 1U);	}
 
-inline long atomic_cmpxchg(volatile long *p, long cmp, long val)
+inline __long atomic_cmpxchg(volatile __long *p, __long cmp, __long val)
 {	return __sync_val_compare_and_swap(p, cmp, val);	}
-inline ulong atomic_cmpxchg(volatile ulong *p, ulong cmp, ulong val)
+inline __ulong atomic_cmpxchg(volatile __ulong *p, __ulong cmp, __ulong val)
 {	return __sync_val_compare_and_swap(p, cmp, val);	}
 
-inline long atomic_min(volatile long *p, long val)
+inline __long atomic_min(volatile __long *p, __long val)
 {
-	long old;
+	__long old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -165,9 +165,9 @@ inline long atomic_min(volatile long *p, long val)
 	}
 	return old;
 }
-inline ulong atomic_min(volatile ulong *p, ulong val)
+inline __ulong atomic_min(volatile __ulong *p, __ulong val)
 {
-	ulong old;
+	__ulong old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -179,9 +179,9 @@ inline ulong atomic_min(volatile ulong *p, ulong val)
 	return old;
 }
 
-inline long atomic_max(volatile long *p, long val)
+inline __long atomic_max(volatile __long *p, __long val)
 {
-	long old;
+	__long old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -192,9 +192,9 @@ inline long atomic_max(volatile long *p, long val)
 	}
 	return old;
 }
-inline ulong atomic_max(volatile ulong *p, ulong val)
+inline __ulong atomic_max(volatile __ulong *p, __ulong val)
 {
-	ulong old;
+	__ulong old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -206,19 +206,19 @@ inline ulong atomic_max(volatile ulong *p, ulong val)
 	return old;
 }
 
-inline long atomic_and(volatile long *p, long val)
+inline __long atomic_and(volatile __long *p, __long val)
 {	return __sync_fetch_and_and(p, val);	}
-inline ulong atomic_and(volatile ulong *p, ulong val)
+inline __ulong atomic_and(volatile __ulong *p, __ulong val)
 {	return __sync_fetch_and_and(p, val);	}
 
-inline long atomic_or(volatile long *p, long val)
+inline __long atomic_or(volatile __long *p, __long val)
 {	return __sync_fetch_and_or(p, val);	}
-inline ulong atomic_or(volatile ulong *p, ulong val)
+inline __ulong atomic_or(volatile __ulong *p, __ulong val)
 {	return __sync_fetch_and_or(p, val);	}
 
-inline long atomic_xor(volatile long *p, long val)
+inline __long atomic_xor(volatile __long *p, __long val)
 {	return __sync_fetch_and_xor(p, val);	}
-inline ulong atomic_xor(volatile ulong *p, ulong val)
+inline __ulong atomic_xor(volatile __ulong *p, __ulong val)
 {	return __sync_fetch_and_xor(p, val);	}
 
 // atom_* versions (which use non-volatile pointers)
@@ -323,39 +323,39 @@ inline uint atom_xor(uint *p, uint val)
 {	return __sync_fetch_and_xor(p, val);	}
 
 // 64-bit atomics
-inline long atom_add(long *p, long val)
+inline __long atom_add(__long *p, __long val)
 {	return __sync_fetch_and_add(p, val);	}
-inline ulong atom_add(ulong *p, ulong val)
+inline __ulong atom_add(__ulong *p, __ulong val)
 {	return __sync_fetch_and_add(p, val);	}
 
-inline long atom_sub(long *p, long val)
+inline __long atom_sub(__long *p, __long val)
 {	return __sync_fetch_and_sub(p, val);	}
-inline ulong atom_sub(ulong *p, ulong val)
+inline __ulong atom_sub(__ulong *p, __ulong val)
 {	return __sync_fetch_and_sub(p, val);	}
 
-inline long atom_xchg(long *p, long val)
+inline __long atom_xchg(__long *p, __long val)
 {	return __sync_lock_test_and_set(p, val);	}
-inline ulong atom_xchg(ulong *p, ulong val)
+inline __ulong atom_xchg(__ulong *p, __ulong val)
 {	return __sync_lock_test_and_set(p, val);	}
 
-inline long atom_inc(long *p)
+inline __long atom_inc(__long *p)
 {	return atom_add(p, 1);	}
-inline ulong atom_inc(ulong *p)
+inline __ulong atom_inc(__ulong *p)
 {	return atom_add(p, 1U);	}
 
-inline long atom_dec(long *p)
+inline __long atom_dec(__long *p)
 {	return atom_sub(p, 1);	}
-inline ulong atom_dec(ulong *p)
+inline __ulong atom_dec(__ulong *p)
 {	return atom_sub(p, 1U);	}
 
-inline long atom_cmpxchg(long *p, long cmp, long val)
+inline __long atom_cmpxchg(__long *p, __long cmp, __long val)
 {	return __sync_val_compare_and_swap(p, cmp, val);	}
-inline ulong atom_cmpxchg(ulong *p, ulong cmp, ulong val)
+inline __ulong atom_cmpxchg(__ulong *p, __ulong cmp, __ulong val)
 {	return __sync_val_compare_and_swap(p, cmp, val);	}
 
-inline long atom_min(long *p, long val)
+inline __long atom_min(__long *p, __long val)
 {
-	long old;
+	__long old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -366,9 +366,9 @@ inline long atom_min(long *p, long val)
 	}
 	return old;
 }
-inline ulong atom_min(ulong *p, ulong val)
+inline __ulong atom_min(__ulong *p, __ulong val)
 {
-	ulong old;
+	__ulong old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -380,9 +380,9 @@ inline ulong atom_min(ulong *p, ulong val)
 	return old;
 }
 
-inline long atom_max(long *p, long val)
+inline __long atom_max(__long *p, __long val)
 {
-	long old;
+	__long old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -393,9 +393,9 @@ inline long atom_max(long *p, long val)
 	}
 	return old;
 }
-inline ulong atom_max(ulong *p, ulong val)
+inline __ulong atom_max(__ulong *p, __ulong val)
 {
-	ulong old;
+	__ulong old;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp critical
 #endif
@@ -407,19 +407,19 @@ inline ulong atom_max(ulong *p, ulong val)
 	return old;
 }
 
-inline long atom_and(long *p, long val)
+inline __long atom_and(__long *p, __long val)
 {	return __sync_fetch_and_and(p, val);	}
-inline ulong atom_and(ulong *p, ulong val)
+inline __ulong atom_and(__ulong *p, __ulong val)
 {	return __sync_fetch_and_and(p, val);	}
 
-inline long atom_or(long *p, long val)
+inline __long atom_or(__long *p, __long val)
 {	return __sync_fetch_and_or(p, val);	}
-inline ulong atom_or(ulong *p, ulong val)
+inline __ulong atom_or(__ulong *p, __ulong val)
 {	return __sync_fetch_and_or(p, val);	}
 
-inline long atom_xor(long *p, long val)
+inline __long atom_xor(__long *p, __long val)
 {	return __sync_fetch_and_xor(p, val);	}
-inline ulong atom_xor(ulong *p, ulong val)
+inline __ulong atom_xor(__ulong *p, __ulong val)
 {	return __sync_fetch_and_xor(p, val);	}
 
 #endif

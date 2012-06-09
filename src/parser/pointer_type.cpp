@@ -33,7 +33,7 @@ namespace FreeOCL
 
 	void pointer_type::write(std::ostream &out) const
 	{
-		out << get_name() << ' ';
+		out << get_cxx_name() << ' ';
 	}
 
 	std::string pointer_type::get_name() const
@@ -44,6 +44,16 @@ namespace FreeOCL
 		if (is_const())
 			return (' ' + base_type->get_name()) + "* const";
 		return (' ' + base_type->get_name()) + '*';
+	}
+
+	std::string pointer_type::get_cxx_name() const
+	{
+		if (!base_type)
+			return is_const() ? "* const" : "*";
+
+		if (is_const())
+			return (' ' + base_type->get_cxx_name()) + "* const";
+		return (' ' + base_type->get_cxx_name()) + '*';
 	}
 
 	bool pointer_type::is_compatible_with(const pointer_type &p_type) const

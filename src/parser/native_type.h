@@ -41,6 +41,7 @@ namespace FreeOCL
 		virtual bool operator==(const type &type) const;
 		virtual void write(std::ostream &out) const;
 		virtual std::string get_name() const;
+		virtual std::string get_cxx_name() const;
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 
 		type_id get_type_id() const	{	return id;	}

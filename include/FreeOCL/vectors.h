@@ -678,16 +678,16 @@ DEFINE_VECTOR_INT_TYPE(X, 4);\
 DEFINE_VECTOR_INT_TYPE(X, 8);\
 DEFINE_VECTOR_INT_TYPE(X, 16)
 
-DEFINE_VECTORS_INT(char);
-DEFINE_VECTORS_INT(short);
-DEFINE_VECTORS_INT(int);
-DEFINE_VECTORS_INT(long);
-DEFINE_VECTORS_INT(uchar);
-DEFINE_VECTORS_INT(ushort);
-DEFINE_VECTORS_INT(uint);
-DEFINE_VECTORS_INT(ulong);
-DEFINE_VECTORS(float);
-DEFINE_VECTORS(double);
+DEFINE_VECTORS_INT(__char);
+DEFINE_VECTORS_INT(__short);
+DEFINE_VECTORS_INT(__int);
+DEFINE_VECTORS_INT(__long);
+DEFINE_VECTORS_INT(__uchar);
+DEFINE_VECTORS_INT(__ushort);
+DEFINE_VECTORS_INT(__uint);
+DEFINE_VECTORS_INT(__ulong);
+DEFINE_VECTORS(__float);
+DEFINE_VECTORS(__double);
 
 #undef DEFINE_VECTORS
 #undef DEFINE_VECTOR_TYPE
@@ -926,16 +926,16 @@ IMPLEMENT_ASSIGN_OP(%=)
 template<class V> struct __float_vector_predicate;
 #define DEFINE(X) template<> struct __float_vector_predicate<X>	{	typedef X type;	}
 
-DEFINE(float2);
-DEFINE(float3);
-DEFINE(float4);
-DEFINE(float8);
-DEFINE(float16);
-DEFINE(double2);
-DEFINE(double3);
-DEFINE(double4);
-DEFINE(double8);
-DEFINE(double16);
+DEFINE(__float2);
+DEFINE(__float3);
+DEFINE(__float4);
+DEFINE(__float8);
+DEFINE(__float16);
+DEFINE(__double2);
+DEFINE(__double3);
+DEFINE(__double4);
+DEFINE(__double8);
+DEFINE(__double16);
 
 #undef DEFINE
 
@@ -943,22 +943,22 @@ DEFINE(double16);
 template<class V> struct __int_vector_predicate;
 #define DEFINE(X) template<> struct __int_vector_predicate<X>	{	typedef X type;	}
 
-DEFINE(int2);
-DEFINE(int3);
-DEFINE(int4);
-DEFINE(int8);
-DEFINE(int16);
+DEFINE(__int2);
+DEFINE(__int3);
+DEFINE(__int4);
+DEFINE(__int8);
+DEFINE(__int16);
 
 #undef DEFINE
 
 template<class V> struct __uint_vector_predicate;
 #define DEFINE(X) template<> struct __uint_vector_predicate<X>	{	typedef X type;	}
 
-DEFINE(uint2);
-DEFINE(uint3);
-DEFINE(uint4);
-DEFINE(uint8);
-DEFINE(uint16);
+DEFINE(__uint2);
+DEFINE(__uint3);
+DEFINE(__uint4);
+DEFINE(__uint8);
+DEFINE(__uint16);
 
 #undef DEFINE
 

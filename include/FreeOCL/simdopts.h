@@ -21,64 +21,64 @@
 #ifdef __SSE__
 #include "x86intrin.h"
 
-inline float4 operator+(const float4 &lhs, const float4 &rhs)
+inline __float4 operator+(const __float4 &lhs, const __float4 &rhs)
 {
 	const __m128 s = _mm_add_ps(reinterpret_cast<const __m128&>(lhs), reinterpret_cast<const __m128&>(rhs));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 operator-(const float4 &lhs, const float4 &rhs)
+inline __float4 operator-(const __float4 &lhs, const __float4 &rhs)
 {
 	const __m128 s = _mm_sub_ps(reinterpret_cast<const __m128&>(lhs), reinterpret_cast<const __m128&>(rhs));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 operator*(const float4 &lhs, const float4 &rhs)
+inline __float4 operator*(const __float4 &lhs, const __float4 &rhs)
 {
 	const __m128 s = _mm_mul_ps(reinterpret_cast<const __m128&>(lhs), reinterpret_cast<const __m128&>(rhs));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 operator/(const float4 &lhs, const float4 &rhs)
+inline __float4 operator/(const __float4 &lhs, const __float4 &rhs)
 {
 	const __m128 s = _mm_div_ps(reinterpret_cast<const __m128&>(lhs), reinterpret_cast<const __m128&>(rhs));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 native_sqrt(const float4 &v)
+inline __float4 native_sqrt(const __float4 &v)
 {
 	const __m128 s = _mm_sqrt_ps(reinterpret_cast<const __m128&>(v));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 native_recip(const float4 &v)
+inline __float4 native_recip(const __float4 &v)
 {
 	const __m128 s = _mm_rcp_ps(reinterpret_cast<const __m128&>(v));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 native_rsqrt(const float4 &v)
+inline __float4 native_rsqrt(const __float4 &v)
 {
 	const __m128 s = _mm_rsqrt_ps(reinterpret_cast<const __m128&>(v));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 native_divide(const float4 &lhs, const float4 &rhs)
+inline __float4 native_divide(const __float4 &lhs, const __float4 &rhs)
 {
 	const __m128 s = _mm_div_ps(reinterpret_cast<const __m128&>(lhs), reinterpret_cast<const __m128&>(rhs));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 clamp(const float4 &v, float l, float u)
+inline __float4 clamp(const __float4 &v, __float l, __float u)
 {
 	const __m128 s = _mm_min_ps(_mm_set1_ps(u), _mm_max_ps(reinterpret_cast<const __m128&>(v), _mm_set1_ps(l)));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
-inline float4 clamp(const float4 &v, const float4 &l, const float4 &u)
+inline __float4 clamp(const __float4 &v, const __float4 &l, const __float4 &u)
 {
 	const __m128 s = _mm_min_ps(reinterpret_cast<const __m128&>(u), _mm_max_ps(reinterpret_cast<const __m128&>(v), reinterpret_cast<const __m128&>(l)));
-	return reinterpret_cast<const float4&>(s);
+	return reinterpret_cast<const __float4&>(s);
 }
 
 #endif

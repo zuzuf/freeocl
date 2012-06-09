@@ -20,13 +20,13 @@
 
 #include <cstring>
 
-typedef uint event_t;
+typedef __uint event_t;
 
 // Built-in async memory copy functions
 template<typename gentype>
 inline event_t async_work_group_copy (gentype *dst,
 									  const gentype *src,
-									  size_t num_gentypes,
+									  __size_t num_gentypes,
 									  event_t event)
 {
 	if (get_local_id(0) == 0 && get_local_id(1) == 0 && get_local_id(2) == 0)
@@ -41,8 +41,8 @@ inline event_t async_work_group_copy (gentype *dst,
 template<typename gentype>
 inline event_t async_work_group_strided_copy (gentype *dst,
 											  const gentype *src,
-											  size_t num_gentypes,
-											  size_t src_stride,
+											  __size_t num_gentypes,
+											  __size_t src_stride,
 											  event_t event)
 {
 	if (get_local_id(0) == 0 && get_local_id(1) == 0 && get_local_id(2) == 0)
@@ -56,7 +56,7 @@ inline event_t async_work_group_strided_copy (gentype *dst,
 }
 
 template<typename gentype>
-inline void wait_group_events (int num_events,
+inline void wait_group_events (__int num_events,
 							   event_t *event_list)
 {
 	barrier(0);
@@ -64,7 +64,7 @@ inline void wait_group_events (int num_events,
 
 template<typename gentype>
 inline void prefetch (const gentype *p,
-					  size_t num_gentypes)
+					  __size_t num_gentypes)
 {
 
 }

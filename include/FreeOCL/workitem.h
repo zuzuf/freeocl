@@ -24,13 +24,13 @@
 
 namespace FreeOCL
 {
-	static uint dim;
-	static size_t global_size[3];
-	static size_t global_offset[3];
-	static size_t local_size[3];
-	static size_t group_id[3];
-	static size_t num_groups[3];
-	static size_t thread_num;
+	static __uint dim;
+	static __size_t global_size[3];
+	static __size_t global_offset[3];
+	static __size_t local_size[3];
+	static __size_t group_id[3];
+	static __size_t num_groups[3];
+	static __size_t thread_num;
 #ifdef FREEOCL_USE_OPENMP
 #pragma omp threadprivate(thread_num)
 #pragma omp threadprivate(group_id)
@@ -38,28 +38,28 @@ namespace FreeOCL
 }
 
 // Built-in work-item functions
-inline uint get_work_dim()
+inline __uint get_work_dim()
 {
 	return FreeOCL::dim;
 }
 
-inline size_t get_global_size(uint dimindx)
+inline __size_t get_global_size(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::global_size[dimindx] : 1;
 }
 
-inline size_t get_local_id(uint dimindx);
-inline size_t get_global_id(uint dimindx)
+inline __size_t get_local_id(__uint dimindx);
+inline __size_t get_global_id(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::group_id[dimindx] * FreeOCL::local_size[dimindx] + get_local_id(dimindx) + FreeOCL::global_offset[dimindx] : 0;
 }
 
-inline size_t get_local_size(uint dimindx)
+inline __size_t get_local_size(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::local_size[dimindx] : 1;
 }
-inline size_t get_thread_num();
-inline size_t get_local_id(uint dimindx)
+inline __size_t get_thread_num();
+inline __size_t get_local_id(__uint dimindx)
 {
 	switch(dimindx)
 	{
@@ -74,22 +74,22 @@ inline size_t get_local_id(uint dimindx)
 	}
 }
 
-inline size_t get_num_groups(uint dimindx)
+inline __size_t get_num_groups(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::num_groups[dimindx] : 1;
 }
 
-inline size_t get_group_id(uint dimindx)
+inline __size_t get_group_id(__uint dimindx)
 {
 	return FreeOCL::group_id[dimindx];
 }
 
-inline size_t get_global_offset(uint dimindx)
+inline __size_t get_global_offset(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::global_offset[dimindx] : 0;
 }
 
-inline size_t get_thread_num()
+inline __size_t get_thread_num()
 {
 	return FreeOCL::thread_num;
 }

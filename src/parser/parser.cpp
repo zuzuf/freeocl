@@ -451,7 +451,7 @@ namespace FreeOCL
 					{
 						smartptr<native_type> init_type = init->get_type().as<native_type>();
 						smartptr<native_type> v_type = l_type.as<native_type>();
-						const std::string v_type_name = native_type(v_type->get_type_id(), false, native_type::PRIVATE).get_name();
+						const std::string v_type_name = native_type(v_type->get_type_id(), false, native_type::PRIVATE).get_cxx_name();
 						if (v_type->is_vector() && init_type->is_scalar())
 							d_val__.as<chunk>()->back() = new chunk(new token(v_type_name + "::make(", parser::SPECIAL), init, new token(")", ')'));
 						else if (v_type->is_vector() && init_type->is_vector())
@@ -467,7 +467,7 @@ namespace FreeOCL
 				if (b_use_local_hack)
 				{
 					smartptr<chunk> ch = d_val__.as<chunk>();
-					const std::string regular_type_name = l_type.as<array_type>() ? l_type.as<array_type>()->complete_name() : l_type->get_name();
+					const std::string regular_type_name = l_type.as<array_type>() ? l_type.as<array_type>()->complete_name() : l_type->get_cxx_name();
 					const size_t ID = (line << 10) ^ current_line.size();
 					if (d_val__.as<chunk>()->size() == 1)
 					{

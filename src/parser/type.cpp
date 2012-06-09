@@ -66,11 +66,16 @@ namespace FreeOCL
 
 	std::string type::prefix() const
 	{
-		return get_name();
+		return get_cxx_name();
 	}
 
 	bool type::has_references_to(const std::string &function_name) const
 	{
 		return false;
+	}
+
+	std::string type::get_cxx_name() const
+	{
+		return get_name();
 	}
 }

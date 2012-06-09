@@ -147,16 +147,16 @@ namespace FreeOCL
 			}
 		}
 
-		const std::string preprocessed_code = preprocess_code(code,
-															  macros,
-															  log,
-															  include_paths,
-															  headers);
+		const std::string &preprocessed_code = preprocess_code(code,
+															   macros,
+															   log,
+															   include_paths,
+															   headers);
 
 		if (preprocessed_code.empty())
 			return std::string();
 
-		const std::string validated_code = validate_code(preprocessed_code, log, kernels);
+		const std::string &validated_code = validate_code(preprocessed_code, log, kernels);
 
 		if (validated_code.empty())
 			return std::string();
@@ -217,7 +217,7 @@ namespace FreeOCL
 		close(fd_out);
 		fclose(file_in);
 		// Remove the input file which is now useless
-		remove(filename_in.c_str());
+//		remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
@@ -324,21 +324,6 @@ namespace FreeOCL
 		std::clog << usec_timer() - timer << "µs" << std::endl;
 		if (p.errors())
 			return std::string();
-
-		static FreeOCL::set<std::string> types;
-		static bool b_init = true;
-		if (b_init)
-		{
-			b_init = false;
-			const char *base_types[] = { "bool", "char", "uchar", "short", "ushort", "int", "uint", "long", "ulong", "float", "double" };
-			for(size_t i = 0 ; i < 10 ; ++i)
-				types.insert(std::string(base_types[i]));
-			int n[] = { 2, 3, 4, 8, 16 };
-			for(size_t j = 0 ; j < 5 ; ++j)
-				for(size_t i = 0 ; i < 10 ; ++i)
-					types.insert(std::string(base_types[i]) + to_string(n[j]));
-			types.insert("*");
-		}
 
 		std::stringstream gen;
 		if (!p.get_ast())

@@ -81,47 +81,83 @@
 #define FLOAT4	__m128
 #define packed	__packed__
 
+#ifdef __size_t
+#undef __size_t
+#endif
+
 // Built-in scalar types
 #ifdef __GNUG__
 
 #ifdef __i386__
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+typedef bool				__bool;
+typedef char				__char;
+typedef unsigned char		__uchar;
+typedef short				__short;
+typedef unsigned short		__ushort;
+typedef int					__int;
+typedef unsigned int		__uint;
+typedef long long			__long;
+typedef unsigned long long	__ulong;
+typedef float				__float;
+typedef double				__double;
+typedef __ulong				__size_t;
 #elif defined __x86_64__
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+typedef bool			__bool;
+typedef char			__char;
+typedef unsigned char	__uchar;
+typedef short			__short;
+typedef unsigned short	__ushort;
+typedef int				__int;
+typedef unsigned int	__uint;
+typedef long			__long;
+typedef unsigned long	__ulong;
+typedef float			__float;
+typedef double			__double;
+typedef __ulong			__size_t;
 #else
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+typedef bool			__bool;
+typedef char			__char;
+typedef unsigned char	__uchar;
+typedef short			__short;
+typedef unsigned short	__ushort;
+typedef int				__int;
+typedef unsigned int	__uint;
+typedef long			__long;
+typedef unsigned long	__ulong;
+typedef float			__float;
+typedef double			__double;
+typedef __ulong			__size_t;
 #endif
 
 #else
-typedef unsigned char uchar;
-typedef unsigned short ushort;
-typedef unsigned int uint;
-typedef unsigned long ulong;
+typedef bool			__bool;
+typedef char			__char;
+typedef unsigned char	__uchar;
+typedef short			__short;
+typedef unsigned short	__ushort;
+typedef int				__int;
+typedef unsigned int	__uint;
+typedef long			__long;
+typedef unsigned long	__ulong;
+typedef float			__float;
+typedef double			__double;
+typedef __ulong			__size_t;
 #endif
 
 struct half
 {
-	ushort v;
+	__ushort v;
 
 	inline operator float() const
 	{
 		union
 		{
-			uint i;
+			__uint i;
 			float f;
 		} u;
-		const uint s = (v & 0x8000U) << 16;
-		const uint e = (v & 0x7C00U) >> 10;
-		const uint m = v & 0x03FFU;
+		const __uint s = (v & 0x8000U) << 16;
+		const __uint e = (v & 0x7C00U) >> 10;
+		const __uint m = v & 0x03FFU;
 		switch(e)
 		{
 		case 0:
@@ -144,15 +180,15 @@ struct half
 	{
 		union
 		{
-			uint i;
+			__uint i;
 			float f;
 		} u;
 		u.f = f;
 
 		half h;
-		const uint s = (u.i & 0x80000000U) >> 16;
-		const uint e = (u.i & 0x7F800000U) >> 23;
-		const uint m = (u.i & 0x007FFFFFU) >> 13;
+		const __uint s = (u.i & 0x80000000U) >> 16;
+		const __uint e = (u.i & 0x7F800000U) >> 23;
+		const __uint m = (u.i & 0x007FFFFFU) >> 13;
 		switch(e)
 		{
 		case 0:
@@ -167,6 +203,7 @@ struct half
 		return h;
 	}
 };
+typedef half __half;
 
 template<class A, class B>	struct __right {	typedef B	type;	};
 template<class A, class B>	struct __match {	enum { value = false };	};
@@ -174,28 +211,28 @@ template<class A>	struct __match<A, A> {	enum { value = true };	};
 
 // A small template to filter scalar types allowed for arithmetic operations
 template<typename S>	struct __scalar;
-template<>	struct __scalar<char>	{	typedef char	type;	};
-template<>	struct __scalar<short>	{	typedef short	type;	};
-template<>	struct __scalar<int>	{	typedef int	type;	};
-template<>	struct __scalar<long>	{	typedef long	type;	};
-template<>	struct __scalar<uchar>	{	typedef uchar	type;	};
-template<>	struct __scalar<ushort>	{	typedef ushort	type;	};
-template<>	struct __scalar<uint>	{	typedef uint	type;	};
-template<>	struct __scalar<ulong>	{	typedef ulong	type;	};
-template<>	struct __scalar<float>	{	typedef float	type;	};
-template<>	struct __scalar<double>	{	typedef double	type;	};
+template<>	struct __scalar<__char>		{	typedef __char	type;	};
+template<>	struct __scalar<__short>	{	typedef __short	type;	};
+template<>	struct __scalar<__int>		{	typedef __int	type;	};
+template<>	struct __scalar<__long>		{	typedef __long	type;	};
+template<>	struct __scalar<__uchar>	{	typedef __uchar	type;	};
+template<>	struct __scalar<__ushort>	{	typedef __ushort	type;	};
+template<>	struct __scalar<__uint>		{	typedef __uint	type;	};
+template<>	struct __scalar<__ulong>	{	typedef __ulong	type;	};
+template<>	struct __scalar<__float>	{	typedef __float	type;	};
+template<>	struct __scalar<__double>	{	typedef __double	type;	};
 
 template<typename B>	struct __sint_type_of_same_size;
-template<>	struct __sint_type_of_same_size<char>	{	typedef char	type;	};
-template<>	struct __sint_type_of_same_size<uchar>	{	typedef char	type;	};
-template<>	struct __sint_type_of_same_size<short>	{	typedef short	type;	};
-template<>	struct __sint_type_of_same_size<ushort>	{	typedef short	type;	};
-template<>	struct __sint_type_of_same_size<int>		{	typedef int	type;	};
-template<>	struct __sint_type_of_same_size<uint>	{	typedef int	type;	};
-template<>	struct __sint_type_of_same_size<long>	{	typedef long	type;	};
-template<>	struct __sint_type_of_same_size<ulong>	{	typedef ulong	type;	};
-template<>	struct __sint_type_of_same_size<float>	{	typedef int		type;	};
-template<>	struct __sint_type_of_same_size<double>	{	typedef long	type;	};
+template<>	struct __sint_type_of_same_size<__char>		{	typedef __char	type;	};
+template<>	struct __sint_type_of_same_size<__uchar>	{	typedef __char	type;	};
+template<>	struct __sint_type_of_same_size<__short>	{	typedef __short	type;	};
+template<>	struct __sint_type_of_same_size<__ushort>	{	typedef __short	type;	};
+template<>	struct __sint_type_of_same_size<__int>		{	typedef __int	type;	};
+template<>	struct __sint_type_of_same_size<__uint>		{	typedef __int	type;	};
+template<>	struct __sint_type_of_same_size<__long>		{	typedef __long	type;	};
+template<>	struct __sint_type_of_same_size<__ulong>	{	typedef __ulong	type;	};
+template<>	struct __sint_type_of_same_size<__float>	{	typedef __int	type;	};
+template<>	struct __sint_type_of_same_size<__double>	{	typedef __long	type;	};
 
 template<bool, class T> struct __if;
 template<class T> struct __if<true, T>	{	typedef T type;	};
@@ -217,14 +254,14 @@ inline T &__create_local(const T &init)
 #include "vectors.h"
 
 template<typename S, typename V = void>	struct __igentype;
-template<>	struct __igentype<char>	{	typedef char	type;	};
-template<>	struct __igentype<short>	{	typedef short	type;	};
-template<>	struct __igentype<int>	{	typedef int	type;	};
-template<>	struct __igentype<long>	{	typedef long	type;	};
-template<>	struct __igentype<uchar>	{	typedef uchar	type;	};
-template<>	struct __igentype<ushort>	{	typedef ushort	type;	};
-template<>	struct __igentype<uint>	{	typedef uint	type;	};
-template<>	struct __igentype<ulong>	{	typedef ulong	type;	};
+template<>	struct __igentype<__char>	{	typedef __char	type;	};
+template<>	struct __igentype<__short>	{	typedef __short	type;	};
+template<>	struct __igentype<__int>	{	typedef __int	type;	};
+template<>	struct __igentype<__long>	{	typedef __long	type;	};
+template<>	struct __igentype<__uchar>	{	typedef __uchar	type;	};
+template<>	struct __igentype<__ushort>	{	typedef __ushort	type;	};
+template<>	struct __igentype<__uint>	{	typedef __uint	type;	};
+template<>	struct __igentype<__ulong>	{	typedef __ulong	type;	};
 template<class V>
 struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type>, void>::type >
 {

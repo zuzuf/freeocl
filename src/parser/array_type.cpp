@@ -41,6 +41,6 @@ namespace FreeOCL
 	{
 		if (base_type.as<array_type>())
 			return base_type.as<array_type>()->complete_name() + '[' + to_string(size) + ']';
-		return base_type->get_name() + '[' + to_string(size) + ']';
+		return base_type->get_cxx_name() + '[' + to_string(size) + ']';
 	}
 }

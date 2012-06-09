@@ -41,8 +41,8 @@ inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<
 		shuffle(const gentypem &x, const ugentypen &mask)
 {
 	typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type ret;
-	const size_t MASK = __mask<__vector<gentypem>::components>::value;
-	for(size_t i = 0 ; i < __vector<ugentypen>::components ; ++i)
+	const __size_t MASK = __mask<__vector<gentypem>::components>::value;
+	for(__size_t i = 0 ; i < __vector<ugentypen>::components ; ++i)
 		ret.v[i] = x.v[mask.v[i] & MASK];
 	return ret;
 }
@@ -53,9 +53,9 @@ inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<
 		shuffle2(const gentypem &x, const gentypem &y, const ugentypen &mask)
 {
 	typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type ret;
-	const size_t MASK = __mask<__vector<gentypem>::components>::value;
-	const size_t MASK2 = MASK + 1U;
-	for(size_t i = 0 ; i < __vector<ugentypen>::components ; ++i)
+	const __size_t MASK = __mask<__vector<gentypem>::components>::value;
+	const __size_t MASK2 = MASK + 1U;
+	for(__size_t i = 0 ; i < __vector<ugentypen>::components ; ++i)
 		ret.v[i] = (mask.v[i] & MASK2) ? y.v[mask.v[i] & MASK] : x.v[mask.v[i] & MASK];
 	return ret;
 }
