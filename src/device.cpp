@@ -114,6 +114,40 @@ extern "C"
 		case CL_DEVICE_VERSION:							bTooSmall = SET_STRING(device->version.c_str());	break;
 		case CL_DEVICE_OPENCL_C_VERSION:				bTooSmall = SET_STRING(device->opencl_c_version);	break;
 		case CL_DEVICE_EXTENSIONS:						bTooSmall = SET_STRING(device->extensions);	break;
+		case CL_DEVICE_PRINTF_BUFFER_SIZE:				bTooSmall = SET_VAR(device->printf_buffer_size);	break;
+		case CL_DEVICE_PREFERRED_INTEROP_USER_SYNC:		bTooSmall = SET_VAR(cl_bool_false);	break;
+		case CL_DEVICE_PARENT_DEVICE:
+			{
+				cl_device_id dev = NULL;
+				bTooSmall = SET_VAR(dev);
+			}
+			break;
+		case CL_DEVICE_PARTITION_MAX_SUB_DEVICES:		bTooSmall = SET_VAR(device->max_sub_devices);	break;
+		case CL_DEVICE_PARTITION_PROPERTIES:
+			{
+				cl_device_partition_property prop = 0;
+				bTooSmall = SET_VAR(prop);
+			}
+			break;
+		case CL_DEVICE_PARTITION_AFFINITY_DOMAIN:
+			{
+				cl_device_affinity_domain domain = 0;
+				bTooSmall = SET_VAR(domain);
+			}
+			break;
+		case CL_DEVICE_PARTITION_TYPE:
+			{
+				cl_device_partition_property prop = 0;
+				bTooSmall = SET_VAR(prop);
+			}
+			break;
+		case CL_DEVICE_REFERENCE_COUNT:
+			{
+				cl_uint count = 1;
+				bTooSmall = SET_VAR(count);
+			}
+			break;
+
 		default:
 			return CL_INVALID_VALUE;
 		}
@@ -300,7 +334,9 @@ _cl_device_id::_cl_device_id() :
 	image3d_max_depth(2048),
 	image_max_buffer_size(0x400000),
 	image_max_array_size(2048),
-	max_samplers(16)
+	max_samplers(16),
+	printf_buffer_size(0x400000),
+	max_sub_devices(1)
 {
 	using namespace FreeOCL;
 
@@ -319,6 +355,8 @@ _cl_device_id::_cl_device_id() :
 		memsize = parse_int(run_command("cat /proc/meminfo | grep MemTotal | awk '{ print $2 }'")) * 1024U;
 		freememsize = parse_int(run_command("cat /proc/meminfo | grep MemFree | awk '{ print $2 }'")) * 1024U;
 		name = trim(run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));
+		if (name.empty())
+			name = trim(run_command("cat /proc/cpuinfo | grep \"Processor\" | head -1 | sed -e \"s/Processor\t: //\""));
 		vendor = trim(run_command("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""));
 		max_clock_frequency = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
 		mem_cacheline_size = parse_int(run_command("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));

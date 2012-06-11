@@ -82,6 +82,9 @@ struct _cl_device_id : public FreeOCL::icd_table
 	const cl_uint max_samplers;
 
 	cl_bool endian_little;
+
+	size_t printf_buffer_size;
+	cl_uint max_sub_devices;
 };
 
 #endif

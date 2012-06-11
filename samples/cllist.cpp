@@ -80,8 +80,15 @@ int main(int argc, const char **argv)
 						<< "\t\t\tdevice " << j << ':' << std::endl
 						<< "\t\t\t\tname: " << dev.getInfo<CL_DEVICE_NAME>() << std::endl
 						<< "\t\t\t\tversion: " << dev.getInfo<CL_DEVICE_VERSION>() << std::endl
+						<< "\t\t\t\tOpenCL C version: " << dev.getInfo<CL_DEVICE_OPENCL_C_VERSION>() << std::endl
 						<< "\t\t\t\tvendor: " << dev.getInfo<CL_DEVICE_VENDOR>() << std::endl
-						<< "\t\t\t\tmemory: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()) << std::endl
+						<< "\t\t\t\tcompute units: " << dev.getInfo<CL_DEVICE_MAX_COMPUTE_UNITS>() << std::endl
+						<< "\t\t\t\tglobalmemory: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_SIZE>()) << std::endl
+						<< "\t\t\t\tlocal memory: " << mem_suffix(dev.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>()) << std::endl
+						<< "\t\t\t\taddress bits: " << dev.getInfo<CL_DEVICE_ADDRESS_BITS>() << std::endl
+						<< "\t\t\t\timage support: " << dev.getInfo<CL_DEVICE_IMAGE_SUPPORT>() << std::endl
+						<< "\t\t\t\tcache line size: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHELINE_SIZE>()) << std::endl
+						<< "\t\t\t\tcache size: " << mem_suffix(dev.getInfo<CL_DEVICE_GLOBAL_MEM_CACHE_SIZE>()) << std::endl
 						<< "\t\t\t\tendianess: "
 						<< (dev.getInfo<CL_DEVICE_ENDIAN_LITTLE>() ? "little endian" : "big endian") << std::endl
 						<< "\t\t\t\textensions: " << dev.getInfo<CL_DEVICE_EXTENSIONS>() << std::endl;
