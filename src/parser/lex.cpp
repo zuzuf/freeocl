@@ -63,10 +63,10 @@ lex_start:
 				return _EOF;
 			if (c == 'p')
 			{
-				std::stringstream line;
-				line << c;
-				while(get(c) && c != '\n')	line << c;
-				parse_pragma(line.str());
+				std::string line;
+				line += c;
+				while(get(c) && c != '\n')	line += c;
+				parse_pragma(line);
 				goto lex_start;
 			}
 			if (isspace(c))		// read line number and file name

@@ -304,11 +304,11 @@ _cl_device_id::_cl_device_id() :
 {
 	using namespace FreeOCL;
 
-	std::string ostype = trim(run_command("sysctl -e kernel.ostype | awk '{ print $NF }'"));
+	std::string ostype = trim(run_command("/sbin/sysctl -e kernel.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
-		ostype = trim(run_command("sysctl -e kern.ostype | awk '{ print $NF }'"));
+		ostype = trim(run_command("/sbin/sysctl -e kern.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
-		ostype = trim(run_command("sysctl -a | grep ostype | awk '{ print $NF }'"));
+		ostype = trim(run_command("/sbin/sysctl -a | grep ostype | awk '{ print $NF }'"));
 	if (ostype == "Linux")
 	{
 #ifdef _SC_NPROCESSORS_ONLN
@@ -326,13 +326,13 @@ _cl_device_id::_cl_device_id() :
 	}
 	else if (ostype == "FreeBSD" || ostype == "NetBSD" || ostype == "OpenBSD")	// Regarding NetBSD and OpenBSD
 	{																			// this is just a guess
-		cpu_cores = parse_int(run_command("sysctl hw.ncpu | awk '{ print $NF }'"));
-		name = trim(run_command("sysctl hw.model | awk '{ for(i=2;i<NF;++i) print $i }' | tr \"\\n\" \" \""));
-		vendor = trim(run_command("sysctl hw.model | awk '{ print $2 }'"));
-		memsize = parse_int(run_command("sysctl hw.realmem | awk '{ print $NF }'"));
-		freememsize = parse_int(run_command("sysctl -a | grep v_free_count | awk '{ print $NF }'"))
-					  * parse_int(run_command("sysctl -a | grep v_page_size | awk '{ print $NF }'"));
-		max_clock_frequency = parse_int(run_command("sysctl hw.clockrate | awk '{ print $NF }'"));
+		cpu_cores = parse_int(run_command("/sbin/sysctl hw.ncpu | awk '{ print $NF }'"));
+		name = trim(run_command("/sbin/sysctl hw.model | awk '{ for(i=2;i<NF;++i) print $i }' | tr \"\\n\" \" \""));
+		vendor = trim(run_command("/sbin/sysctl hw.model | awk '{ print $2 }'"));
+		memsize = parse_int(run_command("/sbin/sysctl hw.realmem | awk '{ print $NF }'"));
+		freememsize = parse_int(run_command("/sbin/sysctl -a | grep v_free_count | awk '{ print $NF }'"))
+					  * parse_int(run_command("/sbin/sysctl -a | grep v_page_size | awk '{ print $NF }'"));
+		max_clock_frequency = parse_int(run_command("/sbin/sysctl hw.clockrate | awk '{ print $NF }'"));
 		// I don't know how to get this information ... so let's use default values
 		mem_cacheline_size = 64;
 		mem_cache_size = 4 * 1024 * 1024;

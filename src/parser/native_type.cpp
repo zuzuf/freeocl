@@ -116,7 +116,7 @@ namespace FreeOCL
 			"char16", "short16", "int16", "long16", "uchar16", "ushort16", "uint16", "ulong16", "float16", "double16",
 			"half2", "half3", "half4", "half8", "half16"
 		};
-		std::string prefix;
+		const char *prefix = "";
 		switch(get_address_space())
 		{
 		case PRIVATE:	break;
@@ -126,7 +126,7 @@ namespace FreeOCL
 		}
 		if (is_const() && get_address_space() != CONSTANT)
 			return prefix + std::string("const ") + type_name[id];
-		return prefix + type_name[id];
+		return std::string(prefix) + type_name[id];
 	}
 
 	std::string native_type::get_cxx_name() const
@@ -142,7 +142,7 @@ namespace FreeOCL
 			"__char16", "__short16", "__int16", "__long16", "__uchar16", "__ushort16", "__uint16", "__ulong16", "__float16", "__double16",
 			"__half2", "__half3", "__half4", "__half8", "__half16"
 		};
-		std::string prefix;
+		const char *prefix = "";
 		switch(get_address_space())
 		{
 		case PRIVATE:	break;
@@ -152,7 +152,7 @@ namespace FreeOCL
 		}
 		if (is_const() && get_address_space() != CONSTANT)
 			return prefix + std::string("const ") + type_name[id];
-		return prefix + type_name[id];
+		return std::string(prefix) + type_name[id];
 	}
 
 	void native_type::write(std::ostream &out) const
