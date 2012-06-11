@@ -26,8 +26,8 @@ namespace FreeOCL
 		exp2(exp2),
 		exp3(exp3)
 	{
-		const smartptr<type> t0 = exp2->get_type();
-		const smartptr<type> t1 = exp3->get_type();
+		const smartptr<type> &t0 = exp2->get_type();
+		const smartptr<type> &t1 = exp3->get_type();
 		p_type = type::compute_resulting_type(t0, t1);
 	}
 

@@ -53,7 +53,7 @@ namespace FreeOCL
 	void type_decl::write(std::ostream& out) const
 	{
 		out << "typedef ";
-		smartptr<struct_type> s = p_type.as<struct_type>();
+		const struct_type *s = p_type.as<struct_type>();
 		if (s)
 			s->define(out);
 		else

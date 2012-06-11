@@ -30,19 +30,21 @@ namespace FreeOCL
 
 	void cast::write(std::ostream &out) const
 	{
-		smartptr<native_type> native = p_type.as<native_type>();
+		const native_type *native = p_type.as<native_type>();
 		if (native && native->is_vector())
 		{
 			out << *p_type << "::make(";
 			std::string post;
-			smartptr<expression> cur = exp;
-			while(cur.as<binary>() && cur.as<binary>()->get_op() == ',')
+			const expression *cur = exp.weak();
+			const binary *bin = dynamic_cast<const binary*>(cur);
+			std::stringstream buf;
+			while(bin && bin->get_op() == ',')
 			{
-				smartptr<binary> bin = cur.as<binary>();
-				std::stringstream buf;
+				buf.str(std::string());
 				buf << *(bin->get_right());
 				post = ',' + buf.str() + post;
-				cur = bin->get_left();
+				cur = bin->get_left().weak();
+				bin = dynamic_cast<const binary*>(cur);
 			}
 			out << *cur << post << ')';
 		}
@@ -52,25 +54,25 @@ namespace FreeOCL
 
 	bool cast::validate() const
 	{
-		smartptr<native_type> native = p_type.as<native_type>();
+		const native_type *native = p_type.as<native_type>();
 		if (native && native->is_vector())
 		{
 			const int literal_dim = native->get_dim();
 			int acc_dim = 0;
-			smartptr<expression> cur = exp;
-			while(cur.as<binary>() && cur.as<binary>()->get_op() == ',')
+			const expression *cur = exp.weak();
+			const binary *bin = dynamic_cast<const binary*>(cur);
+			while(bin && bin->get_op() == ',')
 			{
-				smartptr<binary> bin = cur.as<binary>();
-				smartptr<native_type> t = bin->get_right()->get_type().as<native_type>();
+				const native_type *t = bin->get_right()->get_type().as<native_type>();
 				if (!t)
 					return false;
 				acc_dim += t->get_dim();
-				cur = bin->get_left();
+				cur = bin->get_left().weak();
+				bin = dynamic_cast<const binary*>(cur);
 			}
-			smartptr<expression> exp = cur.as<expression>();
-			if (!exp)
+			if (!cur)
 				return false;
-			smartptr<native_type> t = exp->get_type().as<native_type>();
+			const native_type *t = cur->get_type().as<native_type>();
 			if (!t)
 				return false;
 			acc_dim += t->get_dim();

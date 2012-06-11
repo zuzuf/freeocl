@@ -25,6 +25,9 @@ namespace FreeOCL
 		set<std::string> processed_macros(forbidden);
 		bool b_can_leave;
 		std::string ret;
+		std::string word;
+		std::string value;
+		ret.reserve(text.size());
 		do
 		{
 			ret.clear();
@@ -36,7 +39,7 @@ namespace FreeOCL
 				char c = text[i];
 				if (isalpha(c) || c == '_')
 				{
-					std::string word;
+					word.clear();
 					for(; i < text.size() && (isalnum(text[i]) || text[i] == '_') ; ++i)
 						word += text[i];
 					--i;
@@ -61,7 +64,7 @@ namespace FreeOCL
 							args.reserve(m.params.size());
 							while(i < text.size() && text[i] != ')')
 							{
-								std::string value;
+								value.clear();
 								while(i < text.size() && isspace(text[i]))	++i;
 								int p_level = 0;
 								bool b_in_string = false;

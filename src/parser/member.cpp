@@ -30,9 +30,11 @@ namespace FreeOCL
 	void member::write(std::ostream& out) const
 	{
 		smartptr<type> p_type = base->get_type();
-		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
+		const type_def *p_type_def = p_type.as<type_def>();
+		if (p_type_def)	p_type = p_type_def->get_type();
 		out << *base;
-		if (p_type.as<pointer_type>())
+		const pointer_type *p_pointer_type = p_type.as<pointer_type>();
+		if (p_pointer_type)
 			out << "->";
 		else
 			out << '.';
@@ -42,14 +44,16 @@ namespace FreeOCL
 	smartptr<type> member::get_type() const
 	{
 		smartptr<type> p_type = base->get_type();
-		if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
+		const type_def *p_type_def = p_type.as<type_def>();
+		if (p_type_def)	p_type = p_type_def->get_type();
 
-		const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
-		smartptr<struct_type> s_type;
+		const pointer_type *ptr = p_type.as<pointer_type>();
+		const struct_type *s_type;
 		if (ptr)
 		{
 			p_type = ptr->get_base_type();
-			if (p_type.as<type_def>())	p_type = p_type.as<type_def>()->get_type();
+			p_type_def = p_type.as<type_def>();
+			if (p_type_def)	p_type = p_type_def->get_type();
 			s_type = p_type.as<struct_type>();
 		}
 		else

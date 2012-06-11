@@ -60,11 +60,10 @@ namespace FreeOCL
 			processed.push_back(std::make_pair(token, d_val__));
 			return token;
 		}
-		const std::pair<int, smartptr<node> > token = tokens.back();
+		processed.push_back(tokens.back());
 		tokens.pop_back();
-		processed.push_back(token);
-		d_val__ = token.second;
-		return token.first;
+		d_val__ = processed.back().second;
+		return processed.back().first;
 	}
 
 	inline int parser::peek_token()
@@ -144,7 +143,7 @@ namespace FreeOCL
 
 	int parser::__external_declaration()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(function_definition);
 		RULE1(declaration);
 		END();
@@ -152,7 +151,7 @@ namespace FreeOCL
 
 	int parser::__function_definition()
 	{
-		BEGIN();
+		BEGIN(2);
 		const bool b_qualifier = __function_qualifier();
 		smartptr<qualifier> qualifiers = d_val__.as<qualifier>();
 		const bool b_attribute_qualifier = __attribute_qualifier();
@@ -256,7 +255,7 @@ namespace FreeOCL
 
 	int parser::__declaration()
 	{
-		BEGIN();
+		BEGIN(2);
 
 		if (__declaration_specifiers())
 		{
@@ -287,7 +286,7 @@ namespace FreeOCL
 
 	int parser::__declaration_specifier()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(storage_class_specifier);
 		RULE1(type_specifier);
 		RULE1(type_qualifier);
@@ -514,7 +513,7 @@ namespace FreeOCL
 
 	int parser::__declarator()
 	{
-		BEGIN();
+		BEGIN(2);
 		RULE2(pointer, direct_declarator);
 		RULE1(direct_declarator);
 		END();
@@ -528,7 +527,7 @@ namespace FreeOCL
 
 	int parser::__pointer()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (peek_token() == '*')
 		{
 			smartptr<type> ptr;
@@ -615,7 +614,7 @@ namespace FreeOCL
 
 	int parser::__type_specifier()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(read_token())
 		{
 		case BOOL:		d_val__ = new native_type(native_type::BOOL, false, type::PRIVATE);		return 1;
@@ -752,7 +751,7 @@ namespace FreeOCL
 
 	int parser::__type_qualifier()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case CONST:			RULE1(token<CONST>);		break;
@@ -771,7 +770,7 @@ namespace FreeOCL
 
 	int parser::__type_qualifier_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (__type_qualifier())
 		{
 			smartptr<chunk> N = new chunk(d_val__);
@@ -785,7 +784,7 @@ namespace FreeOCL
 
 	int parser::__enum_specifier()
 	{
-		BEGIN();
+		BEGIN(5);
 		if (peek_token() != ENUM)
 			END();
 		MATCH4(token<ENUM>, token<'{'>, enumerator_list, token<'}'>)
@@ -834,14 +833,14 @@ namespace FreeOCL
 
 	int parser::__enumerator_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_SEP(enumerator, token<','>);
 		END();
 	}
 
 	int parser::__enumerator()
 	{
-		BEGIN();
+		BEGIN(3);
 		if (peek_token() == IDENTIFIER)
 		{
 			RULE3(token<IDENTIFIER>, token<'='>, constant_expression);
@@ -852,7 +851,7 @@ namespace FreeOCL
 
 	int parser::__direct_declarator_suffix()
 	{
-		BEGIN();
+		BEGIN(3);
 		switch(peek_token())
 		{
 		case '[':
@@ -870,7 +869,7 @@ namespace FreeOCL
 
 	int parser::__direct_declarator_base()
 	{
-		BEGIN();
+		BEGIN(3);
 		RULE1(token<IDENTIFIER>);
 		RULE3(token<'('>, declarator, token<')'>);
 		END();
@@ -878,7 +877,7 @@ namespace FreeOCL
 
 	int parser::__direct_declarator()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (__direct_declarator_base())
 		{
 			smartptr<chunk> N = new chunk(d_val__);
@@ -892,7 +891,7 @@ namespace FreeOCL
 
 	int parser::__identifier_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_SEP(token<IDENTIFIER>, token<','>);
 		END();
 	}
@@ -926,7 +925,7 @@ namespace FreeOCL
 
 	int parser::__parameter_declaration()
 	{
-		BEGIN();
+		BEGIN(3);
 		MATCH3(declaration_specifiers, declarator, attribute_qualifier)
 		{
 			smartptr<chunk> p_chunk = N[1].as<chunk>();
@@ -956,7 +955,7 @@ namespace FreeOCL
 
 	int parser::__abstract_declarator()
 	{
-		BEGIN();
+		BEGIN(2);
 		RULE2(pointer, direct_abstract_declarator);
 		RULE1(pointer);
 		RULE1(direct_abstract_declarator);
@@ -965,7 +964,7 @@ namespace FreeOCL
 
 	int parser::__direct_abstract_declarator_base()
 	{
-		BEGIN();
+		BEGIN(3);
 		switch(peek_token())
 		{
 		case '(':
@@ -983,7 +982,7 @@ namespace FreeOCL
 
 	int parser::__direct_abstract_declarator_suffix()
 	{
-		BEGIN();
+		BEGIN(3);
 		switch(peek_token())
 		{
 		case '[':
@@ -1000,7 +999,7 @@ namespace FreeOCL
 
 	int parser::__direct_abstract_declarator()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (__direct_abstract_declarator_base())
 		{
 			smartptr<node> N = d_val__;
@@ -1019,7 +1018,7 @@ namespace FreeOCL
 
 	int parser::__struct_or_union_specifier()
 	{
-		BEGIN();
+		BEGIN(5);
 		if (__struct_or_union())
 		{
 			smartptr<token> tok = d_val__.as<token>();
@@ -1063,7 +1062,7 @@ namespace FreeOCL
 
 	int parser::__struct_or_union()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(token<STRUCT>);
 		RULE1(token<UNION>);
 		END();
@@ -1071,7 +1070,7 @@ namespace FreeOCL
 
 	int parser::__struct_declaration_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (__struct_declaration())
 		{
 			smartptr<chunk> p_chunk = new chunk;
@@ -1086,7 +1085,7 @@ namespace FreeOCL
 
 	int parser::__struct_declaration()
 	{
-		BEGIN();
+		BEGIN(3);
 		MATCH3(specifier_qualifier_list, struct_declarator_list, token<';'>)
 		{
 			smartptr<chunk> members = new chunk;
@@ -1139,7 +1138,7 @@ namespace FreeOCL
 
 	int parser::__struct_declarator_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (__struct_declarator())
 		{
 			smartptr<chunk> p_chunk = new chunk(d_val__);
@@ -1167,7 +1166,7 @@ namespace FreeOCL
 
 	int parser::__specifier_qualifier()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(type_specifier);
 		RULE1(type_qualifier);
 		END();
@@ -1235,7 +1234,7 @@ namespace FreeOCL
 
 	int parser::__compound_statement()
 	{
-		BEGIN();
+		BEGIN(3);
 		if (peek_token() == '{')
 		{
 			RULE2(token<'{'>, token<'}'>);
@@ -1247,14 +1246,14 @@ namespace FreeOCL
 
 	int parser::__declaration_statement_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT(declaration_statement);
 		END();
 	}
 
 	int parser::__declaration_statement()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(declaration);
 		RULE1(statement);
 		END();
@@ -1262,14 +1261,14 @@ namespace FreeOCL
 
 	int parser::__statement_list()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT(statement);
 		END();
 	}
 
 	int parser::__statement()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(labeled_statement);
 		RULE1(compound_statement);
 		RULE1(expression_statement);
@@ -1281,7 +1280,7 @@ namespace FreeOCL
 
 	int parser::__labeled_statement()
 	{
-		BEGIN();
+		BEGIN(4);
 		switch(peek_token())
 		{
 		case IDENTIFIER:
@@ -1305,7 +1304,7 @@ namespace FreeOCL
 
 	int parser::__jump_statement()
 	{
-		BEGIN();
+		BEGIN(3);
 		switch(peek_token())
 		{
 		case GOTO:
@@ -1332,7 +1331,7 @@ namespace FreeOCL
 
 	int parser::__iteration_statement()
 	{
-		BEGIN();
+		BEGIN(7);
 		switch(peek_token())
 		{
 		case WHILE:
@@ -1365,7 +1364,7 @@ namespace FreeOCL
 
 	int parser::__selection_statement()
 	{
-		BEGIN();
+		BEGIN(7);
 		switch(peek_token())
 		{
 		case IF:
@@ -1390,7 +1389,7 @@ namespace FreeOCL
 
 	int parser::__expression_statement()
 	{
-		BEGIN();
+		BEGIN(2);
 		RULE1(token<';'>);
 		RULE2(expression, token<';'>);
 		CHECK(1, "syntax error, ';' expected");
@@ -1421,7 +1420,7 @@ namespace FreeOCL
 
 	int parser::__assignment_expression()
 	{
-		BEGIN();
+		BEGIN(3);
 		MATCH3(unary_expression, assignment_operator, assignment_expression)
 		{
 			d_val__ = new binary(N[1].as<token>()->get_id(), N[0], N[2]);
@@ -1434,7 +1433,7 @@ namespace FreeOCL
 
 	int parser::__assignment_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case '=':			RULE1(token<'='>);	break;
@@ -1454,7 +1453,7 @@ namespace FreeOCL
 
 	int parser::__conditional_expression()
 	{
-		BEGIN();
+		BEGIN(5);
 		MATCH5(logical_or_expression, token<'?'>, expression, token<':'>, conditional_expression)
 		{
 			smartptr<type> result_type = N[0].as<expression>()->get_type();
@@ -1475,7 +1474,7 @@ namespace FreeOCL
 
 	int parser::__unary_expression()
 	{
-		BEGIN();
+		BEGIN(4);
 		switch(peek_token())
 		{
 		case INC_OP:
@@ -1525,7 +1524,7 @@ namespace FreeOCL
 
 	int parser::__unary_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case '&':	RULE1(token<'&'>);	break;
@@ -1540,7 +1539,7 @@ namespace FreeOCL
 
 	int parser::__type_name()
 	{
-		BEGIN();
+		BEGIN(2);
 		MATCH2(specifier_qualifier_list, abstract_declarator)
 		{
 			smartptr<type> p_type = N[0].as<type>();
@@ -1567,7 +1566,7 @@ namespace FreeOCL
 
 	int parser::__cast_expression()
 	{
-		BEGIN();
+		BEGIN(6);
 		MATCH4(token<'('>, type_name, token<')'>, cast_expression)
 		{
 			smartptr<cast> pcast = new cast(N[1].as<type>(), N[3].as<expression>());
@@ -1621,7 +1620,7 @@ namespace FreeOCL
 
 	int parser::__equality_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case EQ_OP:	RULE1(token<EQ_OP>);	break;
@@ -1632,14 +1631,14 @@ namespace FreeOCL
 
 	int parser::__equality_expression()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_OP(relational_expression, equality_operator);
 		END();
 	}
 
 	int parser::__relational_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case '<':	RULE1(token<'<'>);	break;
@@ -1652,14 +1651,14 @@ namespace FreeOCL
 
 	int parser::__relational_expression()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_OP(shift_expression, relational_operator);
 		END();
 	}
 
 	int parser::__shift_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case LEFT_OP:	RULE1(token<LEFT_OP>);	break;
@@ -1670,14 +1669,14 @@ namespace FreeOCL
 
 	int parser::__shift_expression()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_OP(additive_expression, shift_operator);
 		END();
 	}
 
 	int parser::__additive_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case '+':	RULE1(token<'+'>);	break;
@@ -1688,14 +1687,14 @@ namespace FreeOCL
 
 	int parser::__additive_expression()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_OP(multiplicative_expression, additive_operator);
 		END();
 	}
 
 	int parser::__multiplicative_operator()
 	{
-		BEGIN();
+		BEGIN(1);
 		switch(peek_token())
 		{
 		case '*':	RULE1(token<'*'>);	break;
@@ -1707,14 +1706,14 @@ namespace FreeOCL
 
 	int parser::__multiplicative_expression()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		LISTOF_LEFT_OP(cast_expression, multiplicative_operator);
 		END();
 	}
 
 	int parser::__postfix_expression_suffix()
 	{
-		BEGIN();
+		BEGIN(3);
 		switch(peek_token())
 		{
 		case '[':
@@ -1748,7 +1747,7 @@ namespace FreeOCL
 
 	int parser::__postfix_expression()
 	{
-		BEGIN();
+		BEGIN_SMALL();
 		if (__primary_expression())
 		{
 			smartptr<node> exp = d_val__;
@@ -1775,7 +1774,7 @@ namespace FreeOCL
 						ERROR("this is not a function!");
 					if (d_val__.as<chunk>()->size() == 3)
 					{
-						smartptr<chunk> args = (*d_val__.as<chunk>())[1];
+						const chunk *args = (*d_val__.as<chunk>())[1].as<chunk>();
 						if (exp.as<callable>()->get_num_params() != args->size())
 						{
 							std::stringstream buf;
@@ -1898,7 +1897,7 @@ namespace FreeOCL
 
 	int parser::__primary_expression()
 	{
-		BEGIN();
+		BEGIN(3);
 		switch(peek_token())
 		{
 		case IDENTIFIER:
@@ -1953,7 +1952,7 @@ namespace FreeOCL
 
 	int parser::__init_declarator()
 	{
-		BEGIN();
+		BEGIN(3);
 		RULE3(declarator, token<'='>, initializer);
 		MATCH1(declarator)
 		{
@@ -1966,7 +1965,7 @@ namespace FreeOCL
 
 	int parser::__initializer()
 	{
-		BEGIN();
+		BEGIN(4);
 		RULE1(assignment_expression);
 		if (peek_token() == '{')
 		{
@@ -1985,7 +1984,7 @@ namespace FreeOCL
 
 	int parser::__identifier()
 	{
-		BEGIN();
+		BEGIN(1);
 		RULE1(token<IDENTIFIER>);
 		RULE1(token<TYPE_NAME>);
 		END();
@@ -1993,7 +1992,7 @@ namespace FreeOCL
 
 	int parser::__attribute_qualifier()
 	{
-		BEGIN();
+		BEGIN(6);
 		if (peek_token() == __ATTRIBUTE__)
 		{
 			MATCH6(token<__ATTRIBUTE__>, token<'('>, token<'('>, attribute_list, token<')'>, token<')'>)
@@ -2038,7 +2037,7 @@ namespace FreeOCL
 
 	int parser::__attributeopt()
 	{
-		BEGIN();
+		BEGIN(2);
 		RULE2(attribute_token, attribute_argument_clauseopt);
 
 		smartptr<chunk> p_chunk = new chunk;
@@ -2055,7 +2054,7 @@ namespace FreeOCL
 
 	int parser::__attribute_argument_clauseopt()
 	{
-		BEGIN();
+		BEGIN(3);
 		RULE3(token<'('>, attribute_argument_list, token<')'>);
 
 		smartptr<chunk> p_chunk = new chunk;

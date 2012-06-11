@@ -541,43 +541,4 @@ lex_start:
 		d_val__ = new token(std::string(1, c), c);
 		return c;                       // otherwise return the extracted char.
 	}
-
-	int parser::get()
-	{
-		const int c = in.get();
-		if (c == '\n')
-			++line;
-		if (!current_line.empty() && *current_line.rbegin() == '\n')
-			current_line.clear();
-		if (c != -1)
-			current_line += char(c);
-		return c;
-	}
-
-	std::istream &parser::get(char &c)
-	{
-		c = 0;
-		bool ok = in.get(c);
-		if (c == '\n')
-			++line;
-		if (!current_line.empty() && *current_line.rbegin() == '\n')
-			current_line.clear();
-		if (ok)
-			current_line += c;
-		return in;
-	}
-
-	void parser::putback(char c)
-	{
-		in.putback(c);
-		if (c == '\n')
-			--line;
-		if (!current_line.empty())
-			current_line.erase(current_line.size() - 1, 1);
-	}
-
-	int parser::peek()
-	{
-		return in.peek();
-	}
 }

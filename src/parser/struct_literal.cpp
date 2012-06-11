@@ -45,7 +45,7 @@ namespace FreeOCL
 			st = p_type.as<type_def>()->get_type();
 		if (!st)
 			return false;
-		smartptr<chunk> ch = initializer.as<chunk>();
+		const chunk *ch = initializer.as<chunk>();
 		if (!ch)
 			return false;
 		if (ch->size() != st->members_count())

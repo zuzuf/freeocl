@@ -27,7 +27,7 @@ namespace FreeOCL
 		op(op),
 		b_postfix(b_postfix)
 	{
-		const smartptr<type> t0 = exp->get_type();
+		const smartptr<type> &t0 = exp->get_type();
 		switch(op)
 		{
 		case parser::INC_OP:

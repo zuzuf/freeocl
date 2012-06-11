@@ -26,8 +26,8 @@ namespace FreeOCL
 		right(right),
 		op(op)
 	{
-		const smartptr<type> t0 = left->get_type();
-		const smartptr<type> t1 = right->get_type();
+		const smartptr<type> &t0 = left->get_type();
+		const smartptr<type> &t1 = right->get_type();
 		switch(op)
 		{
 		case '+':

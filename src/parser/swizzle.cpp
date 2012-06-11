@@ -56,7 +56,7 @@ namespace FreeOCL
 
 	smartptr<type> swizzle::get_type() const
 	{
-		smartptr<type> p_base_type = base->get_type();
+		const smartptr<type> &p_base_type = base->get_type();
 		smartptr<native_type> p_type = p_base_type.as<native_type>();
 		if (p_base_type.as<pointer_type>())
 			p_type = p_base_type.as<pointer_type>()->get_base_type();

@@ -83,7 +83,7 @@ namespace FreeOCL
 		std::deque<smartptr<type> > types;
 		for(std::deque<smartptr<node> >::const_iterator it = childs.begin(), end = childs.end() ; it != end ; ++it)
 		{
-			smartptr<expression> exp = it->as<expression>();
+			const expression *exp = it->as<expression>();
 			if (!exp)
 			{
 				types.push_back(smartptr<type>());

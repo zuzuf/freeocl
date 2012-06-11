@@ -98,10 +98,45 @@ namespace FreeOCL
 		inline void roll_back_to(size_t size);
 
 		// support functions for lex()
-		int get();
-		std::istream &get(char &c);
-		void putback(char c);
-		int peek();
+		inline int get()
+		{
+			const int c = in.get();
+			if (c == '\n')
+				++line;
+			if (!current_line.empty() && *current_line.rbegin() == '\n')
+				current_line.clear();
+			if (c != -1)
+				current_line += char(c);
+			return c;
+		}
+
+		inline std::istream &get(char &c)
+		{
+			c = 0;
+			const bool ok = in.get(c);
+			if (c == '\n')
+				++line;
+			if (!current_line.empty() && *current_line.rbegin() == '\n')
+				current_line.clear();
+			if (ok)
+				current_line += c;
+			return in;
+		}
+
+		inline void putback(char c)
+		{
+			in.putback(c);
+			if (c == '\n')
+				--line;
+			if (!current_line.empty())
+				current_line.erase(current_line.size() - 1, 1);
+		}
+
+		inline int peek()
+		{
+			return in.peek();
+		}
+
 
 		void register_builtin();
 

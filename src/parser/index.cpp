@@ -34,7 +34,8 @@ namespace FreeOCL
 
 	smartptr<type> index::get_type() const
 	{
-		const smartptr<pointer_type> p_type = ptr->get_type().as<pointer_type>();
+		const smartptr<type> &vtype = ptr->get_type();
+		const pointer_type *p_type = vtype.as<pointer_type>();
 		if (!p_type)		// This should never happen
 			return (type*)NULL;
 		return p_type->get_base_type();

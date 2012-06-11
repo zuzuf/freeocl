@@ -21,7 +21,8 @@
 #include "node.h"
 
 #define ERROR(MSG)	do { error(MSG); throw MSG; } while(false)
-#define BEGIN()		const size_t start = processed.size();	size_t __max = 0;	bool b_ok = false;	smartptr<node> N[8];
+#define BEGIN(K)		const size_t start = processed.size();	size_t __max = 0;	bool b_ok = false;	smartptr<node> N[K];
+#define BEGIN_SMALL()		const size_t start = processed.size();
 #define ROLLBACK()	roll_back_to(start)
 #define END()		do\
 					{\
