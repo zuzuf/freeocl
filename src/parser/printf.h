@@ -15,21 +15,30 @@
 	You should have received a copy of the GNU Lesser General Public License
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
-#ifndef __FREEOCL_PARSER_CALLABLE_H__
-#define __FREEOCL_PARSER_CALLABLE_H__
+#ifndef __FREEOCL_PARSER_PRINTF_H__
+#define __FREEOCL_PARSER_PRINTF_H__
 
-#include "type.h"
 #include <deque>
+#include "callable.h"
 
 namespace FreeOCL
 {
-	class callable : public node
+	class printf : public callable
 	{
 	public:
-		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const = 0;
-		virtual const std::string &get_name() const = 0;
-		virtual size_t get_num_params() const = 0;
+		printf();
+		virtual ~printf();
+
+		virtual void write(std::ostream &out) const;
+
+		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const;
+		virtual const std::string &get_name() const;
+		virtual size_t get_num_params() const;
 		virtual bool check_num_params(const size_t n) const;
+
+		virtual bool has_references_to(const std::string &function_name) const;
+	private:
+		const std::string name;
 	};
 }
 

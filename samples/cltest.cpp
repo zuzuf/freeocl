@@ -122,17 +122,14 @@ int main(int argc, const char **argv)
 
 		cl::Program::Sources sources;
 		sources.push_back(make_pair(source_code.data(), len));
-		for(size_t i = 0 ; i < 10 ; ++i)
+		cl::Program program(context, sources);
+		try
 		{
-			cl::Program program(context, sources);
-			try
-			{
-				program.build(devices, compiler_args.c_str());
-			} catch(...)	{}
-		}
-//		cout << "source code: " << endl << source_code.data() << endl;
-//		cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << endl;
-//		cout << "build log: " << endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << endl;
+			program.build(devices, compiler_args.c_str());
+		} catch(...)	{}
+		cout << "source code: " << endl << source_code.data() << endl;
+		cout << "build status: " << program.getBuildInfo<CL_PROGRAM_BUILD_STATUS>(devices.front()) << endl;
+		cout << "build log: " << endl << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(devices.front()) << endl;
 	}
 	catch(cl::Error err)
 	{

@@ -20,7 +20,8 @@ set(PARSER_SOURCES
     parser/enum_type.h      parser/enum_type.cpp
     parser/typedef.h		parser/typedef.cpp
 	parser/function.h		parser/function.cpp
-	parser/kernel.h			parser/kernel.cpp
+    parser/printf.h         parser/printf.cpp
+    parser/kernel.h			parser/kernel.cpp
 	parser/ternary.h		parser/ternary.cpp
 	parser/binary.h			parser/binary.cpp
 	parser/unary.h			parser/unary.cpp
@@ -28,7 +29,7 @@ set(PARSER_SOURCES
 	parser/var.h			parser/var.cpp
 	parser/call.h			parser/call.cpp
 	parser/expression.h
-	parser/callable.h
+    parser/callable.h       parser/callable.cpp
 	parser/symbol_table.h	parser/symbol_table.cpp
 	parser/builtin.h		parser/builtin.cpp
 	parser/overloaded_builtin.h		parser/overloaded_builtin.cpp
@@ -103,6 +104,7 @@ set(FREEOCL_HEADERS
 	../include/FreeOCL/vmisc.h
 	../include/FreeOCL/workitem.h
     ../include/FreeOCL/simdopts.h
+    ../include/FreeOCL/printf.h
     )
 
 add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS} ${PREPROCESSOR_SOURCES})

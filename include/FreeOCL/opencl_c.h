@@ -284,6 +284,7 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #include "vmisc.h"
 #include "converters.h"
 #include "imgreadwrite.h"
+#include "printf.h"
 
 #undef FLOAT2
 #undef FLOAT4

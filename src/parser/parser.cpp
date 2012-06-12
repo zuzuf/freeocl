@@ -1775,14 +1775,14 @@ namespace FreeOCL
 					if (d_val__.as<chunk>()->size() == 3)
 					{
 						const chunk *args = (*d_val__.as<chunk>())[1].as<chunk>();
-						if (exp.as<callable>()->get_num_params() != args->size())
+						if (!exp.as<callable>()->check_num_params(args->size()))
 						{
 							std::stringstream buf;
 							buf << "wrong number of function parameters! (" << args->size()
 								<< " instead of " << exp.as<callable>()->get_num_params() << ')';
 							ERROR(buf.str());
 						}
-						std::deque<smartptr<type> > arg_types = args->get_as_types();
+						const std::deque<smartptr<type> > &arg_types = args->get_as_types();
 						try
 						{
 							if (!exp.as<callable>()->get_return_type(arg_types))
@@ -1819,7 +1819,7 @@ namespace FreeOCL
 					else
 					{
 						if (exp.as<callable>()->get_num_params() != 0)
-							ERROR("this function doesn't take parameters!");
+							ERROR("this function takes parameters!");
 						exp = new call(exp, (chunk*)NULL);
 					}
 					break;

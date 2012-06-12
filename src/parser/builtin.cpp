@@ -4,6 +4,7 @@
 #include "symbol_table.h"
 #include "overloaded_builtin.h"
 #include "var.h"
+#include "printf.h"
 
 namespace FreeOCL
 {
@@ -161,6 +162,9 @@ namespace FreeOCL
 #define REGISTER(type, name, num)					symbols->insert(#name, new builtin(native_type::t_##type, #name, num))
 #define REGISTER_OVERLOADED(signature, gentype)		do { overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(n->get_name(), n);	} while(false)
 #define REGISTER_VAR(type, name)					symbols->insert(#name, new var(#name, native_type::t_##type))
+
+		// Printf
+		symbols->insert("printf", new printf);
 
 		// Workitem functions
 		REGISTER(uint, get_work_dim, 0);
