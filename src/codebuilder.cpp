@@ -36,6 +36,24 @@
 
 namespace FreeOCL
 {
+	std::string RUNTIME_FREEOCL_CXX_COMPILER = FREEOCL_CXX_COMPILER;
+	std::string RUNTIME_FREEOCL_CXX_FLAGS = FREEOCL_CXX_FLAGS;
+
+	struct __init
+	{
+		__init();
+	};
+	__init __init_instance;
+	__init::__init()
+	{
+		const char *env_FREEOCL_CXX_COMPILER = getenv("FREEOCL_CXX_COMPILER");
+		const char *env_FREEOCL_CXX_FLAGS = getenv("FREEOCL_CXX_FLAGS");
+		if (env_FREEOCL_CXX_COMPILER)
+			RUNTIME_FREEOCL_CXX_COMPILER = env_FREEOCL_CXX_COMPILER;
+		if (env_FREEOCL_CXX_FLAGS)
+			RUNTIME_FREEOCL_CXX_FLAGS = env_FREEOCL_CXX_FLAGS;
+	}
+
 	std::string build_program(const std::string &options,
 							  const std::string &code,
 							  std::stringstream &log,
@@ -205,8 +223,8 @@ namespace FreeOCL
 		}
 
 		std::stringstream cmd;
-		cmd << FREEOCL_CXX_COMPILER
-			<< FREEOCL_CXX_FLAGS
+		cmd << RUNTIME_FREEOCL_CXX_COMPILER << ' '
+			<< RUNTIME_FREEOCL_CXX_FLAGS
 			<< compiler_extra_args
 			<< " -o " << filename_out
 			<< ' ' << filename_in
@@ -217,7 +235,7 @@ namespace FreeOCL
 		close(fd_out);
 		fclose(file_in);
 		// Remove the input file which is now useless
-//		remove(filename_in.c_str());
+		remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
@@ -649,8 +667,8 @@ namespace FreeOCL
 		}
 		else			// Shared library (CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
 		{
-			cmd << FREEOCL_CXX_COMPILER
-				<< FREEOCL_CXX_FLAGS
+			cmd << RUNTIME_FREEOCL_CXX_COMPILER
+				<< RUNTIME_FREEOCL_CXX_FLAGS
 				<< compiler_extra_args
 				<< " -o " << filename_out;
 		}

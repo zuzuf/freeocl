@@ -300,7 +300,7 @@ int printf(const char *format, ...)
 
 				if (format[i] == 0)
 				{
-					b_error;
+					b_error = true;
 					continue;
 				}
 
@@ -656,7 +656,7 @@ int printf(const char *format, ...)
 					}
 					break;
 				case 'c':
-					__print_char(va_arg(ap, char));
+					__print_char(va_arg(ap, int));
 					break;
 				case 's':
 					{
