@@ -64,8 +64,8 @@ const char *source_code =
 "	a.z = 1;\n"
 "	a.w = 1;\n"
 "	out[i] = msg[i];\n"
-"	float4 f = (float4)(0.f,1.1f,M_PI_F,3e3f);\n"
-"	printf(\"(0x%x) int4 = %v4hld, string = %s, float4 = %v4hle\\n\", i, a, \"Hello world!\", f);\n"
+"	float4 f = (float4)(0.f,1.01f,M_PI_F,3e3f);\n"
+"	printf(\"(0x%x) int4 = % 3v4hld, string = %s, float4 = %.3v4hlg\\n\", i, a, \"Hello world!\", f);\n"
 ""
 "}\n";
 
