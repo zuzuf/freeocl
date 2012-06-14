@@ -229,9 +229,11 @@ private:
 	std::deque<FreeOCL::smartptr<FreeOCL::command> >	queue;
 	thread q_thread;
 	volatile bool b_stop;
+	volatile bool b_working;
 
 public:
 	bool empty();
+	bool done();
 	void enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd);
 
 private:

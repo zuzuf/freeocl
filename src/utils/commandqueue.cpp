@@ -186,7 +186,7 @@ extern "C"
 		MSG(clFinishFCL);
 		if (!FreeOCL::is_valid(command_queue))
 			return CL_INVALID_COMMAND_QUEUE;
-		if (command_queue->empty())
+		if (command_queue->done())
 		{
 			command_queue->unlock();
 			return CL_SUCCESS;
@@ -204,7 +204,11 @@ extern "C"
 	}
 }
 
-_cl_command_queue::_cl_command_queue(cl_context context) : context_resource(context), q_thread(this), b_stop(false)
+_cl_command_queue::_cl_command_queue(cl_context context)
+	: context_resource(context),
+	  q_thread(this),
+	  b_stop(false),
+	  b_working(false)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_command_queues.insert(this);
@@ -220,6 +224,7 @@ _cl_command_queue::~_cl_command_queue()
 
 	while(q_thread.running())
 		wakeup();
+	b_working = false;
 }
 
 void _cl_command_queue::enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd)
@@ -247,6 +252,14 @@ bool _cl_command_queue::empty()
 {
 	lock();
 	const bool b = queue.empty();
+	unlock();
+	return b;
+}
+
+bool _cl_command_queue::done()
+{
+	lock();
+	const bool b = queue.empty() && !b_working;
 	unlock();
 	return b;
 }
@@ -286,6 +299,7 @@ unsigned long _cl_command_queue::proc()
 {
 	while(!b_stop)
 	{
+		b_working = false;
 		lock();
 		while (queue.empty())
 		{
@@ -298,6 +312,7 @@ unsigned long _cl_command_queue::proc()
 		}
 
 		FreeOCL::smartptr<FreeOCL::command> cmd = queue.front();
+		b_working = true;
 		queue.pop_front();
 		unlock();
 

@@ -541,7 +541,7 @@ static inline X##N make(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, 
 #define DEFINE_VECTOR_TYPE(X, N)\
 struct X##N\
 {\
-	X v[N];\
+	X v[N == 3 ? 4 : N];\
 	DEFINE_VECTOR_SET(X, N)\
 	DEFINE_VECTOR_MAKE_1(X, N)\
 	DEFINE_VECTOR_MAKE_2(X, N)\
@@ -601,7 +601,7 @@ template<>	struct __dim<X##N>\
 #define DEFINE_VECTOR_INT_TYPE(X, N)\
 struct X##N\
 {\
-	X v[N];\
+	X v[N == 3 ? 4 : N];\
 	DEFINE_VECTOR_SET(X, N)\
 	DEFINE_VECTOR_MAKE_1(X, N)\
 	DEFINE_VECTOR_MAKE_2(X, N)\
