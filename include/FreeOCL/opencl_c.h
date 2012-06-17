@@ -20,13 +20,11 @@
 
 #include "FreeOCL/config.h"
 #include <cstddef>
-#ifdef FREEOCL_USE_OPENMP
-#include <omp.h>
-#endif
 
-#define __OPENCL_VERSION__	110
+#define __OPENCL_VERSION__	120
 #define CL_VERSION_1_0		100
 #define CL_VERSION_1_1		110
+#define CL_VERSION_1_2		120
 
 #define MAXFLOAT		0x1.fffffep127f
 //#define HUGE_VALF

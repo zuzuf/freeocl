@@ -202,7 +202,8 @@ extern "C"
 		kernel->program = program;
 		kernel->function_name = kernel_name;
 		kernel->__FCL_info = (size_t (*)(size_t, int*, const char **, const char **, int *, int *)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
-		kernel->__FCL_kernel = (void (*)(const void*,size_t,size_t*,size_t*,size_t*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
+		kernel->__FCL_init = (bool (*)(size_t,const size_t*,const size_t *,const size_t*)) dlsym(program->handle, ("__FCL_init_" + kernel->function_name).c_str());
+		kernel->__FCL_kernel = (void (*)(const void *,char*,const size_t,const size_t*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
 
 		if (kernel->__FCL_info == NULL || kernel->__FCL_kernel == NULL)
 		{

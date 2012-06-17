@@ -473,20 +473,8 @@ namespace FreeOCL
 				<< "\treturn 0;" << std::endl
 				<< "}" << std::endl;
 
-			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, const size_t dim, const size_t * const global_offset, const size_t * const global_size, const size_t * const local_size)" << std::endl
-				<< "{" << std::endl
-				<< "\tconst size_t num = local_size[0] * local_size[1] * local_size[2];" << std::endl;
-#ifdef FREEOCL_USE_OPENMP
-			bool b_needs_sync = false;
-			static const char *sync_functions[] = {"barrier", "mem_fence", "read_mem_fence", "write_mem_fence",
-												   "wait_group_events", "async_work_group_copy", "async_work_group_strided_copy"};
-			for(size_t j = 0 ; j < sizeof(sync_functions) / sizeof(sync_functions[0]) && !b_needs_sync ; ++j)
-				b_needs_sync = i->second->has_references_to(sync_functions[j]);
-			gen	<< "\tomp_set_dynamic(0);" << std::endl
-				<< (b_needs_sync ?
-					"\tomp_set_num_threads(num);"
-				  : "\tomp_set_num_threads(omp_get_num_procs());") << std::endl;
-#endif
+			gen << "extern \"C\" bool __FCL_init_" << i->first << "(const size_t dim, const size_t * const global_offset, const size_t * const global_size, const size_t * const local_size)" << std::endl
+				<< "{" << std::endl;
 			gen	<< "\tFreeOCL::dim = dim;" << std::endl
 				<< "\tfor(size_t i = 0 ; i < 3 ; ++i)" << std::endl
 				<< "\t{" << std::endl
@@ -496,6 +484,20 @@ namespace FreeOCL
 				<< "\t\tFreeOCL::num_groups[i] = global_size[i] / local_size[i];" << std::endl
 				<< "\t}" << std::endl
 				<< std::endl;
+			bool b_needs_sync = false;
+			static const char *sync_functions[] = {"barrier", "mem_fence", "read_mem_fence", "write_mem_fence",
+												   "wait_group_events", "async_work_group_copy", "async_work_group_strided_copy"};
+			for(size_t j = 0 ; j < sizeof(sync_functions) / sizeof(sync_functions[0]) && !b_needs_sync ; ++j)
+				b_needs_sync = i->second->has_references_to(sync_functions[j]);
+			gen	<< "\treturn " << (b_needs_sync ? "true" : "false") << ';' << std::endl
+				<< "}" << std::endl
+				<< std::endl;
+
+			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, char * const local_memory, const size_t thread_id, const size_t * const thread_group_id)" << std::endl
+				<< "{" << std::endl
+				<< "\tFreeOCL::group_id[0] = thread_group_id[0];" << std::endl
+				<< "\tFreeOCL::group_id[1] = thread_group_id[1];" << std::endl
+				<< "\tFreeOCL::group_id[2] = thread_group_id[2];" << std::endl;
 			int last_shift = -1;
 			std::stringstream _cat;
 			_cat << '0';
@@ -530,32 +532,8 @@ namespace FreeOCL
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 				b_has_local_parameters |= b_local;
 			}
-			if (b_has_local_parameters)
-				gen << "\tstatic char local_memory[0x100000];" << std::endl;
-#ifdef FREEOCL_USE_OPENMP
-			gen << "#pragma omp parallel" << std::endl
-				<< "\t{" << std::endl;
-#endif
-			gen	<< "\tfor(size_t x = 0 ; x < FreeOCL::num_groups[0] ; ++x)" << std::endl
-				<< "\t{" << std::endl
-				<< "\t\tFreeOCL::group_id[0] = x;" << std::endl
-				<< "\t\tfor(size_t y = 0 ; y < FreeOCL::num_groups[1] ; ++y)" << std::endl
-				<< "\t\t{" << std::endl
-				<< "\t\t\tFreeOCL::group_id[1] = y;" << std::endl
-				<< "\t\t\tfor(size_t z = 0 ; z < FreeOCL::num_groups[2] ; ++z)" << std::endl
-				<< "\t\t\t{" << std::endl
-				<< "\t\t\t\tFreeOCL::group_id[2] = z;" << std::endl;
-#ifdef FREEOCL_USE_OPENMP
-			gen	<< "#pragma omp for nowait" << std::endl
-				<< "\t\t\t\tfor(size_t thread_id = 0 ; thread_id < num ; thread_id++)" << std::endl
-#else
-			gen	<< "\t\t\t\tfor(FreeOCL::thread_num = 0 ; FreeOCL::thread_num < num ; FreeOCL::thread_num++)" << std::endl
-#endif
-				<< "\t\t\t\t{" << std::endl
-#ifdef FREEOCL_USE_OPENMP
-				<< "\t\t\t\t\tFreeOCL::thread_num = thread_id;" << std::endl
-#endif
-				<< "\t\t\t\t\t" << i->first << "(";
+			gen << "\tFreeOCL::thread_num = thread_id;" << std::endl
+				<< "\t" << i->first << "(";
 			std::stringstream cat;
 			cat << '0';
 			for(size_t j = 0 ; j < params->size() ; ++j)
@@ -567,7 +545,7 @@ namespace FreeOCL
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
 
 				if (j)
-					gen << ",\n\t\t\t\t\t\t";
+					gen << ",\n\t\t";
 				if (b_local)
 					gen << "(" << *p_type << ")(local_memory + __shift" << j << ")";
 				else
@@ -575,13 +553,6 @@ namespace FreeOCL
 				cat << " + sizeof(" << *p_type << ")";
 			}
 			gen << ");" << std::endl;
-			gen << "\t\t\t\t}" << std::endl
-				<< "\t\t\t}" << std::endl
-				<< "\t\t}" << std::endl
-				<< "\t}" << std::endl;
-#ifdef FREEOCL_USE_OPENMP
-			gen << "\t}" << std::endl;
-#endif
 			gen	<< "}" << std::endl;
 		}
 

@@ -509,6 +509,7 @@ extern "C"
 		for(std::deque<std::string>::const_iterator i = splitted_kernel_names.begin() ; i != splitted_kernel_names.end() ; ++i)
 		{
 			if (!dlsym(main_program, ("__FCL_info_" + *i).c_str())
+					|| !dlsym(main_program, ("__FCL_init_" + *i).c_str())
 					|| !dlsym(main_program, ("__FCL_kernel_" + *i).c_str()))
 			{
 				SET_RET(CL_INVALID_VALUE);

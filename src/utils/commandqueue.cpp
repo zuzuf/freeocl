@@ -26,6 +26,8 @@
 #include <iostream>
 #include <cstdlib>
 #include "prototypes.h"
+#include "threadpool.h"
+#include "device.h"
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -471,13 +473,24 @@ unsigned long _cl_command_queue::proc()
 			free(cmd.as<FreeOCL::command_native_kernel>()->args);
 			break;
 		case CL_COMMAND_NDRANGE_KERNEL:
-			cmd.as<FreeOCL::command_ndrange_kernel>()->kernel->__FCL_kernel(cmd.as<FreeOCL::command_ndrange_kernel>()->args,
-																			cmd.as<FreeOCL::command_ndrange_kernel>()->dim,
-																			cmd.as<FreeOCL::command_ndrange_kernel>()->global_offset,
-																			cmd.as<FreeOCL::command_ndrange_kernel>()->global_size,
-																			cmd.as<FreeOCL::command_ndrange_kernel>()->local_size);
-			if (cmd.as<FreeOCL::command_ndrange_kernel>()->args)
-				free(cmd.as<FreeOCL::command_ndrange_kernel>()->args);
+			{
+				FreeOCL::command_ndrange_kernel *ptr = cmd.as<FreeOCL::command_ndrange_kernel>();
+				const bool b_use_sync = ptr->kernel->__FCL_init(ptr->dim,
+																ptr->global_offset,
+																ptr->global_size,
+																ptr->local_size);
+				device->pool->set_local_size(ptr->local_size);
+				device->pool->set_thread_num(b_use_sync
+											 ? ptr->local_size[0] * ptr->local_size[1] * ptr->local_size[2]
+											 : device->cpu_cores);
+				const size_t num_groups[3] = { ptr->global_size[0] / ptr->local_size[0],
+											   ptr->global_size[1] / ptr->local_size[1],
+											   ptr->global_size[2] / ptr->local_size[2] };
+				device->pool->set_num_groups(num_groups);
+				device->pool->run(ptr->args, device->local_memory, ptr->kernel->__FCL_kernel);
+				if (ptr->args)
+					free(ptr->args);
+			}
 			break;
 		case CL_COMMAND_FILL_BUFFER:
 			{

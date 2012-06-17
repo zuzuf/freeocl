@@ -19,7 +19,7 @@
 #define __FREEOCL_OPENCL_C_PREINCLUDE_SIMDOPTS_H__
 
 #ifdef __SSE__
-#include "x86intrin.h"
+#include <x86intrin.h>
 
 inline __float4 operator+(const __float4 &lhs, const __float4 &rhs)
 {

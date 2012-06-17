@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <CL/cl_ext.h>
 #include <unistd.h>
+#include <utils/threadpool.h>
 
 #define SEP " "
 
@@ -103,6 +104,7 @@ extern "C"
 		case CL_DEVICE_PROFILING_TIMER_RESOLUTION:		bTooSmall = SET_VAR(device->timer_resolution);	break;
 		case CL_DEVICE_ENDIAN_LITTLE:					bTooSmall = SET_VAR(device->endian_little);	break;
 		case CL_DEVICE_AVAILABLE:
+		case CL_DEVICE_LINKER_AVAILABLE:
 		case CL_DEVICE_COMPILER_AVAILABLE:				bTooSmall = SET_VAR(cl_bool_true);	break;
 		case CL_DEVICE_EXECUTION_CAPABILITIES:			bTooSmall = SET_VAR(device->exec_capabilities);	break;
 		case CL_DEVICE_QUEUE_PROPERTIES:				bTooSmall = SET_VAR(device->command_queue_properties);	break;
@@ -340,6 +342,9 @@ _cl_device_id::_cl_device_id() :
 {
 	using namespace FreeOCL;
 
+	pool = new FreeOCL::threadpool();
+	local_memory = new char[0x100000];
+
 	std::string ostype = trim(run_command("/sbin/sysctl -e kernel.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
 		ostype = trim(run_command("/sbin/sysctl -e kern.ostype | awk '{ print $NF }'"));
@@ -385,6 +390,12 @@ _cl_device_id::_cl_device_id() :
 		const char b[sizeof(int)];
 	} v = { 1 };
 	endian_little = v.b[0] ? CL_TRUE : CL_FALSE;
+}
+
+_cl_device_id::~_cl_device_id()
+{
+	delete pool;
+	delete local_memory;
 }
 
 namespace FreeOCL

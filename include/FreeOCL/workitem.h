@@ -18,9 +18,6 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #include "FreeOCL/config.h"
-#ifdef FREEOCL_USE_OPENMP
-#include <omp.h>
-#endif
 
 namespace FreeOCL
 {
@@ -28,13 +25,9 @@ namespace FreeOCL
 	static __size_t global_size[3];
 	static __size_t global_offset[3];
 	static __size_t local_size[3];
-	static __size_t group_id[3];
+	static __thread __size_t group_id[3];
 	static __size_t num_groups[3];
-	static __size_t thread_num;
-#ifdef FREEOCL_USE_OPENMP
-#pragma omp threadprivate(thread_num)
-#pragma omp threadprivate(group_id)
-#endif
+	static __thread __size_t thread_num;
 }
 
 // Built-in work-item functions

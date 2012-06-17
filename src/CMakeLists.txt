@@ -54,12 +54,13 @@ set(UTILS_SOURCES
 	utils/hash.h
 	utils/smartptr.h
     utils/string.h
-    utils/commandqueue.cpp    utils/commandqueue.h
+    utils/commandqueue.cpp utils/commandqueue.h
     utils/mutex.cpp        utils/mutex.h
     utils/condition.cpp    utils/condition.h
-    utils/thread.cpp        utils/thread.h
-	utils/time.cpp        utils/time.h
-	)
+    utils/thread.cpp       utils/thread.h
+    utils/time.cpp         utils/time.h
+    utils/threadpool.cpp   utils/threadpool.h
+    )
 
 set(SOURCES
     freeocl.cpp		freeocl.h
