@@ -388,6 +388,7 @@ namespace FreeOCL
 				<< "\t*type_access_qualifier = " << CL_KERNEL_ARG_ACCESS_NONE << ';' << std::endl
 				<< "\tswitch(idx)" << std::endl
 				<< "\t{" << std::endl;
+			bool b_has_local_parameters = false;
 			for(size_t j = 0 ; j < params->size() ; ++j)
 			{
 				const smartptr<chunk> cur = (*params)[j].as<chunk>();
@@ -395,6 +396,7 @@ namespace FreeOCL
 				const smartptr<pointer_type> ptr = cur->front().as<pointer_type>();
 				const bool b_pointer = ptr;
 				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
+				b_has_local_parameters |= b_local;
 				const bool b_const = cur->front().as<type>()->is_const();
 				const std::string name = cur->back().as<token>()
 										 ? cur->back().as<token>()->get_string()
@@ -493,8 +495,11 @@ namespace FreeOCL
 				<< "}" << std::endl
 				<< std::endl;
 
-			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, char * const local_memory, const size_t thread_id, const size_t * const thread_group_id)" << std::endl
-				<< "{" << std::endl
+			if (b_has_local_parameters)
+				gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, char * const local_memory, const size_t thread_id, const size_t * const thread_group_id)" << std::endl;
+			else
+				gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, char * const /*local_memory*/, const size_t thread_id, const size_t * const thread_group_id)" << std::endl;
+			gen	<< "{" << std::endl
 				<< "\tFreeOCL::group_id[0] = thread_group_id[0];" << std::endl
 				<< "\tFreeOCL::group_id[1] = thread_group_id[1];" << std::endl
 				<< "\tFreeOCL::group_id[2] = thread_group_id[2];" << std::endl;
@@ -521,16 +526,6 @@ namespace FreeOCL
 				}
 				else
 					_cat << " + sizeof(" << *(p_type) << ")";
-			}
-			bool b_has_local_parameters = false;
-			for(size_t j = 0 ; j < params->size() && !b_has_local_parameters ; ++j)
-			{
-				const smartptr<chunk> cur = (*params)[j].as<chunk>();
-				const smartptr<type> p_type = cur->front().as<type>();
-				const smartptr<pointer_type> ptr = p_type.as<pointer_type>();
-				const bool b_pointer = ptr;
-				const bool b_local = b_pointer && ptr->get_base_type()->get_address_space() == type::LOCAL;
-				b_has_local_parameters |= b_local;
 			}
 			gen << "\tFreeOCL::thread_num = thread_id;" << std::endl
 				<< "\t" << i->first << "(";

@@ -29,7 +29,7 @@
 #define FREEOCL_OMP_FLAGS	" "
 #endif
 
-#define FREEOCL_CXX_FLAGS_COMMON FREEOCL_OMP_FLAGS \
+#define FREEOCL_CXX_FLAGS_COMMON " " \
 		" -shared -fPIC -pipe" /* -Wall*/ \
 		" -I./include" \
 		" -g -O3" \
@@ -37,7 +37,6 @@
         " -fno-math-errno -fno-trapping-math" \
         " -rdynamic" \
         " -fno-exceptions -fno-rtti" \
-		/*" -ffast-math"*/ \
 		" -x c++ " \
 		" -Wall -Wextra"
 

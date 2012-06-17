@@ -151,9 +151,9 @@ public:
 	inline __swizzle_wrapper<V, X, _get(j0), _get(j1), _get(j2), _get(j3), _get(j4), _get(j5), _get(j6), _get(j7), _get(j8), _get(j9), _get(jA), _get(jB), _get(jC), _get(jD), _get(jE), _get(jF)> swizzle()
 			 {	return __swizzle_wrapper<V, X, _get(j0), _get(j1), _get(j2), _get(j3), _get(j4), _get(j5), _get(j6), _get(j7), _get(j8), _get(j9), _get(jA), _get(jB), _get(jC), _get(jD), _get(jE), _get(jF)>(ref);	}
 	template<int i>
-	inline typename __vector<V>::base_type &get()	{	return ref.get<_get(i)>();	}
+	inline typename __vector<V>::base_type &get()	{	return ref.template get<_get(i)>();	}
 	template<int i>
-	inline const typename __vector<V>::base_type &get() const	{	return ref.get<_get(i)>();	}
+	inline const typename __vector<V>::base_type &get() const	{	return ref.template get<_get(i)>();	}
 
 #undef _get
 protected:
