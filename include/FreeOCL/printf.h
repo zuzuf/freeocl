@@ -20,6 +20,7 @@
 
 #include <unistd.h>
 #include <cstdarg>
+#include "atomic.h"
 
 #define FLAG_MINUS			0x01		// -
 #define FLAG_PLUS			0x02		// +
@@ -287,7 +288,7 @@ int printf(const char *format, ...)
 	va_start(ap, format);
 	bool b_error = false;
 	// Thread safety is not required by OpenCL 1.2 but it would make printf almost useless
-#pragma omp critical
+	__atomic_lock();
 	for(int i = 0 ; format[i] != 0 && !b_error ; ++i)
 	{
 		switch(format[i])
@@ -683,6 +684,8 @@ int printf(const char *format, ...)
 			__print_char(format[i]);
 		}
 	}
+
+	__atomic_unlock();
 
 	va_end(ap);
 	return b_error ? -1 : 0;

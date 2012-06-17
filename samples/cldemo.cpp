@@ -66,6 +66,8 @@ const char *source_code =
 "	out[i] = msg[i];\n"
 "	float4 f = (float4)(0.f,1.01f,M_PI_F,3e3f);\n"
 "	printf(\"(0x%x) int4 = % 3v4hld, string = %s, float4 = %.3v4hlg\\n\", i, a, \"Hello world!\", f);\n"
+"	barrier(CLK_LOCAL_MEM_FENCE);\n"
+"	printf(\"end\\n\");\n"
 ""
 "}\n";
 
