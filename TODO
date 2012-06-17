@@ -3,4 +3,3 @@
 * implement _rtz, _rtp and _rtn versions of vstore_half
 * implement all convert_type(n)(_sat)(_roundingmode) functions
 * fix bugs
-* implement clCreateKernelsInProgramFCL

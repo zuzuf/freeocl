@@ -243,7 +243,38 @@ extern "C"
 									 cl_uint *num_kernels_ret)
 	{
 		MSG(clCreateKernelsInProgramFCL);
-		return CL_INVALID_OPERATION;
+
+		FreeOCL::unlocker unlock;
+		if (!FreeOCL::is_valid(program))
+			return CL_INVALID_PROGRAM;
+		unlock.handle(program);
+
+		if (program->binary_type != CL_PROGRAM_BINARY_TYPE_EXECUTABLE)
+			return CL_INVALID_PROGRAM_EXECUTABLE;
+
+		if (num_kernels_ret)
+			*num_kernels_ret = program->kernel_names.size();
+
+		if (kernels)
+		{
+			if (num_kernels < program->kernel_names.size())
+				return CL_INVALID_VALUE;
+			if (program->kernel_names.size() == 0)
+				return CL_SUCCESS;
+			program->retain();
+			unlock.forget(program);
+			program->unlock();
+
+			size_t idx = 0;
+			for(FreeOCL::set<std::string>::const_iterator it = program->kernel_names.begin(), end = program->kernel_names.end()
+				; it != end
+				; ++it, ++idx)
+				kernels[idx] = clCreateKernelFCL(program, it->c_str(), NULL);
+
+			program->release();
+		}
+
+		return CL_SUCCESS;
 	}
 
 	cl_int clRetainKernelFCL (cl_kernel kernel)
