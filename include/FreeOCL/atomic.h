@@ -249,38 +249,38 @@ inline __ulong atomic_xor(volatile __ulong *p, __ulong val)
 
 // atom_* versions (which use non-volatile pointers)
 // 32-bit atomics
-inline int atom_add(int *p, int val)	{	return atomic_add(p, val);	}
-inline uint atom_add(uint *p, uint val)	{	return atomic_add(p, val);	}
+inline __int atom_add(__int *p, __int val)	{	return atomic_add(p, val);	}
+inline __uint atom_add(__uint *p, __uint val)	{	return atomic_add(p, val);	}
 
-inline int atom_sub(int *p, int val)	{	return atomic_sub(p, val);	}
-inline uint atom_sub(uint *p, uint val)	{	return atomic_sub(p, val);	}
+inline __int atom_sub(__int *p, __int val)	{	return atomic_sub(p, val);	}
+inline __uint atom_sub(__uint *p, __uint val)	{	return atomic_sub(p, val);	}
 
-inline int atom_xchg(int *p, int val)	{	return atomic_xchg(p, val);	}
-inline uint atom_xchg(uint *p, uint val)	{	return atomic_xchg(p, val);	}
+inline __int atom_xchg(__int *p, __int val)	{	return atomic_xchg(p, val);	}
+inline __uint atom_xchg(__uint *p, __uint val)	{	return atomic_xchg(p, val);	}
 
-inline int atom_inc(int *p)	{	return atomic_inc(p);	}
-inline uint atom_inc(uint *p)	{	return atomic_inc(p);	}
+inline __int atom_inc(__int *p)	{	return atomic_inc(p);	}
+inline __uint atom_inc(__uint *p)	{	return atomic_inc(p);	}
 
-inline int atom_dec(int *p)	{	return atomic_dec(p);	}
-inline uint atom_dec(uint *p)	{	return atomic_dec(p);	}
+inline __int atom_dec(__int *p)	{	return atomic_dec(p);	}
+inline __uint atom_dec(__uint *p)	{	return atomic_dec(p);	}
 
-inline int atom_cmpxchg(int *p, int cmp, int val)	{	return atomic_cmpxchg(p, cmp, val);	}
-inline uint atom_cmpxchg(uint *p, uint cmp, uint val)	{	return atomic_cmpxchg(p, cmp, val);	}
+inline __int atom_cmpxchg(__int *p, __int cmp, __int val)	{	return atomic_cmpxchg(p, cmp, val);	}
+inline __uint atom_cmpxchg(__uint *p, __uint cmp, __uint val)	{	return atomic_cmpxchg(p, cmp, val);	}
 
-inline int atom_min(int *p, int val)	{	return atomic_min(p, val);	}
-inline uint atom_min(uint *p, uint val)	{	return atomic_min(p, val);	}
+inline __int atom_min(__int *p, __int val)	{	return atomic_min(p, val);	}
+inline __uint atom_min(__uint *p, __uint val)	{	return atomic_min(p, val);	}
 
-inline int atom_max(int *p, int val)	{	return atomic_max(p, val);	}
-inline uint atom_max(uint *p, uint val)	{	return atomic_max(p, val);	}
+inline __int atom_max(__int *p, __int val)	{	return atomic_max(p, val);	}
+inline __uint atom_max(__uint *p, __uint val)	{	return atomic_max(p, val);	}
 
-inline int atom_and(int *p, int val)	{	return atomic_and(p, val);	}
-inline uint atom_and(uint *p, uint val)	{	return atomic_and(p, val);	}
+inline __int atom_and(__int *p, __int val)	{	return atomic_and(p, val);	}
+inline __uint atom_and(__uint *p, __uint val)	{	return atomic_and(p, val);	}
 
-inline int atom_or(int *p, int val)	{	return atomic_or(p, val);	}
-inline uint atom_or(uint *p, uint val)	{	return atomic_or(p, val);	}
+inline __int atom_or(__int *p, __int val)	{	return atomic_or(p, val);	}
+inline __uint atom_or(__uint *p, __uint val)	{	return atomic_or(p, val);	}
 
-inline int atom_xor(int *p, int val)	{	return atomic_xor(p, val);	}
-inline uint atom_xor(uint *p, uint val)	{	return atomic_xor(p, val);	}
+inline __int atom_xor(__int *p, __int val)	{	return atomic_xor(p, val);	}
+inline __uint atom_xor(__uint *p, __uint val)	{	return atomic_xor(p, val);	}
 
 // 64-bit atomics
 inline __long atom_add(__long *p, __long val)	{	return atomic_add(p, val);	}
