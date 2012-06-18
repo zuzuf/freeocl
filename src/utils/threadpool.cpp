@@ -17,6 +17,7 @@
 */
 #include "threadpool.h"
 #include <FreeOCL/config.h>
+#include <sched.h>
 #ifdef FREEOCL_USE_OPENMP
 #include <omp.h>
 #endif
@@ -121,6 +122,7 @@ namespace FreeOCL
 #ifdef __SSE__
 				_mm_pause();
 #endif
+				sched_yield();
 			}
 			if (b_stop)
 			{

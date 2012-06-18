@@ -140,7 +140,7 @@ namespace FreeOCL
 			if (isalpha(s[i]) || s[i] == '_')
 			{
 				word.clear();
-				for(; i < s.size() && (isalnum(s[i])) || s[i] == '_' ; ++i)
+				for(; i < s.size() && (isalnum(s[i]) || s[i] == '_') ; ++i)
 					word += s[i];
 				--i;
 				map<std::string, std::string>::const_iterator it = mapping.find(word);
