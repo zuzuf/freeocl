@@ -137,22 +137,7 @@ namespace FreeOCL
 
 	void threadpool::worker::work() const
 	{
-		const size_t num = pool->local_size[0] * pool->local_size[1] * pool->local_size[2];
-		const size_t nb_threads = pool->nb_threads;
-		const size_t num_groups[] = { pool->num_groups[0], pool->num_groups[1], pool->num_groups[2] };
-		char * const local_memory = pool->local_memory;
-		const void * const args = pool->args;
-		size_t group_id[3];
-		for(group_id[2] = 0 ; group_id[2] < num_groups[2] ; ++group_id[2])
-		{
-			for(group_id[1] = 0 ; group_id[1] < num_groups[1] ; ++group_id[1])
-			{
-				for(group_id[0] = 0 ; group_id[0] < num_groups[0] ; ++group_id[0])
-				{
-					for(size_t i = thread_id ; i < num ; i += nb_threads)
-						pool->kernel(args, local_memory, i, group_id);
-				}
-			}
-		}
+		const size_t _nb_threads[1] = { pool->nb_threads };
+		pool->kernel(pool->args, pool->local_memory, thread_id, _nb_threads);
 	}
 }

@@ -88,7 +88,7 @@
 
 #ifdef __i386__
 #include <stdint.h>
-typedef int8_t          __char;
+typedef char			__char;
 typedef uint8_t         __uchar;
 typedef int16_t         __short    __attribute__((aligned(2)));
 typedef uint16_t        __ushort   __attribute__((aligned(2)));
@@ -105,7 +105,7 @@ typedef __ulong			__size_t;
 
 #elif defined __x86_64__
 #include <stdint.h>
-typedef int8_t          __char;
+typedef char			__char;
 typedef uint8_t         __uchar;
 typedef int16_t         __short    __attribute__((aligned(2)));
 typedef uint16_t        __ushort   __attribute__((aligned(2)));
