@@ -365,12 +365,8 @@ unsigned long _cl_command_queue::proc()
 			}
 			else
 			{
-				// Retry later
-				lock();
-				queue.push_front(cmd);
-				wait_locked();
-				unlock();
-				continue;
+				// Wait for events (those events are likely to come from another command queue or are user events)
+				clWaitForEventsFCL(cmd->num_events_in_wait_list, cmd->event_wait_list);
 			}
 		}
 

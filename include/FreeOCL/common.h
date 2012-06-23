@@ -38,6 +38,24 @@ inline __float sign(__float x)
 	return x > 0.0f ? 1.0f : x < 0.0f ? -1.0f : isnan(x) ? 0.0f : x;
 }
 
+// for __double
+inline __double clamp(__double x, __double minval, __double maxval)	{	return fmin(fmax(x, minval), maxval);	}
+inline __double degrees(__double radians)	{	return radians * 57.295779513082;	}
+inline __double max(__double x, __double y)	{	return x < y ? y : x;	}
+inline __double min(__double x, __double y)	{	return y < x ? y : x;	}
+inline __double mix(__double x, __double y, __double a)	{	return x + (y - x) * a;	}
+inline __double radians(__double degrees)	{	return degrees * 0.017453292519943;	}
+inline __double step(__double edge, __double x)	{	return x < edge ? 0.0 : 1.0;	}
+inline __double smoothstep(__double edge0, __double edge1, __double x)
+{
+	__double t = clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+	return t * t * (3.0 - 2.0 * t);
+}
+inline __double sign(__double x)
+{
+	return x > 0.0 ? 1.0 : x < 0.0 ? -1.0 : isnan(x) ? 0.0 : x;
+}
+
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3(clamp)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS(clamp)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(degrees)

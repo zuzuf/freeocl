@@ -337,6 +337,9 @@ void _cl_event::change_status(cl_int new_status)
 		case CL_COMPLETE:	time_end = FreeOCL::ns_timer();	break;
 		}
 	}
+	if (command_queue)
+		command_queue->wakeup();		// If the command queue is waiting for a status change, notify it
+
 	std::deque<FreeOCL::event_call_back> call_backs;
 	call_backs.swap(this->call_backs[new_status]);
 
@@ -348,9 +351,6 @@ void _cl_event::change_status(cl_int new_status)
 				i->pfn_notify(this, new_status, i->user_data);
 
 	wakeup();
-	if (command_queue)
-		command_queue->wakeup();		// If the command queue is waiting for a status change, notify it
-
 	lock();
 }
 

@@ -41,6 +41,8 @@ namespace FreeOCL
 					return native_type::t_ulong;
 				if (n0->is_long() || n1->is_long())
 					return native_type::t_long;
+				if (n0->is_uint() || n1->is_uint())
+					return native_type::t_uint;
 				return native_type::t_int;
 			}
 			if (n0->is_vector())

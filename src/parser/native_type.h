@@ -55,6 +55,7 @@ namespace FreeOCL
 		bool is_double() const;
 		bool is_long() const;
 		bool is_ulong() const;
+		bool is_uint() const;
 		bool is_signed() const;
 		type_id get_scalar_type() const;
 	private:

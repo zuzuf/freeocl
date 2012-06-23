@@ -409,7 +409,22 @@ namespace FreeOCL
 		const native_type *natA = a.as<native_type>();
 		const native_type *natB = b.as<native_type>();
 		if (natA && natB)
-			return natA->get_type_id() == natB->get_type_id();
+		{
+			const native_type::type_id id0 = natA->get_type_id();
+			const native_type::type_id id1 = natB->get_type_id();
+			if (id0 == id1)
+				return true;
+			if (sizeof(void*) == 4)
+			{
+				return (id0 == native_type::SIZE_T && id1 == native_type::UINT)
+						|| (id1 == native_type::SIZE_T && id0 == native_type::UINT);
+			}
+			if (sizeof(void*) == 8)
+			{
+				return (id0 == native_type::SIZE_T && id1 == native_type::ULONG)
+						|| (id1 == native_type::SIZE_T && id0 == native_type::ULONG);
+			}
+		}
 		return false;
 	}
 

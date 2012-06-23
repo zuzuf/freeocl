@@ -100,7 +100,22 @@ namespace FreeOCL
 	bool native_type::operator==(const type &type) const
 	{
 		const native_type *p_type = dynamic_cast<const native_type*>(&type);
-		return p_type != NULL && p_type->id == id && is_const() == p_type->is_const();
+		if (p_type != NULL && is_const() == p_type->is_const())
+		{
+			if (p_type->id == id)
+				return true;
+			if (sizeof(void*) == 4)
+			{
+				return (id == SIZE_T && p_type->id == UINT)
+						|| (p_type->id == SIZE_T && id == UINT);
+			}
+			if (sizeof(void*) == 8)
+			{
+				return (id == SIZE_T && p_type->id == ULONG)
+						|| (p_type->id == SIZE_T && id == ULONG);
+			}
+		}
+		return false;
 	}
 
 	std::string native_type::get_name() const
@@ -348,6 +363,26 @@ namespace FreeOCL
 		case ULONG8:
 		case ULONG16:
 			return true;
+		case SIZE_T:
+			return sizeof(void*) == 8;
+		default:
+			return false;
+		}
+	}
+
+	bool native_type::is_uint() const
+	{
+		switch(id)
+		{
+		case UINT:
+		case UINT2:
+		case UINT3:
+		case UINT4:
+		case UINT8:
+		case UINT16:
+			return true;
+		case SIZE_T:
+			return sizeof(void*) == 4;
 		default:
 			return false;
 		}
