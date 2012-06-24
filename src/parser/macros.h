@@ -38,12 +38,14 @@
 
 #define RUN()		if (!b_ok)\
 						ROLLBACK();\
-					else
+					else for(size_t start = processed.size(), end = 0 ; end == 0 ; ++end)
 
-#define MATCH1(A)		if (__##A())	{	N[0] = d_val__; b_ok = true;	}\
+#define MATCH1(A)		b_ok = false;\
+						if (__##A())	{	N[0] = d_val__; b_ok = true;	}\
 						RUN()
 
-#define MATCH2(A,B)		if (__##A())\
+#define MATCH2(A,B)		b_ok = false;\
+						if (__##A())\
 						{\
 							N[0] = d_val__;\
 							MAX(1);\
@@ -55,7 +57,8 @@
 						}\
 						RUN()
 
-#define MATCH3(A,B,C)	if (__##A())\
+#define MATCH3(A,B,C)	b_ok = false;\
+						if (__##A())\
 						{\
 							N[0] = d_val__;\
 							MAX(1);\
@@ -72,7 +75,8 @@
 						}\
 						RUN()
 
-#define MATCH4(A,B,C,D)	if (__##A())\
+#define MATCH4(A,B,C,D)	b_ok = false;\
+						if (__##A())\
 						{\
 							N[0] = d_val__;\
 							MAX(1);\
@@ -94,7 +98,8 @@
 						}\
 						RUN()
 
-#define MATCH5(A,B,C,D,E)	if (__##A())\
+#define MATCH5(A,B,C,D,E)	b_ok = false;\
+							if (__##A())\
 							{\
 								N[0] = d_val__;\
 								MAX(1);\
@@ -121,7 +126,8 @@
 							}\
 							RUN()
 
-#define MATCH6(A,B,C,D,E,F)	if (__##A())\
+#define MATCH6(A,B,C,D,E,F)	b_ok = false;\
+							if (__##A())\
 							{\
 								N[0] = d_val__;\
 								MAX(1);\
@@ -153,42 +159,43 @@
 							}\
 							RUN()
 
-#define MATCH7(A,B,C,D,E,F,G)	if (__##A())\
-							{\
-								N[0] = d_val__;\
-								MAX(1);\
-								if (__##B())\
+#define MATCH7(A,B,C,D,E,F,G)	b_ok = false;\
+								if (__##A())\
 								{\
-									N[1] = d_val__;\
-									MAX(2);\
-									if (__##C())\
+									N[0] = d_val__;\
+									MAX(1);\
+									if (__##B())\
 									{\
-										N[2] = d_val__;\
-										MAX(3);\
-										if (__##D())\
+										N[1] = d_val__;\
+										MAX(2);\
+										if (__##C())\
 										{\
-											N[3] = d_val__;\
-											MAX(4);\
-											if (__##E())\
+											N[2] = d_val__;\
+											MAX(3);\
+											if (__##D())\
 											{\
-												N[4] = d_val__;\
-												MAX(5);\
-												if (__##F())\
+												N[3] = d_val__;\
+												MAX(4);\
+												if (__##E())\
 												{\
-													N[5] = d_val__;\
-													MAX(6);\
-													if (__##G())\
+													N[4] = d_val__;\
+													MAX(5);\
+													if (__##F())\
 													{\
-														N[6] = d_val__;\
-														b_ok = true;\
+														N[5] = d_val__;\
+														MAX(6);\
+														if (__##G())\
+														{\
+															N[6] = d_val__;\
+															b_ok = true;\
+														}\
 													}\
 												}\
 											}\
 										}\
 									}\
 								}\
-							}\
-							RUN()
+								RUN()
 
 #define LISTOF_LEFT(A)	if (__##A())\
 						{\

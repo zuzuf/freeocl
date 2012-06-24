@@ -274,6 +274,8 @@ lex_start:
 				}
 
 				keywords["typedef"] = TYPEDEF;
+				keywords["static"] = STATIC;
+				keywords["extern"] = EXTERN;
 				keywords["sizeof"] = SIZEOF;
 
 				keywords["sampler_t"] = SAMPLER_T;

@@ -135,7 +135,7 @@ do
 		
 		rm -f $logfile $failedlogfile $tologfile
 		runWithTimeout ${TIMEOUT} \
-		${TESTS_DIR}/$f --device cpu >${logfile} 2>&1;
+		${TESTS_DIR}/$f -p 0 --device cpu >${logfile} 2>&1;
 		
 		case "$?" in
 			0) 

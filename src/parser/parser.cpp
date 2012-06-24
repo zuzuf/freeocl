@@ -609,7 +609,7 @@ namespace FreeOCL
 
 	int parser::__storage_class_specifier()
 	{
-		return __token<TYPEDEF>();
+		return __token<TYPEDEF>() || __token<STATIC>() || __token<EXTERN>();
 	}
 
 	int parser::__type_specifier()
@@ -784,9 +784,9 @@ namespace FreeOCL
 
 	int parser::__enum_specifier()
 	{
-		BEGIN(5);
 		if (peek_token() != ENUM)
-			END();
+			return 0;
+		BEGIN(5);
 		MATCH4(token<ENUM>, token<'{'>, enumerator_list, token<'}'>)
 		{
 			std::vector<smartptr<node> > values;
@@ -816,6 +816,7 @@ namespace FreeOCL
 				const std::string &enum_name = p_chunk
 											   ? p_chunk->front().as<token>()->get_string()
 											   : values.back().as<token>()->get_string();
+				warning(FreeOCL::to_string(i) + ":" + enum_name);
 				symbols->insert(enum_name, new var(enum_name, native_type::t_int));
 			}
 			d_val__ = new enum_type(N[1].as<token>()->get_string(), values, false, type::PRIVATE);
@@ -834,7 +835,25 @@ namespace FreeOCL
 	int parser::__enumerator_list()
 	{
 		BEGIN_SMALL();
-		LISTOF_LEFT_SEP(enumerator, token<','>);
+		if (__enumerator())
+		{
+			smartptr<chunk> N = new chunk(d_val__);
+			size_t l = processed.size();
+			while (__token<','>())
+			{
+				const smartptr<node> N1 = d_val__;
+				if (!__enumerator())
+				{
+					roll_back_to(l);
+					break;
+				}
+				N->push_back(N1);
+				N->push_back(d_val__);
+				l = processed.size();
+			}
+			d_val__ = N;
+			return 1;
+		}
 		END();
 	}
 
@@ -925,29 +944,33 @@ namespace FreeOCL
 
 	int parser::__parameter_declaration()
 	{
-		BEGIN(3);
-		MATCH3(declaration_specifiers, declarator, attribute_qualifier)
+		BEGIN(2);
+		MATCH1(declaration_specifiers)
 		{
-			smartptr<chunk> p_chunk = N[1].as<chunk>();
-			smartptr<pointer_type> ptr = p_chunk->front().as<pointer_type>();
-			if (ptr)
+			smartptr<node> N0 = N[0];
+			MATCH2(declarator, attribute_qualifier)
 			{
-				ptr->set_root_type(N[0].as<type>());
-				N[0] = ptr;
-				N[1] = p_chunk->back();
+				smartptr<chunk> p_chunk = N[0].as<chunk>();
+				smartptr<pointer_type> ptr = p_chunk->front().as<pointer_type>();
+				if (ptr)
+				{
+					ptr->set_root_type(N0.as<type>());
+					N0 = ptr;
+					N[0] = p_chunk->back();
+				}
+				d_val__ = new chunk(N0, N[0]);
+				return 1;
 			}
-			d_val__ = new chunk(N[0], N[1]);
-			return 1;
-		}
-		MATCH3(declaration_specifiers, abstract_declarator, attribute_qualifier)
-		{
-			d_val__ = new chunk(N[0], N[1]);
-			return 1;
-		}
-		MATCH2(declaration_specifiers, attribute_qualifier)
-		{
-			d_val__ = N[0];
-			return 1;
+			MATCH2(abstract_declarator, attribute_qualifier)
+			{
+				d_val__ = new chunk(N0, N[0]);
+				return 1;
+			}
+			MATCH1(attribute_qualifier)
+			{
+				d_val__ = N0;
+				return 1;
+			}
 		}
 
 		END();
@@ -955,9 +978,18 @@ namespace FreeOCL
 
 	int parser::__abstract_declarator()
 	{
-		BEGIN(2);
-		RULE2(pointer, direct_abstract_declarator);
-		RULE1(pointer);
+		BEGIN(1);
+		MATCH1(pointer)
+		{
+			const smartptr<node> N0 = N[0];
+			MATCH1(direct_abstract_declarator)
+			{
+				d_val__ = new chunk(N0, d_val__);
+				return 1;
+			}
+			d_val__ = N0;
+			return 1;
+		}
 		RULE1(direct_abstract_declarator);
 		END();
 	}
@@ -1052,9 +1084,9 @@ namespace FreeOCL
 			}
 			ERROR("syntax error, '{' or identifier expected");
 		}
-		RULE5(struct_or_union, token<IDENTIFIER>, token<'{'>, struct_declaration_list, token<'}'>);
-		RULE4(struct_or_union, token<'{'>, struct_declaration_list, token<'}'>);
-		RULE2(struct_or_union, token<IDENTIFIER>);
+//		RULE5(struct_or_union, token<IDENTIFIER>, token<'{'>, struct_declaration_list, token<'}'>);
+//		RULE4(struct_or_union, token<'{'>, struct_declaration_list, token<'}'>);
+//		RULE2(struct_or_union, token<IDENTIFIER>);
 		CHECK(2, "syntax error");
 		CHECK(1, "syntax error, '{' or identifier expected");
 		END();
@@ -1351,10 +1383,42 @@ namespace FreeOCL
 			CHECK(1, "syntax error, statement expected");
 			break;
 		case FOR:
-			RULE6(token<FOR>, token<'('>, expression_statement, expression_statement, token<')'>, statement);
-			RULE7(token<FOR>, token<'('>, expression_statement, expression_statement, expression, token<')'>, statement);
-			RULE6(token<FOR>, token<'('>, declaration, expression_statement, token<')'>, statement);
-			RULE7(token<FOR>, token<'('>, declaration, expression_statement, expression, token<')'>, statement);
+			MATCH4(token<FOR>, token<'('>, expression_statement, expression_statement)
+			{
+				const smartptr<node> N0 = N[0];
+				const smartptr<node> N1 = N[1];
+				const smartptr<node> N2 = N[2];
+				const smartptr<node> N3 = N[3];
+				MATCH2(token<')'>, statement)
+				{
+					d_val__ = new chunk(N0,N1,N2,N3,N[0],N[1]);
+					return 1;
+				}
+				MATCH3(expression, token<')'>, statement)
+				{
+					d_val__ = new chunk(N0,N1,N2,N3,N[0],N[1],N[2]);
+					return 1;
+				}
+				ERROR("syntax error");
+			}
+			MATCH4(token<FOR>, token<'('>, declaration, expression_statement)
+			{
+				const smartptr<node> N0 = N[0];
+				const smartptr<node> N1 = N[1];
+				const smartptr<node> N2 = N[2];
+				const smartptr<node> N3 = N[3];
+				MATCH2(token<')'>, statement)
+				{
+					d_val__ = new chunk(N0,N1,N2,N3,N[0],N[1]);
+					return 1;
+				}
+				MATCH3(expression, token<')'>, statement)
+				{
+					d_val__ = new chunk(N0,N1,N2,N3,N[0],N[1],N[2]);
+					return 1;
+				}
+				ERROR("syntax error");
+			}
 			CHECK(2, "syntax error");
 			CHECK(1, "syntax error, '(' expected");
 			break;
@@ -1364,12 +1428,28 @@ namespace FreeOCL
 
 	int parser::__selection_statement()
 	{
-		BEGIN(7);
+		BEGIN(5);
 		switch(peek_token())
 		{
 		case IF:
-			RULE7(token<IF>, token<'('>, expression, token<')'>, statement, token<ELSE>, statement);
-			RULE5(token<IF>, token<'('>, expression, token<')'>, statement);
+			MATCH5(token<IF>, token<'('>, expression, token<')'>, statement)
+			{
+				const smartptr<node> N0 = N[0];
+				const smartptr<node> N1 = N[1];
+				const smartptr<node> N2 = N[2];
+				const smartptr<node> N3 = N[3];
+				const smartptr<node> N4 = N[4];
+				__max = 0;
+				MATCH2(token<ELSE>, statement)
+				{
+					d_val__ = new chunk(N0, N1, N2, N3, N4, N[0], N[1]);
+					return 1;
+				}
+				CHECK(1, "syntax error, statement expected after 'else'");
+
+				d_val__ = new chunk(N0, N1, N2, N3, N4);
+				return 1;
+			}
 			CHECK(5, "syntax error");
 			CHECK(4, "syntax error, statement expected");
 			CHECK(3, "syntax error, ')' expected");
@@ -1453,28 +1533,34 @@ namespace FreeOCL
 
 	int parser::__conditional_expression()
 	{
-		BEGIN(5);
-		MATCH5(logical_or_expression, token<'?'>, expression, token<':'>, conditional_expression)
+		BEGIN(4);
+		MATCH1(logical_or_expression)
 		{
-			smartptr<type> result_type = N[0].as<expression>()->get_type();
-			if (result_type.as<native_type>() && !result_type.as<native_type>()->is_scalar())
-			{			// select(exp3, exp2, exp1)
-				smartptr<callable> select = symbols->get<callable>("select");
-				d_val__ = new call(select, new chunk(N[4], N[2], N[0]));
+			smartptr<node> N0 = N[0];
+			__max = 0;
+			MATCH4(token<'?'>, expression, token<':'>, conditional_expression)
+			{
+				smartptr<type> result_type = N0.as<expression>()->get_type();
+				if (result_type.as<native_type>() && !result_type.as<native_type>()->is_scalar())
+				{			// select(exp3, exp2, exp1)
+					smartptr<callable> select = symbols->get<callable>("select");
+					d_val__ = new call(select, new chunk(N[3], N[1], N0));
+				}
+				else		// C/C++ ternary selection operator
+					d_val__ = new ternary(N0, N[1], N[3]);
+				return 1;
 			}
-			else		// C/C++ ternary selection operator
-				d_val__ = new ternary(N[0], N[2], N[4]);
+
+			CHECK(1, "syntax error");
+			d_val__ = N0;
 			return 1;
 		}
-
-		CHECK(2, "syntax error");
-		RULE1(logical_or_expression);
 		END();
 	}
 
 	int parser::__unary_expression()
 	{
-		BEGIN(4);
+		BEGIN(2);
 		switch(peek_token())
 		{
 		case INC_OP:
@@ -1494,15 +1580,19 @@ namespace FreeOCL
 			CHECK(1, "syntax error, unary expression expected");
 			break;
 		case SIZEOF:
-			MATCH4(token<SIZEOF>, token<'('>, unary_expression, token<')'>)
+			MATCH2(token<SIZEOF>, token<'('>)
 			{
-				d_val__ = new size_of(N[2]);
-				return 1;
-			}
-			MATCH4(token<SIZEOF>, token<'('>, type_name, token<')'>)
-			{
-				d_val__ = new size_of(N[2]);
-				return 1;
+				MATCH2(unary_expression, token<')'>)
+				{
+					d_val__ = new size_of(N[0]);
+					return 1;
+				}
+				MATCH2(type_name, token<')'>)
+				{
+					d_val__ = new size_of(N[0]);
+					return 1;
+				}
+				ERROR("syntax error");
 			}
 
 			CHECK(1, "syntax error");
@@ -1539,49 +1629,58 @@ namespace FreeOCL
 
 	int parser::__type_name()
 	{
-		BEGIN(2);
-		MATCH2(specifier_qualifier_list, abstract_declarator)
+		BEGIN(1);
+		MATCH1(specifier_qualifier_list)
 		{
-			smartptr<type> p_type = N[0].as<type>();
-			if (N[1].as<pointer_type>())
+			const smartptr<node> N0 = N[0];
+			MATCH1(abstract_declarator)
 			{
-				N[1].as<pointer_type>()->set_root_type(p_type);
-				p_type = N[1].as<type>();
-			}
-			else
-				while(N[1].as<chunk>() && N[1].as<chunk>()->front().as<pointer_type>())
+				smartptr<type> p_type = N0.as<type>();
+				if (N[0].as<pointer_type>())
 				{
-					smartptr<chunk> p_chunk = N[1].as<chunk>();
-					p_chunk->front().as<pointer_type>()->set_root_type(p_type);
-					p_type = p_chunk->front().as<type>();
-					N[1] = p_chunk->back();
+					N[0].as<pointer_type>()->set_root_type(p_type);
+					p_type = N[0].as<type>();
 				}
-			d_val__ = p_type;
+				else
+					while(N[0].as<chunk>() && N[0].as<chunk>()->front().as<pointer_type>())
+					{
+						smartptr<chunk> p_chunk = N[0].as<chunk>();
+						p_chunk->front().as<pointer_type>()->set_root_type(p_type);
+						p_type = p_chunk->front().as<type>();
+						N[0] = p_chunk->back();
+					}
+				d_val__ = p_type;
+				return 1;
+			}
+
+			d_val__ = N0;
 			return 1;
 		}
-
-		RULE1(specifier_qualifier_list);
 		END();
 	}
 
 	int parser::__cast_expression()
 	{
-		BEGIN(6);
-		MATCH4(token<'('>, type_name, token<')'>, cast_expression)
+		BEGIN(3);
+		MATCH3(token<'('>, type_name, token<')'>)
 		{
-			smartptr<cast> pcast = new cast(N[1].as<type>(), N[3].as<expression>());
-			if (!pcast->validate())
-				ERROR("vector literals must take either 1 scalar or match vector type dimension.");
-			d_val__ = pcast;
-			return 1;
-		}
-		MATCH6(token<'('>, type_name, token<')'>, token<'{'>, initializer_list, token<'}'>)
-		{
-			smartptr<struct_literal> literal = new struct_literal(N[1].as<type>(), N[4]);
-			if (!literal->validate())
-				ERROR("incorrect struct literal.");
-			d_val__ = literal;
-			return 1;
+			const smartptr<node> N1 = N[1];
+			MATCH1(cast_expression)
+			{
+				smartptr<cast> pcast = new cast(N1.as<type>(), N[0].as<expression>());
+				if (!pcast->validate())
+					ERROR("vector literals must take either 1 scalar or match vector type dimension.");
+				d_val__ = pcast;
+				return 1;
+			}
+			MATCH3(token<'{'>, initializer_list, token<'}'>)
+			{
+				smartptr<struct_literal> literal = new struct_literal(N1.as<type>(), N[1]);
+				if (!literal->validate())
+					ERROR("incorrect struct literal.");
+				d_val__ = literal;
+				return 1;
+			}
 		}
 
 		RULE1(unary_expression);
@@ -1905,7 +2004,7 @@ namespace FreeOCL
 			{
 				d_val__ = symbols->get<node>(N[0].as<token>()->get_string());
 				if (!d_val__)
-					ERROR("unknown symbol");
+					ERROR("unknown symbol \"" + N[0].as<token>()->get_string() + '"');
 				return 1;
 			}
 
@@ -1952,11 +2051,17 @@ namespace FreeOCL
 
 	int parser::__init_declarator()
 	{
-		BEGIN(3);
-		RULE3(declarator, token<'='>, initializer);
+		BEGIN(2);
 		MATCH1(declarator)
 		{
-			d_val__ = new chunk(N[0]);
+			smartptr<node> N0 = N[0];
+			MATCH2(token<'='>, initializer)
+			{
+				d_val__ = new chunk(N0, N[0], N[1]);
+				return 1;
+			}
+
+			d_val__ = new chunk(N0);
 			return 1;
 		}
 
@@ -1965,12 +2070,25 @@ namespace FreeOCL
 
 	int parser::__initializer()
 	{
-		BEGIN(4);
+		BEGIN(2);
 		RULE1(assignment_expression);
 		if (peek_token() == '{')
 		{
-			RULE3(token<'{'>, initializer_list, token<'}'>);
-			RULE4(token<'{'>, initializer_list, token<','>, token<'}'>);
+			MATCH2(token<'{'>, initializer_list)
+			{
+				const smartptr<node> N0 = N[0];
+				const smartptr<node> N1 = N[1];
+				MATCH1(token<'}'>)
+				{
+					d_val__ = new chunk(N0, N1, N[0]);
+					return 1;
+				}
+				MATCH2(token<','>, token<'}'>)
+				{
+					d_val__ = new chunk(N0, N1, N[0], N[1]);
+					return 1;
+				}
+			}
 			CHECK(1, "syntax error");
 		}
 		END();
