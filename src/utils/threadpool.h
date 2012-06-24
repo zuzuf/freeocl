@@ -20,6 +20,8 @@
 
 #include "thread.h"
 #include <deque>
+#include <vector>
+#include <ucontext.h>
 
 namespace FreeOCL
 {
@@ -31,8 +33,7 @@ namespace FreeOCL
 		public:
 			worker() : b_working(false), b_stop(false)	{}
 			virtual unsigned long proc();
-			void work() const;
-			void set_thread_id(const size_t thread_id)	{	this->thread_id = thread_id;	}
+			void work();
 			void set_thread_pool(threadpool *pool)	{	this->pool = pool;	}
 			bool is_working() const	{	return b_working;	}
 			void set_working()	{	b_working = true;	}
@@ -40,9 +41,10 @@ namespace FreeOCL
 
 		private:
 			threadpool *pool;
-			size_t thread_id;
 			volatile bool b_working;
 			volatile bool b_stop;
+			std::vector<ucontext_t> fibers;
+			std::vector<char> stack_data;
 		};
 
 		friend class worker;
@@ -57,15 +59,20 @@ namespace FreeOCL
 		void set_local_size(const size_t *local_size);
 		void set_thread_num(const size_t nb_threads);
 
-		void run(const void *args, char *local_memory, void (*kernel)(const void*,char*,size_t,const size_t*));
+		void run(void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *), void (*kernel)(const int));
+
+		void set_require_sync(bool b_require_sync);
+	private:
+		inline unsigned int get_next_workgroup();
 
 	private:
-		void (*kernel)(const void*,char*,size_t,const size_t*);
-		char *local_memory;
-		const void *args;
+		void (*kernel)(const int);
+		void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *);
 		size_t num_groups[3];
 		size_t local_size[3];
 		size_t nb_threads;
+		bool b_require_sync;
+		volatile unsigned int next_workgroup;
 		std::deque<worker> pool;
 	};
 }

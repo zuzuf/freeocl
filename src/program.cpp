@@ -510,6 +510,7 @@ extern "C"
 		{
 			if (!dlsym(main_program, ("__FCL_info_" + *i).c_str())
 					|| !dlsym(main_program, ("__FCL_init_" + *i).c_str())
+					|| !dlsym(main_program, ("__FCL_setwg_" + *i).c_str())
 					|| !dlsym(main_program, ("__FCL_kernel_" + *i).c_str()))
 			{
 				SET_RET(CL_INVALID_VALUE);

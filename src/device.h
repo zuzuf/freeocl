@@ -93,7 +93,6 @@ struct _cl_device_id : public FreeOCL::icd_table
 	cl_uint max_sub_devices;
 
 	FreeOCL::threadpool *pool;
-	char *local_memory;
 };
 
 #endif

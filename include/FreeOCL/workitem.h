@@ -18,9 +18,14 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #include "FreeOCL/config.h"
+#include <ucontext.h>
 
 namespace FreeOCL
 {
+	static const void *args;
+	static __thread char *local_memory;
+	static __thread ucontext_t *scheduler;
+	static __thread ucontext_t *threads;
 	static __uint dim;
 	static __size_t global_size[3];
 	static __size_t global_offset[3];

@@ -318,7 +318,7 @@ _cl_device_id::_cl_device_id() :
 	max_work_group_size(1024),
 	mem_cache_type(CL_READ_WRITE_CACHE),
 	local_mem_type(CL_GLOBAL),
-	local_mem_size(0x100000),
+	local_mem_size(0x8000),
 	max_parameter_size(8192),
 	mem_base_addr_align(128),
 	fp_config(CL_FP_DENORM | CL_FP_INF_NAN | CL_FP_FMA | CL_FP_ROUND_TO_NEAREST | CL_FP_ROUND_TO_ZERO | CL_FP_ROUND_TO_INF),
@@ -343,7 +343,6 @@ _cl_device_id::_cl_device_id() :
 	using namespace FreeOCL;
 
 	pool = new FreeOCL::threadpool();
-	local_memory = new char[0x100000];
 
 	std::string ostype = trim(run_command("/sbin/sysctl -e kernel.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
@@ -395,7 +394,6 @@ _cl_device_id::_cl_device_id() :
 _cl_device_id::~_cl_device_id()
 {
 	delete pool;
-	delete local_memory;
 }
 
 namespace FreeOCL

@@ -29,7 +29,7 @@ inline event_t async_work_group_copy (gentype *dst,
 									  __size_t num_gentypes,
 									  event_t event)
 {
-	if (get_local_id(0) == 0 && get_local_id(1) == 0 && get_local_id(2) == 0)
+	if (FreeOCL::thread_num == 0)
 	{
 		if (event != 0)
 			barrier(0);
@@ -45,7 +45,7 @@ inline event_t async_work_group_strided_copy (gentype *dst,
 											  __size_t src_stride,
 											  event_t event)
 {
-	if (get_local_id(0) == 0 && get_local_id(1) == 0 && get_local_id(2) == 0)
+	if (FreeOCL::thread_num == 0)
 	{
 		if (event != 0)
 			barrier(0);

@@ -250,13 +250,13 @@ template<class T> struct __if<true, T>	{	typedef T type;	};
 template<typename T, int Id>
 inline T &__create_local()
 {
-	static T v;
+	static __thread T v;
 	return v;
 }
 template<typename T, int Id>
 inline T &__create_local(const T &init)
 {
-	static T v;
+	static __thread T v;
 	memcpy(&v, &init, sizeof(T));
 	return v;
 }

@@ -18,12 +18,8 @@
 #include "threadpool.h"
 #include <FreeOCL/config.h>
 #include <sched.h>
-#ifdef FREEOCL_USE_OPENMP
-#include <omp.h>
-#endif
-#ifdef __SSE__
-#include <xmmintrin.h>
-#endif
+#include <atomic_ops.h>
+#include <utils/time.h>
 
 namespace FreeOCL
 {
@@ -36,6 +32,8 @@ namespace FreeOCL
 	{
 		for(size_t i = 0 ; i < pool.size() ; ++i)
 			pool[i].stop();
+		for(size_t i = 1 ; i < pool.size() ; ++i)
+			pool[i].kill();
 	}
 
 	void threadpool::wait_for_all()
@@ -71,38 +69,17 @@ namespace FreeOCL
 			pool.resize(nb_threads);
 			for(size_t i = 0 ; i < nb_threads ; ++i)
 			{
-				pool[i].set_thread_id(i);
 				pool[i].set_thread_pool(this);
 			}
 		}
 	}
 
-	void threadpool::run(const void *args, char *local_memory, void (*kernel)(const void*,char*,size_t,const size_t*))
+	void threadpool::run(void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *), void (*kernel)(const int))
 	{
-		this->args = args;
-		this->local_memory = local_memory;
+		this->setwg = setwg;
 		this->kernel = kernel;
 
-#ifdef FREEOCL_USE_OPENMP
-		omp_set_num_threads(nb_threads);
-		const size_t num = local_size[0] * local_size[1] * local_size[2];
-#pragma omp parallel
-		{
-			size_t group_id[3];
-			for(group_id[2] = 0 ; group_id[2] < num_groups[2] ; ++group_id[2])
-			{
-				for(group_id[1] = 0 ; group_id[1] < num_groups[1] ; ++group_id[1])
-				{
-					for(group_id[0] = 0 ; group_id[0] < num_groups[0] ; ++group_id[0])
-					{
-#pragma omp for nowait
-						for(size_t i = 0 ; i < num ; ++i)
-							kernel(args, local_memory, i, group_id);
-					}
-				}
-			}
-		}
-#else
+		next_workgroup = 0;
 		for(size_t i = 1 ; i < nb_threads ; ++i)
 		{
 			pool[i].set_working();
@@ -110,18 +87,17 @@ namespace FreeOCL
 		}
 		pool.front().work();
 		wait_for_all();
-#endif
 	}
 
 	unsigned long threadpool::worker::proc()
 	{
 		while(!b_stop)
 		{
+			const size_t start = ms_timer();
 			while(!b_working && !b_stop)
 			{
-#ifdef __SSE__
-				_mm_pause();
-#endif
+				if (ms_timer() - start > 1000)
+					return 0;
 				sched_yield();
 			}
 			if (b_stop)
@@ -135,9 +111,60 @@ namespace FreeOCL
 		return 0;
 	}
 
-	void threadpool::worker::work() const
+	inline unsigned int threadpool::get_next_workgroup()
 	{
-		const size_t _nb_threads[1] = { pool->nb_threads };
-		pool->kernel(pool->args, pool->local_memory, thread_id, _nb_threads);
+		return AO_int_fetch_and_add_full(&next_workgroup, 1);
+	}
+
+	void threadpool::worker::work()
+	{
+		const size_t l_size = pool->local_size[0] * pool->local_size[1] * pool->local_size[2];
+		const size_t g_size = pool->num_groups[0] * pool->num_groups[1] * pool->num_groups[2];
+		char local_memory[0x8000];
+		if (!pool->b_require_sync || l_size == 1)
+		{
+			for(size_t gid = pool->get_next_workgroup() ; gid < g_size ; gid = pool->get_next_workgroup())
+			{
+				const size_t group_id[3] = { gid % pool->num_groups[0],
+											 (gid / pool->num_groups[0]) % pool->num_groups[1],
+											 gid / pool->num_groups[0] / pool->num_groups[1] };
+				pool->setwg(local_memory, group_id, NULL, NULL);
+				for(size_t i = 0 ; i < l_size ; ++i)
+					pool->kernel(i);
+			}
+		}
+		else
+		{
+			const size_t STACK_SIZE = 0x8000;
+			if (l_size > fibers.size())
+			{
+				fibers.resize(l_size);
+				stack_data.resize(STACK_SIZE * l_size);
+			}
+			ucontext_t scheduler;
+			for(size_t gid = pool->get_next_workgroup() ; gid < g_size ; gid = pool->get_next_workgroup())
+			{
+				const size_t group_id[3] = { gid % pool->num_groups[0],
+											 (gid / pool->num_groups[0]) % pool->num_groups[1],
+											 gid / pool->num_groups[0] / pool->num_groups[1] };
+				pool->setwg(local_memory, group_id, &scheduler, fibers.data());
+				for(size_t i = 0 ; i < l_size ; ++i)
+				{
+					ucontext_t *t = &(fibers[i]);
+					getcontext(t);
+					t->uc_link = (i + 1 < l_size) ? t + 1 : &scheduler;
+					t->uc_stack.ss_sp = stack_data.data() + STACK_SIZE * i;
+					t->uc_stack.ss_size = STACK_SIZE;
+					t->uc_stack.ss_flags = 0;
+					makecontext(t, (void(*)())pool->kernel, 1, int(i));
+				}
+				swapcontext(&scheduler, &(fibers[0]));
+			}
+		}
+	}
+
+	void threadpool::set_require_sync(bool b_require_sync)
+	{
+		this->b_require_sync = b_require_sync;
 	}
 }

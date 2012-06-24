@@ -235,7 +235,7 @@ namespace FreeOCL
 		close(fd_out);
 		fclose(file_in);
 		// Remove the input file which is now useless
-		remove(filename_in.c_str());
+//		remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
@@ -475,9 +475,10 @@ namespace FreeOCL
 				<< "\treturn 0;" << std::endl
 				<< "}" << std::endl;
 
-			gen << "extern \"C\" bool __FCL_init_" << i->first << "(const size_t dim, const size_t * const global_offset, const size_t * const global_size, const size_t * const local_size)" << std::endl
-				<< "{" << std::endl;
-			gen	<< "\tFreeOCL::dim = dim;" << std::endl
+			gen << "extern \"C\" bool __FCL_init_" << i->first << "(const void * const args, const size_t dim, const size_t * const global_offset, const size_t * const global_size, const size_t * const local_size)" << std::endl
+				<< "{" << std::endl
+				<< "\tFreeOCL::args = args;" << std::endl
+				<< "\tFreeOCL::dim = dim;" << std::endl
 				<< "\tfor(size_t i = 0 ; i < 3 ; ++i)" << std::endl
 				<< "\t{" << std::endl
 				<< "\t\tFreeOCL::global_offset[i] = global_offset[i];" << std::endl
@@ -495,10 +496,18 @@ namespace FreeOCL
 				<< "}" << std::endl
 				<< std::endl;
 
-			if (b_has_local_parameters)
-				gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, char * const local_memory, const size_t thread_id, const size_t * const thread_group_id)" << std::endl;
-			else
-				gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const void * const args, char * const /*local_memory*/, const size_t thread_id, const size_t * const thread_group_id)" << std::endl;
+			gen << "extern \"C\" void __FCL_setwg_" << i->first << "(char * const local_memory, const size_t * const thread_group_id, ucontext_t *scheduler, ucontext_t *threads)" << std::endl
+				<< "{" << std::endl
+				<< "\tFreeOCL::local_memory = local_memory;" << std::endl
+				<< "\tFreeOCL::group_id[0] = thread_group_id[0];" << std::endl
+				<< "\tFreeOCL::group_id[1] = thread_group_id[1];" << std::endl
+				<< "\tFreeOCL::group_id[2] = thread_group_id[2];" << std::endl
+				<< "\tFreeOCL::scheduler = scheduler;" << std::endl
+				<< "\tFreeOCL::threads = threads;" << std::endl
+				<< "}" << std::endl
+				<< std::endl;
+
+			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const int thread_id)" << std::endl;
 			gen	<< "{" << std::endl;
 			int last_shift = -1;
 			std::stringstream _cat;
@@ -516,30 +525,15 @@ namespace FreeOCL
 					if (last_shift >= 0)
 						gen << "__shift" << last_shift << " - ";
 					else
-						gen << "0x100000 - ";
-					gen << "*(const size_t*)((const char*)args + " << _cat.str() << ");" << std::endl;
+						gen << "0x8000 - ";
+					gen << "*(const size_t*)((const char*)FreeOCL::args + " << _cat.str() << ");" << std::endl;
 					_cat << " + sizeof(size_t)";
 					last_shift = j;
 				}
 				else
 					_cat << " + sizeof(" << *(p_type) << ")";
 			}
-#ifdef FREEOCL_USE_OPENMP
-			gen	<< "\tFreeOCL::group_id[0] = thread_group_id[0];" << std::endl
-				<< "\tFreeOCL::group_id[1] = thread_group_id[1];" << std::endl
-				<< "\tFreeOCL::group_id[2] = thread_group_id[2];" << std::endl;
-#else
-			gen	<< "\tconst __size_t num = FreeOCL::local_size[0] * FreeOCL::local_size[1] * FreeOCL::local_size[2];" << std::endl
-				<< "\tconst __size_t nb_threads = thread_group_id[0];" << std::endl
-				<< "\tfor(FreeOCL::group_id[2] = 0 ; FreeOCL::group_id[2] < FreeOCL::num_groups[2] ; ++FreeOCL::group_id[2])" << std::endl
-				<< "\t\tfor(FreeOCL::group_id[1] = 0 ; FreeOCL::group_id[1] < FreeOCL::num_groups[1] ; ++FreeOCL::group_id[1])" << std::endl
-				<< "\t\t\t\tfor(FreeOCL::group_id[0] = 0 ; FreeOCL::group_id[0] < FreeOCL::num_groups[0] ; ++FreeOCL::group_id[0])" << std::endl
-				<< "\t\t\t\t\tfor(FreeOCL::thread_num = thread_id ; FreeOCL::thread_num < num ; FreeOCL::thread_num += nb_threads)" << std::endl
-				<< "\t\t\t\t\t{" << std::endl;
-#endif
-#ifdef FREEOCL_USE_OPENMP
-			gen << "\tFreeOCL::thread_num = thread_id;" << std::endl;
-#endif
+			gen	<< "\tFreeOCL::thread_num = thread_id;" << std::endl;
 			gen	<< "\t" << i->first << "(";
 			std::stringstream cat;
 			cat << '0';
@@ -554,15 +548,12 @@ namespace FreeOCL
 				if (j)
 					gen << ",\n\t\t";
 				if (b_local)
-					gen << "(" << *p_type << ")(local_memory + __shift" << j << ")";
+					gen << "(" << *p_type << ")(FreeOCL::local_memory + __shift" << j << ")";
 				else
-					gen << "*(" << *p_type << "*)((const char*)args + " << cat.str() << ')';
+					gen << "*(" << *p_type << "*)((const char*)FreeOCL::args + " << cat.str() << ')';
 				cat << " + sizeof(" << *p_type << ")";
 			}
 			gen << ");" << std::endl;
-#ifndef FREEOCL_USE_OPENMP
-			gen	<< "\t\t\t\t\t}" << std::endl;
-#endif
 			gen	<< "}" << std::endl;
 		}
 

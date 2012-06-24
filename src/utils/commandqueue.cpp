@@ -471,19 +471,19 @@ unsigned long _cl_command_queue::proc()
 		case CL_COMMAND_NDRANGE_KERNEL:
 			{
 				FreeOCL::command_ndrange_kernel *ptr = cmd.as<FreeOCL::command_ndrange_kernel>();
-				const bool b_use_sync = ptr->kernel->__FCL_init(ptr->dim,
+				const bool b_use_sync = ptr->kernel->__FCL_init(ptr->args,
+																ptr->dim,
 																ptr->global_offset,
 																ptr->global_size,
 																ptr->local_size);
 				device->pool->set_local_size(ptr->local_size);
-				device->pool->set_thread_num(b_use_sync
-											 ? ptr->local_size[0] * ptr->local_size[1] * ptr->local_size[2]
-											 : device->cpu_cores);
+				device->pool->set_require_sync(b_use_sync);
+				device->pool->set_thread_num(device->cpu_cores);
 				const size_t num_groups[3] = { ptr->global_size[0] / ptr->local_size[0],
 											   ptr->global_size[1] / ptr->local_size[1],
 											   ptr->global_size[2] / ptr->local_size[2] };
 				device->pool->set_num_groups(num_groups);
-				device->pool->run(ptr->args, device->local_memory, ptr->kernel->__FCL_kernel);
+				device->pool->run(ptr->kernel->__FCL_setwg, ptr->kernel->__FCL_kernel);
 				if (ptr->args)
 					free(ptr->args);
 			}

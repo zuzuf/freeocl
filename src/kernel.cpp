@@ -202,8 +202,9 @@ extern "C"
 		kernel->program = program;
 		kernel->function_name = kernel_name;
 		kernel->__FCL_info = (size_t (*)(size_t, int*, const char **, const char **, int *, int *)) dlsym(program->handle, ("__FCL_info_" + kernel->function_name).c_str());
-		kernel->__FCL_init = (bool (*)(size_t,const size_t*,const size_t *,const size_t*)) dlsym(program->handle, ("__FCL_init_" + kernel->function_name).c_str());
-		kernel->__FCL_kernel = (void (*)(const void *,char*,const size_t,const size_t*)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
+		kernel->__FCL_init = (bool (*)(const void*,size_t,const size_t*,const size_t *,const size_t*)) dlsym(program->handle, ("__FCL_init_" + kernel->function_name).c_str());
+		kernel->__FCL_setwg = (void (*)(char * const,const size_t *, ucontext_t *, ucontext_t *)) dlsym(program->handle, ("__FCL_setwg_" + kernel->function_name).c_str());
+		kernel->__FCL_kernel = (void (*)(const int)) dlsym(program->handle, ("__FCL_kernel_" + kernel->function_name).c_str());
 
 		if (kernel->__FCL_info == NULL || kernel->__FCL_kernel == NULL)
 		{
@@ -669,7 +670,7 @@ extern "C"
 		size_t p_local_work_size[3];
 		if (local_work_size == NULL)
 		{
-			p_local_work_size[0] = FreeOCL::device->cpu_cores;
+			p_local_work_size[0] = 1;
 			p_local_work_size[1] = 1;
 			p_local_work_size[2] = 1;
 			local_work_size = p_local_work_size;
