@@ -52,6 +52,8 @@ namespace FreeOCL
 
 		std::vector<int> if_level_state;
 
+		std::string buf;
+
 		for (int v = peek() ; v != -1 ; v = peek())
 		{
 			const char c = v;
@@ -60,7 +62,7 @@ namespace FreeOCL
 			case ' ':
 			case '\t':
 			case '\n':
-				out << char(get());
+				buf += char(get());
 				break;
 			case '\r':
 				get();
@@ -135,6 +137,11 @@ namespace FreeOCL
 								skip_whitespaces();
 								while(peek() != ')')
 								{
+									if (peek() == ',')
+									{
+										get();
+										skip_whitespaces();
+									}
 									m.params.push_back(get_word());
 									if (m.params.back().empty())
 										error("expected identifier");
@@ -271,14 +278,22 @@ namespace FreeOCL
 					get();
 					break;
 				default:
-					out << c;
+					buf += c;
 				}
 
 				break;
 			default:
-				out << macro_expansion(get_line());
+				buf += get_line();
+				if (valid_chunk_for_macro_expansion(buf))
+				{
+					out << macro_expansion(buf);
+					buf.clear();
+				}
 			}
 		}
+
+		if (buf.size())
+			out << macro_expansion(buf);
 
 		this->in.pop_back();
 	}

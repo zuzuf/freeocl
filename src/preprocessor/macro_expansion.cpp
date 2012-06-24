@@ -20,6 +20,77 @@
 
 namespace FreeOCL
 {
+	bool preprocessor::valid_chunk_for_macro_expansion(std::string text)
+	{
+		std::string word;
+		for(size_t i = 0 ; i < text.size() ; ++i)
+		{
+			char c = text[i];
+			if (isalpha(c) || c == '_')
+			{
+				word.clear();
+				for(; i < text.size() && (isalnum(text[i]) || text[i] == '_') ; ++i)
+					word += text[i];
+				--i;
+				if (macros.count(word))
+				{
+					const macro &m = macros[word];
+					if (!m.params.empty())
+					{
+						++i;
+						if (i >= text.size() || text[i] != '(')
+						{
+							--i;
+							continue;
+						}
+						++i;
+						int nb_args = 0;
+						while(i < text.size() && text[i] != ')')
+						{
+							if (text[i] == ',')
+								++i;
+							while(i < text.size() && isspace(text[i]))	++i;
+							int p_level = 0;
+							bool b_in_string = false;
+							bool b_escaped = false;
+							bool b_empty = true;
+							for(; i < text.size() && ((text[i] != ',' && text[i] != ')') || p_level > 0 || b_in_string) ; ++i)
+							{
+								if (text[i] == '"' && !b_escaped)
+									b_in_string ^= true;
+								b_escaped = (text[i] == '\\');
+								if (!b_in_string)
+								{
+									if (text[i] == '(')
+										++p_level;
+									else if (text[i] == ')')
+										--p_level;
+								}
+								if (!isspace(text[i]))
+									b_empty = false;
+							}
+
+							if (!b_empty)
+								nb_args++;
+						}
+
+						if (m.params.size() == 1 && m.params.front().empty())
+						{
+							if (nb_args > 0)
+								return true;
+						}
+						else
+						{
+							if (nb_args != m.params.size())
+								return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
 	std::string preprocessor::macro_expansion(std::string text, const set<std::string> &forbidden, const bool b_defined_rule)
 	{
 		set<std::string> processed_macros(forbidden);
@@ -65,6 +136,8 @@ namespace FreeOCL
 							while(i < text.size() && text[i] != ')')
 							{
 								value.clear();
+								if (text[i] == ',')
+									++i;
 								while(i < text.size() && isspace(text[i]))	++i;
 								int p_level = 0;
 								bool b_in_string = false;
