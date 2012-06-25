@@ -73,15 +73,7 @@ namespace FreeOCL
 
 	void struct_type::write(std::ostream &out) const
 	{
-		switch(get_address_space())
-		{
-		case PRIVATE:	break;
-		case GLOBAL:	out << "__global";	break;
-		case LOCAL:		out << "__local";	break;
-		case CONSTANT:	out << "__constant";	break;
-		}
-
-		out << get_name() << ' ' << std::endl;
+		define(out);
 	}
 
 	std::string struct_type::get_name() const
