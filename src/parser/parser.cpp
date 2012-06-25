@@ -49,6 +49,9 @@
 #include "enum_type.h"
 #include "struct_literal.h"
 #include <utils/string.h>
+#include "if.h"
+#include "do.h"
+#include "while.h"
 
 namespace FreeOCL
 {
@@ -1367,14 +1370,22 @@ namespace FreeOCL
 		switch(peek_token())
 		{
 		case WHILE:
-			RULE5(token<WHILE>, token<'('>, expression, token<')'>, statement);
+			MATCH5(token<WHILE>, token<'('>, expression, token<')'>, statement)
+			{
+				d_val__ = new _while(N[2], N[4]);
+				return 1;
+			}
 			CHECK(4, "syntax error, statement expected");
 			CHECK(3, "syntax error, ')' expected");
 			CHECK(2, "syntax error, expression expected");
 			CHECK(1, "syntax error, '(' expected");
 			break;
 		case DO:
-			RULE7(token<DO>, statement, token<WHILE>, token<'('>, expression, token<')'>, token<';'>);
+			MATCH7(token<DO>, statement, token<WHILE>, token<'('>, expression, token<')'>, token<';'>)
+			{
+				d_val__ = new _do(N[4], N[1]);
+				return 1;
+			}
 			CHECK(6, "syntax error, ';' expected");
 			CHECK(5, "syntax error, ')' expected");
 			CHECK(4, "syntax error, expression expected");
@@ -1434,20 +1445,17 @@ namespace FreeOCL
 		case IF:
 			MATCH5(token<IF>, token<'('>, expression, token<')'>, statement)
 			{
-				const smartptr<node> N0 = N[0];
-				const smartptr<node> N1 = N[1];
 				const smartptr<node> N2 = N[2];
-				const smartptr<node> N3 = N[3];
 				const smartptr<node> N4 = N[4];
 				__max = 0;
 				MATCH2(token<ELSE>, statement)
 				{
-					d_val__ = new chunk(N0, N1, N2, N3, N4, N[0], N[1]);
+					d_val__ = new _if(N2, N4, N[1]);
 					return 1;
 				}
 				CHECK(1, "syntax error, statement expected after 'else'");
 
-				d_val__ = new chunk(N0, N1, N2, N3, N4);
+				d_val__ = new _if(N2, N4, (node*)NULL);
 				return 1;
 			}
 			CHECK(5, "syntax error");

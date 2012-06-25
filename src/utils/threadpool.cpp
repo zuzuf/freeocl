@@ -140,8 +140,21 @@ namespace FreeOCL
 			{
 				fibers.resize(l_size);
 				stack_data.resize(STACK_SIZE * l_size);
+				for(size_t i = 0 ; i < l_size ; ++i)
+				{
+					ucontext_t *t = &(fibers[i]);
+					getcontext(t);
+					t->uc_stack.ss_sp = stack_data.data() + STACK_SIZE * i;
+					t->uc_stack.ss_size = STACK_SIZE;
+					t->uc_stack.ss_flags = 0;
+				}
 			}
 			ucontext_t scheduler;
+			for(size_t i = 0 ; i < l_size ; ++i)
+			{
+				ucontext_t *t = &(fibers[i]);
+				t->uc_link = (i + 1 < l_size) ? t + 1 : &scheduler;
+			}
 			for(size_t gid = pool->get_next_workgroup() ; gid < g_size ; gid = pool->get_next_workgroup())
 			{
 				const size_t group_id[3] = { gid % pool->num_groups[0],
@@ -151,11 +164,6 @@ namespace FreeOCL
 				for(size_t i = 0 ; i < l_size ; ++i)
 				{
 					ucontext_t *t = &(fibers[i]);
-					getcontext(t);
-					t->uc_link = (i + 1 < l_size) ? t + 1 : &scheduler;
-					t->uc_stack.ss_sp = stack_data.data() + STACK_SIZE * i;
-					t->uc_stack.ss_size = STACK_SIZE;
-					t->uc_stack.ss_flags = 0;
 					makecontext(t, (void(*)())pool->kernel, 1, int(i));
 				}
 				swapcontext(&scheduler, &(fibers[0]));

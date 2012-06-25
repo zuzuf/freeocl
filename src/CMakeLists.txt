@@ -39,7 +39,10 @@ set(PARSER_SOURCES
 	parser/declarator.h		parser/declarator.cpp
 	parser/qualifier.h		parser/qualifier.cpp
 	parser/sizeof.h			parser/sizeof.cpp
-	)
+    parser/if.h             parser/if.cpp
+    parser/do.h             parser/do.cpp
+    parser/while.h          parser/while.cpp
+    )
 
 set(PREPROCESSOR_SOURCES
     preprocessor/preprocessor.cpp   preprocessor/preprocessor.h

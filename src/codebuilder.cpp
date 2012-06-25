@@ -235,7 +235,7 @@ namespace FreeOCL
 		close(fd_out);
 		fclose(file_in);
 		// Remove the input file which is now useless
-//		remove(filename_in.c_str());
+		remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
