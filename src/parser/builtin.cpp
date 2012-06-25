@@ -161,6 +161,7 @@ namespace FreeOCL
 
 #define REGISTER(type, name, num)					symbols->insert(#name, new builtin(native_type::t_##type, #name, num))
 #define REGISTER_OVERLOADED(signature, gentype)		do { overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(n->get_name(), n);	} while(false)
+#define REGISTER_OVERLOADED_REDIRECT(cl_name, signature, gentype)		do { overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(#cl_name, n);	} while(false)
 #define REGISTER_VAR(type, name)					symbols->insert(#name, new var(#name, native_type::t_##type))
 
 		// Printf
@@ -814,7 +815,8 @@ namespace FreeOCL
 
 		// Functions provided by the cl_*_int32_*_atomics extensions
 		// Atomic Functions
-		REGISTER_OVERLOADED("int atom_add(__global int*,int)|uint atom_add(__global uint*,uint)|int atom_add(__local int*,int)|uint atom_add(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_add(__global int*,int)|uint atom_add(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_add, "int __atom_add_local(__local int*,int)|uint __atom_add_local(__local uint*,uint)", gentype_single);
 		REGISTER_OVERLOADED("int atom_sub(__global int*,int)|uint atom_sub(__global uint*,uint)|int atom_sub(__local int*,int)|uint atom_sub(__local uint*,uint)", gentype_single);
 		REGISTER_OVERLOADED("int atom_xchg(__global int*,int)"
 							"|uint atom_xchg(__global uint*,uint)"

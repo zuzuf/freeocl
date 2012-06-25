@@ -17,6 +17,7 @@
 */
 #include "symbol_table.h"
 #include "overloaded_builtin.h"
+#include "overloaded_function.h"
 
 namespace FreeOCL
 {
@@ -38,8 +39,14 @@ namespace FreeOCL
 		}
 		else
 		{
-			if (symbol.as<overloaded_builtin>() && table[name].back().as<overloaded_builtin>())
+			if (symbol.as<overloaded_builtin>()
+					&& table[name].back().as<overloaded_builtin>()
+					&& name == symbol.as<overloaded_builtin>()->get_name())
 				table[name].back().as<overloaded_builtin>()->merge(symbol);
+			else if (symbol.as<callable>() && table[name].back().as<overloaded_function>())
+				table[name].back().as<overloaded_function>()->add_function(symbol);
+			else if (symbol.as<callable>() && table[name].back().as<callable>())
+				table[name].back() = new overloaded_function(table[name].back(), symbol);
 			else
 				table[name].back() = symbol;
 		}

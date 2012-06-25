@@ -252,6 +252,9 @@ inline __ulong atomic_xor(volatile __ulong *p, __ulong val)
 inline __int atom_add(__int *p, __int val)	{	return atomic_add(p, val);	}
 inline __uint atom_add(__uint *p, __uint val)	{	return atomic_add(p, val);	}
 
+inline __int __atom_add_local(__int *p, __int val)	{	const __int v = *p;	*p += val;	return v;	}
+inline __uint __atom_add_local(__uint *p, __uint val)	{	const __uint v = *p; *p += val;	return v;	}
+
 inline __int atom_sub(__int *p, __int val)	{	return atomic_sub(p, val);	}
 inline __uint atom_sub(__uint *p, __uint val)	{	return atomic_sub(p, val);	}
 

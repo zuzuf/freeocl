@@ -52,6 +52,7 @@
 #include "if.h"
 #include "do.h"
 #include "while.h"
+#include "overloaded_function.h"
 
 namespace FreeOCL
 {
@@ -169,6 +170,9 @@ namespace FreeOCL
 				p_type = ptr;
 				p_chunk = p_chunk->back();
 			}
+			const std::string function_name = p_chunk->front().as<token>()->get_string();
+			if (symbols->get<callable>(function_name))
+				ERROR(function_name + " already defined");
 
 			// Push a new scope
 			symbols->push();
@@ -230,7 +234,6 @@ namespace FreeOCL
 			{
 				symbols->pop();
 				smartptr<node> statement = d_val__;
-				const std::string function_name = p_chunk->front().as<token>()->get_string();
 				if (b_qualifier && qualifiers->is_set<qualifier::KERNEL>())
 				{
 					if (*p_type != native_type(native_type::VOID, false, type::PRIVATE))
@@ -1882,6 +1885,16 @@ namespace FreeOCL
 					if (d_val__.as<chunk>()->size() == 3)
 					{
 						const chunk *args = (*d_val__.as<chunk>())[1].as<chunk>();
+						const std::deque<smartptr<type> > &arg_types = args->get_as_types();
+						const overloaded_function *overloaded = exp.as<overloaded_function>();
+						if (overloaded)
+						{
+							const smartptr<callable> &fn = overloaded->get_function(arg_types);
+							if (!fn)
+								ERROR("no instance of overloaded function '" + overloaded->get_name() + "' matches the argument list");
+							exp = fn;
+						}
+
 						if (!exp.as<callable>()->check_num_params(args->size()))
 						{
 							std::stringstream buf;
@@ -1889,7 +1902,6 @@ namespace FreeOCL
 								<< " instead of " << exp.as<callable>()->get_num_params() << ')';
 							ERROR(buf.str());
 						}
-						const std::deque<smartptr<type> > &arg_types = args->get_as_types();
 						try
 						{
 							if (!exp.as<callable>()->get_return_type(arg_types))

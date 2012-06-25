@@ -33,7 +33,8 @@ set(PARSER_SOURCES
 	parser/symbol_table.h	parser/symbol_table.cpp
 	parser/builtin.h		parser/builtin.cpp
 	parser/overloaded_builtin.h		parser/overloaded_builtin.cpp
-	parser/member.h			parser/member.cpp
+    parser/overloaded_function.h	parser/overloaded_function.cpp
+    parser/member.h			parser/member.cpp
 	parser/swizzle.h		parser/swizzle.cpp
 	parser/cast.h			parser/cast.cpp
 	parser/declarator.h		parser/declarator.cpp
