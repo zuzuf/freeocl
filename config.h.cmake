@@ -38,7 +38,8 @@
         " -rdynamic" \
         " -fno-exceptions -fno-rtti" \
 		" -x c++ " \
-		" -Wall -Wextra"
+        " -Wall -Wextra "\
+        " -Wno-non-pod-varargs"
 
 #if defined (FREEOCL_ARCH_i386)
 #define FREEOCL_CXX_FLAGS FREEOCL_CXX_FLAGS_COMMON \

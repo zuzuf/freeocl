@@ -533,7 +533,15 @@ namespace FreeOCL
 				else
 					_cat << " + sizeof(" << *(p_type) << ")";
 			}
-			gen	<< "\tFreeOCL::thread_num = thread_id;" << std::endl;
+
+			if (b_needs_sync)
+				gen	<< "\tFreeOCL::thread_num = thread_id;" << std::endl;
+			else
+			{
+				gen	<< "\tfor(int i = 0 ; i < thread_id ; ++i)" << std::endl
+					<< "\t{" << std::endl
+					<< "\t\tFreeOCL::thread_num = i;" << std::endl;
+			}
 			gen	<< "\t" << i->first << "(";
 			std::stringstream cat;
 			cat << '0';
@@ -554,6 +562,8 @@ namespace FreeOCL
 				cat << " + sizeof(" << *p_type << ")";
 			}
 			gen << ");" << std::endl;
+			if (!b_needs_sync)
+				gen	<< "}" << std::endl;
 			gen	<< "}" << std::endl;
 		}
 

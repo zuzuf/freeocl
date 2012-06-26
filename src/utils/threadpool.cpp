@@ -129,8 +129,10 @@ namespace FreeOCL
 											 (gid / pool->num_groups[0]) % pool->num_groups[1],
 											 gid / pool->num_groups[0] / pool->num_groups[1] };
 				pool->setwg(local_memory, group_id, NULL, NULL);
-				for(size_t i = 0 ; i < l_size ; ++i)
-					pool->kernel(i);
+				if (pool->b_require_sync)
+					pool->kernel(0);
+				else
+					pool->kernel(l_size);
 			}
 		}
 		else
