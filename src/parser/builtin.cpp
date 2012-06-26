@@ -364,25 +364,31 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("void prefetch(const __global gentype*,size_t)", gentype_all);
 
 		// Atomic Functions
-		REGISTER_OVERLOADED("int atomic_add(__global int*,int)|uint atomic_add(__global uint*,uint)|int atomic_add(__local int*,int)|uint atomic_add(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_sub(__global int*,int)|uint atomic_sub(__global uint*,uint)|int atomic_sub(__local int*,int)|uint atomic_sub(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_add(__global int*,int)|uint atomic_add(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_add, "int __atomic_add_local(__local int*,int)|uint __atomic_add_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_sub(__global int*,int)|uint atomic_sub(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_sub, "int __atomic_sub_local(__local int*,int)|uint __atomic_sub_local(__local uint*,uint)", gentype_single);
 		REGISTER_OVERLOADED("int atomic_xchg(__global int*,int)"
 							"|uint atomic_xchg(__global uint*,uint)"
-							"|float atomic_xchg(__global float*,float)"
-							"|int atomic_xchg(__local int*,int)"
-							"|uint atomic_xchg(__local uint*,uint)"
-							"|float atomic_xchg(__local float*,float)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_inc(__global int*)|uint atomic_inc(__global uint*)|int atomic_inc(__local int*)|uint atomic_inc(__local uint*)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_dec(__global int*)|uint atomic_dec(__global uint*)|int atomic_dec(__local int*)|uint atomic_dec(__local uint*)", gentype_single);
+							"|float atomic_xchg(__global float*,float)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_xchg, "int __atomic_xchg_local(__local int*,int)|uint __atomic_xchg_local(__local uint*,uint)|float __atomic_xchg_local(__local float*,float)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_inc(__global int*)|uint atomic_inc(__global uint*)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_inc, "int __atomic_inc_local(__local int*)|uint __atomic_inc_local(__local uint*)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_dec(__global int*)|uint atomic_dec(__global uint*)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_dec, "int __atomic_dec_local(__local int*)|uint __atomic_dec_local(__local uint*)", gentype_single);
 		REGISTER_OVERLOADED("int atomic_cmpxchg(__global int*,int,int)"
-							"|uint atomic_cmpxchg(__global uint*,uint,uint)"
-							"|int atomic_cmpxchg(__local int*,int,int)"
-							"|uint atomic_cmpxchg(__local uint*,uint,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_min(__global int*,int)|uint atomic_min(__global uint*,uint)|int atomic_min(__local int*,int)|uint atomic_min(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_max(__global int*,int)|uint atomic_max(__global uint*,uint)|int atomic_max(__local int*,int)|uint atomic_max(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_and(__global int*,int)|uint atomic_and(__global uint*,uint)|int atomic_and(__local int*,int)|uint atomic_and(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_or(__global int*,int)|uint atomic_or(__global uint*,uint)|int atomic_or(__local int*,int)|uint atomic_or(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atomic_xor(__global int*,int)|uint atomic_xor(__global uint*,uint)|int atomic_xor(__local int*,int)|uint atomic_xor(__local uint*,uint)", gentype_single);
+							"|uint atomic_cmpxchg(__global uint*,uint,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_cmpxchg, "int __atomic_cmpxchg_local(__local int*,int,int)|uint __atomic_cmpxchg_local(__local uint*,uint,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_min(__global int*,int)|uint atomic_min(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_min, "int __atomic_min_local(__local int*,int)|uint __atomic_min_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_max(__global int*,int)|uint atomic_max(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_max, "int __atomic_max_local(__local int*,int)|uint __atomic_max_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_and(__global int*,int)|uint atomic_and(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_and, "int __atomic_and_local(__local int*,int)|uint __atomic_and_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_or(__global int*,int)|uint atomic_or(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_or, "int __atomic_or_local(__local int*,int)|uint __atomic_or_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atomic_xor(__global int*,int)|uint atomic_xor(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atomic_xor, "int __atomic_xor_local(__local int*,int)|uint __atomic_xor_local(__local uint*,uint)", gentype_single);
 
 		// Miscellaneous Vector Functions
 		REGISTER_OVERLOADED("int vec_step(gentype)", gentype_all);
@@ -817,22 +823,55 @@ namespace FreeOCL
 		// Atomic Functions
 		REGISTER_OVERLOADED("int atom_add(__global int*,int)|uint atom_add(__global uint*,uint)", gentype_single);
 		REGISTER_OVERLOADED_REDIRECT(atom_add, "int __atom_add_local(__local int*,int)|uint __atom_add_local(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_sub(__global int*,int)|uint atom_sub(__global uint*,uint)|int atom_sub(__local int*,int)|uint atom_sub(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_sub(__global int*,int)|uint atom_sub(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_sub, "int __atom_sub_local(__local int*,int)|uint __atom_sub_local(__local uint*,uint)", gentype_single);
 		REGISTER_OVERLOADED("int atom_xchg(__global int*,int)"
-							"|uint atom_xchg(__global uint*,uint)"
-							"|int atom_xchg(__local int*,int)"
-							"|uint atom_xchg(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_inc(__global int*)|uint atom_inc(__global uint*)|int atom_inc(__local int*)|uint atom_inc(__local uint*)", gentype_single);
-		REGISTER_OVERLOADED("int atom_dec(__global int*)|uint atom_dec(__global uint*)|int atom_dec(__local int*)|uint atom_dec(__local uint*)", gentype_single);
+							"|uint atom_xchg(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_xchg, "int __atom_xchg_local(__local int*,int)|uint __atom_xchg_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_inc(__global int*)|uint atom_inc(__global uint*)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_inc, "int __atom_inc_local(__local int*)|uint __atom_inc_local(__local uint*)", gentype_single);
+		REGISTER_OVERLOADED("int atom_dec(__global int*)|uint atom_dec(__global uint*)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_dec, "int __atom_dec_local(__local int*)|uint __atom_dec_local(__local uint*)", gentype_single);
 		REGISTER_OVERLOADED("int atom_cmpxchg(__global int*,int,int)"
-							"|uint atom_cmpxchg(__global uint*,uint,uint)"
-							"|int atom_cmpxchg(__local int*,int,int)"
-							"|uint atom_cmpxchg(__local uint*,uint,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_min(__global int*,int)|uint atom_min(__global uint*,uint)|int atom_min(__local int*,int)|uint atom_min(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_max(__global int*,int)|uint atom_max(__global uint*,uint)|int atom_max(__local int*,int)|uint atom_max(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_and(__global int*,int)|uint atom_and(__global uint*,uint)|int atom_and(__local int*,int)|uint atom_and(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_or(__global int*,int)|uint atom_or(__global uint*,uint)|int atom_or(__local int*,int)|uint atom_or(__local uint*,uint)", gentype_single);
-		REGISTER_OVERLOADED("int atom_xor(__global int*,int)|uint atom_xor(__global uint*,uint)|int atom_xor(__local int*,int)|uint atom_xor(__local uint*,uint)", gentype_single);
+							"|uint atom_cmpxchg(__global uint*,uint,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_cmpxchg, "int __atom_cmpxchg_local(__local int*,int,int)|uint __atom_cmpxchg_local(__local uint*,uint,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_min(__global int*,int)|uint atom_min(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_min, "int __atom_min_local(__local int*,int)|uint __atom_min_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_max(__global int*,int)|uint atom_max(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_max, "int __atom_max_local(__local int*,int)|uint __atom_max_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_and(__global int*,int)|uint atom_and(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_and, "int __atom_and_local(__local int*,int)|uint __atom_and_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_or(__global int*,int)|uint atom_or(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_or, "int __atom_or_local(__local int*,int)|uint __atom_or_local(__local uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED("int atom_xor(__global int*,int)|uint atom_xor(__global uint*,uint)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_xor, "int __atom_xor_local(__local int*,int)|uint __atom_xor_local(__local uint*,uint)", gentype_single);
+
+		// Functions provided by the cl_*_int64_*_atomics extensions
+		// Atomic Functions
+		REGISTER_OVERLOADED("long atom_add(__global long*,long)|ulong atom_add(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_add, "long __atom_add_local(__local long*,long)|ulong __atom_add_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_sub(__global long*,long)|ulong atom_sub(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_sub, "long __atom_sub_local(__local long*,long)|ulong __atom_sub_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_xchg(__global long*,long)"
+							"|ulong atom_xchg(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_xchg, "long __atom_xchg_local(__local long*,long)|ulong __atom_xchg_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_inc(__global long*)|ulong atom_inc(__global ulong*)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_inc, "long __atom_inc_local(__local long*)|ulong __atom_inc_local(__local ulong*)", gentype_single);
+		REGISTER_OVERLOADED("long atom_dec(__global long*)|ulong atom_dec(__global ulong*)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_dec, "long __atom_dec_local(__local long*)|ulong __atom_dec_local(__local ulong*)", gentype_single);
+		REGISTER_OVERLOADED("long atom_cmpxchg(__global long*,long,long)"
+							"|ulong atom_cmpxchg(__global ulong*,ulong,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_cmpxchg, "long __atom_cmpxchg_local(__local long*,long,long)|ulong __atom_cmpxchg_local(__local ulong*,ulong,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_min(__global long*,long)|ulong atom_min(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_min, "long __atom_min_local(__local long*,long)|ulong __atom_min_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_max(__global long*,long)|ulong atom_max(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_max, "long __atom_max_local(__local long*,long)|ulong __atom_max_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_and(__global long*,long)|ulong atom_and(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_and, "long __atom_and_local(__local long*,long)|ulong __atom_and_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_or(__global long*,long)|ulong atom_or(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_or, "long __atom_or_local(__local long*,long)|ulong __atom_or_local(__local ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED("long atom_xor(__global long*,long)|ulong atom_xor(__global ulong*,ulong)", gentype_single);
+		REGISTER_OVERLOADED_REDIRECT(atom_xor, "long __atom_xor_local(__local long*,long)|ulong __atom_xor_local(__local ulong*,ulong)", gentype_single);
 
 		// OpenCL 1.2 image functions
 		// Integer functions
