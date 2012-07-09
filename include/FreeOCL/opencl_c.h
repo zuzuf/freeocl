@@ -341,4 +341,28 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 #undef VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS_
 #undef CHECK
 
+// debugging helpers
+
+template<int N, typename T, typename I>
+inline T &__check_lookup_bounds(T *ptr, const I &idx, const char *ref)
+{
+	if (idx < 0 || idx >= N)
+		printf("warning: (%d,%d,%d|%d,%d,%d) %d is out of array range [0 - %d[ in %s",
+			   get_global_id(0), get_global_id(1), get_global_id(2),
+			   get_local_id(0), get_local_id(1), get_local_id(2),
+			   idx, N, ref);
+	return ptr[idx];
+}
+
+template<int N, typename T, typename I>
+inline const T &__check_lookup_bounds(const T *ptr, const I &idx, const char *ref)
+{
+	if (idx < 0 || idx >= N)
+		printf("warning: (%d,%d,%d|%d,%d,%d) %d is out of array range [0 - %d[ in %s l.%d",
+			   get_global_id(0), get_global_id(1), get_global_id(2),
+			   get_local_id(0), get_local_id(1), get_local_id(2),
+			   idx, N, ref);
+	return ptr[idx];
+}
+
 #endif

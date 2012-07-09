@@ -298,7 +298,8 @@ _cl_device_id::_cl_device_id() :
 			   "cl_khr_byte_addressable_store" SEP
 			   "cl_khr_fp64" SEP
 			   "cl_khr_int64_base_atomics" SEP
-			   "cl_khr_int64_extended_atomics"),
+			   "cl_khr_int64_extended_atomics" SEP
+			   "cl_freeocl_debug"),
 	exec_capabilities(CL_EXEC_KERNEL | CL_EXEC_NATIVE_KERNEL),
 	preferred_vector_width_char(16),
 	preferred_vector_width_short(8),

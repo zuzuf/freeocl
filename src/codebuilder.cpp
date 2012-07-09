@@ -71,6 +71,7 @@ namespace FreeOCL
 
 		std::stringstream coptions(options);
 		std::vector<std::string> include_paths;
+		bool b_debug_mode = false;
 		while(coptions)
 		{
 			std::string word;
@@ -129,6 +130,10 @@ namespace FreeOCL
 			else if (word == "-cl-mad-enable")
 			{
 			}
+			else if (word == "-cl-debug")
+			{
+				b_debug_mode = true;
+			}
 			else if (word == "-cl-no-signed-zeros")
 			{
 				compiler_extra_args += " -fno-signed-zeros";
@@ -174,7 +179,7 @@ namespace FreeOCL
 		if (preprocessed_code.empty())
 			return std::string();
 
-		const std::string &validated_code = validate_code(preprocessed_code, log, kernels);
+		const std::string &validated_code = validate_code(preprocessed_code, log, kernels, b_debug_mode);
 
 		if (validated_code.empty())
 			return std::string();
@@ -331,13 +336,14 @@ namespace FreeOCL
 		return _out.str();
 	}
 
-	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels)
+	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels, const bool b_debug_mode)
 	{
 		log << "code validator log:" << std::endl;
 		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
 		parser p(in, log);
 		const u_int64_t timer = usec_timer();
+		p.set_debug_mode(b_debug_mode);
 		p.parse();
 		std::clog << usec_timer() - timer << "µs" << std::endl;
 		if (p.errors())

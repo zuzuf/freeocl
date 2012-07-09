@@ -78,12 +78,14 @@ namespace FreeOCL
 		};
 
 	public:
-		parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), b_errors(false)	{}
+		parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), b_errors(false), b_debug_mode(false)	{}
 
 		int parse();
 		inline bool errors() const {	return b_errors; }
 		inline const smartptr<node> &get_ast() const	{	return root;	}
 		const FreeOCL::map<std::string, smartptr<kernel> >	&get_kernels() const	{	return kernels;	}
+
+		void set_debug_mode(bool b_debug_mode)	{	this->b_debug_mode = b_debug_mode;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
@@ -156,6 +158,8 @@ namespace FreeOCL
 		std::vector<std::pair<int, smartptr<node> > >	processed;
 		symbol_table *symbols;
 		std::bitset<_nb_extensions>	active_extensions;
+
+		bool b_debug_mode;
 
 	private:
 		// parser grammar rules

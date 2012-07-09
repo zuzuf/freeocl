@@ -17,12 +17,14 @@
 */
 #include "index.h"
 #include "pointer_type.h"
+#include "array_type.h"
 
 namespace FreeOCL
 {
 	index::index(const smartptr<expression> &ptr, const smartptr<expression> &idx)
 		: ptr(ptr),
-		idx(idx)
+		idx(idx),
+		b_check_bounds(false)
 	{
 
 	}
@@ -43,7 +45,16 @@ namespace FreeOCL
 
 	void index::write(std::ostream& out) const
 	{
-		out << *ptr << '[' << *idx << ']';
+		if (!b_check_bounds)
+			out << *ptr << '[' << *idx << ']';
+		else
+		{
+			array_type *atype = ptr->get_type().as<array_type>();
+			if (!atype)
+				out << *ptr << '[' << *idx << ']';
+			else
+				out << "__check_lookup_bounds<" << atype->get_size() << ">(" << *ptr << ',' << *idx << ',' << '"' << ref << '"' << ')';
+		}
 	}
 
 	uint32_t index::eval_as_uint() const
@@ -55,5 +66,15 @@ namespace FreeOCL
 	bool index::has_references_to(const std::string &function_name) const
 	{
 		return ptr->has_references_to(function_name) || idx->has_references_to(function_name);
+	}
+
+	void index::enable_boundary_check(bool b_check_bounds)
+	{
+		this->b_check_bounds = b_check_bounds;
+	}
+
+	void index::set_ref_string(const std::string &ref)
+	{
+		this->ref = ref;
 	}
 }

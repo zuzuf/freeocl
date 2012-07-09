@@ -1,0 +1,60 @@
+XXX - Not complete yet!!!
+
+Name Strings
+
+   cl_freeocl_debug
+
+Contributors
+
+   Roland Brochard (FreeOCL developer)
+
+Contact
+
+   Roland Brochard <zuzuf86 'at' gmail.com>
+
+Version
+
+    Version 1, July 9, 2012
+
+Number
+
+   TBD
+
+Extension Type
+
+   OpenCL device extension
+
+Dependencies
+
+   OpenCL 1.2 is required
+
+Overview
+
+   This extension adds a compiler option to enable intrusive debugging features
+   at runtime such as boundary checks for arrays
+
+Additions to Chapter 5 of the OpenCL 1.2 Specification
+
+   In section 5.6, paragraph 5.6.4.3, add:
+  "-cl-debug
+           This option enables intrusive debugging features at runtime such as
+           boundary checks for arrays. This is likely to slow down execution.
+           In case of runtime error detection, it won't terminate a thread but
+           print a warning message starting with "warning: (%d,%d,%d|%d,%d,%d)"
+           where the first 3 integers are the global ids of the thread and 3
+           next are its local ids. In case 2 threads encounter an error at the
+           same time, it is not valid to have the error messages intermixed."
+
+Issues
+
+Sample Code
+
+   None yet.
+
+Conformance Tests
+
+   None yet.
+
+Revision History
+
+    Version 1, 2012/07/09 (Roland Brochard) - initial extension specification.

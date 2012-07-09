@@ -46,7 +46,10 @@ namespace FreeOCL
 								const map<std::string, std::string> &headers);
 
 	// Validate the code and does the OpenCL C -> C++ conversion
-	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels);
+	std::string validate_code(const std::string &code,
+							  std::stringstream &log,
+							  FreeOCL::set<std::string> &kernels,
+							  const bool b_debug_mode);
 
 	// Return a string to the .so/.a file built
 	// In case an error occurs, it returns an empty string

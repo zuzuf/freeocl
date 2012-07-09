@@ -85,6 +85,12 @@ int main(int argc, const char **argv)
 				compiler_args += argv[i];
 				continue;
 			}
+			if (!strncmp(argv[i], "-cl", 3))
+			{
+				compiler_args += ' ';
+				compiler_args += argv[i];
+				continue;
+			}
 			filename = argv[i];
 		}
 

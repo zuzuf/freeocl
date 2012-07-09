@@ -31,7 +31,7 @@ namespace
 	const char *version = "OpenCL 1.2 FreeOCL-" FREEOCL_VERSION_STRING;
 	const char *name = "FreeOCL";
 	const char *vendor = FREEOCL_VENDOR;
-	const char *extensions = "cl_khr_icd";
+	const char *extensions = "cl_khr_icd cl_freeocl_debug";
 	const char *vendor_suffix = "FCL";
 }
 

@@ -1877,7 +1877,16 @@ namespace FreeOCL
 					{
 						ERROR("pointer or array type expected!");
 					}
-					exp = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
+					else
+					{
+						index *idx = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
+						if (b_debug_mode)
+						{
+							idx->enable_boundary_check(true);
+							idx->set_ref_string(current_file + " l." + to_string(line));
+						}
+						exp = idx;
+					}
 					break;
 				case '(':
 					if (!exp.as<callable>())
