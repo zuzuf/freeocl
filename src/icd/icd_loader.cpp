@@ -54,7 +54,7 @@ namespace FreeOCL
 	icd_loader::icd_loader()
 	{
 		// Get the list of all *.icd files in /etc/OpenCL/vendors/
-		const std::deque<std::string> files = list_files("/etc/OpenCL/vendors/", ".icd");
+		const std::deque<std::string> &files = list_files("/etc/OpenCL/vendors/", ".icd");
 		// For each file
 		for(std::deque<std::string>::const_iterator i = files.begin() ; i != files.end() ; ++i)
 		{

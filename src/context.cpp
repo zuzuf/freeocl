@@ -25,6 +25,7 @@
 #include "program.h"
 #include "sampler.h"
 #include "utils/commandqueue.h"
+#include <iostream>
 
 #define SET_VAR(X)	FreeOCL::copy_memory_within_limits(&(X), sizeof(X), param_value_size, param_value, param_value_size_ret)
 #define SET_RET(X)	if (errcode_ret)	*errcode_ret = (X)
@@ -263,6 +264,7 @@ _cl_context::~_cl_context()
 		if (FreeOCL::is_valid(static_cast<type>(ptr)))\
 		{\
 			static_cast<type>(ptr)->invalidate();\
+			static_cast<type>(ptr)->unlock();\
 			delete static_cast<type>(ptr);\
 			continue;\
 		}

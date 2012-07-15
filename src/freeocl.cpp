@@ -376,6 +376,7 @@ namespace FreeOCL
 		{
 			context->lock();
 			context->resources.insert(this);
+			context->retain();
 			context->unlock();
 		}
 	}
@@ -386,7 +387,15 @@ namespace FreeOCL
 		{
 			context->lock();
 			context->resources.erase(this);
-			context->unlock();
+			context->release();
+			if (context->get_ref_count() > 0)
+				context->unlock();
+			else
+			{
+				context->invalidate();
+				context->unlock();
+				delete context;
+			}
 		}
 	}
 
