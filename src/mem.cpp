@@ -508,7 +508,7 @@ extern "C"
 		}
 
 		void *p = (char*)buffer->ptr + offset;
-		if (num_events_in_wait_list == 0 || event_wait_list == NULL)
+		if ((num_events_in_wait_list == 0 || event_wait_list == NULL) && blocking_map == CL_FALSE)
 		{
 			buffer->mapped.insert(p);
 			if (event)
