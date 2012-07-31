@@ -18,15 +18,23 @@
 #include "function.h"
 #include "chunk.h"
 #include "type.h"
+#include "overloaded_builtin.h"
 
 namespace FreeOCL
 {
-	function::function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body)
+    function::function(const smartptr<type> &return_type,
+                       const std::string &name,
+                       const smartptr<chunk> &arguments,
+                       const smartptr<chunk> &body,
+                       std::deque<smartptr<type> > &arg_types)
 		: name(name),
 		return_type(return_type),
 		arguments(arguments),
 		body(body)
 	{
+        // This is required to respect overloaded_builtin::all_types_weak_match semantics
+        arg_types.push_front((type*)NULL);
+        this->arg_types.swap(arg_types);
 		this->arguments->pop_front();
 		this->arguments->pop_back();
 		this->body->pop_front();
@@ -56,8 +64,12 @@ namespace FreeOCL
 			<< '}' << std::endl;
 	}
 
-	smartptr<type> function::get_return_type(const std::deque<smartptr<type> > &/*arg_types*/) const
+    smartptr<type> function::get_return_type(const std::deque<smartptr<type> > &arg_types) const
 	{
+        if (arg_types.size() != arg_types.size())
+            return (type*)NULL;
+        if (!overloaded_builtin::all_types_weak_match(arg_types, this->arg_types))
+            return (type*)NULL;
 		return return_type;
 	}
 
@@ -75,4 +87,9 @@ namespace FreeOCL
 	{
 		return (name == function_name) || body->has_references_to(function_name);
 	}
+
+    const char *function::get_node_type() const
+    {
+        return "function";
+    }
 }

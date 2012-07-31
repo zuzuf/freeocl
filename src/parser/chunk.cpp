@@ -102,4 +102,9 @@ namespace FreeOCL
 				return true;
 		return false;
 	}
+
+    const char *chunk::get_node_type() const
+    {
+        return "chunk";
+    }
 }

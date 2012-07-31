@@ -25,4 +25,9 @@ namespace FreeOCL
 			return root->get_aggregate_type();
 		return UNION;
 	}
+
+    const char *union_type::get_node_type() const
+    {
+        return "union_type";
+    }
 }

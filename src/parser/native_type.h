@@ -43,12 +43,14 @@ namespace FreeOCL
 		virtual std::string get_name() const;
 		virtual std::string get_cxx_name() const;
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
+        virtual const char *get_node_type() const;
 
 		type_id get_type_id() const	{	return id;	}
 		int get_dim() const;
 		bool is_vector() const	{	return get_dim() > 1;	}
 		bool is_scalar() const	{	return get_dim() == 1;	}
-		bool is_integer() const;
+        bool is_special() const;
+        bool is_integer() const;
 		bool is_floatting() const;
 		bool is_half() const;
 		bool is_float() const;

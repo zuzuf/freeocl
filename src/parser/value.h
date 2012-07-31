@@ -48,7 +48,9 @@ namespace FreeOCL
 		{
 			out << v << ' ';
 		}
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		const T v;
 	};
 }

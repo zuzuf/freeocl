@@ -42,4 +42,9 @@ namespace FreeOCL
 	{
 		return n0->has_references_to(function_name) || n1->has_references_to(function_name);
 	}
+
+    const char *declarator::get_node_type() const
+    {
+        return "declarator";
+    }
 }

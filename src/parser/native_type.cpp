@@ -260,6 +260,24 @@ namespace FreeOCL
 		}
 	}
 
+    bool native_type::is_special() const
+    {
+        switch(id)
+        {
+        case SAMPLER_T:
+        case EVENT_T:
+        case IMAGE1D_ARRAY_T:
+        case IMAGE1D_BUFFER_T:
+        case IMAGE1D_T:
+        case IMAGE2D_ARRAY_T:
+        case IMAGE2D_T:
+        case IMAGE3D_T:
+            return true;
+        default:
+            return false;
+        }
+    }
+
 	bool native_type::is_floatting() const
 	{
 		switch(id)
@@ -622,4 +640,9 @@ namespace FreeOCL
 		}
 #undef IMPL
 	}
+
+    const char *native_type::get_node_type() const
+    {
+        return "native_type";
+    }
 }

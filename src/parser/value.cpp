@@ -97,6 +97,16 @@ namespace FreeOCL
 	template<> uint32_t value<double>::get_as_uint() const	{	return v;	}
 	template<> uint32_t value<bool>::get_as_uint() const	{	return v;	}
 
+    template<> const char *value<uint32_t>::get_node_type() const   {   return "value<uint32_t>";   }
+    template<> const char *value<int32_t>::get_node_type() const   {   return "value<int32_t>";   }
+    template<> const char *value<uint64_t>::get_node_type() const   {   return "value<uint64_t>";   }
+    template<> const char *value<int64_t>::get_node_type() const   {   return "value<int64_t>";   }
+    template<> const char *value<float>::get_node_type() const   {   return "value<float>";   }
+    template<> const char *value<char>::get_node_type() const   {   return "value<char>";   }
+    template<> const char *value<double>::get_node_type() const   {   return "value<double>";   }
+    template<> const char *value<bool>::get_node_type() const   {   return "value<bool>";   }
+    template<> const char *value<std::string>::get_node_type() const   {   return "value<std::string>";   }
+
 	template<> uint32_t value<std::string>::get_as_uint() const	{	return 0;	}
 
 	uint32_t generic_value::eval_as_uint() const	{	return get_as_uint();	}

@@ -35,7 +35,9 @@ namespace FreeOCL
 
 		virtual bool has_references_to(const std::string &function_name) const;
 
-		void enable_boundary_check(bool b_check_bounds);
+        virtual const char *get_node_type() const;
+
+        void enable_boundary_check(bool b_check_bounds);
 		void set_ref_string(const std::string &ref);
 	private:
 		const smartptr<expression> ptr;

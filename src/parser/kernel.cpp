@@ -19,8 +19,12 @@
 
 namespace FreeOCL
 {
-	kernel::kernel(const smartptr<node> &return_type, const std::string &name, const smartptr<node> &arguments, const smartptr<node> &body)
-		: function(return_type, name, arguments, body)
+    kernel::kernel(const smartptr<node> &return_type,
+                   const std::string &name,
+                   const smartptr<node> &arguments,
+                   const smartptr<node> &body,
+                   std::deque<smartptr<type> > &arg_types)
+        : function(return_type, name, arguments, body, arg_types)
 	{
 	}
 
@@ -33,4 +37,9 @@ namespace FreeOCL
 		out << "__kernel ";
 		function::write(out);
 	}
+
+    const char *kernel::get_node_type() const
+    {
+        return "kernel";
+    }
 }

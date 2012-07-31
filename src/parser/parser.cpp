@@ -179,6 +179,7 @@ namespace FreeOCL
 			smartptr<chunk> args = p_chunk->back();
 			if (!args)
 				END();
+            std::deque<smartptr<type> > arg_types;
 			if (args->size() == 3)
 			{
 				// Register all function parameters
@@ -225,6 +226,7 @@ namespace FreeOCL
 					}
 					else if (cur->back().as<token>())
 						name = cur->back().as<token>()->get_string();
+                    arg_types.push_back(p_type);
 					symbols->insert(name, new var(name, p_type));
 				}
 			}
@@ -238,10 +240,10 @@ namespace FreeOCL
 				{
 					if (*p_type != native_type(native_type::VOID, false, type::PRIVATE))
 						error("return type for kernels must be void");
-					d_val__ = kernels[function_name] = new kernel(p_type, function_name, p_chunk->back(), statement);
+                    d_val__ = kernels[function_name] = new kernel(p_type, function_name, p_chunk->back(), statement, arg_types);
 				}
 				else
-					d_val__ = new function(p_type, function_name, p_chunk->back(), statement);
+                    d_val__ = new function(p_type, function_name, p_chunk->back(), statement, arg_types);
 				symbols->insert(function_name, d_val__);
 				if (b_qualifier
 						&& !qualifiers->is_set<qualifier::KERNEL>())

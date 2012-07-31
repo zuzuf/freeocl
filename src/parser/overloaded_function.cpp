@@ -86,4 +86,9 @@ namespace FreeOCL
 	{
 		fn.push_back(f);
 	}
+
+    const char *overloaded_function::get_node_type() const
+    {
+        return "overloaded_function";
+    }
 }

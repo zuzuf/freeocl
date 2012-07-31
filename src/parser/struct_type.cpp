@@ -136,4 +136,9 @@ namespace FreeOCL
 	{
 		return members.size();
 	}
+
+    const char *struct_type::get_node_type() const
+    {
+        return "struct_type";
+    }
 }

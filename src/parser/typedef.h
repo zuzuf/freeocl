@@ -32,6 +32,7 @@ namespace FreeOCL
 		virtual bool operator==(const type &p_type) const;
 		virtual std::string get_name() const;
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
+        virtual const char *get_node_type() const;
 
 		inline const smartptr<type> &get_type() const
 		{
@@ -50,7 +51,8 @@ namespace FreeOCL
 			: type_def(std::string(), type.as<type_def>() ? type.as<type_def>()->get_type() : type)
 		{}
 		virtual void write(std::ostream& out) const;
-	};
+        virtual const char *get_node_type() const;
+    };
 }
 
 #endif

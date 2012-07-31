@@ -49,4 +49,9 @@ namespace FreeOCL
 	{
 		return false;
 	}
+
+    const char *var::get_node_type() const
+    {
+        return "var";
+    }
 }

@@ -950,4 +950,9 @@ namespace FreeOCL
 	{
 		return name == function_name;
 	}
+
+    const char *builtin::get_node_type() const
+    {
+        return "builtin";
+    }
 }

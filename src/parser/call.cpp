@@ -67,4 +67,9 @@ namespace FreeOCL
 					return true;
 		return fn->has_references_to(function_name);
 	}
+
+    const char *call::get_node_type() const
+    {
+        return "call";
+    }
 }

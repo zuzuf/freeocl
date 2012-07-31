@@ -34,4 +34,9 @@ namespace FreeOCL
 	{
 		return false;
 	}
+
+    const char *size_of::get_node_type() const
+    {
+        return "size_of";
+    }
 }

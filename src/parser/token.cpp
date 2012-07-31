@@ -32,4 +32,9 @@ namespace FreeOCL
 	{
 		return false;
 	}
+
+    const char *token::get_node_type() const
+    {
+        return "token";
+    }
 }

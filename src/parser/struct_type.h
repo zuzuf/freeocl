@@ -48,7 +48,8 @@ namespace FreeOCL
 
 		struct_type &operator<<(const std::pair<std::string, smartptr<type> > &member);
 
-	protected:
+        virtual const char *get_node_type() const;
+    protected:
 		virtual aggregate_type get_aggregate_type() const;
 
 	protected:

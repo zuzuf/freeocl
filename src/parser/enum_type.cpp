@@ -64,4 +64,9 @@ namespace FreeOCL
 	{
 		return new enum_type(name, v_values, b_const, addr_space);
 	}
+
+    const char *enum_type::get_node_type() const
+    {
+        return "enum_type";
+    }
 }

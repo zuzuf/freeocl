@@ -54,4 +54,9 @@ namespace FreeOCL
 	{
 		return exp1->has_references_to(function_name) || exp2->has_references_to(function_name) || exp3->has_references_to(function_name);
 	}
+
+    const char *ternary::get_node_type() const
+    {
+        return "ternary";
+    }
 }

@@ -63,4 +63,9 @@ namespace FreeOCL
 	{
 		return initializer->has_references_to(function_name);
 	}
+
+    const char *struct_literal::get_node_type() const
+    {
+        return "struct_literal";
+    }
 }

@@ -96,4 +96,9 @@ namespace FreeOCL
 	{
 		return exp->has_references_to(function_name);
 	}
+
+    const char *cast::get_node_type() const
+    {
+        return "cast";
+    }
 }

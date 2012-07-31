@@ -49,7 +49,9 @@ namespace FreeOCL
 		inline int get_flags() const	{	return flags;	}
 
 		virtual bool has_references_to(const std::string &function_name) const;
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		int flags;
 	};
 }

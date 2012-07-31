@@ -84,4 +84,9 @@ namespace FreeOCL
 		else
 			base_type = root_type;
 	}
+
+    const char *pointer_type::get_node_type() const
+    {
+        return "pointer_type";
+    }
 }

@@ -50,6 +50,11 @@ namespace FreeOCL
 		return new type_def(name, p_type->clone(b_const, addr_space));
 	}
 
+    const char *type_def::get_node_type() const
+    {
+        return "type_def";
+    }
+
 	void type_decl::write(std::ostream& out) const
 	{
 		out << "typedef ";
@@ -60,4 +65,9 @@ namespace FreeOCL
 			out << *p_type;
 		out << ' ';
 	}
+
+    const char *type_decl::get_node_type() const
+    {
+        return "type_decl";
+    }
 }

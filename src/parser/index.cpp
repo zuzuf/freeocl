@@ -77,4 +77,9 @@ namespace FreeOCL
 	{
 		this->ref = ref;
 	}
+
+    const char *index::get_node_type() const
+    {
+        return "index";
+    }
 }

@@ -37,7 +37,9 @@ namespace FreeOCL
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 		smartptr<type> clone() const;
 
-		void set_root_type(const smartptr<type> &root_type);
+        virtual const char *get_node_type() const;
+
+        void set_root_type(const smartptr<type> &root_type);
 	protected:
 		smartptr<type> base_type;
 

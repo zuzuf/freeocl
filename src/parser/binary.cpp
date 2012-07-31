@@ -181,4 +181,9 @@ namespace FreeOCL
 	{
 		return left->has_references_to(function_name) || right->has_references_to(function_name);
 	}
+
+    const char *binary::get_node_type() const
+    {
+        return "binary";
+    }
 }

@@ -262,4 +262,9 @@ namespace FreeOCL
 	{
 		return base->has_references_to(function_name);
 	}
+
+    const char *swizzle::get_node_type() const
+    {
+        return "swizzle";
+    }
 }

@@ -40,4 +40,9 @@ namespace FreeOCL
 	{
 		return false;
 	}
+
+    const char *qualifier::get_node_type() const
+    {
+        return "qualifier";
+    }
 }

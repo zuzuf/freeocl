@@ -41,4 +41,9 @@ namespace FreeOCL
 				|| if_true->has_references_to(function_name)
 				|| (if_false && if_false->has_references_to(function_name)));
 	}
+
+    const char *_if::get_node_type() const
+    {
+        return "_if";
+    }
 }

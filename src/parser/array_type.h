@@ -40,7 +40,8 @@ namespace FreeOCL
 
 		size_t get_size() const	{	return size;	}
 
-	private:
+        virtual const char *get_node_type() const;
+    private:
 		size_t size;
 	};
 }

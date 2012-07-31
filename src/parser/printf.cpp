@@ -63,4 +63,9 @@ namespace FreeOCL
 	{
 		return n >= 1;
 	}
+
+    const char *printf::get_node_type() const
+    {
+        return "printf";
+    }
 }

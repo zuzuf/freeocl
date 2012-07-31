@@ -24,6 +24,7 @@ namespace FreeOCL
 {
 	class overloaded_builtin : public callable
 	{
+        friend class function;
 	public:
 		overloaded_builtin(const std::string &signature, const std::deque<int> &gentype);
 		virtual ~overloaded_builtin();
@@ -39,7 +40,9 @@ namespace FreeOCL
 		void merge(const smartptr<overloaded_builtin> rhs);
 
 		virtual bool has_references_to(const std::string &function_name) const;
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		void remove_duplicates();
 
 	private:

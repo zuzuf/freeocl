@@ -102,4 +102,9 @@ namespace FreeOCL
 	{
 		return exp->has_references_to(function_name);
 	}
+
+    const char *unary::get_node_type() const
+    {
+        return "unary";
+    }
 }

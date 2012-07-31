@@ -33,7 +33,9 @@ namespace FreeOCL
 		virtual void write(std::ostream &out) const;
 
 		virtual bool has_references_to(const std::string &function_name) const;
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		smartptr<type> p_type;
 		smartptr<node> n0, n1;
 	};

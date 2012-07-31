@@ -29,7 +29,7 @@ namespace FreeOCL
 	class function : public callable
 	{
 	public:
-		function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body);
+        function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body, std::deque<smartptr<type> > &arg_types);
 		virtual ~function();
 
 		virtual void write(std::ostream &out) const;
@@ -42,11 +42,14 @@ namespace FreeOCL
 		smartptr<chunk> get_body() const	{	return body;	}
 
 		virtual bool has_references_to(const std::string &function_name) const;
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		const std::string name;
 		smartptr<type>	return_type;
 		smartptr<chunk>	arguments;
 		smartptr<chunk>	body;
+        std::deque<smartptr<type> > arg_types;
 	};
 }
 

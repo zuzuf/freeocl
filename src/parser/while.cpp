@@ -35,4 +35,9 @@ namespace FreeOCL
 	{
 		return test->has_references_to(function_name) || stmt->has_references_to(function_name);
 	}
+
+    const char *_while::get_node_type() const
+    {
+        return "_while";
+    }
 }

@@ -37,7 +37,9 @@ namespace FreeOCL
 		virtual bool check_num_params(const size_t n) const;
 
 		virtual bool has_references_to(const std::string &function_name) const;
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		const std::string name;
 	};
 }

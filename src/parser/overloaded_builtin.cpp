@@ -391,7 +391,8 @@ namespace FreeOCL
 		if (natA && natB)
 		{
 			return natA->get_type_id() == natB->get_type_id()
-					|| (natA->is_scalar() && natB->is_scalar());
+                    || (natA->is_scalar() && natB->is_scalar() && !natA->is_special() && !natB->is_special())
+                    || (natA->is_scalar() && natB->is_vector() && !natA->is_special());
 		}
 		return false;
 	}
@@ -479,4 +480,9 @@ namespace FreeOCL
 	{
 		return name == function_name;
 	}
+
+    const char *overloaded_builtin::get_node_type() const
+    {
+        return "overloaded_builtin";
+    }
 }

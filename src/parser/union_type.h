@@ -26,7 +26,9 @@ namespace FreeOCL
 	{
 	public:
 		union_type(const std::string &name) : struct_type(name)	{}
-	private:
+
+        virtual const char *get_node_type() const;
+    private:
 		virtual aggregate_type get_aggregate_type() const;
 	};
 }
