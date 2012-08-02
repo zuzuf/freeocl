@@ -37,10 +37,10 @@ inline __int __address_mode(const image1d_array_t &image, const sampler_t sample
 		__coord = coord;
 		break;
 	case CLK_ADDRESS_CLAMP_TO_EDGE:
-		__coord = clamp(coord, 0, image.width - 1);
+        __coord = clamp(coord, 0, int(image.width) - 1);
 		break;
 	case CLK_ADDRESS_CLAMP:
-		__coord = clamp(coord, -1, image.width);
+        __coord = clamp(coord, -1, int(image.width));
 		break;
 	case CLK_ADDRESS_REPEAT:
 		__coord = coord % image.width;
@@ -56,7 +56,7 @@ inline __int __address_mode(const image1d_array_t &image, const sampler_t sample
 inline __float4 read_imagef(const image1d_array_t &image, sampler_t sampler, const __int2 &coord)
 {
 	const __int __coord = __address_mode(image, sampler, coord.get<0>());
-	const __int layer = clamp(coord.get<1>(), 0, image.array_size - 1);
+    const __int layer = clamp(coord.get<1>(), 0, int(image.array_size) - 1);
 
 	const __char * const ptr = (const __char*)image.data
 							 + __coord * image.element_size
@@ -159,7 +159,7 @@ inline __float4 read_imagef(const image1d_array_t &image, const __int2 &coord)
 inline __int4 read_imagei(const image1d_array_t &image, sampler_t sampler, const __int2 &coord)
 {
 	const __int __coord = __address_mode(image, sampler, coord.get<0>());
-	const __int layer = clamp(coord.get<1>(), 0, image.array_size - 1);
+    const __int layer = clamp(coord.get<1>(), 0, int(image.array_size) - 1);
 
 	const __char * const ptr = (const __char*)image.data
 							 + __coord * image.element_size
@@ -224,7 +224,7 @@ inline __int4 read_imagei(const image1d_array_t &image, const __int2 &coord)
 inline __uint4 read_imageui(const image1d_array_t &image, sampler_t sampler, const __int2 &coord)
 {
 	const __int __coord = __address_mode(image, sampler, coord.get<0>());
-	const __int layer = clamp(coord.get<1>(), 0, image.array_size - 1);
+    const __int layer = clamp(coord.get<1>(), 0, int(image.array_size) - 1);
 
 
 	const __char * const ptr = (const __char*)image.data

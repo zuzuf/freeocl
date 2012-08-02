@@ -22,6 +22,7 @@
 // Built-in integer functions
 
 inline __long clamp(__long, __long, __long);
+inline __ulong clamp(__ulong, __ulong, __ulong);
 
 // for __int
 inline __uint __abs(const __int &x)	{	return x >= 0 ? x : -x;	}
@@ -73,6 +74,7 @@ inline __long max(__long x, __long y)	{	return x > y ? x : y;	}
 inline __ulong max(__ulong x, __ulong y)	{	return x > y ? x : y;	}
 inline __long min(__long x, __long y)	{	return x < y ? x : y;	}
 inline __ulong min(__ulong x, __ulong y)	{	return x < y ? x : y;	}
+inline __ulong clamp(__ulong x, __ulong minval, __ulong maxval)	{	return min(max(x, minval), maxval);	}
 
 // upsample functions
 inline __short upsample(__char hi, __uchar lo)	{	return ((__short)hi << 8) | lo;	}

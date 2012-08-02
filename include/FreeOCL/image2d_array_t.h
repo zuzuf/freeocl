@@ -56,7 +56,7 @@ inline __int2 __address_mode(const image2d_array_t &image, const sampler_t sampl
 inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
 {
 	const __int2 __coord = __address_mode(image, sampler, __int2::make(coord.get<0>(), coord.get<1>()));
-	const __int layer = clamp(coord.get<2>(), 0, image.array_size - 1);
+    const __int layer = clamp(coord.get<2>(), 0, int(image.array_size) - 1);
 
 	const __char * const ptr = (const __char*)image.data
 							 + __coord.get<0>() * image.element_size
@@ -164,7 +164,7 @@ inline __float4 read_imagef(const image2d_array_t &image, const __int4 &coord)
 inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
 {
 	const __int2 __coord = __address_mode(image, sampler, __int2::make(coord.get<0>(), coord.get<1>()));
-	const __int layer = clamp(coord.get<2>(), 0, image.array_size - 1);
+    const __int layer = clamp(coord.get<2>(), 0, int(image.array_size) - 1);
 
 	const __char * const ptr = (const __char*)image.data
 							 + __coord.get<0>() * image.element_size
@@ -230,7 +230,7 @@ inline __int4 read_imagei(const image2d_array_t &image, const __int4 &coord)
 inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
 {
 	const __int2 __coord = __address_mode(image, sampler, __int2::make(coord.get<0>(), coord.get<1>()));
-	const __int layer = clamp(coord.get<2>(), 0, image.array_size - 1);
+    const __int layer = clamp(coord.get<2>(), 0, int(image.array_size) - 1);
 
 
 	const __char * const ptr = (const __char*)image.data

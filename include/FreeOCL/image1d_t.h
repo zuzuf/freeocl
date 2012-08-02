@@ -36,10 +36,10 @@ inline __int __address_mode(const image1d_t &image, const sampler_t sampler, con
 		__coord = coord;
 		break;
 	case CLK_ADDRESS_CLAMP_TO_EDGE:
-		__coord = clamp(coord, 0, image.width - 1);
+        __coord = clamp(coord, 0, int(image.width) - 1);
 		break;
 	case CLK_ADDRESS_CLAMP:
-		__coord = clamp(coord, -1, image.width);
+        __coord = clamp(coord, -1, int(image.width));
 		break;
 	case CLK_ADDRESS_REPEAT:
 		__coord = coord % image.width;
