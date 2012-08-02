@@ -333,6 +333,35 @@ namespace FreeOCL
 		return match;
 	}
 
+    std::deque<smartptr<type> > overloaded_builtin::get_arg_types(const std::deque<smartptr<type> > &param_types) const
+    {
+        if (param_types.size() != num_params)
+            return std::deque<smartptr<type> >();
+
+        for(size_t i = 0 ; i < possible_types.size() ; ++i)
+        {
+            if (all_types_match(param_types, possible_types[i]))
+            {
+                std::deque<smartptr<type> > arg_types;
+                for(size_t j = 1 ; j < possible_types[i].size() ; ++j)
+                    arg_types.push_back(possible_types[i][j]);
+                return arg_types;
+            }
+        }
+        for(size_t i = 0 ; i < possible_types.size() ; ++i)
+        {
+            if (all_types_weak_match(param_types, possible_types[i]))
+            {
+                std::deque<smartptr<type> > arg_types;
+                for(size_t j = 1 ; j < possible_types[i].size() ; ++j)
+                    arg_types.push_back(possible_types[i][j]);
+                return arg_types;
+            }
+        }
+
+        return std::deque<smartptr<type> >();
+    }
+
 	const string &overloaded_builtin::get_name() const
 	{
 		return name;

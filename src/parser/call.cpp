@@ -16,6 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "call.h"
+#include "native_type.h"
 
 namespace FreeOCL
 {
@@ -43,11 +44,28 @@ namespace FreeOCL
 		out << fn->get_name() << '(';
 		if (args)
 		{
+            std::deque<smartptr<type> > param_types;
+            for(size_t i = 0 ; i < args->size() ; ++i)
+                param_types.push_back((*args)[i].as<expression>()->get_type());
+            const std::deque<smartptr<type> > &arg_types = fn->get_arg_types(param_types);
 			for(size_t i = 0 ; i < args->size() ; ++i)
 			{
 				if (i)
 					out << ',';
-				out << *((*args)[i]);
+                if (arg_types.empty())
+                    out << *((*args)[i]);
+                else
+                {
+                    const native_type *a_type = arg_types[i].as<native_type>();
+                    const native_type *p_type = param_types[i].as<native_type>();
+                    if (!a_type || !p_type || !(a_type->is_vector() && p_type->is_scalar()))
+                        out << *((*args)[i]);
+                    else
+                    {
+                        smartptr<type> basic_type = a_type->clone(false, type::PRIVATE);
+                        out << *basic_type << "::make(" << *((*args)[i]) << ')';
+                    }
+                }
 			}
 		}
 		out << ')';

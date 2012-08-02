@@ -37,6 +37,7 @@ namespace FreeOCL
 		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const;
 		virtual const std::string &get_name() const;
 		virtual size_t get_num_params() const;
+        virtual std::deque<smartptr<type> > get_arg_types(const std::deque<smartptr<type> > &param_types) const;
 
 		smartptr<chunk> get_arguments() const	{	return arguments;	}
 		smartptr<chunk> get_body() const	{	return body;	}

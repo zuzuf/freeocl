@@ -92,4 +92,11 @@ namespace FreeOCL
     {
         return "function";
     }
+
+    std::deque<smartptr<type> > function::get_arg_types(const std::deque<smartptr<type> > &/*param_types*/) const
+    {
+        std::deque<smartptr<type> > arg_types(this->arg_types);
+        arg_types.pop_front();
+        return arg_types;
+    }
 }

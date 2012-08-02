@@ -47,6 +47,17 @@ namespace FreeOCL
 		return ret;
 	}
 
+    std::deque<smartptr<type> > overloaded_function::get_arg_types(const std::deque<smartptr<type> > &param_types) const
+    {
+        for(size_t i = 0 ; i < fn.size() ; ++i)
+        {
+            const std::deque<smartptr<type> > &arg_types = fn[i]->get_arg_types(param_types);
+            if (!arg_types.empty())
+                return arg_types;
+        }
+        return std::deque<smartptr<type> >();
+    }
+
 	const smartptr<callable> &overloaded_function::get_function(const std::deque<smartptr<type> > &arg_types) const
 	{
 		for(size_t i = 0 ; i < fn.size() ; ++i)

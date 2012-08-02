@@ -35,6 +35,7 @@ namespace FreeOCL
 		virtual const std::string &get_name() const;
 		virtual size_t get_num_params() const;
 		virtual bool check_num_params(const size_t n) const;
+        virtual std::deque<smartptr<type> > get_arg_types(const std::deque<smartptr<type> > &param_types) const;
 
 		virtual bool has_references_to(const std::string &function_name) const;
 
