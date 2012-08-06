@@ -239,6 +239,16 @@ extern "C"
 
 		if (!FreeOCL::is_valid(program))
 			return CL_INVALID_PROGRAM;
+		if (program->binary_type != CL_PROGRAM_BINARY_TYPE_NONE)
+		{
+			program->unlock();
+			return CL_INVALID_BINARY;
+		}
+		if (program->build_status != CL_BUILD_NONE)
+		{
+			program->unlock();
+			return CL_INVALID_OPERATION;
+		}
 		program->retain();
 
 		program->build_status = CL_BUILD_IN_PROGRESS;
@@ -259,7 +269,10 @@ extern "C"
 															   source_code,
 															   build_log,
 															   kernel_names,
-															   b_valid_options);
+															   b_valid_options,
+															   false,
+															   FreeOCL::map<std::string, std::string>(),
+															   &(program->temporary_file));
 
 		if (!b_valid_options)
 			return CL_INVALID_BUILD_OPTIONS;
@@ -276,6 +289,8 @@ extern "C"
 
 		if (program->binary_file.empty())
 		{
+			// In case of error do not delete temporary code file
+			program->temporary_file.clear();
 			program->build_status = CL_BUILD_ERROR;
 			program->unlock();
 			clReleaseProgramFCL(program);
@@ -285,6 +300,8 @@ extern "C"
 		program->handle = dlopen(binary_file.c_str(), RTLD_NOW | RTLD_LOCAL);
 		if (!program->handle)
 		{
+			// In case of error do not delete temporary code file
+			program->temporary_file.clear();
 			remove(program->binary_file.c_str());
 			program->binary_file.clear();
 			program->build_status = CL_BUILD_ERROR;
@@ -606,7 +623,8 @@ extern "C"
 															   kernel_names,
 															   b_valid_options,
 															   true,
-															   headers);
+															   headers,
+															   &(program->temporary_file));
 
 		if (!b_valid_options)
 		{
@@ -620,6 +638,8 @@ extern "C"
 
 		if (program->binary_file.empty())
 		{
+			// Don't delete temporary files in case of errors
+			program->temporary_file.clear();
 			program->build_status = CL_BUILD_ERROR;
 			if (pfn_notify)	pfn_notify(program, user_data);
 			return CL_COMPILE_PROGRAM_FAILURE;
@@ -764,4 +784,6 @@ _cl_program::~_cl_program()
 		dlclose(handle);
 	if (!binary_file.empty())
 		remove(binary_file.c_str());
+	if (!temporary_file.empty())
+		remove(temporary_file.c_str());
 }

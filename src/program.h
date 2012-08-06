@@ -35,6 +35,7 @@ struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, pub
 
 	void *handle;
 	std::string binary_file;
+	std::string temporary_file;
 	FreeOCL::set<std::string> kernel_names;
 	cl_build_status build_status;
 	std::string build_options;

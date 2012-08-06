@@ -60,7 +60,8 @@ namespace FreeOCL
 							  FreeOCL::set<std::string> &kernels,
 							  bool &b_valid_options,
 							  const bool b_compile_only,
-							  const FreeOCL::map<std::string, std::string> &headers)
+							  const FreeOCL::map<std::string, std::string> &headers,
+							  std::string *temporary_filename)
 	{
 		b_valid_options = true;
 
@@ -239,8 +240,11 @@ namespace FreeOCL
 
 		close(fd_out);
 		fclose(file_in);
-		// Remove the input file which is now useless
-		remove(filename_in.c_str());
+		// Keep temporary file name in order to remove it later (if no error occurs)
+		if (temporary_filename)
+			*temporary_filename = filename_in;
+		else
+			remove(filename_in.c_str());
 
 		if (ret != 0)
 		{
