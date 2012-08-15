@@ -1,5 +1,4 @@
 * optimize math functions (current implementation has been made quickly and most functions are not optimal)
-* change threading model (currently FreeOCL may create much more threads than the number of available CPU cores resulting in poor performance)
 * implement _rtz, _rtp and _rtn versions of vstore_half
 * implement all convert_type(n)(_sat)(_roundingmode) functions
 * fix bugs
