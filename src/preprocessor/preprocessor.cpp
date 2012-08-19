@@ -79,7 +79,7 @@ namespace FreeOCL
 						}
 						else if (word == "pragma")
 						{
-							out << c << word << ' ' << get_line();
+							out << c << word << ' ' << get_line() << '\n';
 						}
 						else if (word == "include")
 						{
