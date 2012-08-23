@@ -329,13 +329,14 @@ void _cl_event::change_status(cl_int new_status)
 	if (status > new_status)
 	{
 		status = new_status;
-		switch(status)
-		{
-		case CL_QUEUED:		time_queued = FreeOCL::ns_timer();	break;
-		case CL_SUBMITTED:	time_submit = FreeOCL::ns_timer();	break;
-		case CL_RUNNING:	time_start = FreeOCL::ns_timer();	break;
-		case CL_COMPLETE:	time_end = FreeOCL::ns_timer();	break;
-		}
+		if (command_queue->properties & CL_QUEUE_PROFILING_ENABLE)
+			switch(status)
+			{
+			case CL_QUEUED:		time_queued = FreeOCL::ns_timer();	break;
+			case CL_SUBMITTED:	time_submit = FreeOCL::ns_timer();	break;
+			case CL_RUNNING:	time_start = FreeOCL::ns_timer();	break;
+			case CL_COMPLETE:	time_end = FreeOCL::ns_timer();	break;
+			}
 	}
 	if (command_queue)
 		command_queue->wakeup();		// If the command queue is waiting for a status change, notify it
