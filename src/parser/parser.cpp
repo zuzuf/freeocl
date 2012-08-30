@@ -171,7 +171,8 @@ namespace FreeOCL
 				p_chunk = p_chunk->back();
 			}
 			const std::string function_name = p_chunk->front().as<token>()->get_string();
-			if (symbols->get<callable>(function_name))
+			smartptr<callable> f_from_symbols = symbols->get<callable>(function_name);
+			if (f_from_symbols && f_from_symbols->is_defined())
 				ERROR(function_name + " already defined");
 
 			// Push a new scope
@@ -231,6 +232,9 @@ namespace FreeOCL
 				}
 			}
 
+			std::string current_line_bak = current_line;
+			const size_t line_bak = line;
+
 			__declaration_list();		// Ignore it for now
 			if (__compound_statement())
 			{
@@ -244,6 +248,12 @@ namespace FreeOCL
 				}
 				else
                     d_val__ = new function(p_type, function_name, p_chunk->back(), statement, arg_types);
+				if (f_from_symbols && *f_from_symbols.as<function>() != *d_val__.as<function>())
+				{
+					current_line.swap(current_line_bak);
+					line = line_bak;
+					ERROR("error: conflicting function declarations!");
+				}
 				symbols->insert(function_name, d_val__);
 				if (b_qualifier
 						&& !qualifiers->is_set<qualifier::KERNEL>())
@@ -251,6 +261,29 @@ namespace FreeOCL
 				return 1;
 			}
 			symbols->pop();
+
+			// Function declaration
+			if (__token<';'>())
+			{
+				if (b_qualifier && qualifiers->is_set<qualifier::KERNEL>())
+				{
+					if (*p_type != native_type(native_type::VOID, false, type::PRIVATE))
+						error("return type for kernels must be void");
+					d_val__ = new kernel(p_type, function_name, p_chunk->back(), smartptr<chunk>(), arg_types);
+					if (kernels.count(function_name) == 0)
+						kernels[function_name] = d_val__.as<kernel>();
+				}
+				else
+					d_val__ = new function(p_type, function_name, p_chunk->back(), smartptr<chunk>(), arg_types);
+				if (!f_from_symbols)
+					symbols->insert(function_name, d_val__);
+				else if (*f_from_symbols.as<function>() != *d_val__.as<function>())
+					ERROR("error: conflicting function declarations!");
+				if (b_qualifier
+						&& !qualifiers->is_set<qualifier::KERNEL>())
+					d_val__ = new chunk(qualifiers, d_val__);
+				return 1;
+			}
 			ERROR("syntax error: compound statement expected!");
 		}
 		if (b_qualifier)

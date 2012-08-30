@@ -23,4 +23,9 @@ namespace FreeOCL
 	{
 		return n == get_num_params();
 	}
+
+	bool callable::is_defined() const
+	{
+		return true;
+	}
 }

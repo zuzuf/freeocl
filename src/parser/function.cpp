@@ -37,8 +37,11 @@ namespace FreeOCL
         this->arg_types.swap(arg_types);
 		this->arguments->pop_front();
 		this->arguments->pop_back();
-		this->body->pop_front();
-		this->body->pop_back();
+		if (body)
+		{
+			this->body->pop_front();
+			this->body->pop_back();
+		}
 		if (this->arguments->size() == 1)
 			this->arguments = this->arguments->front();
 		else
@@ -58,10 +61,14 @@ namespace FreeOCL
 				out << ',';
 			out << *(*arguments)[i];
 		}
-		out << ')' << std::endl
-			<< '{' << std::endl
-			<< *body
-			<< '}' << std::endl;
+		out << ')';
+		if (body)
+			out << std::endl
+				<< '{' << std::endl
+				<< *body
+				<< '}' << std::endl;
+		else
+			out << ';' << std::endl;
 	}
 
     smartptr<type> function::get_return_type(const std::deque<smartptr<type> > &arg_types) const
@@ -71,6 +78,11 @@ namespace FreeOCL
         if (!overloaded_builtin::all_types_weak_match(arg_types, this->arg_types))
             return (type*)NULL;
 		return return_type;
+	}
+
+	bool function::is_defined() const
+	{
+		return body;
 	}
 
 	const std::string &function::get_name() const
@@ -99,4 +111,15 @@ namespace FreeOCL
         arg_types.pop_front();
         return arg_types;
     }
+
+	bool function::operator==(const function &f) const
+	{
+		if (f.arg_types.size() != arg_types.size()
+				|| *return_type != *f.return_type)
+			return false;
+		for(size_t i = 1 ; i < arg_types.size() ; ++i)
+			if (*arg_types[i] != *f.arg_types[i])
+				return false;
+		return true;
+	}
 }

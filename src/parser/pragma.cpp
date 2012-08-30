@@ -23,7 +23,7 @@ namespace FreeOCL
 {
 	void parser::parse_pragma(const std::string &line)
 	{
-		const std::deque<std::string> &words = FreeOCL::split(line, " \t");
+		std::deque<std::string> words = FreeOCL::split(line, " \t");
 		// Check if it's a pragma
 		if (words.empty() || words.front() != "pragma" || words.size() < 2)
 			return;
@@ -43,6 +43,11 @@ namespace FreeOCL
 			{
 				warning("Missing extension name");
 				return;
+			}
+			if (*words[3].rbegin() == ':')
+			{
+				words[3].resize(words[3].size() - 1);
+				words.insert(words.begin() + 4, std::string(":"));
 			}
 			if (words.size() < 5)
 			{

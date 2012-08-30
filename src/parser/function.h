@@ -32,6 +32,11 @@ namespace FreeOCL
         function(const smartptr<type> &return_type, const std::string &name, const smartptr<chunk> &arguments, const smartptr<chunk> &body, std::deque<smartptr<type> > &arg_types);
 		virtual ~function();
 
+		virtual bool is_defined() const;
+
+		bool operator==(const function &f) const;
+		inline bool operator!=(const function &f) const	{	return !(*this == f);	}
+
 		virtual void write(std::ostream &out) const;
 
 		virtual smartptr<type> get_return_type(const std::deque<smartptr<type> > &arg_types) const;
