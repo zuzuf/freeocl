@@ -91,7 +91,7 @@ extern "C"
 			SET_RET(CL_INVALID_VALUE);
 			return 0;
 		}
-		if (!binary_status)
+		if (binary_status)
 		{
 			bool b_error = false;
 			for(size_t i = 0 ; i < num_devices ; ++i)
@@ -164,7 +164,7 @@ extern "C"
 				filename_out += ".so";
 			}
 
-			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDONLY, S_IWUSR | S_IRUSR | S_IXUSR);
+			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_WRONLY, S_IWUSR | S_IRUSR | S_IXUSR);
 		}
 		const size_t written_bytes = write(fd_out, ptr + offset, size_of_binary_data);	offset += size_of_binary_data;
 		close(fd_out);
@@ -241,8 +241,9 @@ extern "C"
 			return CL_INVALID_PROGRAM;
 		if (program->binary_type != CL_PROGRAM_BINARY_TYPE_NONE)
 		{
+			const bool b_success = (program->build_status == CL_BUILD_SUCCESS);
 			program->unlock();
-			return CL_INVALID_BINARY;
+			return b_success ? CL_SUCCESS : CL_INVALID_BINARY;
 		}
 		if (program->build_status != CL_BUILD_NONE)
 		{
@@ -312,6 +313,9 @@ extern "C"
 
 		program->kernel_names = kernel_names;
 
+		for(size_t i = 0 ; i < num_devices ; ++i)
+			program->devices.push_back(device_list[i]);
+
 		program->build_options = options ? options : "";
 		program->build_status = CL_BUILD_SUCCESS;
 		program->binary_type = CL_PROGRAM_BINARY_TYPE_EXECUTABLE;
@@ -362,10 +366,10 @@ extern "C"
 		case CL_PROGRAM_BINARY_SIZES:
 			{
 				std::vector<size_t> sizes;
-				std::fstream binary_file(program->binary_file.c_str(), std::ios_base::in);
-				binary_file.seekg(0, std::ios_base::end);
-				const size_t binary_file_size = binary_file.tellg();
-				binary_file.close();
+				struct stat file_stat;
+				file_stat.st_size = 0;
+				stat(program->binary_file.c_str(), &file_stat);
+				const size_t binary_file_size = file_stat.st_size;
 				size_t kernel_names_size = 0;
 				for(FreeOCL::set<std::string>::const_iterator it = program->kernel_names.begin()
 					; it != program->kernel_names.end()
@@ -395,11 +399,13 @@ extern "C"
 				*(cl_program_binary_type*)ptr = program->binary_type;	offset += sizeof(cl_program_binary_type);
 
 				// Write binary data
-				std::fstream binary_file(program->binary_file.c_str(), std::ios_base::in);
-				binary_file.seekg(0, std::ios_base::end);
-				const size_t binary_file_size = binary_file.tellg();
+				struct stat file_stat;
+				file_stat.st_size = 0;
+				stat(program->binary_file.c_str(), &file_stat);
+				const size_t binary_file_size = file_stat.st_size;
 				*(size_t*)(ptr + offset) = binary_file_size;	offset += sizeof(size_t);
-				binary_file.seekg(0);
+
+				std::fstream binary_file(program->binary_file.c_str(), std::ios_base::in | std::ios_base::binary);
 				binary_file.read(ptr + offset, binary_file_size);	offset += binary_file_size;
 				binary_file.close();
 
