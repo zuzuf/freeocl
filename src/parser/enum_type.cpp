@@ -16,6 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "enum_type.h"
+#include "typedef.h"
 
 namespace FreeOCL
 {
@@ -45,6 +46,8 @@ namespace FreeOCL
 
 	bool enum_type::operator==(const type &t) const
 	{
+		if (dynamic_cast<const type_def*>(&t))
+			return *this == *dynamic_cast<const type_def*>(&t)->get_type();
 		const enum_type *p_type = dynamic_cast<const enum_type*>(&t);
 		if (p_type)
 		{

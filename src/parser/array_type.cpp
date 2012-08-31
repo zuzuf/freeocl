@@ -22,7 +22,7 @@ namespace FreeOCL
 {
 	smartptr<type> array_type::clone(const bool b_const, const address_space addr_space) const
 	{
-		return new array_type(base_type, b_const, addr_space, size);
+		return new array_type(base_type->clone(b_const, addr_space), b_const, addr_space, size);
 	}
 
 	std::string array_type::suffix() const

@@ -16,12 +16,15 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "struct_type.h"
+#include "typedef.h"
 #include <algorithm>
 
 namespace FreeOCL
 {
 	bool struct_type::operator==(const type &type) const
 	{
+		if (dynamic_cast<const type_def*>(&type))
+			return *this == *dynamic_cast<const type_def*>(&type)->get_type();
 		const struct_type *p_type = dynamic_cast<const struct_type*>(&type);
 		if (p_type == NULL)
 			return false;

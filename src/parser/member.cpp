@@ -58,7 +58,10 @@ namespace FreeOCL
 		}
 		else
 			s_type = p_type.as<struct_type>();
-		return s_type->get_type_of_member(member_name);
+		smartptr<type> r_type = s_type->get_type_of_member(member_name);
+		if (r_type)
+			return r_type->clone(base->get_type()->is_const() || r_type->is_const(), p_type->get_address_space());
+		return r_type;
 	}
 
 	uint32_t member::eval_as_uint() const

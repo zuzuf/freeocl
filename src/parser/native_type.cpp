@@ -16,6 +16,7 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 #include "native_type.h"
+#include "typedef.h"
 
 namespace FreeOCL
 {
@@ -99,6 +100,8 @@ namespace FreeOCL
 
 	bool native_type::operator==(const type &type) const
 	{
+		if (dynamic_cast<const type_def*>(&type))
+			return *this == *dynamic_cast<const type_def*>(&type)->get_type();
 		const native_type *p_type = dynamic_cast<const native_type*>(&type);
 		if (p_type != NULL && is_const() == p_type->is_const())
 		{

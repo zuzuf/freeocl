@@ -17,6 +17,7 @@
 */
 #include "pointer_type.h"
 #include "native_type.h"
+#include "typedef.h"
 
 namespace FreeOCL
 {
@@ -24,6 +25,8 @@ namespace FreeOCL
 
 	bool pointer_type::operator==(const type &t) const
 	{
+		if (dynamic_cast<const type_def*>(&t))
+			return *this == *dynamic_cast<const type_def*>(&t)->get_type();
 		const pointer_type *p_type = dynamic_cast<const pointer_type*>(&t);
 		return p_type && p_type->base_type && base_type
 				&& p_type->base_type->get_address_space() == base_type->get_address_space()

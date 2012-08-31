@@ -23,6 +23,10 @@
 
 // A small template to get base type and components of a vector type
 template<typename V>	struct __vector;
+template<typename V>	struct __vector<const V> : public __vector<V>	{};
+
+template<typename T>	struct __unconstify	{	typedef T	type;	};
+template<typename T>	struct __unconstify<const T>	{	typedef T	type;	};
 
 template<typename V>	struct __dim	{	enum { value = 1 };	};
 
@@ -70,7 +74,7 @@ public:
 	inline __swizzle_wrapper(V &ref) : ref(ref)	{}
 	inline operator W() const
 	{
-		W v;
+		typename __unconstify<W>::type v;
 		if (i0 != -1)	v.v[0] = ref.v[i0];
 		if (i1 != -1)	v.v[1] = ref.v[i1];
 		if (i2 != -1)	v.v[2] = ref.v[i2];

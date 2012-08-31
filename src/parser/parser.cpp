@@ -407,7 +407,7 @@ namespace FreeOCL
 	{
 		smartptr<type> p_type = d_val__;
 		const bool decl = p_type.as<type_decl>();
-		if (p_type.as<type_def>())
+		while (p_type.as<type_def>())
 			p_type = p_type.as<type_def>()->get_type();
 
 		smartptr<chunk> N = new chunk;
