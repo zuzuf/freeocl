@@ -180,6 +180,8 @@ namespace FreeOCL
 			smartptr<chunk> args = p_chunk->back();
 			if (!args)
 				END();
+			if (!args->front().as<token>() || args->front().as<token>()->get_id() != '(')
+				END();
             std::deque<smartptr<type> > arg_types;
 			if (args->size() == 3)
 			{

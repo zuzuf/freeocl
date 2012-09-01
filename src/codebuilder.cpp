@@ -544,6 +544,8 @@ namespace FreeOCL
 					_cat << " + sizeof(" << *(p_type) << ")";
 			}
 
+			gen << "\tchar * const local_memory = FreeOCL::local_memory;" << std::endl;
+
 			if (b_needs_sync)
 				gen	<< "\tFreeOCL::thread_num = thread_id;" << std::endl;
 			else
@@ -566,7 +568,7 @@ namespace FreeOCL
 				if (j)
 					gen << ",\n\t\t";
 				if (b_local)
-					gen << "(" << *p_type << ")(FreeOCL::local_memory + __shift" << j << ")";
+					gen << "(" << *p_type << ")(local_memory + __shift" << j << ")";
 				else
 					gen << "*(" << *p_type << "*)((const char*)FreeOCL::args + " << cat.str() << ')';
 				cat << " + sizeof(" << *p_type << ")";
