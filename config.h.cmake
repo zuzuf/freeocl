@@ -30,7 +30,7 @@
 #endif
 
 #define FREEOCL_CXX_FLAGS_COMMON " " \
-		" -shared -fPIC -pipe" /* -Wall*/ \
+        " -shared -fpic -pipe" /* -Wall*/ \
 		" -I./include" \
 		" -g -O3" \
         " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \

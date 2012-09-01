@@ -37,7 +37,7 @@ template<> struct __mask<16> { enum { value = 0xFU }; };
 
 // shuffle
 template<typename gentypem, typename ugentypen>
-inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type
+static inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type
 		shuffle(const gentypem &x, const ugentypen &mask)
 {
 	typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type ret;
@@ -49,7 +49,7 @@ inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<
 
 // shuffle2
 template<typename gentypem, typename ugentypen>
-inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type
+static inline typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type
 		shuffle2(const gentypem &x, const gentypem &y, const ugentypen &mask)
 {
 	typename __vector_type<typename __vector<gentypem>::basic_type, __vector<ugentypen>::components>::type ret;

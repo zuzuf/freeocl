@@ -20,11 +20,11 @@
 // Built-in vector load and store functions
 // vloadn
 template<typename S>
-inline const typename __vector_type<S, 2>::type &vload2(size_t offset, const S *p)
+static inline const typename __vector_type<S, 2>::type &vload2(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 2>::type*)(p + offset * 2));	}
 
 template<typename S>
-inline typename __vector_type<S, 3>::type vload3(size_t offset, const S *p)
+static inline typename __vector_type<S, 3>::type vload3(size_t offset, const S *p)
 {
 	typename __vector_type<S, 3>::type ret;
 	p += offset * 3;
@@ -35,24 +35,24 @@ inline typename __vector_type<S, 3>::type vload3(size_t offset, const S *p)
 }
 
 template<typename S>
-inline const typename __vector_type<S, 4>::type &vload4(size_t offset, const S *p)
+static inline const typename __vector_type<S, 4>::type &vload4(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 4>::type*)(p + offset * 4));	}
 
 template<typename S>
-inline const typename __vector_type<S, 8>::type &vload8(size_t offset, const S *p)
+static inline const typename __vector_type<S, 8>::type &vload8(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 8>::type*)(p + offset * 8));	}
 
 template<typename S>
-inline const typename __vector_type<S, 16>::type &vload16(size_t offset, const S *p)
+static inline const typename __vector_type<S, 16>::type &vload16(size_t offset, const S *p)
 {	return *((typename __vector_type<S, 16>::type*)(p + offset * 16));	}
 
 // vstoren
 template<typename S>
-inline void vstore2(const typename __vector_type<S, 2>::type &v, size_t offset, S *p)
+static inline void vstore2(const typename __vector_type<S, 2>::type &v, size_t offset, S *p)
 {	*(typename __vector_type<S, 2>::type*)(p + offset * 2) = v;	}
 
 template<typename S>
-inline void vstore3(const typename __vector_type<S, 3>::type &v, size_t offset, S *p)
+static inline void vstore3(const typename __vector_type<S, 3>::type &v, size_t offset, S *p)
 {
 	p += offset * 3;
 	p[0] = v.v[0];
@@ -61,30 +61,30 @@ inline void vstore3(const typename __vector_type<S, 3>::type &v, size_t offset, 
 }
 
 template<typename S>
-inline void vstore4(const typename __vector_type<S, 4>::type &v, size_t offset, S *p)
+static inline void vstore4(const typename __vector_type<S, 4>::type &v, size_t offset, S *p)
 {	*(typename __vector_type<S, 4>::type*)(p + offset * 4) = v;	}
 
 template<typename S>
-inline void vstore8(const typename __vector_type<S, 8>::type &v, size_t offset, S *p)
+static inline void vstore8(const typename __vector_type<S, 8>::type &v, size_t offset, S *p)
 {	*(typename __vector_type<S, 8>::type*)(p + offset * 8) = v;	}
 
 template<typename S>
-inline void vstore16(const typename __vector_type<S, 16>::type &v, size_t offset, S *p)
+static inline void vstore16(const typename __vector_type<S, 16>::type &v, size_t offset, S *p)
 {	*(typename __vector_type<S, 16>::type*)(p + offset * 16) = v;	}
 
 // vload_half
-inline float vload_half(size_t offset, const half *p)
+static inline float vload_half(size_t offset, const half *p)
 {
 	return p[offset];
 }
 
 // vstore_half_*
-inline void vstore_half(float data, size_t offset, half *p)
+static inline void vstore_half(float data, size_t offset, half *p)
 {
 	p[offset] = half::from_float(data);
 }
 
-inline void vstore_half_rte(float data, size_t offset, half *p)
+static inline void vstore_half_rte(float data, size_t offset, half *p)
 {
 	p[offset] = half::from_float(data);
 }

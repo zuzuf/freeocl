@@ -25,7 +25,7 @@ typedef int	cl_mem_fence_flags;
 #define CLK_GLOBAL_MEM_FENCE	0x1
 
 // Built-in synchronization functions
-inline void barrier(cl_mem_fence_flags /*flags*/)
+static inline void barrier(cl_mem_fence_flags /*flags*/)
 {
 	// If there is only a single thread, there is no need for sync
 	if (!FreeOCL::threads)

@@ -23,17 +23,17 @@
 
 // Built-in memory fence functions
 
-inline void mem_fence(cl_mem_fence_flags /*flags*/)
+static inline void mem_fence(cl_mem_fence_flags /*flags*/)
 {
 	AO_nop_full();
 }
 
-inline void read_mem_fence(cl_mem_fence_flags /*flags*/)
+static inline void read_mem_fence(cl_mem_fence_flags /*flags*/)
 {
 	AO_nop_read();
 }
 
-inline void write_mem_fence(cl_mem_fence_flags /*flags*/)
+static inline void write_mem_fence(cl_mem_fence_flags /*flags*/)
 {
 	AO_nop_write();
 }

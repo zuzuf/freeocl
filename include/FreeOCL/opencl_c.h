@@ -72,7 +72,7 @@
 #define UINT_MAX	0xffffffff
 #define ULONG_MAX	0xffffffffffffffffUL
 
-#define __kernel	inline
+#define __kernel
 #define kernel	__kernel
 
 #define FLOAT2	__m64
@@ -248,13 +248,13 @@ template<bool, class T> struct __if;
 template<class T> struct __if<true, T>	{	typedef T type;	};
 
 template<typename T, int Id>
-inline T &__create_local()
+static inline T &__create_local()
 {
 	static __thread T v;
 	return v;
 }
 template<typename T, int Id>
-inline T &__create_local(const T &init)
+static inline T &__create_local(const T &init)
 {
 	static __thread T v;
 	memcpy(&v, &init, sizeof(T));
@@ -344,7 +344,7 @@ struct __igentype<V, typename __right<__igentype<typename __vector<V>::base_type
 // debugging helpers
 
 template<int N, typename T, typename I>
-inline T &__check_lookup_bounds(T *ptr, const I &idx, const char *ref)
+static inline T &__check_lookup_bounds(T *ptr, const I &idx, const char *ref)
 {
 	if (idx < 0 || idx >= N)
 		printf("warning: (%d,%d,%d|%d,%d,%d) %d is out of array range [0 - %d[ in %s\n",
@@ -355,7 +355,7 @@ inline T &__check_lookup_bounds(T *ptr, const I &idx, const char *ref)
 }
 
 template<int N, typename T, typename I>
-inline const T &__check_lookup_bounds(const T *ptr, const I &idx, const char *ref)
+static inline const T &__check_lookup_bounds(const T *ptr, const I &idx, const char *ref)
 {
 	if (idx < 0 || idx >= N)
 		printf("warning: (%d,%d,%d|%d,%d,%d) %d is out of array range [0 - %d[ in %s\n",

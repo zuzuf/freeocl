@@ -258,7 +258,8 @@ namespace FreeOCL
 				}
 				symbols->insert(function_name, d_val__);
 				if (b_qualifier
-						&& !qualifiers->is_set<qualifier::KERNEL>())
+						&& !qualifiers->is_set<qualifier::KERNEL>()
+						&& !qualifiers->is_set<qualifier::INLINE>())
 					d_val__ = new chunk(qualifiers, d_val__);
 				return 1;
 			}
@@ -282,7 +283,8 @@ namespace FreeOCL
 				else if (*f_from_symbols.as<function>() != *d_val__.as<function>())
 					ERROR("error: conflicting function declarations!");
 				if (b_qualifier
-						&& !qualifiers->is_set<qualifier::KERNEL>())
+						&& !qualifiers->is_set<qualifier::KERNEL>()
+						&& !qualifiers->is_set<qualifier::INLINE>())
 					d_val__ = new chunk(qualifiers, d_val__);
 				return 1;
 			}

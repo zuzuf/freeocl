@@ -702,7 +702,7 @@ DEFINE_VECTORS(__double);
 // vector op vector
 #define IMPLEMENT_BINARY_OP(op)\
 template<class V>\
-inline typename __vector<V>::type operator op (const V &lhs, const V &rhs)\
+static inline typename __vector<V>::type operator op (const V &lhs, const V &rhs)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -710,24 +710,24 @@ inline typename __vector<V>::type operator op (const V &lhs, const V &rhs)\
 	return ret;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const typename W::type &lhs, const W &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const typename W::type &lhs, const W &rhs)\
 {\
 	return lhs op (typename W::type)rhs;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename W::type &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename W::type &rhs)\
 {\
 	return (typename W::type)lhs op rhs;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
 {\
 	return (typename W::type)lhs op (typename W::type)rhs;\
 }
 
 #define IMPLEMENT_BINARY_OP_LOGICAL(op)\
 template<class V>\
-inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const V &lhs, const V &rhs)\
+static inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const V &lhs, const V &rhs)\
 {\
 	typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -735,17 +735,17 @@ inline typename __vector_type<typename __sint_type_of_same_size<typename __vecto
 	return ret;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const typename W::type &lhs, const W &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const typename W::type &lhs, const W &rhs)\
 {\
 	return lhs op (typename W::type)rhs;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename W::type &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename W::type &rhs)\
 {\
 	return (typename W::type)lhs op rhs;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
 {\
 	return (typename W::type)lhs op (typename W::type)rhs;\
 }
@@ -773,7 +773,7 @@ IMPLEMENT_BINARY_OP_LOGICAL(==)
 // scalar op vector
 #define IMPLEMENT_BINARY_OP(op)\
 template<class V>\
-inline typename __vector<V>::type operator op (const typename __vector<V>::base_type &lhs, const V &rhs)\
+static inline typename __vector<V>::type operator op (const typename __vector<V>::base_type &lhs, const V &rhs)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -781,13 +781,13 @@ inline typename __vector<V>::type operator op (const typename __vector<V>::base_
 	return ret;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const typename __vector<typename W::type>::base_type &lhs, const W &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const typename __vector<typename W::type>::base_type &lhs, const W &rhs)\
 {\
 	return lhs op (typename W::type)rhs;\
 }
 #define IMPLEMENT_BINARY_OP_LOGICAL(op)\
 template<class V>\
-inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const typename __vector<V>::base_type &lhs, const V &rhs)\
+static inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const typename __vector<V>::base_type &lhs, const V &rhs)\
 {\
 	typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -795,7 +795,7 @@ inline typename __vector_type<typename __sint_type_of_same_size<typename __vecto
 	return ret;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const typename __vector<typename W::type>::base_type &lhs, const W &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const typename __vector<typename W::type>::base_type &lhs, const W &rhs)\
 {\
 	return lhs op (typename W::type)rhs;\
 }
@@ -823,7 +823,7 @@ IMPLEMENT_BINARY_OP_LOGICAL(==)
 // vector op scalar
 #define IMPLEMENT_BINARY_OP(op)\
 template<class V>\
-inline typename __vector<V>::type operator op (const V &lhs, const typename __vector<V>::base_type &rhs)\
+static inline typename __vector<V>::type operator op (const V &lhs, const typename __vector<V>::base_type &rhs)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -831,13 +831,13 @@ inline typename __vector<V>::type operator op (const V &lhs, const typename __ve
 	return ret;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename __vector<typename W::type>::base_type &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename __vector<typename W::type>::base_type &rhs)\
 {\
 	return (typename W::type)lhs op rhs;\
 }
 #define IMPLEMENT_BINARY_OP_LOGICAL(op)\
 template<class V>\
-inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const V &lhs, const typename __vector<V>::base_type &rhs)\
+static inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type operator op (const V &lhs, const typename __vector<V>::base_type &rhs)\
 {\
 	typename __vector_type<typename __sint_type_of_same_size<typename __vector<V>::base_type>::type, __vector<V>::components>::type ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -845,7 +845,7 @@ inline typename __vector_type<typename __sint_type_of_same_size<typename __vecto
 	return ret;\
 }\
 template<class W>\
-inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename __vector<typename W::type>::base_type &rhs)\
+static inline typename __vector<typename W::type>::type operator op (const W &lhs, const typename __vector<typename W::type>::base_type &rhs)\
 {\
 	return lhs op (typename W::type)rhs;\
 }
@@ -873,7 +873,7 @@ IMPLEMENT_BINARY_OP_LOGICAL(==)
 // Unary + and -
 #define IMPLEMENT_UNARY_OP(op)\
 template<class V>\
-inline typename __vector<V>::type operator op (const V &lhs)\
+static inline typename __vector<V>::type operator op (const V &lhs)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -889,14 +889,14 @@ IMPLEMENT_UNARY_OP(+)
 // Unary ++ and --
 #define IMPLEMENT_UNARY_OP(op)\
 template<class V>\
-inline typename __vector<V>::type &operator op (V &lhs)\
+static inline typename __vector<V>::type &operator op (V &lhs)\
 {\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		op lhs.v[i];\
 	return lhs;\
 }\
 template<class V>\
-inline typename __vector<V>::type &operator op (V &lhs, int)\
+static inline typename __vector<V>::type &operator op (V &lhs, int)\
 {\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		lhs.v[i] op;\
@@ -911,7 +911,7 @@ IMPLEMENT_UNARY_OP(++)
 // vector op= vector
 #define IMPLEMENT_ASSIGN_OP(op)\
 template<class V>\
-inline typename __vector<V>::type &operator op (V &lhs, const V &rhs)\
+static inline typename __vector<V>::type &operator op (V &lhs, const V &rhs)\
 {\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		lhs.v[i] op rhs.v[i];\
@@ -971,7 +971,7 @@ DEFINE(__uint16);
 #define CHECKUI(X)	typename __uint_vector_predicate<X>::type
 
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(F)\
-template<class V> inline CHECK(V) F(const V &x)\
+template<class V> static inline CHECK(V) F(const V &x)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -979,7 +979,7 @@ template<class V> inline CHECK(V) F(const V &x)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_I(F)\
-template<class V> inline CHECKI(V) F(const V &x)\
+template<class V> static inline CHECKI(V) F(const V &x)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -987,7 +987,7 @@ template<class V> inline CHECKI(V) F(const V &x)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_UI(F)\
-template<class V> inline CHECKUI(V) F(const V &x)\
+template<class V> static inline CHECKUI(V) F(const V &x)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -995,7 +995,7 @@ template<class V> inline CHECKUI(V) F(const V &x)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(F)\
-template<class V> inline CHECK(V) F(const V &x, const V &y)\
+template<class V> static inline CHECK(V) F(const V &x, const V &y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1003,7 +1003,7 @@ template<class V> inline CHECK(V) F(const V &x, const V &y)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2_I(F)\
-template<class V> inline CHECKI(V) F(const V &x, const V &y)\
+template<class V> static inline CHECKI(V) F(const V &x, const V &y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1011,7 +1011,7 @@ template<class V> inline CHECKI(V) F(const V &x, const V &y)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2_UI(F)\
-template<class V> inline CHECKUI(V) F(const V &x, const V &y)\
+template<class V> static inline CHECKUI(V) F(const V &x, const V &y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1019,7 +1019,7 @@ template<class V> inline CHECKUI(V) F(const V &x, const V &y)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2I(F)\
-template<class V> inline CHECK(V) F(const V &x, const typename __vector_type<int, __vector<V>::components>::type &y)\
+template<class V> static inline CHECK(V) F(const V &x, const typename __vector_type<int, __vector<V>::components>::type &y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1027,7 +1027,7 @@ template<class V> inline CHECK(V) F(const V &x, const typename __vector_type<int
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2PI(F)\
-template<class V> inline CHECK(V) F(const V &x, typename __vector_type<int, __vector<V>::components>::type *y)\
+template<class V> static inline CHECK(V) F(const V &x, typename __vector_type<int, __vector<V>::components>::type *y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1035,7 +1035,7 @@ template<class V> inline CHECK(V) F(const V &x, typename __vector_type<int, __ve
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2PB(F)\
-template<class V> inline CHECK(V) F(const V &x, V *y)\
+template<class V> static inline CHECK(V) F(const V &x, V *y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1043,7 +1043,7 @@ template<class V> inline CHECK(V) F(const V &x, V *y)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2S(F)\
-template<class V> inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y)\
+template<class V> static inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1051,7 +1051,7 @@ template<class V> inline CHECK(V) F(const V &x, const typename __vector<V>::base
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2S_(F)\
-template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y)\
+template<class V> static inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1059,7 +1059,7 @@ template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, con
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3(F)\
-template<class V> inline CHECK(V) F(const V &x, const V &y, const V &z)\
+template<class V> static inline CHECK(V) F(const V &x, const V &y, const V &z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1067,7 +1067,7 @@ template<class V> inline CHECK(V) F(const V &x, const V &y, const V &z)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_I(F)\
-template<class V> inline CHECKI(V) F(const V &x, const V &y, const V &z)\
+template<class V> static inline CHECKI(V) F(const V &x, const V &y, const V &z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1075,7 +1075,7 @@ template<class V> inline CHECKI(V) F(const V &x, const V &y, const V &z)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_UI(F)\
-template<class V> inline CHECKUI(V) F(const V &x, const V &y, const V &z)\
+template<class V> static inline CHECKUI(V) F(const V &x, const V &y, const V &z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1083,7 +1083,7 @@ template<class V> inline CHECKUI(V) F(const V &x, const V &y, const V &z)\
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS(F)\
-template<class V> inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y, const typename __vector<V>::base_type z)\
+template<class V> static inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y, const typename __vector<V>::base_type z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1091,7 +1091,7 @@ template<class V> inline CHECK(V) F(const V &x, const typename __vector<V>::base
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_S(F)\
-template<class V> inline CHECK(V) F(const V &x, const V &y, const typename __vector<V>::base_type z)\
+template<class V> static inline CHECK(V) F(const V &x, const V &y, const typename __vector<V>::base_type z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1099,7 +1099,7 @@ template<class V> inline CHECK(V) F(const V &x, const V &y, const typename __vec
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3S_(F)\
-template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y, const V &z)\
+template<class V> static inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y, const V &z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1107,7 +1107,7 @@ template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, con
 	return ret;\
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS_(F)\
-template<class V> inline CHECK(V) F(const typename __vector<V>::base_type x, const typename __vector<V>::base_type y, const V &z)\
+template<class V> static inline CHECK(V) F(const typename __vector<V>::base_type x, const typename __vector<V>::base_type y, const V &z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\

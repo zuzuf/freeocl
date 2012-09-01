@@ -23,21 +23,21 @@
 
 // Built-in math functions
 // for double
-inline __double acospi(__double x)	{	return acos(x) / M_PI;	}
-inline __double asinpi(__double x)	{	return asin(x) / M_PI;	}
-inline __double atanpi(__double x)	{	return atan(x) / M_PI;	}
-inline __double atan2pi(__double y, __double x)	{	return atan2(y, x) / M_PI;	}
-inline __double cospi(__double x)	{	return cos(M_PI * x);	}
-inline __double fract(__double x, __double *iptr)
+static inline __double acospi(__double x)	{	return acos(x) / M_PI;	}
+static inline __double asinpi(__double x)	{	return asin(x) / M_PI;	}
+static inline __double atanpi(__double x)	{	return atan(x) / M_PI;	}
+static inline __double atan2pi(__double y, __double x)	{	return atan2(y, x) / M_PI;	}
+static inline __double cospi(__double x)	{	return cos(M_PI * x);	}
+static inline __double fract(__double x, __double *iptr)
 {
 	const __double _x = floor(x);
 	*iptr = _x;
 	return fmin(x - _x, 0x1.fffffep-1f);
 }
-inline __double mad(__double a, __double b, __double c)	{	return a * b + c;	}
-inline __double maxmag(__double x, __double y)	{	return fmax(fabs(x), fabs(y));	}
-inline __double minmag(__double x, __double y)	{	return fmin(fabs(x), fabs(y));	}
-inline __double pown(__double x, __int n)
+static inline __double mad(__double a, __double b, __double c)	{	return a * b + c;	}
+static inline __double maxmag(__double x, __double y)	{	return fmax(fabs(x), fabs(y));	}
+static inline __double minmag(__double x, __double y)	{	return fmin(fabs(x), fabs(y));	}
+static inline __double pown(__double x, __int n)
 {
 	__double _m = 1.0;
 	if (n < 0)
@@ -52,10 +52,10 @@ inline __double pown(__double x, __int n)
 	}
 	return _m;
 }
-inline __double powr(__double x, __double y)	{	return pow(x, y);	}
-inline __double rootn(__double x, __int y)	{	return pow(x, 1.0 / y);	}
-inline __double rsqrt(__double x)	{	return 1.0 / sqrt(x);	}
-inline __double sincos(__double x, __double *cosval)
+static inline __double powr(__double x, __double y)	{	return pow(x, y);	}
+static inline __double rootn(__double x, __int y)	{	return pow(x, 1.0 / y);	}
+static inline __double rsqrt(__double x)	{	return 1.0 / sqrt(x);	}
+static inline __double sincos(__double x, __double *cosval)
 {
 #ifdef _GNU_SOURCE
 	__double _sin;
@@ -66,32 +66,32 @@ inline __double sincos(__double x, __double *cosval)
 	return sin(x);
 #endif
 }
-inline __double sinpi(__double x)	{	return sin(M_PI * x);	}
-inline __double tanpi(__double x)	{	return tan(M_PI * x);	}
+static inline __double sinpi(__double x)	{	return sin(M_PI * x);	}
+static inline __double tanpi(__double x)	{	return tan(M_PI * x);	}
 
 // for float
-inline __float acos(__float x)	{	return acosf(x);	}
-inline __float acosh(__float x)	{	return acoshf(x);	}
-inline __float acospi(__float x)	{	return acos(x) / M_PI_F;	}
-inline __float asin(__float x)	{	return asinf(x);	}
-inline __float asinh(__float x)	{	return asinhf(x);	}
-inline __float asinpi(__float x)	{	return asin(x) / M_PI_F;	}
-inline __float atan(__float x)	{	return atanf(x);	}
-inline __float atan2(__float y, __float x)	{	return atan2f(y, x);	}
-inline __float atanh(__float x)	{	return atanhf(x);	}
-inline __float atanpi(__float x)	{	return atan(x) / M_PI_F;	}
-inline __float atan2pi(__float y, __float x)	{	return atan2(y, x) / M_PI_F;	}
-inline __float cbrt(__float x)	{	return cbrtf(x);	}
-inline __float ceil(__float x)	{	return ceilf(x);	}
-inline __float copysign(__float x, __float y)	{	return copysignf(x, y);	}
-inline __float cos(__float x)	{	return cosf(x);	}
-inline __float cosh(__float x)	{	return coshf(x);	}
-inline __float cospi(__float x)	{	return cos(M_PI_F * x);	}
-inline __float erfc(__float x)	{	return erfcf(x);	}
-inline __float erf(__float x)	{	return erff(x);	}
-inline __float exp(__float x)	{	return expf(x);	}
-inline __float exp2(__float x)	{	return exp2f(x);	}
-inline __float exp10(__float x)
+static inline __float acos(__float x)	{	return acosf(x);	}
+static inline __float acosh(__float x)	{	return acoshf(x);	}
+static inline __float acospi(__float x)	{	return acos(x) / M_PI_F;	}
+static inline __float asin(__float x)	{	return asinf(x);	}
+static inline __float asinh(__float x)	{	return asinhf(x);	}
+static inline __float asinpi(__float x)	{	return asin(x) / M_PI_F;	}
+static inline __float atan(__float x)	{	return atanf(x);	}
+static inline __float atan2(__float y, __float x)	{	return atan2f(y, x);	}
+static inline __float atanh(__float x)	{	return atanhf(x);	}
+static inline __float atanpi(__float x)	{	return atan(x) / M_PI_F;	}
+static inline __float atan2pi(__float y, __float x)	{	return atan2(y, x) / M_PI_F;	}
+static inline __float cbrt(__float x)	{	return cbrtf(x);	}
+static inline __float ceil(__float x)	{	return ceilf(x);	}
+static inline __float copysign(__float x, __float y)	{	return copysignf(x, y);	}
+static inline __float cos(__float x)	{	return cosf(x);	}
+static inline __float cosh(__float x)	{	return coshf(x);	}
+static inline __float cospi(__float x)	{	return cos(M_PI_F * x);	}
+static inline __float erfc(__float x)	{	return erfcf(x);	}
+static inline __float erf(__float x)	{	return erff(x);	}
+static inline __float exp(__float x)	{	return expf(x);	}
+static inline __float exp2(__float x)	{	return exp2f(x);	}
+static inline __float exp10(__float x)
 {
 #ifdef _GNU_SOURCE
 	return exp10f(x);
@@ -99,38 +99,38 @@ inline __float exp10(__float x)
 	return exp(x * 2.3025851f);
 #endif
 }
-inline __float expm1(__float x)	{	return expm1f(x);	}
-inline __float fabs(__float x)	{	return fabsf(x);	}
-inline __float fdim(__float x, __float y)	{	return fdimf(x, y);	}
-inline __float floor(__float x)	{	return floorf(x);	}
-inline __float fma(__float a, __float b, __float c)	{	return fmaf(a, b, c);	}
-inline __float fmax(__float x, __float y)	{	return fmaxf(x, y);	}
-inline __float fmin(__float x, __float y)	{	return fminf(x, y);	}
-inline __float fmod(__float x, __float y)	{	return fmodf(x, y);	}
-inline __float fract(__float x, __float *iptr)
+static inline __float expm1(__float x)	{	return expm1f(x);	}
+static inline __float fabs(__float x)	{	return fabsf(x);	}
+static inline __float fdim(__float x, __float y)	{	return fdimf(x, y);	}
+static inline __float floor(__float x)	{	return floorf(x);	}
+static inline __float fma(__float a, __float b, __float c)	{	return fmaf(a, b, c);	}
+static inline __float fmax(__float x, __float y)	{	return fmaxf(x, y);	}
+static inline __float fmin(__float x, __float y)	{	return fminf(x, y);	}
+static inline __float fmod(__float x, __float y)	{	return fmodf(x, y);	}
+static inline __float fract(__float x, __float *iptr)
 {
 	const __float _x = floor(x);
 	*iptr = _x;
 	return fmin(x - _x, 0x1.fffffep-1f);
 }
-inline __float frexp(__float x, __int *exp)	{	return frexpf(x, exp);	}
-inline __float hypot(__float x, __float y)	{	return hypotf(x, y);	}
-inline __float ldexp(__float x, __int n)	{	return ldexpf(x, n);	}
-inline __float lgamma(__float x)	{	return lgammaf(x);	}
-inline __float lgamma_r(__float x, __int *signp)	{	return lgammaf_r(x, signp);	}
-inline __float log(__float x)	{	return logf(x);	}
-inline __float log2(__float x)	{	return log2f(x);	}
-inline __float log10(__float x)	{	return log10f(x);	}
-inline __float log1p(__float x)	{	return log1pf(x);	}
-inline __float logb(__float x)	{	return logbf(x);	}
-inline __float mad(__float a, __float b, __float c)	{	return a * b + c;	}
-inline __float maxmag(__float x, __float y)	{	return fmax(fabs(x), fabs(y));	}
-inline __float minmag(__float x, __float y)	{	return fmin(fabs(x), fabs(y));	}
-inline __float modf(__float x, __float *iptr)	{	return modff(x, iptr);	}
-inline __float nan(__uint nancode)	{	return reinterpret_cast<const __float&>(nancode |= 0x7F800000U);	}
-inline __float nextafter(__float x, __float y)	{	return nextafterf(x, y);	}
-inline __float pow(__float x, __float y)	{	return powf(x, y);	}
-inline __float pown(__float x, __int n)
+static inline __float frexp(__float x, __int *exp)	{	return frexpf(x, exp);	}
+static inline __float hypot(__float x, __float y)	{	return hypotf(x, y);	}
+static inline __float ldexp(__float x, __int n)	{	return ldexpf(x, n);	}
+static inline __float lgamma(__float x)	{	return lgammaf(x);	}
+static inline __float lgamma_r(__float x, __int *signp)	{	return lgammaf_r(x, signp);	}
+static inline __float log(__float x)	{	return logf(x);	}
+static inline __float log2(__float x)	{	return log2f(x);	}
+static inline __float log10(__float x)	{	return log10f(x);	}
+static inline __float log1p(__float x)	{	return log1pf(x);	}
+static inline __float logb(__float x)	{	return logbf(x);	}
+static inline __float mad(__float a, __float b, __float c)	{	return a * b + c;	}
+static inline __float maxmag(__float x, __float y)	{	return fmax(fabs(x), fabs(y));	}
+static inline __float minmag(__float x, __float y)	{	return fmin(fabs(x), fabs(y));	}
+static inline __float modf(__float x, __float *iptr)	{	return modff(x, iptr);	}
+static inline __float nan(__uint nancode)	{	return reinterpret_cast<const __float&>(nancode |= 0x7F800000U);	}
+static inline __float nextafter(__float x, __float y)	{	return nextafterf(x, y);	}
+static inline __float pow(__float x, __float y)	{	return powf(x, y);	}
+static inline __float pown(__float x, __int n)
 {
 	__float _m = 1.0f;
 	if (n < 0)
@@ -145,15 +145,15 @@ inline __float pown(__float x, __int n)
 	}
 	return _m;
 }
-inline __float powr(__float x, __float y)	{	return powf(x, y);	}
-inline __float remainder(__float x, __float y)	{	return remainderf(x, y);	}
-inline __float remquo(__float x, __float y, __int *quo)	{	return remquof(x, y, quo);	}
-inline __float rint(__float x)	{	return rintf(x);	}
-inline __float rootn(__float x, __int y)	{	return pow(x, 1.0f / y);	}
-inline __float round(__float x)	{	return roundf(x);	}
-inline __float rsqrt(__float x)	{	return 1.0f / sqrtf(x);	}
-inline __float sin(__float x)	{	return sinf(x);	}
-inline __float sincos(__float x, __float *cosval)
+static inline __float powr(__float x, __float y)	{	return powf(x, y);	}
+static inline __float remainder(__float x, __float y)	{	return remainderf(x, y);	}
+static inline __float remquo(__float x, __float y, __int *quo)	{	return remquof(x, y, quo);	}
+static inline __float rint(__float x)	{	return rintf(x);	}
+static inline __float rootn(__float x, __int y)	{	return pow(x, 1.0f / y);	}
+static inline __float round(__float x)	{	return roundf(x);	}
+static inline __float rsqrt(__float x)	{	return 1.0f / sqrtf(x);	}
+static inline __float sin(__float x)	{	return sinf(x);	}
+static inline __float sincos(__float x, __float *cosval)
 {
 #ifdef _GNU_SOURCE
 	__float _sin;
@@ -164,48 +164,48 @@ inline __float sincos(__float x, __float *cosval)
 	return sin(x);
 #endif
 }
-inline __float sinh(__float x)	{	return sinhf(x);	}
-inline __float sinpi(__float x)	{	return sin(M_PI_F * x);	}
-inline __float sqrt(__float x)	{	return sqrtf(x);	}
-inline __float tan(__float x)	{	return tanf(x);	}
-inline __float tanh(__float x)	{	return tanhf(x);	}
-inline __float tanpi(__float x)	{	return tan(M_PI_F * x);	}
-inline __float tgamma(__float x)	{	return tgammaf(x);	}
-inline __float trunc(__float x)	{	return truncf(x);	}
+static inline __float sinh(__float x)	{	return sinhf(x);	}
+static inline __float sinpi(__float x)	{	return sin(M_PI_F * x);	}
+static inline __float sqrt(__float x)	{	return sqrtf(x);	}
+static inline __float tan(__float x)	{	return tanf(x);	}
+static inline __float tanh(__float x)	{	return tanhf(x);	}
+static inline __float tanpi(__float x)	{	return tan(M_PI_F * x);	}
+static inline __float tgamma(__float x)	{	return tgammaf(x);	}
+static inline __float trunc(__float x)	{	return truncf(x);	}
 
 // half_ versions
-inline __float half_cos(__float x)	{	return cos(x);	}
-inline __float half_divide(__float x, __float y)	{	return x / y;	}
-inline __float half_exp(__float x)	{	return exp(x);	}
-inline __float half_exp2(__float x)	{	return exp2(x);	}
-inline __float half_exp10(__float x)	{	return exp10(x);	}
-inline __float half_log(__float x)	{	return log(x);	}
-inline __float half_log2(__float x)	{	return log2(x);	}
-inline __float half_log10(__float x)	{	return log10(x);	}
-inline __float half_powr(__float x, __float y)	{	return powr(x, y);	}
-inline __float half_recip(__float x)	{	return 1.0f / x;	}
-inline __float half_rsqrt(__float x)	{	return 1.0f / sqrt(x);	}
-inline __float half_sin(__float x)	{	return sin(x);	}
-inline __float half_sqrt(__float x)	{	return sqrt(x);	}
-inline __float half_tan(__float x)	{	return tan(x);	}
+static inline __float half_cos(__float x)	{	return cos(x);	}
+static inline __float half_divide(__float x, __float y)	{	return x / y;	}
+static inline __float half_exp(__float x)	{	return exp(x);	}
+static inline __float half_exp2(__float x)	{	return exp2(x);	}
+static inline __float half_exp10(__float x)	{	return exp10(x);	}
+static inline __float half_log(__float x)	{	return log(x);	}
+static inline __float half_log2(__float x)	{	return log2(x);	}
+static inline __float half_log10(__float x)	{	return log10(x);	}
+static inline __float half_powr(__float x, __float y)	{	return powr(x, y);	}
+static inline __float half_recip(__float x)	{	return 1.0f / x;	}
+static inline __float half_rsqrt(__float x)	{	return 1.0f / sqrt(x);	}
+static inline __float half_sin(__float x)	{	return sin(x);	}
+static inline __float half_sqrt(__float x)	{	return sqrt(x);	}
+static inline __float half_tan(__float x)	{	return tan(x);	}
 
 // native_ versions
-//inline __float native_cos(__float x)	{	return cos(x);	}
-inline __float native_divide(__float x, __float y)	{	return x / y;	}
-//inline __float native_exp(__float x)	{	return exp(x);	}
-inline __float native_exp2(__float x)	{	return exp2(x);	}
-inline __float native_exp10(__float x)	{	return exp10(x);	}
-//inline __float native_log(__float x)	{	return log(x);	}
-inline __float native_log2(__float x)	{	return log2(x);	}
-inline __float native_log10(__float x)	{	return log10(x);	}
-//inline __float native_powr(__float x, __float y)	{	return powr(x, y);	}
-inline __float native_recip(__float x)	{	return 1.0f / x;	}
-inline __float native_rsqrt(__float x)	{	return 1.0f / sqrt(x);	}
-//inline __float native_sin(__float x)	{	return sin(x);	}
-inline __float native_sqrt(__float x)	{	return sqrt(x);	}
-//inline __float native_tan(__float x)	{	return tan(x);	}
+//static inline __float native_cos(__float x)	{	return cos(x);	}
+static inline __float native_divide(__float x, __float y)	{	return x / y;	}
+//static inline __float native_exp(__float x)	{	return exp(x);	}
+static inline __float native_exp2(__float x)	{	return exp2(x);	}
+static inline __float native_exp10(__float x)	{	return exp10(x);	}
+//static inline __float native_log(__float x)	{	return log(x);	}
+static inline __float native_log2(__float x)	{	return log2(x);	}
+static inline __float native_log10(__float x)	{	return log10(x);	}
+//static inline __float native_powr(__float x, __float y)	{	return powr(x, y);	}
+static inline __float native_recip(__float x)	{	return 1.0f / x;	}
+static inline __float native_rsqrt(__float x)	{	return 1.0f / sqrt(x);	}
+//static inline __float native_sin(__float x)	{	return sin(x);	}
+static inline __float native_sqrt(__float x)	{	return sqrt(x);	}
+//static inline __float native_tan(__float x)	{	return tan(x);	}
 
-inline __float native_sin(const __float x)
+static inline __float native_sin(const __float x)
 {
 	__float sign, y;
 	if (x < 0.0f)
@@ -236,7 +236,7 @@ inline __float native_sin(const __float x)
 	return sign * z;
 }
 
-inline __float native_cos(const __float x)
+static inline __float native_cos(const __float x)
 {
 	__float sign = 1.0f, y;
 	if (x < 0.0f)
@@ -261,7 +261,7 @@ inline __float native_cos(const __float x)
 	return sign * z;
 }
 
-inline __float native_ldexp(const __float x, const __int exp)
+static inline __float native_ldexp(const __float x, const __int exp)
 {
 	const __uint ix = reinterpret_cast<const __uint &>(x);
 	const __uint e = (ix & 0x7F800000U) + (exp << 23);
@@ -269,7 +269,7 @@ inline __float native_ldexp(const __float x, const __int exp)
 	return reinterpret_cast<const __float&>(f);
 }
 
-inline __float native_exp(const __float x)
+static inline __float native_exp(const __float x)
 {
 //	if (x > 88.7228f)
 //		return __float(INFINITY);
@@ -290,7 +290,7 @@ inline __float native_exp(const __float x)
 	return native_ldexp(z, j);
 }
 
-inline __float native_log(const __float x)
+static inline __float native_log(const __float x)
 {
 	__int e;
 	const __float y = frexpf(x, &e) - 1.0f;
@@ -309,12 +309,12 @@ inline __float native_log(const __float x)
 	return z + e * __float(M_LN2);
 }
 
-inline __float native_tan(const __float x)
+static inline __float native_tan(const __float x)
 {
 	return native_sin(x) / native_cos(x);
 }
 
-inline __float native_powr(const __float x, const __float y)
+static inline __float native_powr(const __float x, const __float y)
 {
 	return native_exp(y * native_log(x));
 }
@@ -365,12 +365,12 @@ VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3(mad)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(maxmag)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(minmag)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2PB(modf)
-inline __float2 nan(__uint2 nancode)	{	return __float2::make(nan(nancode.v[0]), nan(nancode.v[1]));	}
-inline __float3 nan(__uint3 nancode)	{	return __float3::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]));	}
-inline __float4 nan(__uint4 nancode)	{	return __float4::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]));	}
-inline __float8 nan(__uint8 nancode)	{	return __float8::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
+static inline __float2 nan(__uint2 nancode)	{	return __float2::make(nan(nancode.v[0]), nan(nancode.v[1]));	}
+static inline __float3 nan(__uint3 nancode)	{	return __float3::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]));	}
+static inline __float4 nan(__uint4 nancode)	{	return __float4::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]));	}
+static inline __float8 nan(__uint8 nancode)	{	return __float8::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
 																  nan(nancode.v[4]), nan(nancode.v[5]), nan(nancode.v[6]), nan(nancode.v[7]));	}
-inline __float16 nan(__uint16 nancode)	{	return __float16::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
+static inline __float16 nan(__uint16 nancode)	{	return __float16::make(nan(nancode.v[0]), nan(nancode.v[1]), nan(nancode.v[2]), nan(nancode.v[3]),
 																   nan(nancode.v[4]), nan(nancode.v[5]), nan(nancode.v[6]), nan(nancode.v[7]),
 																   nan(nancode.v[8]), nan(nancode.v[9]), nan(nancode.v[10]), nan(nancode.v[11]),
 																   nan(nancode.v[12]), nan(nancode.v[13]), nan(nancode.v[14]), nan(nancode.v[15]));	}
@@ -379,7 +379,7 @@ VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(pow)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2I(pown)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(powr)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(remainder)
-template<class V> inline CHECK(V) remquo(const V &x, const V &y, const typename __vector_type<__int, __vector<V>::components>::type &z)
+template<class V> static inline CHECK(V) remquo(const V &x, const V &y, const typename __vector_type<__int, __vector<V>::components>::type &z)
 {
 	V ret;
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)

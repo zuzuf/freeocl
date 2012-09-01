@@ -54,7 +54,7 @@ namespace FreeOCL
 
 	void function::write(std::ostream &out) const
 	{
-		out << *return_type << ' ' << name << '(';
+		out << "static inline " << *return_type << ' ' << name << '(';
 		for(size_t i = 0 ; i < arguments->size() ; ++i)
 		{
 			if (i > 0)

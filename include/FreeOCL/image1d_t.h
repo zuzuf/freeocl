@@ -27,7 +27,7 @@ struct image1d_t
 	void *data;
 };
 
-inline __int __address_mode(const image1d_t &image, const sampler_t sampler, const __int coord)
+static inline __int __address_mode(const image1d_t &image, const sampler_t sampler, const __int coord)
 {
 	__int __coord;
 	switch(sampler & 0xFF)
@@ -53,7 +53,7 @@ inline __int __address_mode(const image1d_t &image, const sampler_t sampler, con
 }
 
 // Built-in image read/write functions
-inline __float4 read_imagef(const image1d_t &image, sampler_t sampler, const __int coord)
+static inline __float4 read_imagef(const image1d_t &image, sampler_t sampler, const __int coord)
 {
 	const __int __coord = __address_mode(image, sampler, coord);
 
@@ -134,7 +134,7 @@ inline __float4 read_imagef(const image1d_t &image, sampler_t sampler, const __i
 
 	return __map_channels_for_reading(image, v);
 }
-inline __float4 read_imagef(const image1d_t &image, sampler_t sampler, const __float coord)
+static inline __float4 read_imagef(const image1d_t &image, sampler_t sampler, const __float coord)
 {
 	__float rcoord = coord;
 	if (sampler & CLK_NORMALIZED_COORDS_TRUE)
@@ -147,12 +147,12 @@ inline __float4 read_imagef(const image1d_t &image, sampler_t sampler, const __f
 	const __float4 v1 = read_imagef(image, sampler, c0 + 1);
 	return v0 + dp * (v1 - v0);
 }
-inline __float4 read_imagef(const image1d_t &image, const __int coord)
+static inline __float4 read_imagef(const image1d_t &image, const __int coord)
 {
 	return read_imagef(image, CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_NONE, coord);
 }
 
-inline __int4 read_imagei(const image1d_t &image, sampler_t sampler, const __int coord)
+static inline __int4 read_imagei(const image1d_t &image, sampler_t sampler, const __int coord)
 {
 	const __int __coord = __address_mode(image, sampler, coord);
 
@@ -197,18 +197,18 @@ inline __int4 read_imagei(const image1d_t &image, sampler_t sampler, const __int
 
 	return __map_channels_for_reading(image, v);
 }
-inline __int4 read_imagei(const image1d_t &image, sampler_t sampler, const __float coord)
+static inline __int4 read_imagei(const image1d_t &image, sampler_t sampler, const __float coord)
 {
 	if (sampler & CLK_NORMALIZED_COORDS_TRUE)
 		return read_imagei(image, sampler, convert_int(coord * __float(image.width)));
 	return read_imagei(image, sampler, convert_int(coord));
 }
-inline __int4 read_imagei(const image1d_t &image, const __int coord)
+static inline __int4 read_imagei(const image1d_t &image, const __int coord)
 {
 	return read_imagei(image, CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_NONE, coord);
 }
 
-inline __uint4 read_imageui(const image1d_t &image, sampler_t sampler, const __int coord)
+static inline __uint4 read_imageui(const image1d_t &image, sampler_t sampler, const __int coord)
 {
 	const __int __coord = __address_mode(image, sampler, coord);
 
@@ -253,18 +253,18 @@ inline __uint4 read_imageui(const image1d_t &image, sampler_t sampler, const __i
 
 	return __map_channels_for_reading(image, v);
 }
-inline __uint4 read_imageui(const image1d_t &image, sampler_t sampler, const __float coord)
+static inline __uint4 read_imageui(const image1d_t &image, sampler_t sampler, const __float coord)
 {
 	if (sampler & CLK_NORMALIZED_COORDS_TRUE)
 		return read_imageui(image, sampler, convert_int(coord * __float(image.width)));
 	return read_imageui(image, sampler, convert_int(coord));
 }
-inline __uint4 read_imageui(const image1d_t &image, const __int coord)
+static inline __uint4 read_imageui(const image1d_t &image, const __int coord)
 {
 	return read_imageui(image, CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_NONE, coord);
 }
 
-inline void write_imagef(image1d_t &image, const __int coord, const __float4 &color)
+static inline void write_imagef(image1d_t &image, const __int coord, const __float4 &color)
 {
 	__size_t nb_chan;
 	const __float4 v = __map_channels_for_writing(image, color, nb_chan);
@@ -313,7 +313,7 @@ inline void write_imagef(image1d_t &image, const __int coord, const __float4 &co
 	}
 }
 
-inline void write_imagei(image1d_t &image, const __int coord, const __int4 &color)
+static inline void write_imagei(image1d_t &image, const __int coord, const __int4 &color)
 {
 	__size_t nb_chan;
 	const __int4 v = __map_channels_for_writing(image, color, nb_chan);
@@ -335,7 +335,7 @@ inline void write_imagei(image1d_t &image, const __int coord, const __int4 &colo
 	}
 }
 
-inline void write_imageui(image1d_t &image, const __int coord, const __uint4 &color)
+static inline void write_imageui(image1d_t &image, const __int coord, const __uint4 &color)
 {
 	__size_t nb_chan;
 	const __uint4 v = __map_channels_for_writing(image, color, nb_chan);
@@ -357,8 +357,8 @@ inline void write_imageui(image1d_t &image, const __int coord, const __uint4 &co
 	}
 }
 
-inline __int get_image_width(const image1d_t &image)	{	return image.width;	}
-inline __int get_image_channel_data_type(const image1d_t &image)	{	return image.channel_data_type;	}
-inline __int get_image_channel_order(const image1d_t &image)	{	return image.channel_order;	}
+static inline __int get_image_width(const image1d_t &image)	{	return image.width;	}
+static inline __int get_image_channel_data_type(const image1d_t &image)	{	return image.channel_data_type;	}
+static inline __int get_image_channel_order(const image1d_t &image)	{	return image.channel_order;	}
 
 #endif

@@ -36,28 +36,28 @@ namespace FreeOCL
 }
 
 // Built-in work-item functions
-inline __uint get_work_dim()
+static inline __uint get_work_dim()
 {
 	return FreeOCL::dim;
 }
 
-inline __size_t get_global_size(__uint dimindx)
+static inline __size_t get_global_size(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::global_size[dimindx] : 1;
 }
 
-inline __size_t get_local_id(__uint dimindx);
-inline __size_t get_global_id(__uint dimindx)
+static inline __size_t get_local_id(__uint dimindx);
+static inline __size_t get_global_id(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::group_id[dimindx] * FreeOCL::local_size[dimindx] + get_local_id(dimindx) + FreeOCL::global_offset[dimindx] : 0;
 }
 
-inline __size_t get_local_size(__uint dimindx)
+static inline __size_t get_local_size(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::local_size[dimindx] : 1;
 }
-inline __size_t get_thread_num();
-inline __size_t get_local_id(__uint dimindx)
+static inline __size_t get_thread_num();
+static inline __size_t get_local_id(__uint dimindx)
 {
 	switch(dimindx)
 	{
@@ -72,22 +72,22 @@ inline __size_t get_local_id(__uint dimindx)
 	}
 }
 
-inline __size_t get_num_groups(__uint dimindx)
+static inline __size_t get_num_groups(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::num_groups[dimindx] : 1;
 }
 
-inline __size_t get_group_id(__uint dimindx)
+static inline __size_t get_group_id(__uint dimindx)
 {
 	return FreeOCL::group_id[dimindx];
 }
 
-inline __size_t get_global_offset(__uint dimindx)
+static inline __size_t get_global_offset(__uint dimindx)
 {
 	return dimindx < FreeOCL::dim ? FreeOCL::global_offset[dimindx] : 0;
 }
 
-inline __size_t get_thread_num()
+static inline __size_t get_thread_num()
 {
 	return FreeOCL::thread_num;
 }

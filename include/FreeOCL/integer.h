@@ -21,26 +21,26 @@
 
 // Built-in integer functions
 
-inline __long clamp(__long, __long, __long);
-inline __ulong clamp(__ulong, __ulong, __ulong);
+static inline __long clamp(__long, __long, __long);
+static inline __ulong clamp(__ulong, __ulong, __ulong);
 
 // for __int
-inline __uint __abs(const __int &x)	{	return x >= 0 ? x : -x;	}
+static inline __uint __abs(const __int &x)	{	return x >= 0 ? x : -x;	}
 #define abs(x)	__abs(x)
-inline __uint abs_diff(__int x, __int y)	{	return x > y ? x - y : y - x;	}
-inline __int add_sat(__int x, __int y)
+static inline __uint abs_diff(__int x, __int y)	{	return x > y ? x - y : y - x;	}
+static inline __int add_sat(__int x, __int y)
 {	return __int(clamp(__long(x) + __long(y), -0x80000000, 0x7FFFFFFF));	}
 
-inline __int hadd(__int x, __int y)
+static inline __int hadd(__int x, __int y)
 {	return __int((__long(x) + __long(y)) >> 1);	}
 
-inline __int rhadd(__int x, __int y)
+static inline __int rhadd(__int x, __int y)
 {	return __int((__long(x) + __long(y) + 1) >> 1);	}
 
-inline __int max(__int, __int);
-inline __int min(__int, __int);
-inline __int clamp(__int x, __int minval, __int maxval)	{	return min(max(x, minval), maxval);	}
-inline __int clz(__int x)
+static inline __int max(__int, __int);
+static inline __int min(__int, __int);
+static inline __int clamp(__int x, __int minval, __int maxval)	{	return min(max(x, minval), maxval);	}
+static inline __int clz(__int x)
 {
 	const __uint y = (__uint)x;
 	__int c = ((y >> 16) == 0) << 4;
@@ -50,41 +50,41 @@ inline __int clz(__int x)
 	c += ((y >> (31 - c)) == 0);
 	return c;
 }
-inline __int mul_hi(__int, __int);
-inline __int mad_hi(__int a, __int b, __int c)	{	return mul_hi(a, b) + c;	}
-inline __int mad_sat(__int a, __int b, __int c)
+static inline __int mul_hi(__int, __int);
+static inline __int mad_hi(__int a, __int b, __int c)	{	return mul_hi(a, b) + c;	}
+static inline __int mad_sat(__int a, __int b, __int c)
 {	return __int(clamp(__long(a) * __long(b) + __long(c), (__long)-0x80000000, (__long)0x7FFFFFFF));	}
 
-inline __int max(__int x, __int y)	{	return x > y ? x : y;	}
-inline __uint max(__uint x, __uint y)	{	return x > y ? x : y;	}
-inline __int min(__int x, __int y)	{	return x < y ? x : y;	}
-inline __uint min(__uint x, __uint y)	{	return x < y ? x : y;	}
-inline __int mul_hi(__int x, __int y)	{	return __int((long long)(x) * (long long)(y) >> 32);	}
-inline __int rotate(__int v, __int i)	{	return (v << i) | (v >> (32 - i));	}
+static inline __int max(__int x, __int y)	{	return x > y ? x : y;	}
+static inline __uint max(__uint x, __uint y)	{	return x > y ? x : y;	}
+static inline __int min(__int x, __int y)	{	return x < y ? x : y;	}
+static inline __uint min(__uint x, __uint y)	{	return x < y ? x : y;	}
+static inline __int mul_hi(__int x, __int y)	{	return __int((long long)(x) * (long long)(y) >> 32);	}
+static inline __int rotate(__int v, __int i)	{	return (v << i) | (v >> (32 - i));	}
 
-inline __int sub_sat(__int x, __int y)
+static inline __int sub_sat(__int x, __int y)
 {	return __int(clamp(__long(x) - __long(y), (__long)-0x80000000, (__long)0x7FFFFFFF));	}
 
 // for __long
-inline __long max(__long, __long);
-inline __long min(__long, __long);
-inline __long clamp(__long x, __long minval, __long maxval)	{	return min(max(x, minval), maxval);	}
+static inline __long max(__long, __long);
+static inline __long min(__long, __long);
+static inline __long clamp(__long x, __long minval, __long maxval)	{	return min(max(x, minval), maxval);	}
 
-inline __long max(__long x, __long y)	{	return x > y ? x : y;	}
-inline __ulong max(__ulong x, __ulong y)	{	return x > y ? x : y;	}
-inline __long min(__long x, __long y)	{	return x < y ? x : y;	}
-inline __ulong min(__ulong x, __ulong y)	{	return x < y ? x : y;	}
-inline __ulong clamp(__ulong x, __ulong minval, __ulong maxval)	{	return min(max(x, minval), maxval);	}
+static inline __long max(__long x, __long y)	{	return x > y ? x : y;	}
+static inline __ulong max(__ulong x, __ulong y)	{	return x > y ? x : y;	}
+static inline __long min(__long x, __long y)	{	return x < y ? x : y;	}
+static inline __ulong min(__ulong x, __ulong y)	{	return x < y ? x : y;	}
+static inline __ulong clamp(__ulong x, __ulong minval, __ulong maxval)	{	return min(max(x, minval), maxval);	}
 
 // upsample functions
-inline __short upsample(__char hi, __uchar lo)	{	return ((__short)hi << 8) | lo;	}
-inline __ushort upsample(__uchar hi, __uchar lo)	{	return ((__ushort)hi << 8) | lo;	}
-inline __int upsample(__short hi, __ushort lo)	{	return ((__int)hi << 16) | lo;	}
-inline __uint upsample(__ushort hi, __ushort lo)	{	return ((__uint)hi << 16) | lo;	}
-inline __long upsample(__int hi, __uint lo)	{	return ((long long)hi << 32) | lo;	}
-inline __ulong upsample(__uint hi, __uint lo)	{	return ((long long)hi << 32) | lo;	}
+static inline __short upsample(__char hi, __uchar lo)	{	return ((__short)hi << 8) | lo;	}
+static inline __ushort upsample(__uchar hi, __uchar lo)	{	return ((__ushort)hi << 8) | lo;	}
+static inline __int upsample(__short hi, __ushort lo)	{	return ((__int)hi << 16) | lo;	}
+static inline __uint upsample(__ushort hi, __ushort lo)	{	return ((__uint)hi << 16) | lo;	}
+static inline __long upsample(__int hi, __uint lo)	{	return ((long long)hi << 32) | lo;	}
+static inline __ulong upsample(__uint hi, __uint lo)	{	return ((long long)hi << 32) | lo;	}
 
-inline __ulong popcount(__ulong x)
+static inline __ulong popcount(__ulong x)
 {
 #ifdef __GNUG__
 	return __builtin_popcount(x);
@@ -100,8 +100,8 @@ inline __ulong popcount(__ulong x)
 }
 
 // fast integer built-in functions
-inline __int mad24(__int x, __int y, __int z)	{	return x * y + z;	}
-inline __int mul24(__int x, __int y)	{	return x * y;	}
+static inline __int mad24(__int x, __int y, __int z)	{	return x * y + z;	}
+static inline __int mul24(__int x, __int y)	{	return x * y;	}
 
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_I(clamp)
 VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_I(abs)

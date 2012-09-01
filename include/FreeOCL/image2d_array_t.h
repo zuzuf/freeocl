@@ -28,7 +28,7 @@ struct image2d_array_t
 	void *data;
 };
 
-inline __int2 __address_mode(const image2d_array_t &image, const sampler_t sampler, const __int2 &coord)
+static inline __int2 __address_mode(const image2d_array_t &image, const sampler_t sampler, const __int2 &coord)
 {
 	__int2 __coord;
 	switch(sampler & 0xFF)
@@ -53,7 +53,7 @@ inline __int2 __address_mode(const image2d_array_t &image, const sampler_t sampl
 	return __coord;
 }
 
-inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
+static inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
 {
 	const __int2 __coord = __address_mode(image, sampler, __int2::make(coord.get<0>(), coord.get<1>()));
     const __int layer = clamp(coord.get<2>(), 0, int(image.array_size) - 1);
@@ -138,7 +138,7 @@ inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, con
 
 	return __map_channels_for_reading(image, v);
 }
-inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, const __float4 &coord)
+static inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, const __float4 &coord)
 {
 	__float4 rcoord = coord;
 	if (sampler & CLK_NORMALIZED_COORDS_TRUE)
@@ -156,12 +156,12 @@ inline __float4 read_imagef(const image2d_array_t &image, sampler_t sampler, con
 	v1 += dp.get<0>() * (v2 - v1);
 	return v0 + dp.get<1>() * (v1 - v0);
 }
-inline __float4 read_imagef(const image2d_array_t &image, const __int4 &coord)
+static inline __float4 read_imagef(const image2d_array_t &image, const __int4 &coord)
 {
 	return read_imagef(image, CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_NONE, coord);
 }
 
-inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
+static inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
 {
 	const __int2 __coord = __address_mode(image, sampler, __int2::make(coord.get<0>(), coord.get<1>()));
     const __int layer = clamp(coord.get<2>(), 0, int(image.array_size) - 1);
@@ -210,7 +210,7 @@ inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const
 
 	return __map_channels_for_reading(image, v);
 }
-inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const __float4 &coord)
+static inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const __float4 &coord)
 {
 	__float4 rcoord = coord;
 	if (sampler & CLK_NORMALIZED_COORDS_TRUE)
@@ -222,12 +222,12 @@ inline __int4 read_imagei(const image2d_array_t &image, sampler_t sampler, const
 	rcoord.get<2>() = floor(0.5f + rcoord.get<2>());
 	return read_imagei(image, sampler, convert_int4(rcoord));
 }
-inline __int4 read_imagei(const image2d_array_t &image, const __int4 &coord)
+static inline __int4 read_imagei(const image2d_array_t &image, const __int4 &coord)
 {
 	return read_imagei(image, CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_NONE, coord);
 }
 
-inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
+static inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, const __int4 &coord)
 {
 	const __int2 __coord = __address_mode(image, sampler, __int2::make(coord.get<0>(), coord.get<1>()));
     const __int layer = clamp(coord.get<2>(), 0, int(image.array_size) - 1);
@@ -277,7 +277,7 @@ inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, con
 
 	return __map_channels_for_reading(image, v);
 }
-inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, const __float4 &coord)
+static inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, const __float4 &coord)
 {
 	__float4 rcoord = coord;
 	if (sampler & CLK_NORMALIZED_COORDS_TRUE)
@@ -289,12 +289,12 @@ inline __uint4 read_imageui(const image2d_array_t &image, sampler_t sampler, con
 	rcoord.get<2>() = floor(0.5f + rcoord.get<2>());
 	return read_imageui(image, sampler, convert_int4(rcoord));
 }
-inline __uint4 read_imageui(const image2d_array_t &image, const __int4 &coord)
+static inline __uint4 read_imageui(const image2d_array_t &image, const __int4 &coord)
 {
 	return read_imageui(image, CLK_NORMALIZED_COORDS_FALSE | CLK_FILTER_NEAREST | CLK_ADDRESS_NONE, coord);
 }
 
-inline void write_imagef(image2d_array_t &image, const __int4 &coord, const __float4 &color)
+static inline void write_imagef(image2d_array_t &image, const __int4 &coord, const __float4 &color)
 {
 	__size_t nb_chan;
 	const __float4 v = __map_channels_for_writing(image, color, nb_chan);
@@ -345,7 +345,7 @@ inline void write_imagef(image2d_array_t &image, const __int4 &coord, const __fl
 		break;
 	}
 }
-inline void write_imagei(image2d_array_t &image, const __int4 &coord, const __int4 &color)
+static inline void write_imagei(image2d_array_t &image, const __int4 &coord, const __int4 &color)
 {
 	__size_t nb_chan;
 	const __int4 v = __map_channels_for_writing(image, color, nb_chan);
@@ -369,7 +369,7 @@ inline void write_imagei(image2d_array_t &image, const __int4 &coord, const __in
 		break;
 	}
 }
-inline void write_imageui(image2d_array_t &image, const __int4 &coord, const __uint4 &color)
+static inline void write_imageui(image2d_array_t &image, const __int4 &coord, const __uint4 &color)
 {
 	__size_t nb_chan;
 	const __uint4 v = __map_channels_for_writing(image, color, nb_chan);
@@ -394,13 +394,13 @@ inline void write_imageui(image2d_array_t &image, const __int4 &coord, const __u
 	}
 }
 
-inline __int get_image_width(const image2d_array_t &image)	{	return image.width;	}
-inline __int get_image_height(const image2d_array_t &image)	{	return image.height;	}
-inline __int get_image_array_size(const image2d_array_t &image)	{	return image.array_size;	}
-inline __int get_image_channel_data_type(const image2d_array_t &image)	{	return image.channel_data_type;	}
-inline __int get_image_channel_order(const image2d_array_t &image)	{	return image.channel_order;	}
+static inline __int get_image_width(const image2d_array_t &image)	{	return image.width;	}
+static inline __int get_image_height(const image2d_array_t &image)	{	return image.height;	}
+static inline __int get_image_array_size(const image2d_array_t &image)	{	return image.array_size;	}
+static inline __int get_image_channel_data_type(const image2d_array_t &image)	{	return image.channel_data_type;	}
+static inline __int get_image_channel_order(const image2d_array_t &image)	{	return image.channel_order;	}
 
-inline __int2 get_image_dim(const image2d_array_t &image)
+static inline __int2 get_image_dim(const image2d_array_t &image)
 {
 	return __int2::make(image.width, image.height);
 }

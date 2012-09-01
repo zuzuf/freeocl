@@ -33,7 +33,7 @@
 #define LENGTH_HH			0b11
 #define LENGTH_HL			0b10
 
-inline int __flag(int c)
+static inline int __flag(int c)
 {
 	switch(c)
 	{
@@ -47,12 +47,12 @@ inline int __flag(int c)
 	}
 }
 
-inline void __print_char(char c)
+static inline void __print_char(char c)
 {
 	write(STDOUT_FILENO, &c, 1);
 }
 
-void __print_uint(unsigned long i, int base, int field_width, char padding_char, bool b_upper_case)
+static void __print_uint(unsigned long i, int base, int field_width, char padding_char, bool b_upper_case)
 {
 	char buf[20];
 	int l = 0;
@@ -75,7 +75,7 @@ void __print_uint(unsigned long i, int base, int field_width, char padding_char,
 		__print_char(buf[l]);
 }
 
-void __print_int(long i, int base, int field_width, char padding_char, bool b_upper_case)
+static void __print_int(long i, int base, int field_width, char padding_char, bool b_upper_case)
 {
 	if (i < 0)
 	{
@@ -85,7 +85,7 @@ void __print_int(long i, int base, int field_width, char padding_char, bool b_up
 	__print_uint(i, base, field_width, padding_char, b_upper_case);
 }
 
-void __print_double(double d, int precision, double base, bool b_upper_case)
+static void __print_double(double d, int precision, double base, bool b_upper_case)
 {
 	if (d < 0.0)
 	{
@@ -133,7 +133,7 @@ void __print_double(double d, int precision, double base, bool b_upper_case)
 	__print_uint((d - (unsigned long)d) * p + 0.5, base, precision, '0', b_upper_case);
 }
 
-void __print_double_e(double d, int precision, bool b_upper_case)
+static void __print_double_e(double d, int precision, bool b_upper_case)
 {
 	if (d < 0.0)
 	{
@@ -196,7 +196,7 @@ void __print_double_e(double d, int precision, bool b_upper_case)
 	__print_int(e, 10, 1, '0', b_upper_case);
 }
 
-void __print_double_a(double d, int precision, bool b_upper_case)
+static void __print_double_a(double d, int precision, bool b_upper_case)
 {
 	if (d < 0.0)
 	{
@@ -261,7 +261,7 @@ void __print_double_a(double d, int precision, bool b_upper_case)
 	__print_int(p, 16, 1, '0', b_upper_case);
 }
 
-void __print_double_g(double d, int precision, bool b_upper_case)
+static void __print_double_g(double d, int precision, bool b_upper_case)
 {
 	if (isinf(d) || isnan(d) || d == 0.0)
 	{
@@ -282,7 +282,7 @@ void __print_double_g(double d, int precision, bool b_upper_case)
 }
 
 // Built-in printf function
-int printf(const char *format, ...)
+static int printf(const char *format, ...)
 {
 	va_list ap;
 	va_start(ap, format);

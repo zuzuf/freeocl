@@ -31,13 +31,13 @@ template<> struct __type_range<__ulong>		{	enum { __min = 0, __max = 0xFFFFFFFFF
 // Built-in type conversion functions
 #define CONVERTER(X)\
 template<class Scalar>\
-inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X(const Scalar &v)	{	return (__##X)v;	}\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X(const Scalar &v)	{	return (__##X)v;	}\
 template<class Scalar>\
-inline const typename __if< __match<Scalar, __##X>::value, __##X>::type &convert_##X(const Scalar &v)	{	return v;	}
+static inline const typename __if< __match<Scalar, __##X>::value, __##X>::type &convert_##X(const Scalar &v)	{	return v;	}
 
 #define CONVERTER_SAT(X)\
 template<class Scalar>\
-inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_sat(const Scalar &v)\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_sat(const Scalar &v)\
 {\
 	return (__##X)(v > __type_range<__##X>::__max\
 			   ? __type_range<__##X>::__max\
@@ -46,7 +46,7 @@ inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, _
 				 : v);\
 }\
 template<class Scalar>\
-inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat(const Scalar &v)	{	return v;	}
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat(const Scalar &v)	{	return v;	}
 
 CONVERTER(char)
 CONVERTER(uchar)
@@ -73,7 +73,7 @@ CONVERTER_SAT(ulong)
 
 #define CONVERTER(X, N)\
 template<class V>\
-	inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N(const V &v)\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N(const V &v)\
 {\
 	__##X##N ret;\
 	for(size_t i = 0 ; i < N ; ++i)\
@@ -81,10 +81,10 @@ template<class V>\
 	return ret;\
 }\
 template<class V>\
-	inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N(const V &v)	{	return v;	}
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N(const V &v)	{	return v;	}
 #define CONVERTER_SAT(X, N)\
 template<class V>\
-	inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_sat(const V &v)\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_sat(const V &v)\
 {\
 	__##X##N ret;\
 	for(size_t i = 0 ; i < N ; ++i)\
@@ -92,7 +92,7 @@ template<class V>\
 	return ret;\
 }\
 template<class V>\
-	inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat(const V &v)	{	return v;	}
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat(const V &v)	{	return v;	}
 
 #define CONVERTER_VECTORS(X)\
 	CONVERTER(X, 2)\
@@ -133,8 +133,8 @@ CONVERTER_VECTORS_SAT(ulong)
 #undef CONVERTER_SAT
 
 #define AS_TYPE(Out)\
-template<typename In>	inline const __##Out &as_##Out(const In &t)	{	return reinterpret_cast<const __##Out&>(t);	}\
-template<typename In>	inline __##Out &as_##Out(In &t)	{	return reinterpret_cast<__##Out&>(t);	}
+template<typename In>	static inline const __##Out &as_##Out(const In &t)	{	return reinterpret_cast<const __##Out&>(t);	}\
+template<typename In>	static inline __##Out &as_##Out(In &t)	{	return reinterpret_cast<__##Out&>(t);	}
 
 #define AS_BASE_TYPE(Out)\
 AS_TYPE(Out)\
