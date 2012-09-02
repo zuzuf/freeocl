@@ -246,10 +246,16 @@ namespace FreeOCL
 				{
 					if (*p_type != native_type(native_type::VOID, false, type::PRIVATE))
 						error("return type for kernels must be void");
-                    d_val__ = kernels[function_name] = new kernel(p_type, function_name, p_chunk->back(), statement, arg_types);
+					if (f_from_symbols && !f_from_symbols.as<kernel>())
+						error("previous declaration of function was not specified as kernel");
+					d_val__ = kernels[function_name] = new kernel(p_type, function_name, p_chunk->back(), statement, arg_types);
 				}
 				else
-                    d_val__ = new function(p_type, function_name, p_chunk->back(), statement, arg_types);
+				{
+					if (f_from_symbols && f_from_symbols.as<kernel>())
+						error("previous declaration of function was specified as kernel");
+					d_val__ = new function(p_type, function_name, p_chunk->back(), statement, arg_types);
+				}
 				if (f_from_symbols && *f_from_symbols.as<function>() != *d_val__.as<function>())
 				{
 					current_line.swap(current_line_bak);

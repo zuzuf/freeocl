@@ -97,7 +97,7 @@ namespace FreeOCL
 
 	bool function::has_references_to(const std::string &function_name) const
 	{
-		return (name == function_name) || body->has_references_to(function_name);
+		return (name == function_name) || (body && body->has_references_to(function_name));
 	}
 
     const char *function::get_node_type() const
