@@ -19,15 +19,6 @@
 #define __FREEOCL_CONFIG_H__
 
 #define FREEOCL_CXX_COMPILER	"@CMAKE_CXX_COMPILER@"
-#if @FREEOCL_USE_OPENMP@
-#define FREEOCL_USE_OPENMP 1
-#endif
-
-#ifdef FREEOCL_USE_OPENMP
-#define FREEOCL_OMP_FLAGS	" @OpenMP_CXX_FLAGS@"
-#else
-#define FREEOCL_OMP_FLAGS	" "
-#endif
 
 #define FREEOCL_CXX_FLAGS_COMMON " " \
         " -shared -fpic -pipe" /* -Wall*/ \

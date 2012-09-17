@@ -501,7 +501,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_ushort * const ptr = (cfb->offset >> 1) + (cl_ushort*)cfb->buffer->ptr;
 						const cl_ushort &pattern = *(const cl_ushort*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}
@@ -510,7 +509,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_uint * const ptr = (cfb->offset >> 2) + (cl_uint*)cfb->buffer->ptr;
 						const cl_uint &pattern = *(const cl_uint*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}
@@ -519,7 +517,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_ulong * const ptr = (cfb->offset >> 3) + (cl_ulong*)cfb->buffer->ptr;
 						const cl_ulong &pattern = *(const cl_ulong*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}
@@ -528,7 +525,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_float4 * const ptr = (cfb->offset >> 4) + (cl_float4*)cfb->buffer->ptr;
 						const cl_float4 &pattern = *(const cl_float4*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}
@@ -537,7 +533,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_float8 * const ptr = (cfb->offset >> 5) + (cl_float8*)cfb->buffer->ptr;
 						const cl_float8 &pattern = *(const cl_float8*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}
@@ -546,7 +541,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_float16 * const ptr = (cfb->offset >> 6) + (cl_float16*)cfb->buffer->ptr;
 						const cl_float16 &pattern = *(const cl_float16*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}
@@ -555,7 +549,6 @@ unsigned long _cl_command_queue::proc()
 					{
 						cl_double16 * const ptr = (cfb->offset >> 7) + (cl_double16*)cfb->buffer->ptr;
 						const cl_double16 &pattern = *(const cl_double16*)cfb->pattern;
-#pragma omp parallel for
 						for(size_t i = 0 ; i < nb_elts ; ++i)
 							ptr[i] = pattern;
 					}

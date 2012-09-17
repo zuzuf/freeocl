@@ -232,7 +232,7 @@ namespace FreeOCL
 		}
 	}
 
-	u_int64_t usec_timer()
+	size_t usec_timer()
 	{
 		struct timeval tv;
 		gettimeofday(&tv, NULL);

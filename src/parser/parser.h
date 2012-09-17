@@ -115,7 +115,7 @@ namespace FreeOCL
 		inline std::istream &get(char &c)
 		{
 			c = 0;
-			const bool ok = in.get(c);
+			const bool ok = !!in.get(c);
 			if (c == '\n')
 				++line;
 			if (!current_line.empty() && *current_line.rbegin() == '\n')

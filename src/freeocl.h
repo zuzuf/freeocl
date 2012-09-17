@@ -68,7 +68,7 @@ namespace FreeOCL
 	bool contains_word(const std::string &s, const std::string &w);
 	void remove_words(std::string &s, const char **w);
 
-	u_int64_t usec_timer();
+	size_t usec_timer();
 
 	cl_half half_from_float(float f);
 

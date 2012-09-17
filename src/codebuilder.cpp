@@ -346,7 +346,7 @@ namespace FreeOCL
 		log << "code:" << std::endl << code << std::endl;
 		std::stringstream in(code);
 		parser p(in, log);
-		const u_int64_t timer = usec_timer();
+		const size_t timer = usec_timer();
 		p.set_debug_mode(b_debug_mode);
 		p.parse();
 		std::clog << usec_timer() - timer << "µs" << std::endl;
