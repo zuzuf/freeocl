@@ -1523,6 +1523,8 @@ namespace FreeOCL
 		const size_t dst_slice_pitch = buffer_pitch[1] - dst_row_pitch * cb[1];
 
 		cl_uchar data[16];
+		memset(data, 0, sizeof(cl_uchar));
+
 		switch(buffer->image_format.image_channel_order)
 		{
 		case CL_RGBA:

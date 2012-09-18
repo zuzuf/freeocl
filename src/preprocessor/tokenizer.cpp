@@ -49,7 +49,7 @@ namespace FreeOCL
 
 		for(size_t _i = 0 ; _i < s.size() ;)
 		{
-			char c;
+			char c = '\0';
 			// get the next non-ws character
 			while (get(c) && (c == ' ' || c == '\t' || c == '\n' || c == '\r'));
 
