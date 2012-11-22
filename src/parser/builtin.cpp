@@ -304,7 +304,7 @@ namespace FreeOCL
 							"|longn upsample(intn,uintn)"
 							"|ulongn upsample(uintn,uintn)", gentype_single);
 		REGISTER_OVERLOADED("gentype mad24(gentype,gentype,gentype)", gentype_integers);
-		REGISTER_OVERLOADED("gentype mul24(gentype,gentype,gentype)", gentype_integers);
+		REGISTER_OVERLOADED("gentype mul24(gentype,gentype)", gentype_integers);
 
 		// Common functions
 		REGISTER_OVERLOADED("gentype clamp(gentype,gentype,gentype)|gentype clamp(gentype,float,float)", gentype_floats);
