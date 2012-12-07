@@ -20,6 +20,9 @@
 #include <sched.h>
 #include <atomic_ops.h>
 #include <utils/time.h>
+#ifdef __SSE__
+#include <xmmintrin.h>
+#endif
 
 namespace FreeOCL
 {
