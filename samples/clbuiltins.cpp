@@ -174,16 +174,17 @@ void test_function(const string &function_name, const size_t nb_params, const in
 			if (!(dims & (1 << i)))
 				continue;
 			cl::Kernel kernel(program, fname[i]);
-			cl::KernelFunctor f = kernel.bind(*queue, cl::NDRange(1), cl::NDRange(1));
+            kernel.setArg(0, *buffer);
+//			cl::KernelFunctor f = kernel.bind(*queue, cl::NDRange(1), cl::NDRange(1));
 			switch(nb_params)
 			{
-			case 1:
-				f(*buffer, v);
-				break;
-			case 2:
-				f(*buffer, v, w);
+            case 2:
+                kernel.setArg(2, w);
+            case 1:
+                kernel.setArg(1, v);
 				break;
 			}
+            queue->enqueueTask(kernel);
 			queue->finish();
 			queue->enqueueReadBuffer(*buffer, true, 0, sizeof(data), &data[0]);
 			for(size_t j = 0 ; j < dim[i] ; ++j)

@@ -125,6 +125,46 @@ const char *source_code_str =
 	"}\n"
 	;
 
+class KernelFunctor
+{
+public:
+    KernelFunctor(const cl::Kernel &kernel, const cl::CommandQueue &queue, const cl::NDRange &global, const cl::NDRange &local)
+        : queue(queue),
+          kernel(kernel),
+          global(global),
+          local(local)
+    {}
+
+    template<typename T0, typename T1, typename T2, typename T3, typename T4>
+    cl_int operator()(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4)
+    {
+        kernel.setArg(0, v0);
+        kernel.setArg(1, v1);
+        kernel.setArg(2, v2);
+        kernel.setArg(3, v3);
+        kernel.setArg(4, v4);
+        return queue.enqueueNDRangeKernel(kernel, cl::NDRange(), global, local);
+    }
+
+    template<typename T0, typename T1, typename T2, typename T3, typename T4, typename T5>
+    cl_int operator()(const T0 &v0, const T1 &v1, const T2 &v2, const T3 &v3, const T4 &v4, const T5 &v5)
+    {
+        kernel.setArg(0, v0);
+        kernel.setArg(1, v1);
+        kernel.setArg(2, v2);
+        kernel.setArg(3, v3);
+        kernel.setArg(4, v4);
+        kernel.setArg(5, v5);
+        return queue.enqueueNDRangeKernel(kernel, cl::NDRange(), global, local);
+    }
+
+private:
+    const cl::CommandQueue &queue;
+    cl::Kernel kernel;
+    const cl::NDRange global;
+    const cl::NDRange local;
+};
+
 int main(int argc, const char **argv)
 {
 	int platform_id = -1;
@@ -207,10 +247,10 @@ int main(int argc, const char **argv)
 		cl::Kernel k_rk3(program, "rk3");
 		cl::Kernel k_rk4(program, "rk4");
 
-		cl::KernelFunctor rk1 = k_rk1.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
-		cl::KernelFunctor rk2 = k_rk2.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
-		cl::KernelFunctor rk3 = k_rk3.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
-		cl::KernelFunctor rk4 = k_rk4.bind(queue, cl::NDRange(nb_particles), cl::NDRange());
+        KernelFunctor rk1(k_rk1, queue, cl::NDRange(nb_particles), cl::NDRange());
+        KernelFunctor rk2(k_rk2, queue, cl::NDRange(nb_particles), cl::NDRange());
+        KernelFunctor rk3(k_rk3, queue, cl::NDRange(nb_particles), cl::NDRange());
+        KernelFunctor rk4(k_rk4, queue, cl::NDRange(nb_particles), cl::NDRange());
 
 		cl::Buffer pos0(context, CL_MEM_READ_WRITE, sizeof(cl_float4) * nb_particles);
 		cl::Buffer pos1(context, CL_MEM_READ_ONLY, sizeof(cl_float4) * nb_particles);
