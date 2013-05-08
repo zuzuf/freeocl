@@ -345,11 +345,21 @@ _cl_device_id::_cl_device_id() :
 
 	pool = new FreeOCL::threadpool();
 
+#if defined(FREEOCL_OS_LINUX) || defined(FREEOCL_OS_UNKNWON)
 	std::string ostype = trim(run_command("/sbin/sysctl -e kernel.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
 		ostype = trim(run_command("/sbin/sysctl -e kern.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
 		ostype = trim(run_command("/sbin/sysctl -a | grep ostype | awk '{ print $NF }'"));
+#elif defined(FREEOCL_OS_DARWIN)
+	std::string ostype = trim(run_command("/usr/sbin/sysctl kernel.ostype 2>/dev/null | awk '{ print $NF }'"));
+	if (ostype.empty())
+		ostype = trim(run_command("/usr/sbin/sysctl kern.ostype | awk '{ print $NF }'"));
+	if (ostype.empty())
+		ostype = trim(run_command("/usr/sbin/sysctl -a | grep ostype | awk '{ print $NF }'"));
+	// TODO: Use hwloc <http://www.open-mpi.org/projects/hwloc/>
+	// to obtain this information
+#endif
 	if (ostype == "Linux")
 	{
 #ifdef _SC_NPROCESSORS_ONLN
@@ -379,6 +389,16 @@ _cl_device_id::_cl_device_id() :
 		// I don't know how to get this information ... so let's use default values
 		mem_cacheline_size = 64;
 		mem_cache_size = 4 * 1024 * 1024;
+	}
+	else if (ostype == "Darwin")	// Regarding OSX
+	{
+		cpu_cores = parse_int(run_command("/usr/sbin/sysctl hw.ncpu | awk '{ print $NF }'"));
+		name = trim(run_command("/usr/sbin/sysctl hw.model | awk '{ for(i=2;i<NF;++i) print $i }' | tr \"\\n\" \" \""));
+		vendor = trim(run_command("/usr/sbin/sysctl hw.model | awk '{ print $2 }'"));
+		memsize = parse_int(run_command("/usr/sbin/sysctl hw.memsize | awk '{ print $NF }'"));
+		freememsize = parse_int(run_command("/usr/sbin/sysctl vm.page_free_count | awk '{ print $NF }'"))
+				* parse_int(run_command("/usr/sbin/sysctl hw.pagesize | awk '{ print $NF }'"));
+		max_clock_frequency = parse_int(run_command("/usr/sbin/sysctl machdep.tsc.frequency | awk '{ print $NF }'"));
 	}
 
 	max_work_item_sizes[0] = 1024;

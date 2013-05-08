@@ -21,16 +21,16 @@
 #define FREEOCL_CXX_COMPILER	"@CMAKE_CXX_COMPILER@"
 
 #define FREEOCL_CXX_FLAGS_COMMON " " \
-        " -shared -fpic -pipe" /* -Wall*/ \
+		" -shared -fpic -pipe" /* -Wall*/ \
 		" -I./include" \
 		" -g -O3" \
-        " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
-        " -fno-math-errno -fno-trapping-math" \
-        " -rdynamic" \
-        " -fno-exceptions -fno-rtti" \
+		" -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
+		" -fno-math-errno -fno-trapping-math" \
+		" -rdynamic" \
+		" -fno-exceptions -fno-rtti" \
 		" -x c++ " \
-        " -Wall -Wextra "\
-        " -Wno-non-pod-varargs"
+		" -Wall -Wextra "\
+		" -Wno-non-pod-varargs"
 
 #if defined (FREEOCL_ARCH_i386)
 #define FREEOCL_CXX_FLAGS FREEOCL_CXX_FLAGS_COMMON \

@@ -128,6 +128,10 @@ namespace FreeOCL
 			{
 				compiler_extra_args += " -O0 -g";
 			}
+			else if (word == "-cl-strict-aliasing")
+			{
+				compiler_extra_args += " -fstrict-aliasing";
+			}
 			else if (word == "-cl-mad-enable")
 			{
 			}

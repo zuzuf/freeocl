@@ -21,22 +21,34 @@ namespace FreeOCL
 {
 	size_t us_timer()
 	{
+#if defined(__APPLE__) || defined(__MACOSX)
+		return (ns_timer() + 500LU) / 1000LU;
+#else
 		struct timespec ts;
 		clock_gettime(CLOCK_MONOTONIC, &ts);
 		return ts.tv_nsec / 1000LU + ts.tv_sec * 1000000LU;
+#endif
 	}
 
 	size_t ms_timer()
 	{
+#if defined(__APPLE__) || defined(__MACOSX)
+		return (ns_timer() + 500000LU) / 1000000LU;
+#else
 		struct timespec ts;
 		clock_gettime(CLOCK_MONOTONIC, &ts);
 		return ts.tv_nsec / 1000000U + ts.tv_sec * 1000LU;
+#endif
 	}
 
 	size_t s_timer()
 	{
+#if defined(__APPLE__) || defined(__MACOSX)
+		return (ns_timer() + 500000000LU) / 1000000000LU;
+#else
 		struct timespec ts;
 		clock_gettime(CLOCK_MONOTONIC, &ts);
 		return ts.tv_sec;
+#endif
 	}
 }

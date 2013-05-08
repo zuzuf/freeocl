@@ -18,7 +18,9 @@
 #include "threadpool.h"
 #include <FreeOCL/config.h>
 #include <sched.h>
+#ifndef __GNUC__
 #include <atomic_ops.h>
+#endif
 #include <utils/time.h>
 #ifdef __SSE__
 #include <xmmintrin.h>
@@ -116,7 +118,11 @@ namespace FreeOCL
 
 	inline unsigned int threadpool::get_next_workgroup()
 	{
+#ifdef __GNUC__
+		return __sync_fetch_and_add(&next_workgroup, 1);
+#else
 		return AO_int_fetch_and_add_full(&next_workgroup, 1);
+#endif
 	}
 
 	void threadpool::worker::work()

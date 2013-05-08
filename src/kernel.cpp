@@ -34,8 +34,8 @@ namespace
 
 	struct image1d_t
 	{
-		uint channel_order;
-		uint channel_data_type;
+		cl_uint channel_order;
+		cl_uint channel_data_type;
 		size_t width;
 		size_t element_size;
 		void *data;
@@ -45,8 +45,8 @@ namespace
 
 	struct image1d_array_t
 	{
-		uint channel_order;
-		uint channel_data_type;
+		cl_uint channel_order;
+		cl_uint channel_data_type;
 		size_t width, array_size;
 		size_t row_pitch;
 		size_t element_size;
@@ -55,8 +55,8 @@ namespace
 
 	struct image2d_t
 	{
-		uint channel_order;
-		uint channel_data_type;
+		cl_uint channel_order;
+		cl_uint channel_data_type;
 		size_t width, height;
 		size_t row_pitch;
 		size_t element_size;
@@ -65,8 +65,8 @@ namespace
 
 	struct image2d_array_t
 	{
-		uint channel_order;
-		uint channel_data_type;
+		cl_uint channel_order;
+		cl_uint channel_data_type;
 		size_t width, height, array_size;
 		size_t row_pitch, slice_pitch;
 		size_t element_size;
@@ -74,8 +74,8 @@ namespace
 	};
 	struct image3d_t
 	{
-		uint channel_order;
-		uint channel_data_type;
+		cl_uint channel_order;
+		cl_uint channel_data_type;
 		size_t width, height, depth;
 		size_t row_pitch, slice_pitch;
 		size_t element_size;
@@ -356,7 +356,7 @@ extern "C"
 				if (!FreeOCL::is_valid(sampler))
 					return CL_INVALID_SAMPLER;
 				unlock.handle(sampler);
-				uint sampler_value = 0;
+				cl_uint sampler_value = 0;
 				if (sampler->normalized_coords)
 					sampler_value |= CLK_NORMALIZED_COORDS_TRUE;
 				else
@@ -377,7 +377,7 @@ extern "C"
 				case CL_FILTER_NEAREST:	sampler_value |= CLK_FILTER_NEAREST;	break;
 				}
 
-				*(uint*)&(kernel->args_buffer[kernel->args_offset[arg_index]]) = sampler_value;
+				*(cl_uint*)&(kernel->args_buffer[kernel->args_offset[arg_index]]) = sampler_value;
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE1D:
