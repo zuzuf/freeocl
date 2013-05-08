@@ -483,9 +483,22 @@ namespace FreeOCL
 	}
 
 	void preprocessor::skip_whitespaces()
-	{
-		while(isblank(peek()))
-			get();
+    {
+        int c = peek();
+        while(isspace(c) || c == '\\')
+        {
+            get();
+            if (c == '\\')
+            {
+                const int next = peek();
+                if (next != '\n')
+                {
+                    putback('\\');
+                    return;
+                }
+            }
+            c = peek();
+        }
 	}
 
 	void preprocessor::error(const std::string &msg)	// called on (syntax) errors
