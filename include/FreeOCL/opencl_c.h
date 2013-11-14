@@ -30,6 +30,7 @@
 //#define HUGE_VALF
 //#define INFINITY
 //#define NAN
+//#define HUGE_VAL
 
 #define FLT_DIG			6
 #define FLT_MANT_DIG	24

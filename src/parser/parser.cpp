@@ -1918,19 +1918,25 @@ namespace FreeOCL
 					exp = new unary(i_token, exp, true);
 					break;
 				case '[':
-					if (!exp.as<expression>()->get_type().as<pointer_type>())
 					{
-						ERROR("pointer or array type expected!");
-					}
-					else
-					{
-						index *idx = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
-						if (b_debug_mode)
+						smartptr<type> exp_type = exp.as<expression>()->get_type();
+						smartptr<type_def> tdef = exp_type.as<type_def>();
+						if (tdef)	exp_type = tdef->get_type();
+						const smartptr<pointer_type> ptr_type = exp_type.as<pointer_type>();
+						if (!ptr_type)
 						{
-							idx->enable_boundary_check(true);
-							idx->set_ref_string(current_file + " l." + to_string(line));
+							ERROR("pointer or array type expected!");
 						}
-						exp = idx;
+						else
+						{
+							index *idx = new index(exp, (*d_val__.as<chunk>())[1].as<expression>());
+							if (b_debug_mode)
+							{
+								idx->enable_boundary_check(true);
+								idx->set_ref_string(current_file + " l." + to_string(line));
+							}
+							exp = idx;
+						}
 					}
 					break;
 				case '(':
@@ -2031,11 +2037,14 @@ namespace FreeOCL
 						const expression *pexp = exp.as<expression>();
 						if (!pexp)
 							ERROR("syntax error: expression expected!");
-						const smartptr<pointer_type> ptr_type = pexp->get_type().as<pointer_type>();
+						smartptr<type> exp_type = pexp->get_type();
+						smartptr<type_def> tdef = exp_type.as<type_def>();
+						if (tdef)	exp_type = tdef->get_type();
+						const smartptr<pointer_type> ptr_type = exp_type.as<pointer_type>();
 						if (!ptr_type)
 							ERROR("base operand of '->' is not a pointer!");
 						smartptr<type> p_type = ptr_type->get_base_type();
-						smartptr<type_def> tdef = p_type.as<type_def>();
+						tdef = p_type.as<type_def>();
 						if (tdef)	p_type = tdef->get_type();
 						const smartptr<struct_type> stype = p_type.as<struct_type>();
 						const smartptr<native_type> ntype = p_type.as<native_type>();

@@ -282,6 +282,12 @@ namespace FreeOCL
 			preproc.define(options[i].first, options[i].second);
 
 		// Add math defines
+		preproc.define("MAXFLOAT", "0x1.fffffep127f");
+		preproc.define("HUGE_VALF", "as_float(0x7f800000U)");
+		preproc.define("INFINITY", "as_float(0x7f800000U)");
+		preproc.define("NAN", "as_float(0x7fc00000U)");
+		preproc.define("HUGE_VAL", "as_double(0x7ff0000000000000UL)");
+
 		preproc.define("FLT_DIG", "6");
 		preproc.define("FLT_MANT_DIG", "24");
 		preproc.define("FLT_MAX_10_EXP", "38");
