@@ -49,7 +49,7 @@ namespace FreeOCL
 			out << *cur << post << ')';
 		}
 		else
-			out << '(' << *p_type << ")(" << *exp << ')';
+			out << "((" << *p_type << ')' << *exp << ')';
 	}
 
 	bool cast::validate() const
