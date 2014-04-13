@@ -18,6 +18,7 @@
 #include "overloaded_builtin.h"
 #include "native_type.h"
 #include "pointer_type.h"
+#include "typedef.h"
 #include "freeocl.h"
 #include <utils/map.h>
 #include <sstream>
@@ -403,7 +404,13 @@ namespace FreeOCL
 
 	bool overloaded_builtin::weak_match(const smartptr<type> &a, const smartptr<type> &b)
 	{
-		if (*a == *b)
+        const type_def *td_a = a.as<type_def>();
+        if (td_a)
+            return weak_match(td_a->get_type(), b);
+        const type_def *td_b = b.as<type_def>();
+        if (td_b)
+            return weak_match(a, td_b->get_type());
+        if (*a == *b)
 			return true;
 		if (*(a->clone(true, a->get_address_space())) == *b)
 			return true;
