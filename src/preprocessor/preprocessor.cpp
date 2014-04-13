@@ -485,7 +485,7 @@ namespace FreeOCL
 	void preprocessor::skip_whitespaces()
 	{
 		int c = peek();
-		while(isspace(c) || c == '\\')
+        while((isspace(c) && c != '\n') || c == '\\')
 		{
 			get();
 			if (c == '\\')

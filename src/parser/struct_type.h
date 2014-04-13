@@ -33,9 +33,9 @@ namespace FreeOCL
 			UNION
 		};
 	private:
-		struct_type(const smartptr<struct_type> &orig, const bool b_const, const address_space addr_space) : type(b_const, addr_space), root(orig)	{}
+        struct_type(const smartptr<struct_type> &orig, const bool b_const, const address_space addr_space) : type(b_const, addr_space), root(orig), b_defined(false)	{}
 	public:
-		struct_type(const std::string &name) : type(false, PRIVATE), name(name)	{}
+        struct_type(const std::string &name) : type(false, PRIVATE), name(name), b_defined(false)	{}
 		virtual bool operator==(const type &t) const;
 		virtual void write(std::ostream &out) const;
 		virtual void define(std::ostream &out) const;
@@ -56,6 +56,7 @@ namespace FreeOCL
 		const std::string name;
 		std::vector<std::pair<std::string, smartptr<type> > > members;
 		smartptr<struct_type> root;
+        mutable bool b_defined;
 	};
 }
 

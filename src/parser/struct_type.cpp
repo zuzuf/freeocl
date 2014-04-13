@@ -55,8 +55,11 @@ namespace FreeOCL
 			break;
 		}
 
-		out << name << std::endl
-			<< '{' << std::endl;
+        out << name << std::endl;
+        if (b_defined)
+            return;
+        b_defined = true;
+        out << '{' << std::endl;
 
 		for(std::vector<std::pair<std::string, smartptr<type> > >::const_iterator it = members.begin(), end = members.end()
 			; it != end
