@@ -2188,7 +2188,12 @@ namespace FreeOCL
 	{
 		BEGIN(1);
 		RULE1(token<IDENTIFIER>);
-		RULE1(token<TYPE_NAME>);
+        MATCH1(token<TYPE_NAME>)
+        {
+            d_val__ = new token(N[0].as<type>()->get_name(), IDENTIFIER);
+            return 1;
+        }
+
 		END();
 	}
 

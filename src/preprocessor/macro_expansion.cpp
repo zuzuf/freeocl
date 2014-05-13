@@ -153,7 +153,7 @@ namespace FreeOCL
                             while(!value.empty() && isspace(*value.rbegin()))
                                 value.erase(value.size() - 1);
 
-                            args.push_back(macro_expansion(value, already_expanded));
+                            args.push_back(value);
                         }
 
                         if (m.params.size() == 1 && m.params.front().empty())

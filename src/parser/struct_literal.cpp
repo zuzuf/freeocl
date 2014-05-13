@@ -19,6 +19,8 @@
 #include "struct_type.h"
 #include "chunk.h"
 #include "typedef.h"
+#include "token.h"
+#include <stdexcept>
 
 namespace FreeOCL
 {
@@ -44,18 +46,21 @@ namespace FreeOCL
 		if (p_type.as<type_def>())
 			st = p_type.as<type_def>()->get_type();
 		if (!st)
-			return false;
+            return false;
 		const chunk *ch = initializer.as<chunk>();
 		if (!ch)
-			return false;
-		if (ch->size() != st->members_count())
-			return false;
+            return false;
+        size_t n = 1;
+        for(const chunk *cur = ch ; cur && cur->size() == 3 && cur->at(1).as<token>() && cur->at(1).as<token>()->get_id() == ',' ; cur = cur->at(0).as<chunk>())
+            ++n;
+        if (n != st->members_count())
+            return false;
 		return true;
 	}
 
 	uint32_t struct_literal::eval_as_uint() const
 	{
-		throw "user defined types cannot appear in statically evaluated expressions";
+        throw std::runtime_error("user defined types cannot appear in statically evaluated expressions");
 		return 0;
 	}
 
