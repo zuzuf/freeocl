@@ -438,6 +438,7 @@ namespace FreeOCL
 				{
 					line += '\n';
 					get();
+                    continue;
 				}
 				line += char(v);
 				continue;

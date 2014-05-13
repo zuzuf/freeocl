@@ -22,12 +22,12 @@ namespace FreeOCL
 {
 	smartptr<type> array_type::clone(const bool b_const, const address_space addr_space) const
 	{
-		return new array_type(base_type->clone(b_const, addr_space), b_const, addr_space, size);
+        return new array_type(base_type->clone(b_const, addr_space), b_const, addr_space, m_size);
 	}
 
 	std::string array_type::suffix() const
 	{
-		return base_type->suffix() + '[' + to_string(size) + ']';
+        return base_type->suffix() + '[' + to_string(m_size) + ']';
 	}
 
 	std::string array_type::prefix() const
@@ -40,12 +40,17 @@ namespace FreeOCL
 	std::string array_type::complete_name() const
 	{
 		if (base_type.as<array_type>())
-			return base_type.as<array_type>()->complete_name() + '[' + to_string(size) + ']';
-		return base_type->get_cxx_name() + '[' + to_string(size) + ']';
+            return base_type.as<array_type>()->complete_name() + '[' + to_string(m_size) + ']';
+        return base_type->get_cxx_name() + '[' + to_string(m_size) + ']';
 	}
 
     const char *array_type::get_node_type() const
     {
         return "array_type";
+    }
+
+    size_t array_type::size() const
+    {
+        return m_size * base_type->size();
     }
 }

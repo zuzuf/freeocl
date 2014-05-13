@@ -1,5 +1,6 @@
 #include "sizeof.h"
 #include "native_type.h"
+#include <stdexcept>
 
 namespace FreeOCL
 {
@@ -26,8 +27,9 @@ namespace FreeOCL
 
 	uint32_t size_of::eval_as_uint() const
 	{
-		throw "static evaluation of sizeof operator not implemented!";
-		return 0;
+        if (n.as<type>())
+            return n.as<type>()->size();
+        return n.as<expression>()->get_type()->size();
 	}
 
 	bool size_of::has_references_to(const std::string &function_name) const

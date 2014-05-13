@@ -648,4 +648,20 @@ namespace FreeOCL
     {
         return "native_type";
     }
+
+    size_t native_type::size() const
+    {
+        static const size_t type_size[] =  {
+            1, 1, 2, sizeof(size_t), sizeof(void*), sizeof(void*),
+            sizeof(void*), sizeof(void*), sizeof(void*), sizeof(void*), sizeof(void*), sizeof(void*),
+            1, 2, 4, 8, 1, 2, 4, 8, 4, 8,
+            2, 4, 8, 16, 2, 4, 8, 16, 8, 16,
+            4, 8, 16, 32, 4, 8, 16, 32, 16, 32,
+            4, 8, 16, 32, 4, 8, 16, 32, 16, 32,
+            8, 16, 32, 64, 8, 16, 32, 64, 32, 64,
+            16, 32, 64, 128, 16, 32, 64, 128, 64, 128,
+            4, 8, 8, 16, 32
+        };
+        return type_size[id];
+    }
 }

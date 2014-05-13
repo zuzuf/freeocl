@@ -60,7 +60,9 @@ namespace FreeOCL
 		bool is_uint() const;
 		bool is_signed() const;
 		type_id get_scalar_type() const;
-	private:
+
+        size_t size() const;
+    private:
 		const type_id id;
 
 	public:

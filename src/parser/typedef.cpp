@@ -55,6 +55,11 @@ namespace FreeOCL
         return "type_def";
     }
 
+    size_t type_def::size() const
+    {
+        return p_type->size();
+    }
+
 	void type_decl::write(std::ostream& out) const
 	{
 		out << "typedef ";

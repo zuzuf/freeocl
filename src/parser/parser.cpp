@@ -1230,6 +1230,7 @@ namespace FreeOCL
 			{
 				if (!__struct_declarator())
 				{
+                    ERROR("Syntax error: declarator expected after ','");
 					roll_back_to(l);
 					break;
 				}

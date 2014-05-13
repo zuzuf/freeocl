@@ -92,4 +92,9 @@ namespace FreeOCL
     {
         return "pointer_type";
     }
+
+    size_t pointer_type::size() const
+    {
+        return sizeof(void*);
+    }
 }

@@ -61,7 +61,7 @@ namespace FreeOCL
 		void error(const std::string &msg);	// called on (syntax) errors
 		void warning(const std::string &msg);	// called on warnings
 
-		std::string macro_expansion(std::string text, const set<std::string> &forbidden = set<std::string>(), const bool b_defined_rule = false);
+        std::string macro_expansion(const std::string &text, const set<std::string> &processed_macros = set<std::string>(), const bool b_defined_rule = false);
 		bool valid_chunk_for_macro_expansion(std::string text);
 		std::string parameters_substitution(const std::string &s,
 											const std::vector<std::string> &names,

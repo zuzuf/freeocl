@@ -40,7 +40,9 @@ namespace FreeOCL
         virtual const char *get_node_type() const;
 
         void set_root_type(const smartptr<type> &root_type);
-	protected:
+
+        size_t size() const;
+    protected:
 		smartptr<type> base_type;
 
 	public:

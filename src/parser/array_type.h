@@ -30,7 +30,7 @@ namespace FreeOCL
 				   const bool b_const,
 				   const address_space addr_space,
 				   const size_t size)
-			: pointer_type(base_type, b_const, addr_space), size(size)	{}
+            : pointer_type(base_type, b_const, addr_space), m_size(size)	{}
 
 		virtual smartptr<type> clone(const bool b_const, const address_space addr_space) const;
 
@@ -38,11 +38,13 @@ namespace FreeOCL
 		virtual std::string prefix() const;
 		virtual std::string complete_name() const;
 
-		size_t get_size() const	{	return size;	}
+        size_t get_size() const	{	return m_size;	}
+
+        size_t size() const;
 
         virtual const char *get_node_type() const;
     private:
-		size_t size;
+        size_t m_size;
 	};
 }
 

@@ -17,6 +17,7 @@
 */
 #include "struct_type.h"
 #include "typedef.h"
+#include "native_type.h"
 #include <algorithm>
 
 namespace FreeOCL
@@ -146,5 +147,27 @@ namespace FreeOCL
     const char *struct_type::get_node_type() const
     {
         return "struct_type";
+    }
+
+    size_t struct_type::size() const
+    {
+        if (root)
+            return root->size();
+        size_t s = 0;
+        for(std::vector<std::pair<std::string, smartptr<type> > >::const_iterator it = members.begin(), end = members.end()
+            ; it != end
+            ; ++it)
+        {
+            const size_t item_size = it->second->size();
+            if (it->second.as<native_type>())
+            {
+                if ((s % item_size) != 0)
+                    s += item_size - (s % item_size);
+                s += item_size;
+            }
+            else
+                s += item_size;
+        }
+        return s;
     }
 }

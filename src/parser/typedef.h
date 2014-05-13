@@ -39,7 +39,8 @@ namespace FreeOCL
 			return p_type;
 		}
 
-	protected:
+        size_t size() const;
+    protected:
 		const std::string name;
 		const smartptr<type> p_type;
 	};
