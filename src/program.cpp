@@ -528,8 +528,12 @@ extern "C"
 			}
 
 		const std::deque<std::string> &splitted_kernel_names = FreeOCL::split(kernel_names, ";");
+#ifdef RTLD_NOLOAD
 		void *main_program = dlopen(NULL, RTLD_NOLOAD);
-		for(std::deque<std::string>::const_iterator i = splitted_kernel_names.begin() ; i != splitted_kernel_names.end() ; ++i)
+#else
+        void *main_program = dlopen(NULL, 0);
+#endif
+        for(std::deque<std::string>::const_iterator i = splitted_kernel_names.begin() ; i != splitted_kernel_names.end() ; ++i)
 		{
 			if (!dlsym(main_program, ("__FCL_info_" + *i).c_str())
 					|| !dlsym(main_program, ("__FCL_init_" + *i).c_str())

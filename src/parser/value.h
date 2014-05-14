@@ -44,10 +44,7 @@ namespace FreeOCL
 
 		virtual smartptr<type> get_type() const;
 
-		virtual void write(std::ostream& out) const
-		{
-			out << v << ' ';
-		}
+        virtual void write(std::ostream& out) const;
 
         virtual const char *get_node_type() const;
     private:

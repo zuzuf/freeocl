@@ -204,7 +204,11 @@ extern "C"
 		mem->image_format = *image_format;
 		if (flags & CL_MEM_USE_HOST_PTR)
 			mem->ptr = host_ptr;
+#ifdef FREEOCL_OS_WINDOWS
+        else if ((mem->ptr = __mingw_aligned_malloc(size, 256)) == NULL)
+#else
 		else if (posix_memalign(&(mem->ptr), 256, size) == ENOMEM)
+#endif
 		{
 			SET_RET(CL_OUT_OF_RESOURCES);
 			delete mem;
@@ -1373,7 +1377,11 @@ extern "C"
 		{
 			if (flags & CL_MEM_USE_HOST_PTR)
 				mem->ptr = host_ptr;
+#ifdef FREEOCL_OS_WINDOWS
+            else if ((mem->ptr = __mingw_aligned_malloc(size, 256)) == NULL)
+#else
 			else if (posix_memalign(&(mem->ptr), 256, size) == ENOMEM)
+#endif
 			{
 				SET_RET(CL_OUT_OF_RESOURCES);
 				delete mem;

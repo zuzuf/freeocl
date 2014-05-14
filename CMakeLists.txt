@@ -85,7 +85,10 @@ endif(LIBRT)
 add_subdirectory(samples)
 add_subdirectory(src)
 
-install(FILES icd/freeocl.icd DESTINATION /etc/OpenCL/vendors/)
+if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
+	install(FILES icd/freeocl.icd DESTINATION /etc/OpenCL/vendors/)
+endif(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
+
 # OpenCL headers shouldn't be needed in the runtime package
 # install(DIRECTORY include/CL/ DESTINATION include/CL/ FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY include/FreeOCL/ DESTINATION include/FreeOCL/ FILES_MATCHING PATTERN "*.h")

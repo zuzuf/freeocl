@@ -359,6 +359,8 @@ _cl_device_id::_cl_device_id() :
 		ostype = trim(run_command("/usr/sbin/sysctl -a | grep ostype | awk '{ print $NF }'"));
 	// TODO: Use hwloc <http://www.open-mpi.org/projects/hwloc/>
 	// to obtain this information
+#elif defined(FREEOCL_OS_WINDOWS)
+    std::string ostype = "Windows";
 #endif
 	if (ostype == "Linux")
 	{
@@ -400,6 +402,25 @@ _cl_device_id::_cl_device_id() :
 				* parse_int(run_command("/usr/sbin/sysctl hw.pagesize | awk '{ print $NF }'"));
 		max_clock_frequency = parse_int(run_command("/usr/sbin/sysctl machdep.tsc.frequency | awk '{ print $NF }'"));
 	}
+#ifdef FREEOCL_OS_WINDOWS
+    else if (ostype == "Windows")
+    {
+        cpu_cores = strtol(getenv("NB_PROCESSORS"), NULL, 10);
+        MEMORYSTATUSEX statex;
+        statex.dwLength = sizeof (statex);
+        GlobalMemoryStatusEx (&statex);
+        memsize = statex.ullTotalPhys;
+        freememsize = statex.ullAvailPhys;
+
+        name = trim(run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));
+        if (name.empty())
+            name = trim(run_command("cat /proc/cpuinfo | grep \"Processor\" | head -1 | sed -e \"s/Processor\t: //\""));
+        vendor = trim(run_command("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""));
+        max_clock_frequency = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
+        mem_cacheline_size = parse_int(run_command("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));
+        mem_cache_size = parse_int(run_command("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U;
+    }
+#endif
 
 	max_work_item_sizes[0] = 1024;
 	max_work_item_sizes[1] = 1024;

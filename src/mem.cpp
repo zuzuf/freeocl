@@ -73,7 +73,11 @@ extern "C"
 		mem->offset = 0;
 		if (flags & CL_MEM_USE_HOST_PTR)
 			mem->ptr = host_ptr;
+#ifdef FREEOCL_OS_WINDOWS
+        else if ((mem->ptr = __mingw_aligned_malloc(size, 256)) == NULL)
+#else
 		else if (posix_memalign(&(mem->ptr), 256, size) == ENOMEM)
+#endif
 		{
 			SET_RET(CL_OUT_OF_RESOURCES);
 			delete mem;
@@ -1024,7 +1028,11 @@ _cl_mem::~_cl_mem()
 
 	if (ptr && !parent && !(flags & CL_MEM_USE_HOST_PTR) && mem_type != CL_MEM_OBJECT_IMAGE1D_BUFFER)
 	{
+#ifdef FREEOCL_OS_WINDOWS
+        __mingw_aligned_free(ptr);
+#else
 		free(ptr);
+#endif
 		ptr = NULL;
 	}
 }

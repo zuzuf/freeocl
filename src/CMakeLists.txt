@@ -84,6 +84,17 @@ set(SOURCES
 	codebuilder.cpp	codebuilder.h
 	)
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(EXTRA_SOURCES
+        ${PROJECT_SOURCE_DIR}/libs/dlfcn-win32/dlfcn.h
+        ${PROJECT_SOURCE_DIR}/libs/dlfcn-win32/dlfcn.c
+        ${PROJECT_SOURCE_DIR}/libs/win32.64_ucontext/ucontext.h
+        ${PROJECT_SOURCE_DIR}/libs/win32.64_ucontext/ucontext.c
+        )
+    include_directories(../libs/dlfcn-win32/)
+    include_directories(../libs/win32.64_ucontext/)
+endif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
 # Add FreeOCL headers in order to have them recognized by IDEs
 set(FREEOCL_HEADERS
 	../include/FreeOCL/asyncmemop.h
@@ -112,11 +123,12 @@ set(FREEOCL_HEADERS
 	../include/FreeOCL/printf.h
 	)
 
-add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS} ${PREPROCESSOR_SOURCES})
+add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS} ${PREPROCESSOR_SOURCES} ${EXTRA_SOURCES})
 target_link_libraries(FreeOCL)
 
 # Installation and packaging process
-install(TARGETS FreeOCL LIBRARY DESTINATION lib)
-
+if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
+	install(TARGETS FreeOCL LIBRARY DESTINATION lib)
+endif(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
 
 add_subdirectory(icd)

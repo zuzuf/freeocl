@@ -62,6 +62,12 @@ namespace FreeOCL
 		out << v << "f ";
 	}
 
+    template<>
+    void value<int32_t>::write(std::ostream& out) const
+    {
+        out << v << ' ';
+    }
+
 	template<>
 	void value<uint32_t>::write(std::ostream& out) const
 	{
@@ -87,6 +93,12 @@ namespace FreeOCL
 		out.precision(18);
 		out << v << ' ';
 	}
+
+    template<>
+    void value<std::string>::write(std::ostream& out) const
+    {
+        out << v << ' ';
+    }
 
 	template<> uint32_t value<uint32_t>::get_as_uint() const	{	return v;	}
 	template<> uint32_t value<int32_t>::get_as_uint() const	{	return v;	}
