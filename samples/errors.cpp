@@ -94,10 +94,12 @@ const char *get_error_as_string(cl_int err)
 
 void init_signal_handler()
 {
+#ifndef FREEOCL_OS_WINDOWS
 	struct sigaction s;
 	memset(&s, 0, sizeof(struct sigaction));
 	s.sa_handler = signal_handler;
 	sigaction(SIGSEGV, &s, NULL);
+#endif
 }
 
 void signal_handler(int)

@@ -405,20 +405,19 @@ _cl_device_id::_cl_device_id() :
 #ifdef FREEOCL_OS_WINDOWS
     else if (ostype == "Windows")
     {
-        cpu_cores = strtol(getenv("NB_PROCESSORS"), NULL, 10);
+        cpu_cores = strtol(getenv("NUMBER_OF_PROCESSORS"), NULL, 10);
         MEMORYSTATUSEX statex;
         statex.dwLength = sizeof (statex);
         GlobalMemoryStatusEx (&statex);
         memsize = statex.ullTotalPhys;
         freememsize = statex.ullAvailPhys;
 
-        name = trim(run_command("cat /proc/cpuinfo | grep \"model name\" | head -1 | sed -e \"s/model name\t: //\""));
-        if (name.empty())
-            name = trim(run_command("cat /proc/cpuinfo | grep \"Processor\" | head -1 | sed -e \"s/Processor\t: //\""));
-        vendor = trim(run_command("cat /proc/cpuinfo | grep vendor_id | head -1 | sed -e \"s/vendor_id\t: //\""));
-        max_clock_frequency = parse_int(run_command("cat /proc/cpuinfo | grep \"cpu MHz\" | head -1 | sed -e \"s/cpu MHz\t\t: //\""));
-        mem_cacheline_size = parse_int(run_command("cat /proc/cpuinfo | grep cache_alignment | head -1 | sed -e \"s/cache_alignment\t: //\""));
-        mem_cache_size = parse_int(run_command("cat /proc/cpuinfo | grep \"cache size\" | head -1 | awk '{ print $4 }'")) * 1024U;
+        const char *cpu_id = getenv("PROCESSOR_IDENTIFIER");
+        name = cpu_id ? cpu_id : "Unknown";
+        vendor = "unknown";
+        max_clock_frequency = 0;
+        mem_cacheline_size = 64;
+        mem_cache_size = 0;
     }
 #endif
 

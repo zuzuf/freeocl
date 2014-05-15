@@ -33,6 +33,9 @@
 #include <fstream>
 #include <utility>
 #include <algorithm>
+#ifdef FREEOCL_OS_WINDOWS
+#include <windows.h>
+#endif
 
 namespace FreeOCL
 {
@@ -195,6 +198,12 @@ namespace FreeOCL
 		std::string filename_in;
 		std::string filename_out;
 
+#ifdef FREEOCL_OS_WINDOWS
+        char tmp_dir[MAX_PATH + 1];
+        memset(tmp_dir, 0, sizeof(tmp_dir));
+        GetTempPathA(sizeof(tmp_dir) - 1, tmp_dir);
+#endif
+
 		// Open a unique temporary file to write the code
 		size_t n = 0;
 		while(fd_in == -1)
@@ -206,6 +215,10 @@ namespace FreeOCL
 				return filename_out;
 			}
 			filename_in = tmpnam(buf);
+#ifdef FREEOCL_OS_WINDOWS
+            filename_in = tmp_dir + filename_in;
+            log << filename_in << std::endl;
+#endif
 			fd_in = open(filename_in.c_str(), O_EXCL | O_CREAT | O_WRONLY, S_IRUSR | S_IWUSR);
 		}
 
@@ -228,7 +241,12 @@ namespace FreeOCL
 				return filename_out;
 			}
 			filename_out = tmpnam(buf);
-			filename_out += b_compile_only ? ".o" : ".so";
+#ifdef FREEOCL_OS_WINDOWS
+            filename_out = tmp_dir + filename_out;
+            filename_out += b_compile_only ? ".obj" : ".dll";
+#else
+            filename_out += b_compile_only ? ".o" : ".so";
+#endif
 			fd_out = open(filename_out.c_str(), O_EXCL | O_CREAT | O_RDONLY, S_IWUSR | S_IRUSR | S_IXUSR);
 		}
 

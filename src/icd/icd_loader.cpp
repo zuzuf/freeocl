@@ -22,6 +22,9 @@
 #include <dlfcn.h>
 #include <cstdlib>
 #include <dirent.h>
+#ifdef FREEOCL_OS_WINDOWS
+#include <windows.h>
+#endif
 
 namespace FreeOCL
 {
@@ -53,6 +56,26 @@ namespace FreeOCL
 
 	icd_loader::icd_loader()
 	{
+#ifdef FREEOCL_OS_WINDOWS
+        HKEY key;
+        RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Khronos\\OpenCL\\Vendors", 0, KEY_QUERY_VALUE | KEY_READ, &key);
+        for(int i = 0 ; true ; ++i)
+        {
+            char valueName[261];
+            memset(valueName, 0, sizeof(valueName));
+            DWORD valueNameSize = sizeof(valueName) - 1;
+            DWORD type;
+            if (RegEnumValueA(key, i, valueName, &valueNameSize, NULL, &type, NULL, NULL) != 0)
+                break;
+            if (type == REG_DWORD)
+            {
+                valueName[valueNameSize] = 0;
+                load(valueName);
+            }
+        }
+
+        RegCloseKey(key);
+#else
 		// Get the list of all *.icd files in /etc/OpenCL/vendors/
 		const std::deque<std::string> &files = list_files("/etc/OpenCL/vendors/", ".icd");
 		// For each file
@@ -68,6 +91,7 @@ namespace FreeOCL
 			load(lib);
 			file.close();
 		}
+#endif
 	}
 
 	icd_loader::~icd_loader()

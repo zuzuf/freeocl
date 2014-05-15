@@ -20,17 +20,30 @@
 
 #define FREEOCL_CXX_COMPILER	"@CMAKE_CXX_COMPILER@"
 
+#if defined (FREEOCL_OS_WINDOWS)
 #define FREEOCL_CXX_FLAGS_COMMON " " \
-		" -shared -fpic -pipe" /* -Wall*/ \
+        " -shared -pipe" /* -Wall*/ \
+        " -I./include" \
+        " -g -O3" \
+        " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
+        " -fno-math-errno -fno-trapping-math" \
+        " -fno-exceptions -fno-rtti" \
+        " -x c++ " \
+        " -Wall -Wextra "\
+        " -Wno-non-pod-varargs"
+#else
+#define FREEOCL_CXX_FLAGS_COMMON " " \
+        " -shared -fpic -pipe" /* -Wall*/ \
 		" -I./include" \
 		" -g -O3" \
 		" -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
 		" -fno-math-errno -fno-trapping-math" \
-		" -rdynamic" \
+        " -rdynamic" \
 		" -fno-exceptions -fno-rtti" \
 		" -x c++ " \
 		" -Wall -Wextra "\
 		" -Wno-non-pod-varargs"
+#endif
 
 #if defined (FREEOCL_ARCH_i386)
 #define FREEOCL_CXX_FLAGS FREEOCL_CXX_FLAGS_COMMON \
