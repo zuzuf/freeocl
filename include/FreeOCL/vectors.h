@@ -723,7 +723,24 @@ template<class W>\
 static inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
 {\
 	return (typename W::type)lhs op (typename W::type)rhs;\
+}\
+template<class U, class V, class W,\
+         int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int iA, int iB, int iC, int iD, int iE, int iF,\
+         int j0, int j1, int j2, int j3, int j4, int j5, int j6, int j7, int j8, int j9, int jA, int jB, int jC, int jD, int jE, int jF>\
+static inline W operator op (const __swizzle_wrapper<U, W, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, iA, iB, iC, iD, iE, iF> &lhs,\
+                             const __swizzle_wrapper<V, W, j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, jA, jB, jC, jD, jE, jF> &rhs)\
+{\
+    return (W)lhs op (W)rhs;\
+}\
+template<class U, class V, class W,\
+         int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int iA, int iB, int iC, int iD, int iE, int iF,\
+         int j0, int j1, int j2, int j3, int j4, int j5, int j6, int j7, int j8, int j9, int jA, int jB, int jC, int jD, int jE, int jF>\
+static inline W operator op (const __swizzle_wrapper_int<U, W, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, iA, iB, iC, iD, iE, iF> &lhs,\
+                             const __swizzle_wrapper_int<V, W, j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, jA, jB, jC, jD, jE, jF> &rhs)\
+{\
+    return (W)lhs op (W)rhs;\
 }
+
 
 #define IMPLEMENT_BINARY_OP_LOGICAL(op)\
 template<class V>\
@@ -748,6 +765,24 @@ template<class W>\
 static inline typename __vector<typename W::type>::type operator op (const W &lhs, const W &rhs)\
 {\
 	return (typename W::type)lhs op (typename W::type)rhs;\
+}\
+template<class U, class V, class W,\
+         int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int iA, int iB, int iC, int iD, int iE, int iF,\
+         int j0, int j1, int j2, int j3, int j4, int j5, int j6, int j7, int j8, int j9, int jA, int jB, int jC, int jD, int jE, int jF>\
+static inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<W>::base_type>::type, __vector<W>::components>::type\
+    operator op (const __swizzle_wrapper<U, W, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, iA, iB, iC, iD, iE, iF> &lhs,\
+                 const __swizzle_wrapper<V, W, j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, jA, jB, jC, jD, jE, jF> &rhs)\
+{\
+    return (W)lhs op (W)rhs;\
+}\
+template<class U, class V, class W,\
+         int i0, int i1, int i2, int i3, int i4, int i5, int i6, int i7, int i8, int i9, int iA, int iB, int iC, int iD, int iE, int iF,\
+         int j0, int j1, int j2, int j3, int j4, int j5, int j6, int j7, int j8, int j9, int jA, int jB, int jC, int jD, int jE, int jF>\
+static inline typename __vector_type<typename __sint_type_of_same_size<typename __vector<W>::base_type>::type, __vector<W>::components>::type\
+    operator op (const __swizzle_wrapper_int<U, W, i0, i1, i2, i3, i4, i5, i6, i7, i8, i9, iA, iB, iC, iD, iE, iF> &lhs,\
+                 const __swizzle_wrapper_int<V, W, j0, j1, j2, j3, j4, j5, j6, j7, j8, j9, jA, jB, jC, jD, jE, jF> &rhs)\
+{\
+    return (W)lhs op (W)rhs;\
 }
 
 IMPLEMENT_BINARY_OP(+)
