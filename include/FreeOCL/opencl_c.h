@@ -151,6 +151,10 @@ typedef double			__double;
 typedef __ulong			__size_t;
 #endif
 
+// MinGW defines these types but they conflict with FreeOCL vectors
+#undef __int8
+#undef __int16
+
 struct half
 {
 	__ushort v;

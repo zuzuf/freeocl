@@ -35,23 +35,21 @@ extern "C" {
 #define DUMMYARGS long dummy0, long dummy1, long dummy2, long dummy3, 
 #endif
 
-#define malloc(x)	_aligned_malloc(x,64)
-
 typedef struct __stack {
-	void *ss_sp;
-	size_t ss_size;
-	int ss_flags;
+    void *ss_sp;
+    size_t ss_size;
+    int ss_flags;
 } stack_t;
 
 typedef CONTEXT mcontext_t;
 typedef unsigned long __sigset_t;
 
 typedef struct __ucontext {
-	unsigned long int	uc_flags;
-	struct __ucontext	*uc_link;
-	stack_t				uc_stack;
-	mcontext_t			uc_mcontext; 
-	__sigset_t			uc_sigmask;
+    unsigned long int	uc_flags;
+    struct __ucontext	*uc_link;
+    stack_t				uc_stack;
+    mcontext_t			uc_mcontext;
+    __sigset_t			uc_sigmask;
 } ucontext_t;
 
 

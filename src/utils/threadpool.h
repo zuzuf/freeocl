@@ -23,6 +23,10 @@
 #include <vector>
 #include <ucontext.h>
 
+#ifndef DUMMYARGS
+#define DUMMYARGS
+#endif
+
 namespace FreeOCL
 {
 	class threadpool
@@ -31,8 +35,9 @@ namespace FreeOCL
 		class worker : public thread
 		{
 		public:
-			worker() : b_working(false), b_stop(false)	{}
-			virtual unsigned long proc();
+            worker() : b_working(false), b_stop(false), stack_data(0), stack_data_size(0)	{}
+            ~worker();
+            virtual size_t proc();
 			void work();
 			void set_thread_pool(threadpool *pool)	{	this->pool = pool;	}
 			bool is_working() const	{	return b_working;	}
@@ -44,7 +49,8 @@ namespace FreeOCL
 			volatile bool b_working;
 			volatile bool b_stop;
 			std::vector<ucontext_t> fibers;
-			std::vector<char> stack_data;
+            void *stack_data;
+            size_t stack_data_size;
 		};
 
 		friend class worker;
@@ -59,14 +65,14 @@ namespace FreeOCL
 		void set_local_size(const size_t *local_size);
 		void set_thread_num(const size_t nb_threads);
 
-		void run(void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *), void (*kernel)(const int));
+        void run(void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *), void (*kernel)(DUMMYARGS const int));
 
 		void set_require_sync(bool b_require_sync);
 	private:
 		inline unsigned int get_next_workgroup();
 
 	private:
-		void (*kernel)(const int);
+        void (*kernel)(DUMMYARGS const int);
 		void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *);
 		size_t num_groups[3];
 		size_t local_size[3];

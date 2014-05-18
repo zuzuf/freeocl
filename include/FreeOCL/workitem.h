@@ -18,7 +18,11 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_WORKITEM_H__
 #include "FreeOCL/config.h"
+#ifdef __WIN32
+#include "ucontext_inline.h"
+#else
 #include <ucontext.h>
+#endif
 
 namespace FreeOCL
 {

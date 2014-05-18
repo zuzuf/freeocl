@@ -117,7 +117,16 @@ static inline __float frexp(__float x, __int *exp)	{	return frexpf(x, exp);	}
 static inline __float hypot(__float x, __float y)	{	return hypotf(x, y);	}
 static inline __float ldexp(__float x, __int n)	{	return ldexpf(x, n);	}
 static inline __float lgamma(__float x)	{	return lgammaf(x);	}
-static inline __float lgamma_r(__float x, __int *signp)	{	return lgammaf_r(x, signp);	}
+static inline __float lgamma_r(__float x, __int *signp)
+{
+#if defined(_BSD_SOURCE) || defined(_SVID_SOURCE)
+    return lgammaf_r(x, signp);
+#else
+    const float g = tgammaf(x);
+    *signp = g >= 0.f ? 1 : -1;
+    return logf(g);
+#endif
+}
 static inline __float log(__float x)	{	return logf(x);	}
 static inline __float log2(__float x)	{	return log2f(x);	}
 static inline __float log10(__float x)	{	return log10f(x);	}

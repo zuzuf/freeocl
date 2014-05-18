@@ -219,7 +219,7 @@ private:
 	{
 	public:
 		thread(cl_command_queue command_queue) : command_queue(command_queue)	{}
-		virtual unsigned long proc();
+        virtual size_t proc();
 
 	private:
 		cl_command_queue command_queue;
@@ -237,7 +237,7 @@ public:
 	void enqueue(const FreeOCL::smartptr<FreeOCL::command> &cmd);
 
 private:
-	unsigned long proc();
+    size_t proc();
 };
 
 #endif

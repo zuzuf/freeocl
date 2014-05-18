@@ -377,7 +377,7 @@ namespace FreeOCL
 		const size_t timer = usec_timer();
 		p.set_debug_mode(b_debug_mode);
 		p.parse();
-		std::clog << usec_timer() - timer << "µs" << std::endl;
+        std::clog << (usec_timer() - timer) * 1000LU << "ns" << std::endl;
 		if (p.errors())
 			return std::string();
 
@@ -545,7 +545,11 @@ namespace FreeOCL
 				<< "}" << std::endl
 				<< std::endl;
 
+#ifdef FREEOCL_OS_WINDOWS
+            gen << "extern \"C\" void __FCL_kernel_" << i->first << "(DUMMYARGS const int thread_id)" << std::endl;
+#else
 			gen << "extern \"C\" void __FCL_kernel_" << i->first << "(const int thread_id)" << std::endl;
+#endif
 			gen	<< "{" << std::endl;
 			int last_shift = -1;
 			std::stringstream _cat;

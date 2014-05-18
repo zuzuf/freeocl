@@ -29,7 +29,7 @@ int getcontext(ucontext_t *ucp)
 	int ret;
 
 	/* Retrieve the full machine context */
-	ucp->uc_mcontext.ContextFlags = CONTEXT_FULL;
+    ucp->uc_mcontext.ContextFlags = CONTEXT_FULL;
 	ret = GetThreadContext(GetCurrentThread(), &ucp->uc_mcontext);
 
 	return (ret == 0) ? -1: 0;

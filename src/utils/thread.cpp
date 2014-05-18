@@ -45,7 +45,7 @@ namespace FreeOCL
 	void *thread::exec(void *p)
 	{
 		thread *t = static_cast<thread*>(p);
-		const unsigned long r = t->proc();
+        const size_t r = t->proc();
 		t->lock();
 		t->b_running = false;
 		t->unlock();

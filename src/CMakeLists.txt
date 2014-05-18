@@ -121,6 +121,7 @@ set(FREEOCL_HEADERS
 	../include/FreeOCL/workitem.h
 	../include/FreeOCL/simdopts.h
 	../include/FreeOCL/printf.h
+    ../include/FreeOCL/ucontext_inline.h
 	)
 
 add_library(FreeOCL SHARED ${SOURCES} ${PARSER_SOURCES} ${UTILS_SOURCES} ${FREEOCL_HEADERS} ${PREPROCESSOR_SOURCES} ${EXTRA_SOURCES})

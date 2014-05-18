@@ -30,7 +30,7 @@ namespace FreeOCL
 		thread();
 		~thread();
 
-		virtual unsigned long proc() = 0;
+        virtual size_t proc() = 0;
 
 		void start();
 		void kill();

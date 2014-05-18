@@ -297,7 +297,7 @@ bool is_command_ready_to_process(const FreeOCL::smartptr<FreeOCL::command> &cmd)
 	return b_ready;
 }
 
-unsigned long _cl_command_queue::proc()
+size_t _cl_command_queue::proc()
 {
 	while(!b_stop)
 	{
@@ -483,10 +483,10 @@ unsigned long _cl_command_queue::proc()
 											   ptr->global_size[1] / ptr->local_size[1],
 											   ptr->global_size[2] / ptr->local_size[2] };
 				device->pool->set_num_groups(num_groups);
-				device->pool->run(ptr->kernel->__FCL_setwg, ptr->kernel->__FCL_kernel);
-				if (ptr->args)
+                device->pool->run(ptr->kernel->__FCL_setwg, ptr->kernel->__FCL_kernel);
+                if (ptr->args)
 					free(ptr->args);
-			}
+            }
 			break;
 		case CL_COMMAND_FILL_BUFFER:
 			{
@@ -573,7 +573,7 @@ unsigned long _cl_command_queue::proc()
 	return 0;
 }
 
-unsigned long _cl_command_queue::thread::proc()
+size_t _cl_command_queue::thread::proc()
 {
 	return command_queue->proc();
 }

@@ -186,7 +186,7 @@ static inline __long __atomic_add_local(volatile __long *p, __long val)	{	const 
 static inline __ulong __atomic_add_local(volatile __ulong *p, __ulong val)	{	const __ulong v = *p;	*p += val;	return v;	}
 
 static inline __long atomic_sub(volatile __long *p, __long val)	{	return __sync_fetch_and_sub(p, val);	}
-static inline ulong atomic_sub(volatile __ulong *p, __ulong val)	{	return __sync_fetch_and_sub(p, val);	}
+static inline __ulong atomic_sub(volatile __ulong *p, __ulong val)	{	return __sync_fetch_and_sub(p, val);	}
 static inline __long __atomic_sub_local(volatile __long *p, __long val)	{	const __long v = *p;	*p -= val;	return v;	}
 static inline __ulong __atomic_sub_local(volatile __ulong *p, __ulong val)	{	const __ulong v = *p;	*p -= val;	return v;	}
 

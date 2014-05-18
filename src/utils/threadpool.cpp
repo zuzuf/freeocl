@@ -79,7 +79,7 @@ namespace FreeOCL
 		}
 	}
 
-	void threadpool::run(void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *), void (*kernel)(const int))
+    void threadpool::run(void (*setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *), void (*kernel)(DUMMYARGS const int))
 	{
 		this->setwg = setwg;
 		this->kernel = kernel;
@@ -91,10 +91,20 @@ namespace FreeOCL
 			pool[i].start();
 		}
 		pool.front().work();
-		wait_for_all();
-	}
+        wait_for_all();
+    }
 
-	unsigned long threadpool::worker::proc()
+    threadpool::worker::~worker()
+    {
+        if (stack_data)
+#ifdef FREEOCL_OS_WINDOWS
+            _aligned_free(stack_data);
+#else
+            free(stack_data);
+#endif
+    }
+
+    size_t threadpool::worker::proc()
 	{
 		while(!b_stop)
 		{
@@ -103,15 +113,15 @@ namespace FreeOCL
 			{
 				if (ms_timer() - start > 1000)
 					return 0;
-				sched_yield();
-			}
+                sched_yield();
+            }
 			if (b_stop)
 			{
 				b_working = false;
 				return 0;
 			}
-			work();
-			b_working = false;
+            work();
+            b_working = false;
 		}
 		return 0;
 	}
@@ -131,31 +141,49 @@ namespace FreeOCL
 		const size_t g_size = pool->num_groups[0] * pool->num_groups[1] * pool->num_groups[2];
 		char local_memory[0x8000];
 		if (!pool->b_require_sync || l_size == 1)
-		{
-			for(size_t gid = pool->get_next_workgroup() ; gid < g_size ; gid = pool->get_next_workgroup())
+        {
+            for(size_t gid = pool->get_next_workgroup() ; gid < g_size ; gid = pool->get_next_workgroup())
 			{
-				const size_t group_id[3] = { gid % pool->num_groups[0],
+                const size_t group_id[3] = { gid % pool->num_groups[0],
 											 (gid / pool->num_groups[0]) % pool->num_groups[1],
 											 gid / pool->num_groups[0] / pool->num_groups[1] };
 				pool->setwg(local_memory, group_id, NULL, NULL);
-				if (pool->b_require_sync)
+#ifdef FREEOCL_OS_WINDOWS
+                if (pool->b_require_sync)
+                    pool->kernel(0,0,0,0,0);
+                else
+                    pool->kernel(0,0,0,0,l_size);
+#else
+                if (pool->b_require_sync)
 					pool->kernel(0);
 				else
 					pool->kernel(l_size);
-			}
-		}
+#endif
+            }
+        }
 		else
 		{
 			const size_t STACK_SIZE = 0x8000;
 			if (l_size > fibers.size())
 			{
 				fibers.resize(l_size);
-				stack_data.resize(STACK_SIZE * l_size);
+                if (stack_data_size < STACK_SIZE * l_size)
+                {
+                    if (stack_data)
+#ifdef FREEOCL_OS_WINDOWS
+                        _aligned_free(stack_data);
+                    stack_data = _aligned_malloc(STACK_SIZE * l_size, 64);
+#else
+                        free(stack_data);
+                    stack_data = malloc(STACK_SIZE * l_size);
+#endif
+                    stack_data_size = STACK_SIZE * l_size;
+                }
 				for(size_t i = 0 ; i < l_size ; ++i)
 				{
 					ucontext_t *t = &(fibers[i]);
 					getcontext(t);
-					t->uc_stack.ss_sp = stack_data.data() + STACK_SIZE * i;
+                    t->uc_stack.ss_sp = (char*)stack_data + STACK_SIZE * i;
 					t->uc_stack.ss_size = STACK_SIZE;
 					t->uc_stack.ss_flags = 0;
 				}
@@ -174,13 +202,13 @@ namespace FreeOCL
 				pool->setwg(local_memory, group_id, &scheduler, fibers.data());
 				for(size_t i = 0 ; i < l_size ; ++i)
 				{
-					ucontext_t *t = &(fibers[i]);
-					makecontext(t, (void(*)())pool->kernel, 1, int(i));
+                    ucontext_t *t = &(fibers[i]);
+                    makecontext(t, (void(*)())pool->kernel, 1, int(i));
 				}
 				swapcontext(&scheduler, &(fibers[0]));
 			}
 		}
-	}
+    }
 
 	void threadpool::set_require_sync(bool b_require_sync)
 	{

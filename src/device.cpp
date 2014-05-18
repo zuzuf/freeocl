@@ -24,6 +24,9 @@
 #include <CL/cl_ext.h>
 #include <unistd.h>
 #include <utils/threadpool.h>
+#ifdef FREEOCL_OS_WINDOWS
+#include <windows.h>
+#endif
 
 #define SEP " "
 
