@@ -74,5 +74,6 @@
 #define FREEOCL_VENDOR "@FREEOCL_VENDOR@"
 
 #cmakedefine FREEOCL_RUN_GDB_ON_CRASH
+#cmakedefine FREEOCL_ALWAYS_LOAD_FREEOCL
 
 #endif

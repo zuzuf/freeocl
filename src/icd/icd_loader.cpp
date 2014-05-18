@@ -56,6 +56,9 @@ namespace FreeOCL
 
 	icd_loader::icd_loader()
 	{
+#ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
+        bool b_FreeOCL_loaded = false;
+#endif
 #ifdef FREEOCL_OS_WINDOWS
         HKEY key;
         RegOpenKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Khronos\\OpenCL\\Vendors", 0, KEY_QUERY_VALUE | KEY_READ, &key);
@@ -65,16 +68,27 @@ namespace FreeOCL
             memset(valueName, 0, sizeof(valueName));
             DWORD valueNameSize = sizeof(valueName) - 1;
             DWORD type;
-            if (RegEnumValueA(key, i, valueName, &valueNameSize, NULL, &type, NULL, NULL) != 0)
+            DWORD data;
+            DWORD data_size = sizeof(data);
+            if (RegEnumValueA(key, i, valueName, &valueNameSize, NULL, &type, (LPBYTE)&data, &data_size) != 0)
                 break;
-            if (type == REG_DWORD)
+            if (type == REG_DWORD && data == 0)
             {
                 valueName[valueNameSize] = 0;
                 load(valueName);
+#ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
+                b_FreeOCL_loaded |= std::string(valueName).find_first_of("libFreeOCL.dll") != std::string::npos;
+#endif
             }
         }
 
         RegCloseKey(key);
+
+#ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
+        if (!b_FreeOCL_loaded)
+            load("libFreeOCL.dll");
+#endif
+
 #else
 		// Get the list of all *.icd files in /etc/OpenCL/vendors/
 		const std::deque<std::string> &files = list_files("/etc/OpenCL/vendors/", ".icd");
@@ -90,7 +104,15 @@ namespace FreeOCL
 			// And load it
 			load(lib);
 			file.close();
-		}
+#ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
+            b_FreeOCL_loaded |= lib.find_first_of("libFreeOCL.so") != std::string::npos;
+#endif
+        }
+#ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
+        if (!b_FreeOCL_loaded)
+            load("libFreeOCL.so");
+#endif
+
 #endif
 	}
 

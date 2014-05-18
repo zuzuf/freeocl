@@ -67,6 +67,7 @@ else(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 endif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 
 option(FREEOCL_RUN_GDB_ON_CRASH "run gdb on crash")
+option(FREEOCL_ALWAYS_LOAD_FREEOCL "always try to load FreeOCL even though it's not registered on the system" OFF)
 configure_file(config.h.cmake ${FreeOCL_SOURCE_DIR}/include/FreeOCL/config.h)
 
 include_directories(.)
