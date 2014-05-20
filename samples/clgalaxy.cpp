@@ -169,7 +169,7 @@ private:
     const cl::NDRange local;
 };
 
-int main(int argc, const char **argv)
+int main(int argc, char *argv[])
 {
 	int platform_id = -1;
 	for(int i = 0 ; i < argc ; ++i)

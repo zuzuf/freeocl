@@ -77,7 +77,7 @@ namespace FreeOCL
                 valueName[valueNameSize] = 0;
                 load(valueName);
 #ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
-                b_FreeOCL_loaded |= std::string(valueName).find_first_of("libFreeOCL.dll") != std::string::npos;
+                b_FreeOCL_loaded |= (std::string(valueName).find("libFreeOCL.dll") != std::string::npos);
 #endif
             }
         }
@@ -105,7 +105,7 @@ namespace FreeOCL
 			load(lib);
 			file.close();
 #ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
-            b_FreeOCL_loaded |= lib.find_first_of("libFreeOCL.so") != std::string::npos;
+            b_FreeOCL_loaded |= (lib.find("libFreeOCL.so") != std::string::npos);
 #endif
         }
 #ifdef FREEOCL_ALWAYS_LOAD_FREEOCL
