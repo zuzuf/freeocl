@@ -49,7 +49,8 @@ namespace FreeOCL
 			out << *ptr << '[' << *idx << ']';
 		else
 		{
-			array_type *atype = ptr->get_type().as<array_type>();
+			const smartptr<type> &_type = ptr->get_type();
+			const array_type *atype = _type.as<array_type>();
 			if (!atype)
 				out << *ptr << '[' << *idx << ']';
 			else

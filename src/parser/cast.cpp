@@ -63,7 +63,8 @@ namespace FreeOCL
 			const binary *bin = dynamic_cast<const binary*>(cur);
 			while(bin && bin->get_op() == ',')
 			{
-				const native_type *t = bin->get_right()->get_type().as<native_type>();
+				const smartptr<type> &_type = bin->get_right()->get_type();
+				const native_type *t = _type.as<native_type>();
 				if (!t)
 					return false;
 				acc_dim += t->get_dim();
@@ -72,7 +73,8 @@ namespace FreeOCL
 			}
 			if (!cur)
 				return false;
-			const native_type *t = cur->get_type().as<native_type>();
+			const smartptr<type> &_type = cur->get_type();
+			const native_type *t = _type.as<native_type>();
 			if (!t)
 				return false;
 			acc_dim += t->get_dim();
