@@ -22,6 +22,6 @@ endif(NOT CMAKE_HOST_APPLE)
 
 # Installation and packaging process
 if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
-	install(TARGETS OpenCL LIBRARY DESTINATION lib)
+	install(TARGETS OpenCL LIBRARY DESTINATION lib${LIB_SUFFIX})
 endif(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
 

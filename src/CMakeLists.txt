@@ -129,7 +129,7 @@ target_link_libraries(FreeOCL)
 
 # Installation and packaging process
 if(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
-	install(TARGETS FreeOCL LIBRARY DESTINATION lib)
+	install(TARGETS FreeOCL LIBRARY DESTINATION lib${LIB_SUFFIX})
 endif(NOT (CMAKE_SYSTEM_NAME STREQUAL "Windows"))
 
 add_subdirectory(icd)
