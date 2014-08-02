@@ -190,25 +190,66 @@ namespace FreeOCL
 		ret.reserve(s.size());
 		std::string word;
 		map<std::string, std::string> mapping;
+		bool stringify = false, concat = false;
 		for(size_t i = 0 ; i < names.size() ; ++i)
 			mapping[names[i]] = values[i];
 
 		for(size_t i = 0 ; i < s.size() ; ++i)
 		{
-			if (isalpha(s[i]) || s[i] == '_')
+			if(s[i] == '#')
+			{
+				if (!stringify)
+					stringify = true;
+				else
+				{
+					concat = true;
+					stringify = false;
+				}
+				
+			}
+			else if (isalpha(s[i]) || s[i] == '_')
 			{
 				word.clear();
 				for(; i < s.size() && (isalnum(s[i]) || s[i] == '_') ; ++i)
 					word += s[i];
 				--i;
 				map<std::string, std::string>::const_iterator it = mapping.find(word);
+				if (concat)
+				{
+					int c = ret.back();
+					while(isspace(c))
+					{
+						ret.pop_back();
+						c = ret.back();
+					}
+					concat = false;
+				}
 				if (it != mapping.end())
-					ret += it->second;
+				{
+					if (stringify)
+					{
+						ret += '"' + it->second + '"';
+						stringify = false;
+					}
+					else
+						ret += it->second;
+				}
 				else
-					ret += word;
+				{
+					if (stringify)
+					{
+						ret += '#' + word;
+						stringify = false;
+					}
+					else
+						ret += word;
+				}
 			}
 			else
+			{
 				ret += s[i];
+				stringify = false;
+			}
 		}
 		return ret;
 	}
