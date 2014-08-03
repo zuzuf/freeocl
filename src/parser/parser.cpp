@@ -158,7 +158,6 @@ namespace FreeOCL
 		BEGIN(2);
 		const bool b_qualifier = __function_qualifier();
 		smartptr<qualifier> qualifiers = d_val__.as<qualifier>();
-		const bool b_attribute_qualifier = __attribute_qualifier();
 		MATCH2(declaration_specifiers, declarator)
 		{
 			smartptr<type> p_type = N[0];
@@ -651,6 +650,14 @@ namespace FreeOCL
 					ERROR("inline keyword duplicated");
 				q->set<qualifier::INLINE>();
 				read_token();
+				break;
+			case __ATTRIBUTE__:
+				if (__attribute_qualifier())
+				{
+					//! \todo implement __attribute__ qualifier semantics
+				}
+				else
+					read_token();
 				break;
 			default:
 				d_val__ = q;
