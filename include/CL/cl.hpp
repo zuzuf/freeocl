@@ -1037,7 +1037,12 @@ namespace detail {
 #endif // !_WIN32
     }
 
-    inline void fence() { _mm_mfence(); }
+    inline void fence()
+    {
+#ifdef __SSE2__
+        _mm_mfence();
+#endif
+    }
 }; // namespace detail
 
     

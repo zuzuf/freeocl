@@ -23,6 +23,7 @@
 #if defined (FREEOCL_OS_WINDOWS)
 #define FREEOCL_CXX_FLAGS_COMMON " " \
         " -shared -pipe" /* -Wall*/ \
+        " -static-libgcc -static-libstdc++" \
         " -I./include" \
         " -g -O3" \
         " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
@@ -34,15 +35,16 @@
 #else
 #define FREEOCL_CXX_FLAGS_COMMON " " \
         " -shared -fpic -pipe" /* -Wall*/ \
-		" -I./include" \
-		" -g -O3" \
-		" -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
-		" -fno-math-errno -fno-trapping-math" \
+        " -static-libgcc -static-libstdc++" \
+        " -I./include" \
+        " -g -O3" \
+        " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
+        " -fno-math-errno -fno-trapping-math" \
         " -rdynamic" \
-		" -fno-exceptions -fno-rtti" \
-		" -x c++ " \
-		" -Wall -Wextra "\
-		" -Wno-non-pod-varargs"
+        " -fno-exceptions -fno-rtti" \
+        " -x c++ " \
+        " -Wall -Wextra "\
+        " -Wno-non-pod-varargs"
 #endif
 
 #if defined (FREEOCL_ARCH_i386)
