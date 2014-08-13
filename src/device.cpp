@@ -175,22 +175,21 @@ extern "C"
 			|| (devices == NULL && num_devices == NULL))
 			return CL_INVALID_VALUE;
 
-		switch(device_type)
+		if (device_type & (CL_DEVICE_TYPE_CPU | CL_DEVICE_TYPE_DEFAULT))
 		{
-		case CL_DEVICE_TYPE_DEFAULT:
-		case CL_DEVICE_TYPE_CPU:
-		case CL_DEVICE_TYPE_ALL:
 			if (num_devices != NULL)
 				*num_devices = 1;
 			if (devices != NULL)
 				devices[0] = FreeOCL::device;
-			break;
-		case CL_DEVICE_TYPE_GPU:
-		case CL_DEVICE_TYPE_ACCELERATOR:
+		}
+		else if (device_type & (CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR | CL_DEVICE_TYPE_CUSTOM))
+		{
 			if (num_devices != NULL)
 				*num_devices = 0;
 			return CL_DEVICE_NOT_FOUND;
-		default:
+		}
+		else
+		{
 			return CL_INVALID_DEVICE_TYPE;
 		}
 

@@ -143,19 +143,6 @@ extern "C"
 			}
 		}
 
-		switch(device_type)
-		{
-		case CL_DEVICE_TYPE_CPU:
-		case CL_DEVICE_TYPE_ALL:
-		case CL_DEVICE_TYPE_DEFAULT:
-		case CL_DEVICE_TYPE_GPU:
-		case CL_DEVICE_TYPE_ACCELERATOR:
-			break;
-		default:
-			SET_RET(CL_INVALID_DEVICE_TYPE);
-			return 0;
-		}
-
 		if (platform == 0)		// No hint ? Ok, try them all
 		{
 			const std::vector<cl_platform_id> &platforms = FreeOCL::icd_loader_instance.get_platforms();

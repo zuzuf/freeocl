@@ -145,21 +145,18 @@ extern "C"
 			}
 		}
 
-		switch(device_type)
+		if (device_type & (CL_DEVICE_TYPE_CPU | CL_DEVICE_TYPE_DEFAULT));
+		else if (device_type & (CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR | CL_DEVICE_TYPE_CUSTOM))
 		{
-		case CL_DEVICE_TYPE_CPU:
-		case CL_DEVICE_TYPE_ALL:
-		case CL_DEVICE_TYPE_DEFAULT:
-			break;
-		case CL_DEVICE_TYPE_GPU:
-		case CL_DEVICE_TYPE_ACCELERATOR:
-			break;
 			SET_RET(CL_DEVICE_NOT_AVAILABLE);
 			return 0;
-		default:
+		}
+		else
+		{
 			SET_RET(CL_INVALID_DEVICE_TYPE);
 			return 0;
 		}
+
 		return clCreateContextFCL(properties, 1, &FreeOCL::device, pfn_notify, user_data, errcode_ret);
 	}
 
