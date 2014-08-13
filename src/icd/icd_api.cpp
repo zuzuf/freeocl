@@ -118,6 +118,11 @@ extern "C"
 										 cl_int *errcode_ret)
 	{
 		MSG(clCreateContextFromType);
+		if (pfn_notify == NULL && user_data != NULL)
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
 		cl_platform_id platform = 0;
 		if (!properties)
 		{
