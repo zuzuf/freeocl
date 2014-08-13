@@ -20,23 +20,29 @@
 
 #define FREEOCL_CXX_COMPILER	"@CMAKE_CXX_COMPILER@"
 
+#cmakedefine CMAKE_INSTALL_PREFIX
+#define FREEOCL_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@"
+#if defined(CMAKE_INSTALL_PREFIX)
+#define FREEOCL_CXX_FLAGS_INCLUDES " -I" FREEOCL_INSTALL_PREFIX "/include"
+#else
+#define FREEOCL_CXX_FLAGS_INCLUDES
+#endif
+
 #if defined (FREEOCL_OS_WINDOWS)
 #define FREEOCL_CXX_FLAGS_COMMON " " \
         " -shared -pipe" /* -Wall*/ \
         " -static-libgcc -static-libstdc++" \
-        " -I./include" \
         " -g -O3" \
         " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
         " -fno-math-errno -fno-trapping-math" \
         " -fno-exceptions -fno-rtti" \
         " -x c++ " \
         " -Wall -Wextra "\
-        " -Wno-non-pod-varargs"
+        " -Wno-non-pod-varargs" FREEOCL_CXX_FLAGS_INCLUDES
 #else
 #define FREEOCL_CXX_FLAGS_COMMON " " \
         " -shared -fpic -pipe" /* -Wall*/ \
         " -static-libgcc -static-libstdc++" \
-        " -I./include" \
         " -g -O3" \
         " -fomit-frame-pointer -ftree-vectorize -funroll-loops" \
         " -fno-math-errno -fno-trapping-math" \
@@ -44,7 +50,7 @@
         " -fno-exceptions -fno-rtti" \
         " -x c++ " \
         " -Wall -Wextra "\
-        " -Wno-non-pod-varargs"
+        " -Wno-non-pod-varargs" FREEOCL_CXX_FLAGS_INCLUDES
 #endif
 
 #if defined (FREEOCL_ARCH_i386)
