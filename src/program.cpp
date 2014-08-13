@@ -234,6 +234,8 @@ extern "C"
 		MSG(clBuildProgramFCL);
 		if (device_list == NULL && num_devices > 0)
 			return CL_INVALID_VALUE;
+		if (device_list != NULL && num_devices == 0)
+			return CL_INVALID_VALUE;
 		if (pfn_notify == NULL && user_data != NULL)
 			return CL_INVALID_VALUE;
 
