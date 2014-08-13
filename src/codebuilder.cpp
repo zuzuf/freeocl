@@ -170,6 +170,12 @@ namespace FreeOCL
 			}
 			else if (word.size() > 8 && word.substr(0, 8) == "-cl-std=")
 			{
+				std::string version = word.substr(8);
+				if (version != "CL1.1" && version != "CL1.2")
+				{
+					b_valid_options = false;
+					return std::string();
+				}
 			}
 			else
 			{
