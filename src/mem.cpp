@@ -662,14 +662,14 @@ extern "C"
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(dst_buffer);
 
-		if (src_buffer->size < src_origin[0] + region[0]
-							+ (src_origin[1] + region[1]) * src_row_pitch
-							+ (src_origin[2] + region[2]) * src_slice_pitch)
+		if (src_buffer->size < src_origin[0] + (region[0]-1)
+		    + (src_origin[1] + (region[1]-1)) * src_row_pitch
+		    + (src_origin[2] + (region[2]-1)) * src_slice_pitch)
 			return CL_INVALID_VALUE;
 
-		if (dst_buffer->size < dst_origin[0] + region[0]
-							+ (dst_origin[1] + region[1]) * dst_row_pitch
-							+ (dst_origin[2] + region[2]) * dst_slice_pitch)
+		if (dst_buffer->size < dst_origin[0] + (region[0]-1)
+		    + (dst_origin[1] + (region[1]-1)) * dst_row_pitch
+		    + (dst_origin[2] + (region[2]-1)) * dst_slice_pitch)
 			return CL_INVALID_VALUE;
 
 		if (dst_buffer == src_buffer
