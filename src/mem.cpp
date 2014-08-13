@@ -310,6 +310,19 @@ extern "C"
 		if (buffer->size < offset + cb)
 			return CL_INVALID_VALUE;
 
+		if (event_wait_list == NULL && num_events_in_wait_list > 0)
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		if (event_wait_list != NULL && num_events_in_wait_list == 0)
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+		{
+			if (!FreeOCL::is_valid(event_wait_list[i]))
+				return CL_INVALID_EVENT_WAIT_LIST;
+			unlock.handle(event_wait_list[i]);
+		}
+
 		if (blocking_read == CL_TRUE)
 		{
 			for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
@@ -387,6 +400,19 @@ extern "C"
 
 		if (buffer->size < offset + cb)
 			return CL_INVALID_VALUE;
+
+		if (event_wait_list == NULL && num_events_in_wait_list > 0)
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		if (event_wait_list != NULL && num_events_in_wait_list == 0)
+			return CL_INVALID_EVENT_WAIT_LIST;
+
+		for(size_t i = 0 ; i < num_events_in_wait_list ; ++i)
+		{
+			if (!FreeOCL::is_valid(event_wait_list[i]))
+				return CL_INVALID_EVENT_WAIT_LIST;
+			unlock.handle(event_wait_list[i]);
+		}
 
 		if (blocking_write == CL_TRUE)
 		{
