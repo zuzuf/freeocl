@@ -390,6 +390,8 @@ extern "C"
 			}
 			break;
 		case CL_PROGRAM_BINARIES:
+			if (param_value == NULL)
+				break;
 			for(size_t i = 0 ; i < program->devices.size() ; ++i)
 			{
 				char *ptr = ((char**)param_value)[i];
