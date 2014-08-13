@@ -56,6 +56,20 @@ extern "C"
 			return 0;
 		}
 
+		if (((flags & CL_MEM_READ_WRITE) && (flags & (CL_MEM_WRITE_ONLY | CL_MEM_READ_ONLY)))
+		    || ((flags & CL_MEM_WRITE_ONLY) && (flags & CL_MEM_READ_ONLY)))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+
+		if (((flags & CL_MEM_HOST_NO_ACCESS) && (flags & (CL_MEM_HOST_READ_ONLY | CL_MEM_WRITE_ONLY)))
+			|| ((flags & CL_MEM_HOST_READ_ONLY) && (flags & CL_MEM_HOST_WRITE_ONLY)))
+		{
+			SET_RET(CL_INVALID_VALUE);
+			return 0;
+		}
+
 		FreeOCL::unlocker unlock;
 		if (!FreeOCL::is_valid(context))
 		{
