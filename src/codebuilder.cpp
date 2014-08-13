@@ -382,9 +382,8 @@ namespace FreeOCL
 			return std::string();
 
 		std::stringstream gen;
-		if (!p.get_ast())
-			return std::string();
-		p.get_ast()->write(gen);
+		if (p.get_ast())
+			p.get_ast()->write(gen);
 
 		gen << std::endl;
 		for(FreeOCL::map<std::string, smartptr<kernel> >::const_iterator i = p.get_kernels().begin(), end = p.get_kernels().end() ; i != end ; ++i)
