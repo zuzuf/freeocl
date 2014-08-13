@@ -355,6 +355,23 @@ namespace FreeOCL
 		preproc.define("M_SQRT2", "1.41421356237309504880");
 		preproc.define("M_SQRT1_2", "0.70710678118654752440");
 
+		//Integer defines
+		preproc.define("CHAR_BIT", "8");
+		preproc.define("CHAR_MAX", "SCHAR_MAX");
+		preproc.define("CHAR_MIN", "SCHAR_MIN");
+		preproc.define("INT_MAX", "2147483647");
+		preproc.define("INT_MIN", "(-2147483647 - 1)");
+		preproc.define("LONG_MAX", "0x7fffffffffffffffL");
+		preproc.define("LONG_MIN", "(-0x7fffffffffffffffL - 1)");
+		preproc.define("SCHAR_MAX", "127");
+		preproc.define("SCHAR_MIN", "(-127 - 1)");
+		preproc.define("SHRT_MAX", "32767");
+		preproc.define("SHRT_MIN", "(-32767 - 1)");
+		preproc.define("UCHAR_MAX", "255");
+		preproc.define("USHRT_MAX", "65535");
+		preproc.define("UINT_MAX", "0xffffffff");
+		preproc.define("ULONG_MAX", "0xffffffffffffffffUL");
+
 		std::stringstream _code(preprocessor::fix_end_of_lines(code));
 		try
 		{
