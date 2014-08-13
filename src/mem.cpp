@@ -300,6 +300,13 @@ extern "C"
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(buffer);
 
+		if (!FreeOCL::is_valid(buffer->context))
+			return CL_INVALID_CONTEXT;
+		buffer->context->unlock();
+
+		if (buffer->context != command_queue->context)
+			return CL_INVALID_CONTEXT;
+
 		if (buffer->size < offset + cb)
 			return CL_INVALID_VALUE;
 
@@ -370,6 +377,13 @@ extern "C"
 		if (!FreeOCL::is_valid(buffer))
 			return CL_INVALID_MEM_OBJECT;
 		unlock.handle(buffer);
+
+		if (!FreeOCL::is_valid(buffer->context))
+			return CL_INVALID_CONTEXT;
+		buffer->context->unlock();
+
+		if (buffer->context != command_queue->context)
+			return CL_INVALID_CONTEXT;
 
 		if (buffer->size < offset + cb)
 			return CL_INVALID_VALUE;
