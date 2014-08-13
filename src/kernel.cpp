@@ -342,8 +342,10 @@ extern "C"
 			}
 			break;
 		case CL_KERNEL_ARG_ADDRESS_LOCAL:
-			if (arg_value != NULL || arg_size == 0)
+			if (arg_value != NULL)
 				return CL_INVALID_ARG_VALUE;
+			if (arg_size == 0)
+				return CL_INVALID_ARG_SIZE;
 			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
 			break;
 		case CL_UNORM_INT_101010:
@@ -539,6 +541,8 @@ extern "C"
 		default:
 			if (kernel->args_size[arg_index] != arg_size)
 				return CL_INVALID_ARG_SIZE;
+			if (arg_value == NULL)
+				return CL_INVALID_ARG_VALUE;
 			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), arg_value, arg_size);
 		}
 
