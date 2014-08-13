@@ -894,7 +894,7 @@ IMPLEMENT_BINARY_OP_LOGICAL(||)
 #undef IMPLEMENT_BINARY_OP
 #undef IMPLEMENT_BINARY_OP_LOGICAL
 
-// Unary + and -
+// Unary + and - and ~ and !
 #define IMPLEMENT_UNARY_OP(op)\
 template<class V>\
 static inline typename __vector<V>::type operator op (const V &lhs)\
@@ -907,6 +907,8 @@ static inline typename __vector<V>::type operator op (const V &lhs)\
 
 IMPLEMENT_UNARY_OP(-)
 IMPLEMENT_UNARY_OP(+)
+IMPLEMENT_UNARY_OP(~)
+IMPLEMENT_UNARY_OP(!)
 
 #undef IMPLEMENT_UNARY_OP
 
