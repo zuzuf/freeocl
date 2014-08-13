@@ -94,7 +94,7 @@ namespace FreeOCL
 				coptions >> word;
 				const size_t eq = word.find('=');
 				if (eq == std::string::npos)
-					macros.push_back(std::make_pair(word, std::string()));
+					macros.push_back(std::make_pair(word, "1"));
 				else
 					macros.push_back(std::make_pair(word.substr(0, eq), word.substr(eq + 1)));
 			}
