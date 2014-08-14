@@ -49,6 +49,12 @@ namespace FreeOCL
 
 	void parser::warning(const std::string &msg)
 	{
+		if (b_warnings_as_errors)
+		{
+			error(msg);
+			throw msg;
+			return;
+		}
 		const std::string old_line = current_line;
 		const size_t pos = current_line.size();
 		std::deque<char> chars;

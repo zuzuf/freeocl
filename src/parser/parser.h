@@ -78,7 +78,7 @@ namespace FreeOCL
 		};
 
 	public:
-		parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), b_errors(false), b_debug_mode(false)	{}
+		parser(std::istream &in, std::ostream &err) : in(in), err(err), line(0), b_errors(false), b_debug_mode(false), b_warnings_as_errors(false)	{}
 
 		int parse();
 		inline bool errors() const {	return b_errors; }
@@ -86,6 +86,7 @@ namespace FreeOCL
 		const FreeOCL::map<std::string, smartptr<kernel> >	&get_kernels() const	{	return kernels;	}
 
 		void set_debug_mode(bool b_debug_mode)	{	this->b_debug_mode = b_debug_mode;	}
+		void set_warnings_as_errors(bool b_warnings_as_errors)	{	this->b_warnings_as_errors = b_warnings_as_errors;	}
 
 	private:
 		void error(const std::string &msg);	// called on (syntax) errors
@@ -149,6 +150,7 @@ namespace FreeOCL
 		std::string current_line;
 		std::string current_file;
 		bool b_errors;
+		bool b_warnings_as_errors;
 		smartptr<node> root;
 
 		smartptr<node> d_val__;

@@ -50,7 +50,8 @@ namespace FreeOCL
 	std::string validate_code(const std::string &code,
 							  std::stringstream &log,
 							  FreeOCL::set<std::string> &kernels,
-							  const bool b_debug_mode);
+							  const bool b_debug_mode,
+							  const bool b_warnings_as_errors);
 
 	// Return a string to the .so/.a file built
 	// In case an error occurs, it returns an empty string

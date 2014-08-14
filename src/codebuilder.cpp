@@ -76,6 +76,7 @@ namespace FreeOCL
 		std::stringstream coptions(options);
 		std::vector<std::string> include_paths;
 		bool b_debug_mode = false;
+		bool b_warnings_as_errors = false;
 		while(coptions)
 		{
 			std::string word;
@@ -167,6 +168,8 @@ namespace FreeOCL
 			}
 			else if (word == "-Werror")
 			{
+				compiler_extra_args += " -Werror";
+				b_warnings_as_errors = true;
 			}
 			else if (word.size() > 8 && word.substr(0, 8) == "-cl-std=")
 			{
@@ -193,7 +196,7 @@ namespace FreeOCL
 		if (preprocessed_code.empty())
 			return std::string();
 
-		const std::string &validated_code = validate_code(preprocessed_code, log, kernels, b_debug_mode);
+		const std::string &validated_code = validate_code(preprocessed_code, log, kernels, b_debug_mode, b_warnings_as_errors);
 
 		if (validated_code.empty())
 			return std::string();
@@ -391,7 +394,7 @@ namespace FreeOCL
 		return _out.str();
 	}
 
-	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels, const bool b_debug_mode)
+	std::string validate_code(const std::string &code, std::stringstream &log, FreeOCL::set<std::string> &kernels, const bool b_debug_mode, const bool b_warnings_as_errors)
 	{
 		log << "code validator log:" << std::endl;
 		log << "code:" << std::endl << code << std::endl;
@@ -399,6 +402,7 @@ namespace FreeOCL
 		parser p(in, log);
 		const size_t timer = usec_timer();
 		p.set_debug_mode(b_debug_mode);
+		p.set_warnings_as_errors(b_warnings_as_errors);
 		p.parse();
         std::clog << (usec_timer() - timer) * 1000LU << "ns" << std::endl;
 		if (p.errors())
