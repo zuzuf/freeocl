@@ -151,15 +151,29 @@ extern "C"
 		if (platform == 0)		// No hint ? Ok, try them all
 		{
 			const std::vector<cl_platform_id> &platforms = FreeOCL::icd_loader_instance.get_platforms();
+			bool b_not_available = false;
+			cl_int errcode = CL_DEVICE_NOT_FOUND;
+			if (errcode_ret == NULL)
+				errcode_ret = &errcode;
 			for(std::vector<cl_platform_id>::const_iterator i = platforms.begin() ; i != platforms.end() ; ++i)
 			{
 				cl_context context = (*i)->dispatch->clCreateContextFromType(properties, device_type, pfn_notify, user_data, errcode_ret);
 				if (!context)
+				{
+					b_not_available |= *errcode_ret == CL_DEVICE_NOT_AVAILABLE;
 					continue;
+				}
 				return context;
 			}
 
-			SET_RET(CL_DEVICE_NOT_AVAILABLE);
+			if (b_not_available)
+			{
+				SET_RET(CL_DEVICE_NOT_AVAILABLE);
+			}
+			else
+			{
+				SET_RET(CL_DEVICE_NOT_FOUND);
+			}
 			return 0;
 		}
 

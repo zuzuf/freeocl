@@ -148,7 +148,7 @@ extern "C"
 		if (device_type & (CL_DEVICE_TYPE_CPU | CL_DEVICE_TYPE_DEFAULT));
 		else if (device_type & (CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR | CL_DEVICE_TYPE_CUSTOM))
 		{
-			SET_RET(CL_DEVICE_NOT_AVAILABLE);
+			SET_RET(CL_DEVICE_NOT_FOUND);
 			return 0;
 		}
 		else
