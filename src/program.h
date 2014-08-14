@@ -40,6 +40,7 @@ struct _cl_program : public FreeOCL::icd_table, public FreeOCL::ref_counter, pub
 	cl_build_status build_status;
 	std::string build_options;
 	std::string build_log;
+	int kernels_attached;
 };
 
 #endif

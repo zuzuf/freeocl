@@ -241,13 +241,13 @@ extern "C"
 
 		if (!FreeOCL::is_valid(program))
 			return CL_INVALID_PROGRAM;
-		if (program->binary_type != CL_PROGRAM_BINARY_TYPE_NONE)
+		if (program->binary_type != CL_PROGRAM_BINARY_TYPE_NONE && program->source_code.empty())
 		{
 			const bool b_success = (program->build_status == CL_BUILD_SUCCESS);
 			program->unlock();
 			return b_success ? CL_SUCCESS : CL_INVALID_BINARY;
 		}
-		if (program->build_status != CL_BUILD_NONE)
+		if (program->build_status == CL_BUILD_IN_PROGRESS || program->kernels_attached > 0)
 		{
 			program->unlock();
 			return CL_INVALID_OPERATION;
@@ -278,7 +278,10 @@ extern "C"
 															   &(program->temporary_file));
 
 		if (!b_valid_options)
+		{
+			program->build_status = CL_BUILD_ERROR;
 			return CL_INVALID_BUILD_OPTIONS;
+		}
 
 		if (!FreeOCL::is_valid(program))
 		{
@@ -781,7 +784,8 @@ _cl_program::_cl_program(cl_context context)
 	: context_resource(context),
 	  binary_type(CL_PROGRAM_BINARY_TYPE_NONE),
 	  handle(NULL),
-	  build_status(CL_BUILD_NONE)
+	  build_status(CL_BUILD_NONE),
+	  kernels_attached(0)
 {
 	FreeOCL::global_mutex.lock();
 	FreeOCL::valid_programs.insert(this);
