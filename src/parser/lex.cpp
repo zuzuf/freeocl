@@ -272,6 +272,9 @@ lex_start:
 						reserved.insert("double" + suffix);
 					}
 				}
+				const char *c99_reserved[] = {"auto", "register", "static",
+											  "entry", "extern" };
+				reserved.insert(c99_reserved, c99_reserved + sizeof(c99_reserved) / sizeof(*c99_reserved));
 
 				keywords["typedef"] = TYPEDEF;
 				keywords["static"] = STATIC;

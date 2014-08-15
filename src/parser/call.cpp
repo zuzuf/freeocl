@@ -41,31 +41,31 @@ namespace FreeOCL
 
 	void call::write(std::ostream& out) const
 	{
-		out << fn->get_name() << '(';
+		out << wrap_reserved(fn->get_name()) << '(';
 		if (args)
 		{
-            std::deque<smartptr<type> > param_types;
-            for(size_t i = 0 ; i < args->size() ; ++i)
-                param_types.push_back((*args)[i].as<expression>()->get_type());
-            const std::deque<smartptr<type> > &arg_types = fn->get_arg_types(param_types);
+			std::deque<smartptr<type> > param_types;
+			for(size_t i = 0 ; i < args->size() ; ++i)
+				param_types.push_back((*args)[i].as<expression>()->get_type());
+			const std::deque<smartptr<type> > &arg_types = fn->get_arg_types(param_types);
 			for(size_t i = 0 ; i < args->size() ; ++i)
 			{
 				if (i)
 					out << ',';
-                if (arg_types.empty())
-                    out << *((*args)[i]);
-                else
-                {
-                    const native_type *a_type = arg_types[i].as<native_type>();
-                    const native_type *p_type = param_types[i].as<native_type>();
-                    if (!a_type || !p_type || !(a_type->is_vector() && p_type->is_scalar()))
-                        out << *((*args)[i]);
-                    else
-                    {
-                        smartptr<type> basic_type = a_type->clone(false, type::PRIVATE);
-                        out << *basic_type << "::make(" << *((*args)[i]) << ')';
-                    }
-                }
+				if (arg_types.empty())
+					out << *((*args)[i]);
+				else
+				{
+					const native_type *a_type = arg_types[i].as<native_type>();
+					const native_type *p_type = param_types[i].as<native_type>();
+					if (!a_type || !p_type || !(a_type->is_vector() && p_type->is_scalar()))
+						out << *((*args)[i]);
+					else
+					{
+						smartptr<type> basic_type = a_type->clone(false, type::PRIVATE);
+						out << *basic_type << "::make(" << *((*args)[i]) << ')';
+					}
+				}
 			}
 		}
 		out << ')';
@@ -86,8 +86,8 @@ namespace FreeOCL
 		return fn->has_references_to(function_name);
 	}
 
-    const char *call::get_node_type() const
-    {
-        return "call";
-    }
+	const char *call::get_node_type() const
+	{
+		return "call";
+	}
 }

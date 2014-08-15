@@ -36,7 +36,7 @@ namespace FreeOCL
 
 	void var::write(std::ostream& out) const
 	{
-		out << name << ' ';
+		out << wrap_reserved(name) << ' ';
 	}
 
 	uint32_t var::eval_as_uint() const
@@ -50,8 +50,8 @@ namespace FreeOCL
 		return false;
 	}
 
-    const char *var::get_node_type() const
-    {
-        return "var";
-    }
+	const char *var::get_node_type() const
+	{
+		return "var";
+	}
 }

@@ -404,7 +404,7 @@ namespace FreeOCL
 		p.set_debug_mode(b_debug_mode);
 		p.set_warnings_as_errors(b_warnings_as_errors);
 		p.parse();
-        std::clog << (usec_timer() - timer) * 1000LU << "ns" << std::endl;
+		std::clog << (usec_timer() - timer) * 1000LU << "ns" << std::endl;
 		if (p.errors())
 			return std::string();
 
@@ -612,7 +612,7 @@ namespace FreeOCL
 					<< "\t{" << std::endl
 					<< "\t\tFreeOCL::thread_num = i;" << std::endl;
 			}
-			gen	<< "\t" << i->first << "(";
+			gen	<< "\t" << node::wrap_reserved(i->first) << "(";
 			std::stringstream cat;
 			cat << '0';
 			for(size_t j = 0 ; j < params->size() ; ++j)

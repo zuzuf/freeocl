@@ -54,7 +54,7 @@ namespace FreeOCL
 
 	void function::write(std::ostream &out) const
 	{
-		out << "static inline " << *return_type << ' ' << name << '(';
+		out << "static inline " << *return_type << ' ' << wrap_reserved(name) << '(';
 		for(size_t i = 0 ; i < arguments->size() ; ++i)
 		{
 			if (i > 0)
@@ -71,12 +71,12 @@ namespace FreeOCL
 			out << ';' << std::endl;
 	}
 
-    smartptr<type> function::get_return_type(const std::deque<smartptr<type> > &arg_types) const
+	smartptr<type> function::get_return_type(const std::deque<smartptr<type> > &arg_types) const
 	{
-        if (arg_types.size() != arg_types.size())
-            return (type*)NULL;
-        if (!overloaded_builtin::all_types_weak_match(arg_types, this->arg_types))
-            return (type*)NULL;
+		if (arg_types.size() != arg_types.size())
+			return (type*)NULL;
+		if (!overloaded_builtin::all_types_weak_match(arg_types, this->arg_types))
+			return (type*)NULL;
 		return return_type;
 	}
 
