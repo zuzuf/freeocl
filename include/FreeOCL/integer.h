@@ -169,14 +169,33 @@ static inline __uchar clz(__uchar x)
 	return c;
 }
 
+static inline __ulong hadd(__ulong x, __ulong y);
+static inline __long hadd(__long x, __long y);
+
 static inline __uchar mul_hi(__uchar x, __uchar y)	{	return __uchar((unsigned long long)(x) * (unsigned long long)(y) >> 8);	}
 static inline __char mul_hi(__char x, __char y)	{	return __char((long long)(x) * (long long)(y) >> 8);	}
 static inline __ushort mul_hi(__ushort x, __ushort y)	{	return __ushort((unsigned long long)(x) * (unsigned long long)(y) >> 16);	}
 static inline __short mul_hi(__short x, __short y)	{	return __short((long long)(x) * (long long)(y) >> 16);	}
 static inline __uint mul_hi(__uint x, __uint y)	{	return __uint((unsigned long long)(x) * (unsigned long long)(y) >> 32);	}
 static inline __int mul_hi(__int x, __int y)	{	return __int((long long)(x) * (long long)(y) >> 32);	}
-static inline __ulong mul_hi(__ulong x, __ulong y){	return __ulong((unsigned long long)(x) * (unsigned long long)(y) >> 64);	}
-static inline __long mul_hi(__long x, __long y)	{	return __long((long long)(x) * (long long)(y) >> 64);	}
+static inline __ulong mul_hi(__ulong x, __ulong y)
+{
+	__ulong x_hi = x >> 32;
+	__ulong x_lo = x & UINT_MAX;
+	__ulong y_hi = y >> 32;
+	__ulong y_lo = y & UINT_MAX;
+
+	return ((x_hi * y_hi) + (hadd((x_hi * y_lo), ((x_lo * y_hi) + ((x_lo * y_lo) >> 32))) >> 31));
+}
+static inline __long mul_hi(__long x, __long y)
+{
+	__long x_hi = x >> 32;
+	__long x_lo = x & UINT_MAX;
+	__long y_hi = y >> 32;
+	__long y_lo = y & UINT_MAX;
+
+	return ((x_hi * y_hi) + (hadd((x_hi * y_lo), ((x_lo * y_hi) + (__long)((__ulong)(x_lo * y_lo) >> 32))) >> 31));
+}
 
 static inline __char rotate(__char v, __char i)	{	return ((__uchar)v << i | ((__uchar)v >> (8 - i)));	}
 static inline __uchar rotate(__uchar v, __uchar i)	{	return (v << i) | (v >> (8 - i));	}
@@ -190,11 +209,11 @@ static inline __ulong rotate(__ulong v, __ulong i)	{	return (v << i) | (v >> (64
 #define DEFINE(TYPE)\
 static inline TYPE max(TYPE x, TYPE y)	{	return x > y ? x : y;	}\
 static inline TYPE min(TYPE x, TYPE y)	{	return x < y ? x : y;	}\
+static inline TYPE mad_hi(TYPE a, TYPE b, TYPE c)	{	return mul_hi(a, b) + c;	}\
 static inline TYPE hadd(TYPE x, TYPE y)\
-{	return TYPE( (((long long)x) + ((long long)y)) >> 1);	}	\
+{	return ((x >> 1) + (y >> 1) + (x & y & (TYPE)1));	}\
 static inline TYPE rhadd(TYPE x, TYPE y)\
-{	return TYPE( (((long long)x) + ((long long)y) + 1) >> 1);	}\
-static inline TYPE mad_hi(TYPE a, TYPE b, TYPE c)	{	return mul_hi(a, b) + c;	}
+{	return ((x >> 1) + (y >> 1) + ((x & (TYPE)1) | (y & (TYPE)1)));	}
 
 DEFINE(__char)
 DEFINE(__uchar)
