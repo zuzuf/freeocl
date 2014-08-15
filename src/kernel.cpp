@@ -576,6 +576,10 @@ extern "C"
 		case CL_KERNEL_REFERENCE_COUNT:	bTooSmall = SET_VAR(kernel->get_ref_count());	break;
 		case CL_KERNEL_CONTEXT:			bTooSmall = SET_VAR(kernel->program->context);	break;
 		case CL_KERNEL_PROGRAM:			bTooSmall = SET_VAR(kernel->program);	break;
+		case CL_KERNEL_ATTRIBUTES:
+			//! \todo implement kernel attributes
+			bTooSmall = SET_VAR("");
+			break;
 		default:
 			return CL_INVALID_VALUE;
 		}
