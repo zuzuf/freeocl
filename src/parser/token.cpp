@@ -21,10 +21,10 @@ namespace FreeOCL
 			out << std::endl;
 		case ';':
 		case ':':
-			out << str << std::endl;
+			out << wrap_reserved(str) << std::endl;
 			break;
 		default:
-			out	<< str << ' ';
+			out	<< wrap_reserved(str) << ' ';
 		}
 	}
 
@@ -33,8 +33,8 @@ namespace FreeOCL
 		return false;
 	}
 
-    const char *token::get_node_type() const
-    {
-        return "token";
-    }
+	const char *token::get_node_type() const
+	{
+		return "token";
+	}
 }

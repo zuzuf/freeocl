@@ -484,6 +484,8 @@ namespace FreeOCL
 									ERROR(msg);
 								}
 							}
+							else		// Array with unspecified size
+								l_type = new pointer_type(l_type, l_type->is_const(), l_type->get_address_space());
 						}
 					}
 				}
