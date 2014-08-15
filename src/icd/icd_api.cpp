@@ -95,7 +95,7 @@ extern "C"
 								void *user_data,
 								cl_int *errcode_ret)
 	{
-		if (num_devices == 0)
+		if (num_devices == 0 || devices == NULL)
 		{
 			SET_RET(CL_INVALID_VALUE);
 			return 0;
