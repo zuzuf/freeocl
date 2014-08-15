@@ -35,6 +35,11 @@ extern "C"
 										   cl_command_queue_properties properties,
 										   cl_int *errcode_ret)
 	{
+		if (context == NULL)
+		{
+			SET_RET(CL_INVALID_CONTEXT);
+			return 0;
+		}
 		return context->dispatch->clCreateCommandQueue(context,
 													   device,
 													   properties,
@@ -43,11 +48,15 @@ extern "C"
 
 	cl_int clRetainCommandQueue (cl_command_queue command_queue)
 	{
+		if (command_queue == NULL)
+			return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clRetainCommandQueue(command_queue);
 	}
 
 	cl_int clReleaseCommandQueue (cl_command_queue command_queue)
 	{
+		if (command_queue == NULL)
+			return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clReleaseCommandQueue(command_queue);
 	}
 
@@ -57,6 +66,8 @@ extern "C"
 								  void *param_value,
 								  size_t *param_value_size_ret)
 	{
+		if (command_queue == NULL)
+			return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clGetCommandQueueInfo(command_queue,
 															  param_name,
 															  param_value_size,
@@ -69,6 +80,8 @@ extern "C"
 									 cl_bool enable,
 									 cl_command_queue_properties *old_properties)
 	{
+		if (command_queue == NULL)
+			return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clSetCommandQueueProperty(command_queue,
 																  properties,
 																  enable,
@@ -77,11 +90,15 @@ extern "C"
 
 	cl_int clFlush (cl_command_queue command_queue)
 	{
+		if (command_queue == NULL)
+			return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clFlush(command_queue);
 	}
 
 	cl_int clFinish (cl_command_queue command_queue)
 	{
+		if (command_queue == NULL)
+			return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clFinish(command_queue);
 	}
 
