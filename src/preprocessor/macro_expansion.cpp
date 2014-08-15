@@ -183,7 +183,7 @@ namespace FreeOCL
 						if (!ret.empty())
 						{
 							int j;
-							for(j = ret.size() - 1 ; j >= prev_ret_size ; --j)
+							for(j = ret.size() - 1 ; j > prev_ret_size - 1; --j)
 							{
 								c = ret[j];
 								if (isspace(c))
