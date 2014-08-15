@@ -21,7 +21,7 @@
 
 // Built-in common functions
 // for __float
-static inline __float clamp(__float x, __float minval, __float maxval)	{	return fmin(fmax(x, minval), maxval);	}
+template<> inline __float clamp<__float>(__float x, __float minval, __float maxval)	{	return fmin(fmax(x, minval), maxval);	}
 static inline __float degrees(__float radians)	{	return radians * 57.295779513082f;	}
 static inline __float max(__float x, __float y)	{	return x < y ? y : x;	}
 static inline __float min(__float x, __float y)	{	return y < x ? y : x;	}
@@ -39,7 +39,7 @@ static inline __float sign(__float x)
 }
 
 // for __double
-static inline __double clamp(__double x, __double minval, __double maxval)	{	return fmin(fmax(x, minval), maxval);	}
+template<> inline __double clamp<__double>(__double x, __double minval, __double maxval)	{	return fmin(fmax(x, minval), maxval);	}
 static inline __double degrees(__double radians)	{	return radians * 57.295779513082;	}
 static inline __double max(__double x, __double y)	{	return x < y ? y : x;	}
 static inline __double min(__double x, __double y)	{	return y < x ? y : x;	}
