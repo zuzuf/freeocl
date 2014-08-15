@@ -321,6 +321,18 @@ lex_start:
 				keywords["signed"] = SIGNED;
 				keywords["unsigned"] = UNSIGNED;
 				keywords["size_t"] = SIZE_T;
+				if (sizeof(void*) == 8)		// 64bits platform
+				{
+					keywords["ptrdiff_t"] = LONG;
+					keywords["intptr_t"] = LONG;
+					keywords["uintptr_t"] = ULONG;
+				}
+				else
+				{
+					keywords["ptrdiff_t"] = INT;
+					keywords["intptr_t"] = INT;
+					keywords["uintptr_t"] = UINT;
+				}
 				keywords["const"] = CONST;
 				keywords["__const"] = CONST;
 				keywords["volatile"] = VOLATILE;
