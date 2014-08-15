@@ -152,6 +152,7 @@ extern "C"
 				bTooSmall = SET_VAR(count);
 			}
 			break;
+		case CL_DEVICE_BUILT_IN_KERNELS:	bTooSmall = SET_STRING("");		break;
 
 		default:
 			return CL_INVALID_VALUE;
