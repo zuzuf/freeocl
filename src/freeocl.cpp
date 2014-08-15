@@ -148,6 +148,8 @@ namespace FreeOCL
 	{
 		if (s != NULL)
 			*s = size;
+		if (dst != NULL && size > maxSize)
+			return true;
 		if (dst != NULL)
 			memcpy(dst, src, std::min(size, maxSize));
 		return size > maxSize;
