@@ -40,6 +40,7 @@ static inline __float sign(__float x)
 
 // for __double
 template<> inline __double clamp<__double>(__double x, __double minval, __double maxval)	{	return fmin(fmax(x, minval), maxval);	}
+template<> inline __double clamp<__double>(__double x, __float minval, __float maxval)	{	return fmin(fmax(x, minval), maxval);	}
 static inline __double degrees(__double radians)	{	return radians * 57.295779513082;	}
 static inline __double max(__double x, __double y)	{	return x < y ? y : x;	}
 static inline __double min(__double x, __double y)	{	return y < x ? y : x;	}
