@@ -993,9 +993,73 @@ DEFINE(__uint16);
 
 #undef DEFINE
 
+template<class V> struct __short_vector_predicate;
+#define DEFINE(X) template<> struct __short_vector_predicate<X>	{	typedef X type;	}
+
+DEFINE(__short2);
+DEFINE(__short3);
+DEFINE(__short4);
+DEFINE(__short8);
+DEFINE(__short16);
+
+#undef DEFINE
+
+template<class V> struct __ushort_vector_predicate;
+#define DEFINE(X) template<> struct __ushort_vector_predicate<X>	{	typedef X type;	}
+
+DEFINE(__ushort2);
+DEFINE(__ushort3);
+DEFINE(__ushort4);
+DEFINE(__ushort8);
+DEFINE(__ushort16);
+
+#undef DEFINE
+
+template<class V> struct __long_vector_predicate;
+#define DEFINE(X) template<> struct __long_vector_predicate<X>	{	typedef X type;	}
+
+DEFINE(__long2);
+DEFINE(__long3);
+DEFINE(__long4);
+DEFINE(__long8);
+DEFINE(__long16);
+
+#undef DEFINE
+
+template<class V> struct __ulong_vector_predicate;
+#define DEFINE(X) template<> struct __ulong_vector_predicate<X>	{	typedef X type;	}
+
+DEFINE(__ulong2);
+DEFINE(__ulong3);
+DEFINE(__ulong4);
+DEFINE(__ulong8);
+DEFINE(__ulong16);
+
+#undef DEFINE
+
+template<class V> struct __char_vector_predicate;
+#define DEFINE(X) template<> struct __char_vector_predicate<X>	{	typedef X type;	}
+
+DEFINE(__char2);
+DEFINE(__char3);
+DEFINE(__char4);
+DEFINE(__char8);
+DEFINE(__char16);
+
+#undef DEFINE
+
+template<class V> struct __uchar_vector_predicate;
+#define DEFINE(X) template<> struct __uchar_vector_predicate<X>	{	typedef X type;	}
+
+DEFINE(__uchar2);
+DEFINE(__uchar3);
+DEFINE(__uchar4);
+DEFINE(__uchar8);
+DEFINE(__uchar16);
+
+#undef DEFINE
+
 #define CHECK(X)	typename __float_vector_predicate<X>::type
-#define CHECKI(X)	typename __int_vector_predicate<X>::type
-#define CHECKUI(X)	typename __uint_vector_predicate<X>::type
 
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1(F)\
 template<class V> static inline CHECK(V) F(const V &x)\
@@ -1005,22 +1069,16 @@ template<class V> static inline CHECK(V) F(const V &x)\
 		ret.v[i] = F(x.v[i]);\
 	return ret;\
 }
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_I(F)\
-template<class V> static inline CHECKI(V) F(const V &x)\
+
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_T(X, F) \
+template<class V> static inline typename X ## _vector_predicate<V>::type F(const V &x)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		ret.v[i] = F(x.v[i]);\
 	return ret;\
 }
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION1_UI(F)\
-template<class V> static inline CHECKUI(V) F(const V &x)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i]);\
-	return ret;\
-}
+
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2(F)\
 template<class V> static inline CHECK(V) F(const V &x, const V &y)\
 {\
@@ -1029,16 +1087,8 @@ template<class V> static inline CHECK(V) F(const V &x, const V &y)\
 		ret.v[i] = F(x.v[i], y.v[i]);\
 	return ret;\
 }
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2_I(F)\
-template<class V> static inline CHECKI(V) F(const V &x, const V &y)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], y.v[i]);\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2_UI(F)\
-template<class V> static inline CHECKUI(V) F(const V &x, const V &y)\
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2_T(X, F)	\
+template<class V> static inline typename X ## _vector_predicate<V>::type F(const V &x, const V &y)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1077,6 +1127,14 @@ template<class V> static inline CHECK(V) F(const V &x, const typename __vector<V
 		ret.v[i] = F(x.v[i], y);\
 	return ret;\
 }
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2S_T(X, F)	\
+template<class V> static inline typename X ## _vector_predicate<V>::type F(const V &x, const typename __vector<V>::base_type y)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x.v[i], y);\
+	return ret;\
+}
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION2S_(F)\
 template<class V> static inline CHECK(V) F(const typename __vector<V>::base_type x, const V &y)\
 {\
@@ -1093,16 +1151,8 @@ template<class V> static inline CHECK(V) F(const V &x, const V &y, const V &z)\
 		ret.v[i] = F(x.v[i], y.v[i], z.v[i]);\
 	return ret;\
 }
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_I(F)\
-template<class V> static inline CHECKI(V) F(const V &x, const V &y, const V &z)\
-{\
-	V ret;\
-	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
-		ret.v[i] = F(x.v[i], y.v[i], z.v[i]);\
-	return ret;\
-}
-#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_UI(F)\
-template<class V> static inline CHECKUI(V) F(const V &x, const V &y, const V &z)\
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3_T(X, F)		\
+template<class V> static inline typename X ## _vector_predicate<V>::type F(const V &x, const V &y, const V &z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
@@ -1111,6 +1161,14 @@ template<class V> static inline CHECKUI(V) F(const V &x, const V &y, const V &z)
 }
 #define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS(F)\
 template<class V> static inline CHECK(V) F(const V &x, const typename __vector<V>::base_type y, const typename __vector<V>::base_type z)\
+{\
+	V ret;\
+	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
+		ret.v[i] = F(x.v[i], y, z);\
+	return ret;\
+}
+#define VECTOR_IMPLEMENTATION_FROM_SCALAR_IMPLEMENTATION3SS_T(X, F)	\
+template<class V> static inline typename X ## _vector_predicate<V>::type F(const V &x, const typename __vector<V>::base_type y, const typename __vector<V>::base_type z)\
 {\
 	V ret;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\

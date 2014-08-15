@@ -277,8 +277,10 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("gentype native_tan(gentype)", gentype_floats);
 
 		// Integer functions
-		REGISTER_OVERLOADED("ugentype abs(gentype)", gentype_integers);
-		REGISTER_OVERLOADED("ugentype abs_diff(gentype,gentype)", gentype_integers);
+		REGISTER_OVERLOADED("ugentype abs(gentype)", gentype_signed);
+		REGISTER_OVERLOADED("gentype abs(gentype)", gentype_unsigned);
+		REGISTER_OVERLOADED("ugentype abs_diff(gentype,gentype)", gentype_signed);
+		REGISTER_OVERLOADED("gentype abs_diff(gentype,gentype)", gentype_unsigned);
 		REGISTER_OVERLOADED("gentype add_sat(gentype,gentype)", gentype_integers);
 		REGISTER_OVERLOADED("gentype hadd(gentype,gentype)", gentype_integers);
 		REGISTER_OVERLOADED("gentype rhadd(gentype,gentype)", gentype_integers);
@@ -293,16 +295,40 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("gentype sub_sat(gentype,gentype)", gentype_integers);
 		REGISTER_OVERLOADED("short upsample(char,uchar)"
 							"|ushort upsample(uchar,uchar)"
-							"|shortn upsample(charn,ucharn)"
-							"|ushortn upsample(ucharn,ucharn)"
+							"|short2 upsample(char2,uchar2)"
+							"|ushort2 upsample(uchar2,uchar2)"
+							"|short3 upsample(char3,uchar3)"
+							"|ushort3 upsample(uchar3,uchar3)"
+							"|short4 upsample(char4,uchar4)"
+							"|ushort4 upsample(uchar4,uchar4)"
+							"|short8 upsample(char8,uchar8)"
+							"|ushort8 upsample(uchar8,uchar8)"
+							"|short16 upsample(char16,uchar16)"
+							"|ushort16 upsample(uchar16,uchar16)"
 							"|int upsample(short,ushort)"
 							"|uint upsample(ushort,ushort)"
-							"|intn upsample(shortn,ushortn)"
-							"|uintn upsample(ushortn,ushortn)"
+							"|int2 upsample(short2,ushort2)"
+							"|uint2 upsample(ushort2,ushort2)"
+							"|int3 upsample(short3,ushort3)"
+							"|uint3 upsample(ushort3,ushort3)"
+							"|int4 upsample(short4,ushort4)"
+							"|uint4 upsample(ushort4,ushort4)"
+							"|int8 upsample(short8,ushort8)"
+							"|uint8 upsample(ushort8,ushort8)"
+							"|int16 upsample(short16,ushort16)"
+							"|uint16 upsample(ushort16,ushort16)"
 							"|long upsample(int,uint)"
 							"|ulong upsample(uint,uint)"
-							"|longn upsample(intn,uintn)"
-							"|ulongn upsample(uintn,uintn)", gentype_single);
+							"|long2 upsample(int2,uint2)"
+							"|ulong2 upsample(uint2,uint2)"
+							"|long3 upsample(int3,uint3)"
+							"|ulong3 upsample(uint3,uint3)"
+							"|long4 upsample(int4,uint4)"
+							"|ulong4 upsample(uint4,uint4)"
+							"|long8 upsample(int8,uint8)"
+							"|ulong8 upsample(uint8,uint8)"
+							"|long16 upsample(int16,uint16)"
+							"|ulong16 upsample(uint16,uint16)", gentype_single);
 		REGISTER_OVERLOADED("gentype mad24(gentype,gentype,gentype)", gentype_integers);
 		REGISTER_OVERLOADED("gentype mul24(gentype,gentype)", gentype_integers);
 

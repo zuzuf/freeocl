@@ -47,7 +47,7 @@ static inline __int4 __address_mode(const image3d_t &image, const sampler_t samp
 		break;
 	case CLK_ADDRESS_MIRRORED_REPEAT:
 		__coord = coord % __int4::make(image.width << 1, image.height << 1, image.depth << 1, 1);
-		__coord = abs(__coord - __int4::make(image.width, image.height, image.depth, 0));
+		__coord = convert_int4(abs(__coord - __int4::make(image.width, image.height, image.depth, 0)));
 		break;
 	}
 	return __coord;
