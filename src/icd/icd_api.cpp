@@ -1002,6 +1002,9 @@ extern "C"
 		if (v_platforms.empty())
 			return CL_PLATFORM_NOT_FOUND_KHR;
 
+		if (num_entries == 0 && platforms != NULL)
+			return CL_INVALID_VALUE;
+
 		if (num_platforms != NULL)
 			*num_platforms = v_platforms.size();
 
