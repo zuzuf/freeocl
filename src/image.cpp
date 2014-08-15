@@ -1065,6 +1065,7 @@ extern "C"
 				bTooSmall = SET_VAR(zero);
 			}
 			break;
+		case CL_IMAGE_BUFFER:	bTooSmall = SET_VAR(image);	break;
 		default:
 			return CL_INVALID_VALUE;
 		}
