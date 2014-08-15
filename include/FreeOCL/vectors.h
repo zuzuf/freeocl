@@ -922,11 +922,12 @@ static inline typename __vector<V>::type &operator op (V &lhs)\
 	return lhs;\
 }\
 template<class V>\
-static inline typename __vector<V>::type &operator op (V &lhs, int)\
+static inline typename __vector<V>::type operator op (V &lhs, int)\
 {\
+	V ret = lhs;\
 	for(size_t i = 0 ; i < __vector<V>::components ; ++i)\
 		lhs.v[i] op;\
-	return lhs;\
+	return ret;\
 }
 
 IMPLEMENT_UNARY_OP(--)
