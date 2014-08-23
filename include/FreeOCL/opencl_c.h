@@ -121,6 +121,24 @@ typedef double          __double   __attribute__((aligned(8)));
 typedef bool			__bool;
 typedef __ulong			__size_t;
 
+#elif defined __arm__
+#include <stdint.h>
+typedef int8_t			__char;
+typedef uint8_t         __uchar;
+typedef int16_t         __short    __attribute__((aligned(2)));
+typedef uint16_t        __ushort   __attribute__((aligned(2)));
+typedef int32_t         __int      __attribute__((aligned(4)));
+typedef uint32_t        __uint     __attribute__((aligned(4)));
+typedef int64_t         __long     __attribute__((aligned(8)));
+typedef uint64_t        __ulong    __attribute__((aligned(8)));
+
+typedef float           __float    __attribute__((aligned(4)));
+typedef double          __double   __attribute__((aligned(8)));
+
+typedef bool			__bool;
+typedef __ulong			__size_t;
+
+
 #else
 typedef bool			__bool;
 typedef char			__char;
