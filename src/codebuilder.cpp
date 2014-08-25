@@ -103,7 +103,7 @@ namespace FreeOCL
 			{
 				const size_t eq = word.find('=');
 				if (eq == std::string::npos)
-					macros.push_back(std::make_pair(word.substr(2), std::string()));
+					macros.push_back(std::make_pair(word.substr(2), "1"));
 				else
 					macros.push_back(std::make_pair(word.substr(2, eq - 2), word.substr(eq + 1)));
 			}
