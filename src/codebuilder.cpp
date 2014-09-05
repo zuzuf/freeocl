@@ -272,7 +272,7 @@ namespace FreeOCL
 			<< ' ' << filename_in
 			<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
-		log << run_command(cmd.str(), &ret) << std::endl;
+		log << cmd.str() << ": " << std::endl << run_command(cmd.str(), &ret) << std::endl;
 
 		close(fd_out);
 		fclose(file_in);
@@ -734,7 +734,7 @@ namespace FreeOCL
 			cmd	<< ' ' << files_to_link[i];
 		cmd	<< " 2>&1";			// Redirects everything to stdout in order to read all logs
 		int ret = 0;
-		log << run_command(cmd.str(), &ret) << std::endl;
+		log << cmd.str() << ": " << std::endl << run_command(cmd.str(), &ret) << std::endl;
 
 		close(fd_out);
 
