@@ -800,8 +800,8 @@ _cl_program::~_cl_program()
 
 	if (handle && !binary_file.empty())
 		dlclose(handle);
-	if (!binary_file.empty())
+	if (!binary_file.empty() && !getenv("FREEOCL_DEBUG"))
 		remove(binary_file.c_str());
-	if (!temporary_file.empty())
+	if (!temporary_file.empty() && !getenv("FREEOCL_DEBUG"))
 		remove(temporary_file.c_str());
 }
