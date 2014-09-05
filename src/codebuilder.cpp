@@ -41,6 +41,7 @@ namespace FreeOCL
 {
 	std::string RUNTIME_FREEOCL_CXX_COMPILER = FREEOCL_CXX_COMPILER;
 	std::string RUNTIME_FREEOCL_CXX_FLAGS = FREEOCL_CXX_FLAGS;
+	std::string RUNTIME_FREEOCL_CXX_INCLUDE = FREEOCL_CXX_INCLUDE;
 
 	struct __init
 	{
@@ -51,10 +52,13 @@ namespace FreeOCL
 	{
 		const char *env_FREEOCL_CXX_COMPILER = getenv("FREEOCL_CXX_COMPILER");
 		const char *env_FREEOCL_CXX_FLAGS = getenv("FREEOCL_CXX_FLAGS");
+		const char *env_FREEOCL_CXX_INCLUDE = getenv("FREEOCL_CXX_INCLUDE");
 		if (env_FREEOCL_CXX_COMPILER)
 			RUNTIME_FREEOCL_CXX_COMPILER = env_FREEOCL_CXX_COMPILER;
 		if (env_FREEOCL_CXX_FLAGS)
 			RUNTIME_FREEOCL_CXX_FLAGS = env_FREEOCL_CXX_FLAGS;
+		if (env_FREEOCL_CXX_INCLUDE)
+			RUNTIME_FREEOCL_CXX_INCLUDE = std::string("-I") + env_FREEOCL_CXX_INCLUDE;
 	}
 
 	std::string build_program(const std::string &options,
@@ -261,7 +265,8 @@ namespace FreeOCL
 
 		std::stringstream cmd;
 		cmd << RUNTIME_FREEOCL_CXX_COMPILER << ' '
-			<< RUNTIME_FREEOCL_CXX_FLAGS
+			<< RUNTIME_FREEOCL_CXX_FLAGS << ' '
+			<< RUNTIME_FREEOCL_CXX_INCLUDE
 			<< compiler_extra_args
 			<< " -o " << filename_out
 			<< ' ' << filename_in
@@ -721,6 +726,7 @@ namespace FreeOCL
 		{
 			cmd << RUNTIME_FREEOCL_CXX_COMPILER
 				<< RUNTIME_FREEOCL_CXX_FLAGS
+				<< RUNTIME_FREEOCL_CXX_INCLUDE
 				<< compiler_extra_args
 				<< " -o " << filename_out;
 		}

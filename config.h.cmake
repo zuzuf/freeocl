@@ -23,9 +23,9 @@
 #cmakedefine CMAKE_INSTALL_PREFIX
 #define FREEOCL_INSTALL_PREFIX "@CMAKE_INSTALL_PREFIX@"
 #if defined(CMAKE_INSTALL_PREFIX)
-#define FREEOCL_CXX_FLAGS_INCLUDES " -I" FREEOCL_INSTALL_PREFIX "/include"
+#define FREEOCL_CXX_INCLUDE " -I" FREEOCL_INSTALL_PREFIX "/include"
 #else
-#define FREEOCL_CXX_FLAGS_INCLUDES
+#define FREEOCL_CXX_INCLUDE
 #endif
 
 #if defined (FREEOCL_OS_WINDOWS)
@@ -38,7 +38,7 @@
         " -fno-exceptions -fno-rtti" \
         " -x c++ " \
         " -Wall -Wextra "\
-        " -Wno-non-pod-varargs" FREEOCL_CXX_FLAGS_INCLUDES
+        " -Wno-non-pod-varargs"
 #else
 #define FREEOCL_CXX_FLAGS_COMMON " " \
         " -shared -fpic -pipe" /* -Wall*/ \
@@ -50,7 +50,7 @@
         " -fno-exceptions -fno-rtti" \
         " -x c++ " \
         " -Wall -Wextra "\
-        " -Wno-non-pod-varargs" FREEOCL_CXX_FLAGS_INCLUDES
+        " -Wno-non-pod-varargs"
 #endif
 
 #if defined (FREEOCL_ARCH_i386)
