@@ -197,14 +197,18 @@ static inline __long mul_hi(__long x, __long y)
 	return ((x_hi * y_hi) + (hadd((x_hi * y_lo), ((x_lo * y_hi) + (__long)((__ulong)(x_lo * y_lo) >> 32))) >> 31));
 }
 
-static inline __char rotate(__char v, __char i)	{	return ((__uchar)v << i | ((__uchar)v >> (8 - i)));	}
-static inline __uchar rotate(__uchar v, __uchar i)	{	return (v << i) | (v >> (8 - i));	}
-static inline __short rotate(__short v, __short i)	{	return ((__ushort)v << i) | ((__ushort)v >> (16 - i));	}
-static inline __ushort rotate(__ushort v, __ushort i)	{	return (v << i) | (v >> (16 - i));	}
-static inline __int rotate(__int v, __int i)	{	return ((__uint)v << i) | ((__uint)v >> (32 - i));	}
+static inline __uchar rotate(__uchar v, __uchar i)	{	return (v << (i % 8) | (v >> (8 - (i % 8))));	}
+static inline __char rotate(__char v, __char i)	{ return (__char)rotate(__uchar(v), __uchar(i)); }
+static inline __ushort rotate(__ushort v, __ushort i)	{	return (v << (i % 16)) | (v >> (16 - (i % 16)));	}
+static inline __short rotate(__short v, __short i)	{ return (__short)rotate(__ushort(v), __ushort(i)); }
+#ifdef __arm__
 static inline __uint rotate(__uint v, __uint i)	{	return (v << i) | (v >> (32 - i));	}
-static inline __long rotate(__long v, __long i)	{	return ((__ulong)v << i) | ((__ulong)v >> (64 - i));	}
-static inline __ulong rotate(__ulong v, __ulong i)	{	return (v << i) | (v >> (64 - i));	}
+#else
+static inline __uint rotate(__uint v, __uint i)	{	return (v << (i % 32)) | (v >> (32 - (i % 32)));	}
+#endif
+static inline __int rotate(__int v, __int i)	{ return (__int)rotate(__uint(v), __uint(i)); }
+static inline __ulong rotate(__ulong v, __ulong i)	{	return (v << (i % 64)) | (v >> (64 - (i % 64)));	}
+static inline __long rotate(__long v, __long i)	{ return (__long)rotate(__ulong(v), __ulong(i)); }
 
 #define DEFINE(TYPE)\
 static inline TYPE max(TYPE x, TYPE y)	{	return x > y ? x : y;	}\
