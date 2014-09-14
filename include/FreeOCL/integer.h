@@ -272,9 +272,50 @@ static inline __int mad_sat(__int a, __int b, __int c)
 static inline __uint mad_sat(__uint a, __uint b, __uint c)
 {	return clamp((__ulong)a * (__ulong)b + (__ulong)c, (__ulong)0, UINT_MAX);	}
 static inline __long mad_sat(__long a, __long b, __long c)
-{	return clamp(a * b + c, LONG_MIN, LONG_MAX);	}
+{
+	//there is a digit of precision lost because of stupid signed ints
+	// eg -1 * LONG_MIN (ab_mul_hi == 0, ab == LONG_MIN (should be LONG_MAX+1) or 2*LONG_MIN (ab_mul_hi == -1, ab = 0 (LONG_MIN-1))
+	__long ab_mul_hi = mul_hi(a, b);
+	__ulong ab = a * b;
+
+	if (ab_mul_hi > 0)
+	{
+		if (c > 0)
+			return LONG_MAX;
+		else if (c < 0 && -c > ab && ab_mul_hi == 1)
+			return ( (LONG_MAX + c) + 1 + ab );
+		else
+			return LONG_MAX;
+	}
+
+	if (ab_mul_hi < -1)
+	{
+		if (c < 0)
+			return LONG_MIN;
+		else if (c > 0 && c > -ab && ab_mul_hi == -2)
+			return ( (LONG_MIN + c) - 2 + ab );
+		else
+			return LONG_MIN;
+	}
+
+	if (ab_mul_hi == 0 && ab >= LONG_MAX && (c > 0 || ab + c > LONG_MAX))
+		return LONG_MAX;
+	if (ab_mul_hi == -1 && ab <= (__ulong(LONG_MAX) + 1) && (c < 0 || ab < LONG_MIN - c))
+		return LONG_MIN;
+
+	return clamp(__long(ab) + c, LONG_MIN, LONG_MAX);
+}
 static inline __ulong mad_sat(__ulong a, __ulong b, __ulong c)
-{	return clamp(a * b + c, (__ulong)0, ULONG_MAX);	}
+{
+	if (a != 0 && b > ULONG_MAX / a)
+		return ULONG_MAX;
+
+	__ulong ab = a * b;
+	if (ab > ULONG_MAX - c)
+		return ULONG_MAX;
+
+	return clamp(ab + c, (__ulong)0, ULONG_MAX);
+}
 
 static inline __char add_sat(__char x, __char y)
 {	return clamp((__short)x + (__short)y, CHAR_MIN, CHAR_MAX);	}
@@ -289,9 +330,19 @@ static inline __int add_sat(__int x, __int y)
 static inline __uint add_sat(__uint x, __uint y)
 {	return clamp((__ulong)x + (__ulong)y, (__ulong)0, UINT_MAX);	}
 static inline __long add_sat(__long x, __long y)
-{	return clamp(x + y, LONG_MIN, LONG_MAX);	}
+{
+	if (x > 0 && y > LONG_MAX - x)
+		return LONG_MAX;
+	if (x < 0 && y < LONG_MIN - x)
+		return LONG_MIN;
+	return clamp(x + y, LONG_MIN, LONG_MAX);
+}
 static inline __ulong add_sat(__ulong x, __ulong y)
-{	return clamp(x + y, (__ulong)0, ULONG_MAX);	}
+{
+	if (y > ULONG_MAX - x)
+		return ULONG_MAX;
+	return clamp(x + y, (__ulong)0, ULONG_MAX);
+}
 
 static inline __char sub_sat(__char x, __char y)
 {	return clamp((__short)x - (__short)y, CHAR_MIN, CHAR_MAX);	}
@@ -306,9 +357,13 @@ static inline __int sub_sat(__int x, __int y)
 static inline __uint sub_sat(__uint x, __uint y)
 {	return clamp((__long)x - (__long)y, (__ulong)0, UINT_MAX);	}
 static inline __long sub_sat(__long x, __long y)
-{	return clamp(x - y, LONG_MIN, LONG_MAX);	}
+{	return add_sat(x, -y);	}
 static inline __ulong sub_sat(__ulong x, __ulong y)
-{	return clamp(x - y, (__long)0, ULONG_MAX);	}
+{
+	if (y > x)
+		return 0;
+	return clamp(x - y, (__ulong)0, ULONG_MAX);
+}
 
 // upsample functions
 static inline __short upsample(__char hi, __uchar lo)	{	return ((__short)hi << 8) | lo;	}
