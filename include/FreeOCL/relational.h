@@ -66,7 +66,7 @@ static inline __int isordered(S x, typename __scalar<S>::type y)	{	return !__isu
 template<typename S>
 static inline __int isunordered(S x, typename __scalar<S>::type y)	{	return __isunordered(x, y);	}
 
-static inline __int signbit(__float x)	{	return __signbit(x);	}
+static inline __int signbit(__float x)	{	return __signbit(x) ? 1 : 0;	}
 
 // both scalars and vectors
 template<typename S>
