@@ -18,6 +18,8 @@
 #ifndef __FREEOCL_OPENCL_C_PREINCLUDE_CONVERTERS_H__
 #define __FREEOCL_OPENCL_C_PREINCLUDE_CONVERTERS_H__
 
+#include <fenv.h>
+
 template<class T> struct __type_range;
 template<> struct __type_range<__char>		{	enum { __min = -128, __max = 127 };	};
 template<> struct __type_range<__uchar>		{	enum { __min = 0, __max = 255 };	};
@@ -48,6 +50,110 @@ static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::v
 template<class Scalar>\
 static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat(const Scalar &v)	{	return v;	}
 
+#define CONVERTER_RTZ(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_rtz(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_TOWARDZERO);\
+	__##X result = __##X(v);\
+	fesetround(rmode);\
+	return result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_rtz(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTZ(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_sat_rtz(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_TOWARDZERO);\
+	__##X result = convert_##X##_sat(v);\
+	fesetround(rmode);\
+	return result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat_rtz(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_RTP(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_rtp(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_UPWARD);\
+	__##X result = rint(v);\
+	fesetround(rmode);\
+	return (__##X)result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_rtp(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTP(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_sat_rtp(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_UPWARD);\
+	__##X result = convert_##X##_sat(rint(v));\
+	fesetround(rmode);\
+	return result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat_rtp(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_RTN(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_rtn(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_DOWNWARD);\
+	__##X result = rint(v);\
+	fesetround(rmode);\
+	return (__##X)result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_rtn(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTN(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_sat_rtn(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_DOWNWARD);\
+	__##X result = convert_##X##_sat(rint(v));\
+	fesetround(rmode);\
+	return result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat_rtn(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_RTE(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_rte(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_TONEAREST);\
+	__##X result = rint(v);\
+	fesetround(rmode);\
+	return (__##X)result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_rte(const Scalar &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTE(X)\
+template<class Scalar>\
+static inline typename __if< !__match<typename __scalar<Scalar>::type, __##X>::value, __##X>::type convert_##X##_sat_rte(const Scalar &v)\
+{\
+	int rmode = fegetround();\
+	fesetround(FE_TONEAREST);\
+	__##X result = convert_##X##_sat(v);\
+	fesetround(rmode);\
+	return result;\
+}\
+template<class Scalar>\
+static inline const typename __if< __match<Scalar, __##X>::value , __##X>::type &convert_##X##_sat_rte(const Scalar &v)	{	return v;	}
+
 CONVERTER(char)
 CONVERTER(uchar)
 CONVERTER(short)
@@ -68,8 +174,104 @@ CONVERTER_SAT(uint)
 CONVERTER_SAT(long)
 CONVERTER_SAT(ulong)
 
+CONVERTER_RTZ(char)
+CONVERTER_RTZ(uchar)
+CONVERTER_RTZ(short)
+CONVERTER_RTZ(ushort)
+CONVERTER_RTZ(int)
+CONVERTER_RTZ(uint)
+CONVERTER_RTZ(long)
+CONVERTER_RTZ(ulong)
+CONVERTER_RTZ(float)
+CONVERTER_RTZ(double)
+
+CONVERTER_RTP(char)
+CONVERTER_RTP(uchar)
+CONVERTER_RTP(short)
+CONVERTER_RTP(ushort)
+CONVERTER_RTP(int)
+CONVERTER_RTP(uint)
+CONVERTER_RTP(long)
+CONVERTER_RTP(ulong)
+CONVERTER_RTP(float)
+CONVERTER_RTP(double)
+
+CONVERTER_RTN(char)
+CONVERTER_RTN(uchar)
+CONVERTER_RTN(short)
+CONVERTER_RTN(ushort)
+CONVERTER_RTN(int)
+CONVERTER_RTN(uint)
+CONVERTER_RTN(long)
+CONVERTER_RTN(ulong)
+CONVERTER_RTN(float)
+CONVERTER_RTN(double)
+
+CONVERTER_RTE(char)
+CONVERTER_RTE(uchar)
+CONVERTER_RTE(short)
+CONVERTER_RTE(ushort)
+CONVERTER_RTE(int)
+CONVERTER_RTE(uint)
+CONVERTER_RTE(long)
+CONVERTER_RTE(ulong)
+CONVERTER_RTE(float)
+CONVERTER_RTE(double)
+
+CONVERTER_SAT_RTZ(char)
+CONVERTER_SAT_RTZ(uchar)
+CONVERTER_SAT_RTZ(short)
+CONVERTER_SAT_RTZ(ushort)
+CONVERTER_SAT_RTZ(int)
+CONVERTER_SAT_RTZ(uint)
+CONVERTER_SAT_RTZ(long)
+CONVERTER_SAT_RTZ(ulong)
+CONVERTER_SAT_RTZ(float)
+CONVERTER_SAT_RTZ(double)
+
+CONVERTER_SAT_RTP(char)
+CONVERTER_SAT_RTP(uchar)
+CONVERTER_SAT_RTP(short)
+CONVERTER_SAT_RTP(ushort)
+CONVERTER_SAT_RTP(int)
+CONVERTER_SAT_RTP(uint)
+CONVERTER_SAT_RTP(long)
+CONVERTER_SAT_RTP(ulong)
+CONVERTER_SAT_RTP(float)
+CONVERTER_SAT_RTP(double)
+
+CONVERTER_SAT_RTN(char)
+CONVERTER_SAT_RTN(uchar)
+CONVERTER_SAT_RTN(short)
+CONVERTER_SAT_RTN(ushort)
+CONVERTER_SAT_RTN(int)
+CONVERTER_SAT_RTN(uint)
+CONVERTER_SAT_RTN(long)
+CONVERTER_SAT_RTN(ulong)
+CONVERTER_SAT_RTN(float)
+CONVERTER_SAT_RTN(double)
+
+CONVERTER_SAT_RTE(char)
+CONVERTER_SAT_RTE(uchar)
+CONVERTER_SAT_RTE(short)
+CONVERTER_SAT_RTE(ushort)
+CONVERTER_SAT_RTE(int)
+CONVERTER_SAT_RTE(uint)
+CONVERTER_SAT_RTE(long)
+CONVERTER_SAT_RTE(ulong)
+CONVERTER_SAT_RTE(float)
+CONVERTER_SAT_RTE(double)
+
 #undef CONVERTER
 #undef CONVERTER_SAT
+#undef CONVERTER_RTZ
+#undef CONVERTER_RTP
+#undef CONVERTER_RTN
+#undef CONVERTER_RTE
+#undef CONVERTER_SAT_RTZ
+#undef CONVERTER_SAT_RTP
+#undef CONVERTER_SAT_RTN
+#undef CONVERTER_SAT_RTE
 
 #define CONVERTER(X, N)\
 template<class V>\
@@ -94,6 +296,102 @@ template<class V>\
 template<class V>\
 	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat(const V &v)	{	return v;	}
 
+#define CONVERTER_RTZ(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_rtz(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_rtz(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_rtz(const V &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTZ(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_sat_rtz(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_sat_rtz(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat_rtz(const V &v)	{	return v;	}
+
+#define CONVERTER_RTP(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_rtp(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_rtp(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_rtp(const V &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTP(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_sat_rtp(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_sat_rtp(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat_rtp(const V &v)	{	return v;	}
+
+#define CONVERTER_RTN(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_rtn(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_rtn(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_rtn(const V &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTN(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_sat_rtn(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_sat_rtn(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat_rtn(const V &v)	{	return v;	}
+
+#define CONVERTER_RTE(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_rte(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_rte(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_rte(const V &v)	{	return v;	}
+
+#define CONVERTER_SAT_RTE(X, N)\
+template<class V>\
+	static inline typename __if<__vector<V>::components == N && !__match<__##X##N, V>::value, __##X##N>::type convert_##X##N##_sat_rte(const V &v)\
+{\
+	__##X##N ret;\
+	for(size_t i = 0 ; i < N ; ++i)\
+		ret.v[i] = convert_##X##_sat_rte(v.v[i]);\
+	return ret;\
+}\
+template<class V>\
+	static inline const typename __if<__match<__##X##N, V>::value, __##X##N>::type &convert_##X##N##_sat_rte(const V &v)	{	return v;	}
+
 #define CONVERTER_VECTORS(X)\
 	CONVERTER(X, 2)\
 	CONVERTER(X, 3)\
@@ -106,6 +404,62 @@ template<class V>\
 	CONVERTER_SAT(X, 4)\
 	CONVERTER_SAT(X, 8)\
 	CONVERTER_SAT(X, 16)
+
+#define CONVERTER_VECTORS_RTZ(X)\
+	CONVERTER_RTZ(X, 2)\
+	CONVERTER_RTZ(X, 3)\
+	CONVERTER_RTZ(X, 4)\
+	CONVERTER_RTZ(X, 8)\
+	CONVERTER_RTZ(X, 16)
+
+#define CONVERTER_VECTORS_RTP(X)\
+	CONVERTER_RTP(X, 2)\
+	CONVERTER_RTP(X, 3)\
+	CONVERTER_RTP(X, 4)\
+	CONVERTER_RTP(X, 8)\
+	CONVERTER_RTP(X, 16)
+
+#define CONVERTER_VECTORS_RTN(X)\
+	CONVERTER_RTN(X, 2)\
+	CONVERTER_RTN(X, 3)\
+	CONVERTER_RTN(X, 4)\
+	CONVERTER_RTN(X, 8)\
+	CONVERTER_RTN(X, 16)
+
+#define CONVERTER_VECTORS_RTE(X)\
+	CONVERTER_RTE(X, 2)\
+	CONVERTER_RTE(X, 3)\
+	CONVERTER_RTE(X, 4)\
+	CONVERTER_RTE(X, 8)\
+	CONVERTER_RTE(X, 16)
+
+#define CONVERTER_VECTORS_SAT_RTZ(X)\
+	CONVERTER_SAT_RTZ(X, 2)\
+	CONVERTER_SAT_RTZ(X, 3)\
+	CONVERTER_SAT_RTZ(X, 4)\
+	CONVERTER_SAT_RTZ(X, 8)\
+	CONVERTER_SAT_RTZ(X, 16)
+
+#define CONVERTER_VECTORS_SAT_RTP(X)\
+	CONVERTER_SAT_RTP(X, 2)\
+	CONVERTER_SAT_RTP(X, 3)\
+	CONVERTER_SAT_RTP(X, 4)\
+	CONVERTER_SAT_RTP(X, 8)\
+	CONVERTER_SAT_RTP(X, 16)
+
+#define CONVERTER_VECTORS_SAT_RTN(X)\
+	CONVERTER_SAT_RTN(X, 2)\
+	CONVERTER_SAT_RTN(X, 3)\
+	CONVERTER_SAT_RTN(X, 4)\
+	CONVERTER_SAT_RTN(X, 8)\
+	CONVERTER_SAT_RTN(X, 16)
+
+#define CONVERTER_VECTORS_SAT_RTE(X)\
+	CONVERTER_SAT_RTE(X, 2)\
+	CONVERTER_SAT_RTE(X, 3)\
+	CONVERTER_SAT_RTE(X, 4)\
+	CONVERTER_SAT_RTE(X, 8)\
+	CONVERTER_SAT_RTE(X, 16)
 
 CONVERTER_VECTORS(char)
 CONVERTER_VECTORS(uchar)
@@ -127,10 +481,114 @@ CONVERTER_VECTORS_SAT(uint)
 CONVERTER_VECTORS_SAT(long)
 CONVERTER_VECTORS_SAT(ulong)
 
+CONVERTER_VECTORS_RTZ(char)
+CONVERTER_VECTORS_RTZ(uchar)
+CONVERTER_VECTORS_RTZ(short)
+CONVERTER_VECTORS_RTZ(ushort)
+CONVERTER_VECTORS_RTZ(int)
+CONVERTER_VECTORS_RTZ(uint)
+CONVERTER_VECTORS_RTZ(long)
+CONVERTER_VECTORS_RTZ(ulong)
+CONVERTER_VECTORS_RTZ(float)
+CONVERTER_VECTORS_RTZ(double)
+
+CONVERTER_VECTORS_RTP(char)
+CONVERTER_VECTORS_RTP(uchar)
+CONVERTER_VECTORS_RTP(short)
+CONVERTER_VECTORS_RTP(ushort)
+CONVERTER_VECTORS_RTP(int)
+CONVERTER_VECTORS_RTP(uint)
+CONVERTER_VECTORS_RTP(long)
+CONVERTER_VECTORS_RTP(ulong)
+CONVERTER_VECTORS_RTP(float)
+CONVERTER_VECTORS_RTP(double)
+
+CONVERTER_VECTORS_RTN(char)
+CONVERTER_VECTORS_RTN(uchar)
+CONVERTER_VECTORS_RTN(short)
+CONVERTER_VECTORS_RTN(ushort)
+CONVERTER_VECTORS_RTN(int)
+CONVERTER_VECTORS_RTN(uint)
+CONVERTER_VECTORS_RTN(long)
+CONVERTER_VECTORS_RTN(ulong)
+CONVERTER_VECTORS_RTN(float)
+CONVERTER_VECTORS_RTN(double)
+
+CONVERTER_VECTORS_RTE(char)
+CONVERTER_VECTORS_RTE(uchar)
+CONVERTER_VECTORS_RTE(short)
+CONVERTER_VECTORS_RTE(ushort)
+CONVERTER_VECTORS_RTE(int)
+CONVERTER_VECTORS_RTE(uint)
+CONVERTER_VECTORS_RTE(long)
+CONVERTER_VECTORS_RTE(ulong)
+CONVERTER_VECTORS_RTE(float)
+CONVERTER_VECTORS_RTE(double)
+
+CONVERTER_VECTORS_SAT_RTZ(char)
+CONVERTER_VECTORS_SAT_RTZ(uchar)
+CONVERTER_VECTORS_SAT_RTZ(short)
+CONVERTER_VECTORS_SAT_RTZ(ushort)
+CONVERTER_VECTORS_SAT_RTZ(int)
+CONVERTER_VECTORS_SAT_RTZ(uint)
+CONVERTER_VECTORS_SAT_RTZ(long)
+CONVERTER_VECTORS_SAT_RTZ(ulong)
+CONVERTER_VECTORS_SAT_RTZ(float)
+CONVERTER_VECTORS_SAT_RTZ(double)
+
+CONVERTER_VECTORS_SAT_RTP(char)
+CONVERTER_VECTORS_SAT_RTP(uchar)
+CONVERTER_VECTORS_SAT_RTP(short)
+CONVERTER_VECTORS_SAT_RTP(ushort)
+CONVERTER_VECTORS_SAT_RTP(int)
+CONVERTER_VECTORS_SAT_RTP(uint)
+CONVERTER_VECTORS_SAT_RTP(long)
+CONVERTER_VECTORS_SAT_RTP(ulong)
+CONVERTER_VECTORS_SAT_RTP(float)
+CONVERTER_VECTORS_SAT_RTP(double)
+
+CONVERTER_VECTORS_SAT_RTN(char)
+CONVERTER_VECTORS_SAT_RTN(uchar)
+CONVERTER_VECTORS_SAT_RTN(short)
+CONVERTER_VECTORS_SAT_RTN(ushort)
+CONVERTER_VECTORS_SAT_RTN(int)
+CONVERTER_VECTORS_SAT_RTN(uint)
+CONVERTER_VECTORS_SAT_RTN(long)
+CONVERTER_VECTORS_SAT_RTN(ulong)
+CONVERTER_VECTORS_SAT_RTN(float)
+CONVERTER_VECTORS_SAT_RTN(double)
+
+CONVERTER_VECTORS_SAT_RTE(char)
+CONVERTER_VECTORS_SAT_RTE(uchar)
+CONVERTER_VECTORS_SAT_RTE(short)
+CONVERTER_VECTORS_SAT_RTE(ushort)
+CONVERTER_VECTORS_SAT_RTE(int)
+CONVERTER_VECTORS_SAT_RTE(uint)
+CONVERTER_VECTORS_SAT_RTE(long)
+CONVERTER_VECTORS_SAT_RTE(ulong)
+CONVERTER_VECTORS_SAT_RTE(float)
+CONVERTER_VECTORS_SAT_RTE(double)
+
 #undef CONVERTER_VECTORS
 #undef CONVERTER
 #undef CONVERTER_VECTORS_SAT
 #undef CONVERTER_SAT
+#undef CONVERTER_VECTORS_RTZ
+#undef CONVERTER_RTZ
+#undef CONVERTER_VECTORS_RTP
+#undef CONVERTER_RTP
+#undef CONVERTER_VECTORS_RTN
+#undef CONVERTER_RTN
+#undef CONVERTER_VECTORS_RTE
+#undef CONVERTER_RTE
+#undef CONVERTER_VECTORS_SAT_RTZ
+#undef CONVERTER_SAT_RTZ
+#undef CONVERTER_VECTORS_SAT_RTP
+#undef CONVERTER_SAT_RTP
+#undef CONVERTER_VECTORS_SAT_RTN
+#undef CONVERTER_SAT_RTN
+#undef CONVERTER_VECTORS_SAT_RTE
+#undef CONVERTER_SAT_RTE
 
 #define AS_TYPE(Out)\
 template<typename In>	static inline const __##Out &as_##Out(const In &t)	{	return reinterpret_cast<const __##Out&>(t);	}\

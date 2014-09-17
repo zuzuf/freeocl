@@ -726,6 +726,538 @@ namespace FreeOCL
 		REGISTER_OVERLOADED("long16 convert_long16_sat(gentype)", gentype_vec16);
 		REGISTER_OVERLOADED("ulong16 convert_ulong16_sat(gentype)", gentype_vec16);
 
+		// Rounding functions
+		// Default versions
+		REGISTER_OVERLOADED("char convert_char_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_rtz(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_rtz(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_rtz(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_rtz(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_rtz(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_rtz(gentype)", gentype_vec16);
+
+		REGISTER_OVERLOADED("char convert_char_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_rtp(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_rtp(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_rtp(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_rtp(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_rtp(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_rtp(gentype)", gentype_vec16);
+
+		REGISTER_OVERLOADED("char convert_char_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_rtn(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_rtn(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_rtn(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_rtn(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_rtn(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_rtn(gentype)", gentype_vec16);
+
+		REGISTER_OVERLOADED("char convert_char_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_rte(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_rte(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_rte(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_rte(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_rte(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_rte(gentype)", gentype_vec16);
+
+		// Saturating rounding functions
+		// Default versions
+		REGISTER_OVERLOADED("char convert_char_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_sat_rtz(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_sat_rtz(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_sat_rtz(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_sat_rtz(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_sat_rtz(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_sat_rtz(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_sat_rtz(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_sat_rtz(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_sat_rtz(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_sat_rtz(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_sat_rtz(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_sat_rtz(gentype)", gentype_vec16);
+
+		REGISTER_OVERLOADED("char convert_char_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_sat_rtp(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_sat_rtp(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_sat_rtp(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_sat_rtp(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_sat_rtp(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_sat_rtp(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_sat_rtp(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_sat_rtp(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_sat_rtp(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_sat_rtp(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_sat_rtp(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_sat_rtp(gentype)", gentype_vec16);
+
+		REGISTER_OVERLOADED("char convert_char_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_sat_rtn(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_sat_rtn(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_sat_rtn(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_sat_rtn(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_sat_rtn(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_sat_rtn(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_sat_rtn(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_sat_rtn(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_sat_rtn(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_sat_rtn(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_sat_rtn(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_sat_rtn(gentype)", gentype_vec16);
+
+		REGISTER_OVERLOADED("char convert_char_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uchar convert_uchar_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("short convert_short_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ushort convert_ushort_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("int convert_int_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("uint convert_uint_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("long convert_long_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("ulong convert_ulong_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("float convert_float_sat_rte(gentype)", gentype_vec1);
+		REGISTER_OVERLOADED("double convert_double_sat_rte(gentype)", gentype_vec1);
+
+		REGISTER_OVERLOADED("char2 convert_char2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uchar2 convert_uchar2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("short2 convert_short2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ushort2 convert_ushort2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("int2 convert_int2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("uint2 convert_uint2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("long2 convert_long2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("ulong2 convert_ulong2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("float2 convert_float2_sat_rte(gentype)", gentype_vec2);
+		REGISTER_OVERLOADED("double2 convert_double2_sat_rte(gentype)", gentype_vec2);
+
+		REGISTER_OVERLOADED("char3 convert_char3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uchar3 convert_uchar3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("short3 convert_short3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ushort3 convert_ushort3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("int3 convert_int3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("uint3 convert_uint3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("long3 convert_long3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("ulong3 convert_ulong3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("float3 convert_float3_sat_rte(gentype)", gentype_vec3);
+		REGISTER_OVERLOADED("double3 convert_double3_sat_rte(gentype)", gentype_vec3);
+
+		REGISTER_OVERLOADED("char4 convert_char4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uchar4 convert_uchar4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("short4 convert_short4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ushort4 convert_ushort4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("int4 convert_int4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("uint4 convert_uint4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("long4 convert_long4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("ulong4 convert_ulong4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("float4 convert_float4_sat_rte(gentype)", gentype_vec4);
+		REGISTER_OVERLOADED("double4 convert_double4_sat_rte(gentype)", gentype_vec4);
+
+		REGISTER_OVERLOADED("char8 convert_char8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uchar8 convert_uchar8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("short8 convert_short8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ushort8 convert_ushort8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("int8 convert_int8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("uint8 convert_uint8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("long8 convert_long8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("ulong8 convert_ulong8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("float8 convert_float8_sat_rte(gentype)", gentype_vec8);
+		REGISTER_OVERLOADED("double8 convert_double8_sat_rte(gentype)", gentype_vec8);
+
+		REGISTER_OVERLOADED("char16 convert_char16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uchar16 convert_uchar16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("short16 convert_short16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ushort16 convert_ushort16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("int16 convert_int16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("uint16 convert_uint16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("long16 convert_long16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("ulong16 convert_ulong16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("float16 convert_float16_sat_rte(gentype)", gentype_vec16);
+		REGISTER_OVERLOADED("double16 convert_double16_sat_rte(gentype)", gentype_vec16);
+
 		// Functions provided by the cl_khr_fp64 extension (double support)
 		// Math functions
 		REGISTER_OVERLOADED("gentype acos(gentype)", gentype_doubles);
