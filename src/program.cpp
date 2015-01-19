@@ -591,6 +591,8 @@ extern "C"
 		MSG(clCompileProgramFCL);
 		if (device_list == NULL && num_devices > 0)
 			return CL_INVALID_VALUE;
+		if (device_list != NULL && num_devices == 0)
+			return CL_INVALID_VALUE;
 		if (pfn_notify == NULL && user_data != NULL)
 			return CL_INVALID_VALUE;
 		if ((num_input_headers == 0 || input_headers == NULL || header_include_names == NULL)
@@ -599,7 +601,7 @@ extern "C"
 
 		if (!FreeOCL::is_valid(program))
 			return CL_INVALID_PROGRAM;
-		if (program->source_code.empty() || program->build_status != CL_BUILD_NONE)
+		if (program->build_status == CL_BUILD_IN_PROGRESS || program->kernels_attached > 0)
 		{
 			program->unlock();
 			if (pfn_notify)	pfn_notify(program, user_data);
@@ -645,9 +647,10 @@ extern "C"
 
 		if (!b_valid_options)
 		{
+			program->build_status = CL_BUILD_ERROR;
 			program->unlock();
 			if (pfn_notify)	pfn_notify(program, user_data);
-			return CL_INVALID_BUILD_OPTIONS;
+			return CL_INVALID_COMPILER_OPTIONS;
 		}
 
 		program->binary_file = binary_file;
