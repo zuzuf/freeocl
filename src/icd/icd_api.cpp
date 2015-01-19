@@ -1191,6 +1191,7 @@ extern "C"
 													   cl_device_id *                       out_devices,
 													   cl_uint *                            num_devices_ret) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!in_device) return CL_INVALID_DEVICE;
 		return in_device->dispatch->clCreateSubDevices(in_device,
 													   properties,
 													   num_devices,
@@ -1200,11 +1201,13 @@ extern "C"
 
 	CL_API_ENTRY cl_int CL_API_CALL clRetainDevice(cl_device_id device) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!device) return CL_INVALID_DEVICE;
 		return device->dispatch->clRetainDevice(device);
 	}
 
 	CL_API_ENTRY cl_int CL_API_CALL clReleaseDevice(cl_device_id device) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!device) return CL_INVALID_DEVICE;
 		return device->dispatch->clReleaseDevice(device);
 	}
 
@@ -1215,6 +1218,7 @@ extern "C"
 												  void *                  host_ptr,
 												  cl_int *                errcode_ret) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!context) { SET_RET(CL_INVALID_CONTEXT); return NULL; }
 		return context->dispatch->clCreateImage(context,
 												flags,
 												image_format,
@@ -1229,6 +1233,7 @@ extern "C"
 																		  const char *          kernel_names,
 																		  cl_int *              errcode_ret) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!context) { SET_RET(CL_INVALID_CONTEXT); return NULL; }
 		return context->dispatch->clCreateProgramWithBuiltInKernels(context,
 																	num_devices,
 																	device_list,
@@ -1246,6 +1251,7 @@ extern "C"
 													 void (CL_CALLBACK *  pfn_notify)(cl_program /* program */, void * /* user_data */),
 													 void *               user_data) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!program) return CL_INVALID_PROGRAM;
 		return program->dispatch->clCompileProgram(program,
 												   num_devices,
 												   device_list,
@@ -1267,6 +1273,7 @@ extern "C"
 													  void *               user_data,
 													  cl_int *             errcode_ret) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!context) { SET_RET(CL_INVALID_CONTEXT); return NULL; }
 		return context->dispatch->clLinkProgram(context,
 												num_devices,
 												device_list,
@@ -1281,6 +1288,7 @@ extern "C"
 
 	CL_API_ENTRY cl_int CL_API_CALL	clUnloadPlatformCompiler(cl_platform_id platform) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!platform) return CL_INVALID_PLATFORM;
 		return platform->dispatch->clUnloadPlatformCompiler(platform);
 	}
 
@@ -1291,6 +1299,7 @@ extern "C"
 													   void *          param_value,
 													   size_t *        param_value_size_ret) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!kernel) return CL_INVALID_KERNEL;
 		return kernel->dispatch->clGetKernelArgInfo(kernel,
 													arg_indx,
 													param_name,
@@ -1309,6 +1318,7 @@ extern "C"
 														const cl_event *   event_wait_list,
 														cl_event *         event) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!command_queue) return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueFillBuffer(command_queue,
 															buffer,
 															pattern,
@@ -1329,6 +1339,7 @@ extern "C"
 													   const cl_event *   event_wait_list,
 													   cl_event *         event) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!command_queue) return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueFillImage(command_queue,
 														   image,
 														   fill_color,
@@ -1347,6 +1358,7 @@ extern "C"
 															   const cl_event *       event_wait_list,
 															   cl_event *             event) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!command_queue) return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueMigrateMemObjects(command_queue,
 																   num_mem_objects,
 																   mem_objects,
@@ -1361,6 +1373,7 @@ extern "C"
 																const cl_event * event_wait_list,
 																cl_event *       event) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!command_queue) return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueMarkerWithWaitList(command_queue,
 																	num_events_in_wait_list,
 																	event_wait_list,
@@ -1372,6 +1385,7 @@ extern "C"
 																 const cl_event * event_wait_list,
 																 cl_event *       event) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!command_queue) return CL_INVALID_COMMAND_QUEUE;
 		return command_queue->dispatch->clEnqueueBarrierWithWaitList(command_queue,
 																	 num_events_in_wait_list,
 																	 event_wait_list,
@@ -1403,6 +1417,7 @@ extern "C"
 	CL_API_ENTRY void * CL_API_CALL	clGetExtensionFunctionAddressForPlatform(cl_platform_id platform,
 																			 const char *   func_name) CL_API_SUFFIX__VERSION_1_2
 	{
+		if(!platform) return NULL;
 		return platform->dispatch->clGetExtensionFunctionAddressForPlatform(platform,
 																			func_name);
 	}
