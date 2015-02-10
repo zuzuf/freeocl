@@ -21,7 +21,7 @@
 template<class F>
 static inline __int __isfinite(F x)	{	return isfinite(x);	}
 template<class F>
-static inline __int __isinf(F x)	{	return isinf(x);	}
+static inline __int __isinf(F x)	{	return isinf(x) ? 1 : 0;	}
 template<class F>
 static inline __int __isnan(F x)	{	return isnan(x);	}
 template<class F>
