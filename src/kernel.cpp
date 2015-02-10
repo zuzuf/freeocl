@@ -602,7 +602,7 @@ extern "C"
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 
-		if (!FreeOCL::is_valid(device))
+		if (!FreeOCL::is_valid(device) && (kernel->program->devices.size() > 1))
 			return CL_INVALID_DEVICE;
 
 		bool bTooSmall = false;
