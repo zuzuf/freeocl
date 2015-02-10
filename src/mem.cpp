@@ -310,6 +310,9 @@ extern "C"
 		if (buffer->size < offset + cb)
 			return CL_INVALID_VALUE;
 
+		if (buffer->flags & (CL_MEM_HOST_NO_ACCESS | CL_MEM_HOST_WRITE_ONLY))
+			return CL_INVALID_OPERATION;
+
 		if (event_wait_list == NULL && num_events_in_wait_list > 0)
 			return CL_INVALID_EVENT_WAIT_LIST;
 
@@ -400,6 +403,9 @@ extern "C"
 
 		if (buffer->size < offset + cb)
 			return CL_INVALID_VALUE;
+
+		if (buffer->flags & (CL_MEM_HOST_NO_ACCESS | CL_MEM_HOST_READ_ONLY))
+			return CL_INVALID_OPERATION;
 
 		if (event_wait_list == NULL && num_events_in_wait_list > 0)
 			return CL_INVALID_EVENT_WAIT_LIST;
