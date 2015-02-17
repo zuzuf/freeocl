@@ -357,7 +357,13 @@ static inline __int sub_sat(__int x, __int y)
 static inline __uint sub_sat(__uint x, __uint y)
 {	return clamp((__long)x - (__long)y, (__ulong)0, UINT_MAX);	}
 static inline __long sub_sat(__long x, __long y)
-{	return add_sat(x, -y);	}
+{
+	if (x > 0 && y < x - LONG_MAX)
+		return LONG_MAX;
+	if (x < 0 && y > x - LONG_MIN)
+		return LONG_MIN;
+	return clamp(x - y, LONG_MIN, LONG_MAX);
+}
 static inline __ulong sub_sat(__ulong x, __ulong y)
 {
 	if (y > x)
