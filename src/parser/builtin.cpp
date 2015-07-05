@@ -160,8 +160,8 @@ namespace FreeOCL
 		gentype_half.push_back(native_type::HALF16);
 
 #define REGISTER(type, name, num)					symbols->insert(#name, new builtin(native_type::t_##type, #name, num))
-#define REGISTER_OVERLOADED(signature, gentype)		do { overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(n->get_name(), n);	} while(false)
-#define REGISTER_OVERLOADED_REDIRECT(cl_name, signature, gentype)		do { overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(#cl_name, n);	} while(false)
+#define REGISTER_OVERLOADED(signature, gentype)		{ overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(n->get_name(), n);	}
+#define REGISTER_OVERLOADED_REDIRECT(cl_name, signature, gentype)		{ overloaded_builtin *n = new overloaded_builtin(signature, gentype);	symbols->insert(#cl_name, n);	}
 #define REGISTER_VAR(type, name)					symbols->insert(#name, new var(#name, native_type::t_##type))
 
 		// Printf
