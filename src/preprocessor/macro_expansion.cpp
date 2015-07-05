@@ -250,11 +250,11 @@ namespace FreeOCL
 				map<std::string, std::string>::const_iterator it = mapping.find(word);
 				if (concat)
 				{
-					int c = ret.back();
+					int c = ret[ret.size() - 1];
 					while(isspace(c))
 					{
-						ret.pop_back();
-						c = ret.back();
+						ret.resize(ret.size() - 1);
+						c = ret[ret.size() - 1];
 					}
 					concat = false;
 				}

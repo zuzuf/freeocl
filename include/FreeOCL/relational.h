@@ -89,7 +89,7 @@ static inline typename __scalar<S>::type select(S a, S b, I c)
 template<typename I>
 static inline __int any(I x)
 {
-	const __size_t mask = 1U << (sizeof(typename __vector<I>::base_type) * 8 - 1);
+	const __size_t mask = 1UL << (sizeof(typename __vector<I>::base_type) * 8 - 1);
 	for(__size_t i = 0 ; i < __vector<I>::components ; ++i)
 		if (x.v[i] & mask)
 			return 1;
@@ -99,7 +99,7 @@ static inline __int any(I x)
 template<typename I>
 static inline __int all(I x)
 {
-	const __size_t mask = 1U << (sizeof(typename __vector<I>::base_type) * 8 - 1);
+	const __size_t mask = 1UL << (sizeof(typename __vector<I>::base_type) * 8 - 1);
 	for(__size_t i = 0 ; i < __vector<I>::components ; ++i)
 		if (!(x.v[i] & mask))
 			return 0;
@@ -242,7 +242,7 @@ template<typename V, typename I>
 static inline typename __vector<V>::type select(V a, V b, I c)
 {
 	V ret;
-	const __size_t mask = 1U << (sizeof(typename __vector<I>::base_type) * 8 - 1);
+	const __size_t mask = 1UL << (sizeof(typename __vector<I>::base_type) * 8 - 1);
 	for(__size_t i = 0 ; i < __vector<V>::components ; ++i)
 		ret.v[i] = (c.v[i] & mask) ? b.v[i] : a.v[i];
 	return ret;
