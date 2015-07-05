@@ -89,8 +89,8 @@ namespace FreeOCL
 		const int nc = get_number_of_components(components, dim);
 		if (nc == 0)		// zero components oO ?
 			return false;
-		if (nc > dim)
-			return false;
+		if (nc > dim)	// If bigger, it must be a power of 2
+			return !((nc - 1) & nc);
 		switch(nc)
 		{
 		case 1:
