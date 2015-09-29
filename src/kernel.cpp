@@ -221,13 +221,16 @@ extern "C"
 			; s != 0
 			; s = kernel->__FCL_info(i, &type, &name, &type_name, &type_qualifier, &type_access_qualifier), ++i)
 		{
-			kernel->args_size.push_back(s);
-			kernel->args_offset.push_back(offset);
-			kernel->args_type.push_back(type);
-			kernel->args_access_qualifier.push_back(type_access_qualifier);
-			kernel->args_qualifier.push_back(type_qualifier);
-			kernel->args_name.push_back(name);
-			kernel->args_type_name.push_back(type_name);
+            _cl_kernel::arg_info_t arg_info;
+            arg_info.size = s;
+            arg_info.offset = offset;
+            arg_info.type = type;
+            arg_info.access_qualifier = type_access_qualifier;
+            arg_info.qualifier = type_qualifier;
+            arg_info.name = name;
+            arg_info.type_name = type_name;
+
+            kernel->args.push_back(arg_info);
 			offset += s;
 		}
 		kernel->args_buffer.resize(offset);
@@ -318,9 +321,9 @@ extern "C"
 		if (!FreeOCL::is_valid(kernel))
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
-		if (kernel->args_size.size() <= arg_index)
+        if (kernel->args.size() <= arg_index)
 			return CL_INVALID_ARG_INDEX;
-		switch(kernel->args_type[arg_index])
+        switch(kernel->args[arg_index].type)
 		{
 		case CL_KERNEL_ARG_ADDRESS_GLOBAL:
 		case CL_KERNEL_ARG_ADDRESS_CONSTANT:
@@ -328,7 +331,7 @@ extern "C"
 			{
 				if (arg_value == NULL || *(cl_mem*)arg_value == NULL)
 				{
-					memset(&(kernel->args_buffer[kernel->args_offset[arg_index]]), 0, sizeof(size_t));
+                    memset(&(kernel->args_buffer[kernel->args[arg_index].offset]), 0, sizeof(size_t));
 				}
 				else
 				{
@@ -338,7 +341,7 @@ extern "C"
 					if (!FreeOCL::is_valid(mem_object))
 						return CL_INVALID_MEM_OBJECT;
 					unlock.handle(mem_object);
-					memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &(mem_object->ptr), arg_size);
+                    memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &(mem_object->ptr), arg_size);
 				}
 			}
 			break;
@@ -347,7 +350,7 @@ extern "C"
 				return CL_INVALID_ARG_VALUE;
 			if (arg_size == 0)
 				return CL_INVALID_ARG_SIZE;
-			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &arg_size, sizeof(size_t));
+            memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &arg_size, sizeof(size_t));
 			break;
 		case CL_UNORM_INT_101010:
 			{
@@ -380,7 +383,7 @@ extern "C"
 				case CL_FILTER_NEAREST:	sampler_value |= CLK_FILTER_NEAREST;	break;
 				}
 
-				*(cl_uint*)&(kernel->args_buffer[kernel->args_offset[arg_index]]) = sampler_value;
+                *(cl_uint*)&(kernel->args_buffer[kernel->args[arg_index].offset]) = sampler_value;
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE1D:
@@ -404,7 +407,7 @@ extern "C"
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+                memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &img, sizeof(img));
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE1D_BUFFER:
@@ -428,7 +431,7 @@ extern "C"
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+                memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &img, sizeof(img));
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE1D_ARRAY:
@@ -454,7 +457,7 @@ extern "C"
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+                memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &img, sizeof(img));
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE2D:
@@ -480,7 +483,7 @@ extern "C"
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+                memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &img, sizeof(img));
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE2D_ARRAY:
@@ -508,7 +511,7 @@ extern "C"
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+                memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &img, sizeof(img));
 			}
 			break;
 		case CL_MEM_OBJECT_IMAGE3D:
@@ -536,15 +539,15 @@ extern "C"
 				img.element_size = image->element_size;
 				img.data = image->ptr;
 
-				memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), &img, sizeof(img));
+                memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), &img, sizeof(img));
 			}
 			break;
 		default:
-			if (kernel->args_size[arg_index] != arg_size)
+            if (kernel->args[arg_index].size != arg_size)
 				return CL_INVALID_ARG_SIZE;
 			if (arg_value == NULL)
 				return CL_INVALID_ARG_VALUE;
-			memcpy(&(kernel->args_buffer[kernel->args_offset[arg_index]]), arg_value, arg_size);
+            memcpy(&(kernel->args_buffer[kernel->args[arg_index].offset]), arg_value, arg_size);
 		}
 
 		return CL_SUCCESS;
@@ -569,7 +572,7 @@ extern "C"
 		case CL_KERNEL_FUNCTION_NAME:	bTooSmall = SET_STRING(kernel->function_name.c_str());	break;
 		case CL_KERNEL_NUM_ARGS:
 			{
-				const cl_uint num = cl_uint(kernel->args_size.size());
+                const cl_uint num = cl_uint(kernel->args.size());
 				bTooSmall = SET_VAR(num);
 			}
 			break;
@@ -764,7 +767,7 @@ extern "C"
 			return CL_INVALID_KERNEL;
 		unlock.handle(kernel);
 
-		if (kernel->args_type.size() <= arg_indx)
+        if (kernel->args.size() <= arg_indx)
 			return CL_INVALID_ARG_INDEX;
 
 		bool bTooSmall = false;
@@ -772,13 +775,13 @@ extern "C"
 		switch(param_name)
 		{
 		case CL_KERNEL_ARG_ADDRESS_QUALIFIER:
-			switch(kernel->args_type[arg_indx])
+            switch(kernel->args[arg_indx].type)
 			{
 			case CL_KERNEL_ARG_ADDRESS_CONSTANT:
 			case CL_KERNEL_ARG_ADDRESS_LOCAL:
 			case CL_KERNEL_ARG_ADDRESS_GLOBAL:
 			case CL_KERNEL_ARG_ADDRESS_PRIVATE:
-				bTooSmall = SET_VAR(kernel->args_type[arg_indx]);
+                bTooSmall = SET_VAR(kernel->args[arg_indx].type);
 				break;
 			default:
 				{
@@ -788,10 +791,10 @@ extern "C"
 				break;
 			}
 			break;
-		case CL_KERNEL_ARG_ACCESS_QUALIFIER:	bTooSmall = SET_VAR(kernel->args_access_qualifier[arg_indx]);	break;
-		case CL_KERNEL_ARG_TYPE_NAME:			bTooSmall = SET_STRING(kernel->args_type_name[arg_indx].c_str());	break;
-		case CL_KERNEL_ARG_NAME:				bTooSmall = SET_STRING(kernel->args_name[arg_indx].c_str());	break;
-		case CL_KERNEL_ARG_TYPE_QUALIFIER:		bTooSmall = SET_VAR(kernel->args_qualifier[arg_indx]);	break;
+        case CL_KERNEL_ARG_ACCESS_QUALIFIER:	bTooSmall = SET_VAR(kernel->args[arg_indx].access_qualifier);	break;
+        case CL_KERNEL_ARG_TYPE_NAME:			bTooSmall = SET_STRING(kernel->args[arg_indx].type_name.c_str());	break;
+        case CL_KERNEL_ARG_NAME:				bTooSmall = SET_STRING(kernel->args[arg_indx].name.c_str());	break;
+        case CL_KERNEL_ARG_TYPE_QUALIFIER:		bTooSmall = SET_VAR(kernel->args[arg_indx].qualifier);	break;
 		default:
 			return CL_INVALID_VALUE;
 		}

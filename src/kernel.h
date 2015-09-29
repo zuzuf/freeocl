@@ -36,13 +36,19 @@ struct _cl_kernel : public FreeOCL::icd_table, public FreeOCL::ref_counter, publ
 	bool (*__FCL_init)(const void*,size_t,const size_t*,const size_t *,const size_t*);
 	void (*__FCL_setwg)(char * const,const size_t *, ucontext_t *, ucontext_t *);
 	void (*__FCL_kernel)(DUMMYARGS const int);
-	std::deque<size_t> args_size;
-	std::deque<size_t> args_offset;
-	std::deque<int> args_type;
-	std::deque<std::string> args_name;
-	std::deque<std::string> args_type_name;
-	std::deque<cl_kernel_arg_type_qualifier> args_qualifier;
-	std::deque<cl_kernel_arg_access_qualifier> args_access_qualifier;
+
+    struct arg_info_t
+    {
+        size_t size;
+        size_t offset;
+        int type;
+        std::string name;
+        std::string type_name;
+        cl_kernel_arg_type_qualifier qualifier;
+        cl_kernel_arg_access_qualifier access_qualifier;
+    };
+
+    std::deque<arg_info_t> args;
 	std::vector<char> args_buffer;
 
 	_cl_kernel();

@@ -349,11 +349,11 @@ _cl_device_id::_cl_device_id() :
 	pool = new FreeOCL::threadpool();
 
 #if defined(FREEOCL_OS_LINUX) || defined(FREEOCL_OS_UNKNWON)
-	std::string ostype = trim(run_command("/sbin/sysctl -e kernel.ostype | awk '{ print $NF }'"));
+    std::string ostype = trim(run_command("sysctl -e kernel.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
-		ostype = trim(run_command("/sbin/sysctl -e kern.ostype | awk '{ print $NF }'"));
+        ostype = trim(run_command("sysctl -e kern.ostype | awk '{ print $NF }'"));
 	if (ostype.empty())
-		ostype = trim(run_command("/sbin/sysctl -a | grep ostype | awk '{ print $NF }'"));
+        ostype = trim(run_command("sysctl -a | grep ostype | awk '{ print $NF }'"));
 #elif defined(FREEOCL_OS_DARWIN)
 	std::string ostype = trim(run_command("/usr/sbin/sysctl kernel.ostype 2>/dev/null | awk '{ print $NF }'"));
 	if (ostype.empty())
