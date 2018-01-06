@@ -18,6 +18,7 @@
 #include "threadpool.h"
 #include <FreeOCL/config.h>
 #include <sched.h>
+#include <cstdlib>
 #ifndef __GNUC__
 #include <atomic_ops.h>
 #endif
